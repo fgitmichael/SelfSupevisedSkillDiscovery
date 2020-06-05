@@ -4,8 +4,8 @@ import torch.nn as nn
 from torch.nn import functional as F
 from torch.distributions import Normal
 
-from code.network.base import BaseNetwork
-from code.network.latent import Gaussian, ConstantGaussian
+from code_slac.network.base import BaseNetwork
+from code_slac.network.latent import Gaussian, ConstantGaussian
 
 
 class ModeLatentNetwork(BaseNetwork):
