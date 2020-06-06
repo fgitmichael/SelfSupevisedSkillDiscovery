@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from code.network.base import BaseNetwork, create_linear_network
+from code_slac.network.base import BaseNetwork, create_linear_network
 
 class EncoderStateRep(BaseNetwork):
 

@@ -80,7 +80,7 @@ class MyLazyMemory(dict):
         for key in self.keys:
             self[key] = [None] * self.capacity
         self.buff = MyLazySequenceBuff(num_sequences=self.num_sequences)
-        assert self.keys == self.buff.keys
+        assert self.keys == tuple(self.buff.keys)
 
     def set_initial_state(self, state):
         self.buff.set_init_state(state)
@@ -134,7 +134,7 @@ class MyLazyMemory(dict):
             states_seq[i, :, :] = self['state'][idx]
             actions_seq[i, :, :] = self['action'][idx]
             skill_seq[i, :, :] = self['skill'][idx]
-            dones_seq[i, :, :] = self['dones'][idx]
+            dones_seq[i, :, :] = self['done'][idx]
 
         if self.state_rep:
             states_seq = torch.from_numpy(states_seq).float().to(self.device)

@@ -24,6 +24,7 @@ class ModeLatentNetwork(BaseNetwork):
                  leaky_slope):
         super(ModeLatentNetwork, self).__init__()
 
+
         # Latent model for the dynamics
         self.dyn_latent_network = dyn_latent_network
 

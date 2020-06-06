@@ -8,6 +8,7 @@ from code_slac.network.base import BaseNetwork
 from code_slac.network.latent import Gaussian, ConstantGaussian, Encoder, Decoder
 from .my_base import EncoderStateRep
 
+
 class DynLatentNetwork(BaseNetwork):
 
     def __init__(self,
@@ -19,9 +20,13 @@ class DynLatentNetwork(BaseNetwork):
                  hidden_units,
                  hidden_units_encoder,
                  hidden_units_decoder,
+                 std_decoder,
+                 device,
                  leaky_slope,
                  state_rep):
         super(DynLatentNetwork, self).__init__()
+
+        self.device = device
 
         # p(z1(0)) = N(0, I)
         self.latent1_init_prior = ConstantGaussian(latent1_dim)
@@ -80,7 +85,7 @@ class DynLatentNetwork(BaseNetwork):
             self.decoder = Gaussian(
                 latent1_dim + latent2_dim,
                 observation_shape[0],
-                std=np.sqrt(0.1),
+                std=std_decoder,
                 hidden_units=hidden_units_decoder,
                 leaky_slope=leaky_slope
             )
@@ -88,7 +93,7 @@ class DynLatentNetwork(BaseNetwork):
             self.decoder = Decoder(
                 latent1_dim + latent2_dim,
                 observation_shape[0],
-                std=np.sqrt(0.1),
+                std=std_decoder,
                 leaky_slope=leaky_slope
             )
 
@@ -96,11 +101,11 @@ class DynLatentNetwork(BaseNetwork):
         self.latent1_dim = latent1_dim
         self.latent2_dim = latent2_dim
 
-    def sample_prior_train(self, actions_seq, feature_seq):
+    def sample_prior_train(self, actions_seq, features_seq):
         """
         Args:
             actions_seq        : (N, S, *action_shape)
-            feature_seq        : (N, S+1, *feature_shape)
+            features_seq        : (N, S+1, *feature_shape)
         Returns:
             latent1_samples    : (N, S+1, latent1_dim)
             latent2_samples    : (N, S+1, latent2_dim)
@@ -109,6 +114,7 @@ class DynLatentNetwork(BaseNetwork):
         """
         num_sequences = actions_seq.size(1)
         actions_seq = torch.transpose(actions_seq, 0, 1)
+        features_seq = torch.transpose(features_seq, 0, 1)
 
         latent1_samples = []
         latent2_samples = []
@@ -125,7 +131,7 @@ class DynLatentNetwork(BaseNetwork):
 
             else:
                 latent1_dist = self.latent1_prior(
-                    [latent2_samples[t-1], actions_seq[t-1], feature_seq[t-1]])
+                        [latent2_samples[t-1], actions_seq[t-1], features_seq[t-1]])
                 latent1_sample = latent1_dist.rsample()
 
                 latent2_dist = self.latent2_prior(
@@ -145,23 +151,34 @@ class DynLatentNetwork(BaseNetwork):
                 'latent1_dists': latent1_dists,
                 'latent2_dists': latent2_dists}
 
-    def sample_prior_eval_init(self, batch_size):
-        latent1_dist = self.latent1_init_prior(torch.rand(batch_size, 1))
-        latent1_sample = latent1_dist.rsample()
+    def _sample_prior_eval_init(self,
+                                batch_size,
+                                init_state=None):
+        if init_state is None:
+            latent1_dist = self.latent1_init_prior(
+                torch.zeros(batch_size, 1).to(self.device))
+            latent1_sample = latent1_dist.rsample()
 
-        latent2_dist = self.latent2_init_prior(latent1_sample)
-        latent2_sample = latent2_dist.rsample()
+            latent2_dist = self.latent2_init_prior(latent1_sample)
+            latent2_sample = latent2_dist.rsample()
 
-        return {'latent1_sample:': latent1_sample,
-                'latent2_sample:': latent2_sample,
+        else:
+            latent1_dist = self.latent1_init_posterior(init_state)
+            latent1_sample = latent1_dist.rsample()
+
+            latent2_dist = self.latent2_init_prior(latent1_sample)
+            latent2_sample = latent2_dist.rsample()
+
+        return {'latent1_sample': latent1_sample,
+                'latent2_sample': latent2_sample,
                 'latent1_dist': latent1_dist,
                 'latent2_dist': latent2_dist}
 
-    def sample_prior_eval(self,
-                          action,
-                          feature_gt,
-                          latent1_sample_before,
-                          latent2_sample_before):
+    def _sample_prior_eval(self,
+                           action,
+                           feature_gt,
+                           latent1_sample_before,
+                           latent2_sample_before):
         """
         Args:
             action                 : (N, action_shape[0]) - Tensor
@@ -185,12 +202,67 @@ class DynLatentNetwork(BaseNetwork):
                 'latent1_dist': latent1_dist,
                 'latent2_dist': latent2_dist}
 
+    def sample_prior_eval(self,
+                          env,
+                          action_sampler,
+                          num_sequences,
+                          init_state=None
+                          ):
+        latent1_samples = []
+        latent2_samples = []
+        latent1_dists = []
+        latent2_dists = []
+        action_seq = []
+        state_seq = []
+        state = env.reset()
+        feature = self.state_to_feature(state)
+
+        batch_size_const = 1  # Cause of the env it is only possible with batchsize one
+
+        for t in range(num_sequences + 1):
+            if t == 0:
+                prior = self._sample_prior_eval_init(
+                    batch_size=batch_size_const,
+                    init_state=init_state
+                )
+
+            else:
+                action = action_sampler(feature)
+                action_tensor = self.np_to_tensor(action)
+                state, _, done, _ = env.step(action)
+                feature = self.state_to_feature(state)
+                prior = self._sample_prior_eval(
+                    action=action_tensor,
+                    feature_gt=feature,
+                    latent1_sample_before=latent1_samples[t-1],
+                    latent2_sample_before=latent2_samples[t-1]
+                )
+                action_seq.append(action_tensor)
+
+            latent1_samples.append(prior['latent1_sample'])
+            latent2_samples.append(prior['latent2_sample'])
+            latent1_dists.append(prior['latent1_dist'])
+            latent2_dists.append(prior['latent2_dist'])
+            state_seq.append(torch.from_numpy(state))
+
+        latent1_samples = torch.cat(latent1_samples, dim=0)
+        latent2_samples = torch.cat(latent2_samples, dim=0)
+        action_seq = torch.cat(action_seq, dim=0)
+        state_seq = torch.stack(state_seq, dim=0)
+
+        return {'latent1_samples': latent1_samples,
+                'latent2_samples': latent2_samples,
+                'latent1_dists': latent1_dists,
+                'latent2_dists': latent2_dists,
+                'action_seq': action_seq,
+                'state_seq': state_seq}
+
     def sample_posterior(self, features_seq, actions_seq):
         """
         Sample from posterior dynamics.
         Args:
-            features_seq      : (N, S+1, 256) tensor of feature sequenses.
-            actions_seq       : (N, S, *action_space) tensor of action sequenses.
+            features_seq      : (N, S+1, 256) tensor of feature sequences.
+            actions_seq       : (N, S, *action_space) tensor of action sequences.
         Returns:
             latent1_samples   : (N, S+1, latent1_dim)
             latent2_samples   : (N, S+1, latent2_dim)
@@ -207,11 +279,11 @@ class DynLatentNetwork(BaseNetwork):
         latent2_dists = []
 
         for t in range(num_sequences + 1):
-            if t==0:
+            if t == 0:
                 latent1_dist = self.latent1_init_posterior(features_seq[t])
                 latent1_sample = latent1_dist.rsample()
 
-                latent2_dist = self.latent1_init_posterior(latent1_sample)
+                latent2_dist = self.latent2_init_posterior(latent1_sample)
                 latent2_sample = latent2_dist.rsample()
 
             else:
@@ -224,7 +296,7 @@ class DynLatentNetwork(BaseNetwork):
                 latent2_sample = latent2_dist.rsample()
 
             latent1_samples.append(latent1_sample)
-            latent1_samples.append(latent2_sample)
+            latent2_samples.append(latent2_sample)
             latent1_dists.append(latent1_dist)
             latent2_dists.append(latent2_dist)
 
@@ -235,3 +307,12 @@ class DynLatentNetwork(BaseNetwork):
                 'latent2_samples': latent2_samples,
                 'latent1_dists': latent1_dists,
                 'latent2_dists': latent2_dists}
+
+    def state_to_feature(self, state):
+        return self.encoder(torch.from_numpy(state)
+                            .unsqueeze(0)
+                            .float()
+                            .to(self.device))
+
+    def np_to_tensor(self, ndarray: np.ndarray):
+        return torch.from_numpy(ndarray).unsqueeze(0).to(self.device)
