@@ -9,6 +9,8 @@ from torch.optim import Adam
 from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
 
+from mode_disent.utils.mige import SpectralScoreEstimator, entropy_surrogate
+from mode_disent.utils.mmd import compute_mmd_tutorial
 from mode_disent.memory.memory import MyLazyMemory
 from mode_disent.network.dynamics_model import DynLatentNetwork
 from mode_disent.network.mode_model import ModeLatentNetwork
@@ -268,6 +270,19 @@ class DisentAgent:
         kld = calc_kl_divergence([mode_post['mode_dist']],
                                  [mode_pri['mode_dist']])
 
+        # MMD
+        mmd = compute_mmd_tutorial(mode_pri['mode_sample'],
+                                   mode_post['mode_sample'])
+
+        # Mutual info gradient estimation
+        features_actions_seq = torch.cat([features_seq[:, :-1, :],
+                                          actions_seq], dim=2)
+        xs = features_actions_seq.view(self.batch_size, -1)
+        ys = mode_post['mode_sample']
+        xs_ys = torch.cat([xs, ys], dim=1)
+        gradient_estimator_m_data = entropy_surrogate(self.spectral_j, xs_ys) \
+                                    - entropy_surrogate(self.spectral_m, ys)
+
         # Reconstruct action auto-regressive
         action_recon = self.reconstruct_action_seq_ar(features_seq, mode_post)
 
@@ -277,12 +292,25 @@ class DisentAgent:
 
         loss = kld - ll
 
-        base_str = 'Mode Model/'
-        if self._is_interval(self.log_interval):
-            self._summary_log_mode(base_str + 'stats/log-likelyhood', ll)
-            self._summary_log_mode(base_str + 'stats/mse', mse)
-            self._summary_log_mode(base_str + 'stats/kld', kld)
+        alpha = 1.
+        lamda = 1
+        kld_info = (1 - alpha) * kld
+        mmd_info = (alpha + lamda - 1) * mmd
+        info_loss = mse + kld_info + mmd_info
 
+        base_str_stats = 'Mode Model stats/'
+        base_str_info = 'Mode Model info vae/'
+        if self._is_interval(self.log_interval):
+            self._summary_log_mode(base_str_stats + 'log-likelyhood', ll)
+            self._summary_log_mode(base_str_stats + 'mse', mse)
+            self._summary_log_mode(base_str_stats + 'kld', kld)
+            self._summary_log_mode(base_str_stats + 'mmd', mmd)
+
+            self._summary_log_mode(base_str_info + 'kld info weighted', kld_info)
+            self._summary_log_mode(base_str_info + 'mmd info weighted', mmd_info)
+            self._summary_log_mode(base_str_info + 'loss on latent', mmd_info + kld_info)
+
+        base_str = 'Mode Model/'
         if self._is_interval(self.log_interval * 2):
             self._plot_mode_map(skill_seq, mode_post['mode_sample'], base_str)
 
@@ -291,7 +319,7 @@ class DisentAgent:
                                         action_recon['samples'][rand_batch_idx],
                                         base_str)
 
-        return loss
+        return info_loss
 
     def _plot_recon_comparison(self, action_seq, action_seq_recon, base_str):
         """
