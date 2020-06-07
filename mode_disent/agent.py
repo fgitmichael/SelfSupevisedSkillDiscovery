@@ -318,7 +318,7 @@ class DisentAgent:
 
     def _plot_mode_map(self, skill_seq, mode_post_samples, base_str):
         if not(self.mode_dim == 2):
-            return
+            raise ValueError('mode dim does not equal 2')
 
         assert len(mode_post_samples.shape) == 2
 
