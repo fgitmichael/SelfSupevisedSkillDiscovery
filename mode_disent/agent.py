@@ -286,12 +286,35 @@ class DisentAgent:
         if self._is_interval(self.log_interval * 2):
             self._plot_mode_map(skill_seq, mode_post['mode_sample'], base_str)
 
+            rand_batch_idx = np.random.randint(low=0, high=self.batch_size)
+            self._plot_recon_comparison(actions_seq[rand_batch_idx],
+                                        action_recon['samples'][rand_batch_idx],
+                                        base_str)
+
         return loss
 
-    #def _plot_recon_comparison(self, action_seq, action_seq_recon):
-    #    dims = self.action_shape[0]
+    def _plot_recon_comparison(self, action_seq, action_seq_recon, base_str):
+        """
+        Args:
+            action_seq       :  (S, action_dim) tensor
+            action_seq_recon :  (S, action_dim) tensor
+        """
+        dims = self.action_shape[0]
 
-    #    for dim in dims:
+        action_seq = self.tensor_to_numpy(action_seq)
+        action_seq_recon = self.tensor_to_numpy(action_seq_recon)
+
+        for dim in range(dims):
+            plt.interactive(False)
+            axes = plt.gca()
+            plt.plot(action_seq[:, dim], label='real action dim' + str(dim))
+            plt.plot(action_seq_recon[:, dim], label='recon action dim' + str(dim))
+            plt.legend()
+            fig = plt.gcf()
+            self.writer.add_figure(base_str + 'reconstruction_test_on_dataset',
+                                   fig,
+                                   global_step=self.learn_steps_mode)
+            plt.clf()
 
     def _plot_mode_map(self, skill_seq, mode_post_samples, base_str):
         if not(self.mode_dim == 2):
