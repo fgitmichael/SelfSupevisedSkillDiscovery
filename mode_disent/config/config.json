@@ -1,6 +1,6 @@
 {
   "env_id": "MountainCarContinuous-v0",
-  "min_steps_sampling": 10000,
+  "min_steps_sampling": 5000,
   "batch_size": 128,
   "num_sequences": 128,
   "train_steps_dyn": 2000,
@@ -16,11 +16,11 @@
   "mode_dim": 2,
   "mode_encode_rnn_dim": 128,
   "mode_encode_num_rnn_layers": 2,
-  "hidden_units": [16, 16],
-  "hidden_units_encoder": [16, 16],
-  "hidden_units_dyn_decoder": [32, 32],
-  "hidden_units_mode_encoder": [16, 16],
-  "hidden_units_action_decoder": [16, 16],
+  "hidden_units": [256, 256],
+  "hidden_units_encoder": [256, 256],
+  "hidden_units_dyn_decoder": [256, 256],
+  "hidden_units_mode_encoder": [256, 256],
+  "hidden_units_action_decoder": [256, 256],
   "std_action_decoder": 0.0316,
 
   "memory_size": 100000,
@@ -32,5 +32,5 @@
   "domain": "moutain_car",
   "device": "cuda",
   "leaky_slope": 0.2,
-  "seed": 0
+  "seed": 1
 }
