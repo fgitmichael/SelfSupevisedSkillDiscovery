@@ -112,6 +112,9 @@ class DisentAgent:
             device=self.device
         )
 
+        self.spectral_j = SpectralScoreEstimator(n_eigen_threshold=0.99)
+        self.spectral_m = SpectralScoreEstimator(n_eigen_threshold=0.99)
+
         self.log_dir = log_dir
         self.model_dir = os.path.join(log_dir, 'model')
         self.summary_dir = os.path.join(log_dir, 'summary/' + str(run_id))
