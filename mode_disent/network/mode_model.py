@@ -21,9 +21,11 @@ class ModeLatentNetwork(BaseNetwork):
                  action_dim,
                  dyn_latent_network,
                  std_decoder,
+                 device,
                  leaky_slope):
         super(ModeLatentNetwork, self).__init__()
 
+        self.device = device
 
         # Latent model for the dynamics
         self.dyn_latent_network = dyn_latent_network
@@ -63,17 +65,24 @@ class ModeLatentNetwork(BaseNetwork):
                 leaky_slope=leaky_slope)
 
     def sample_mode_prior(self, batch_size):
-        mode_dist = self.mode_prior(torch.rand(batch_size, 1))
+        mode_dist = self.mode_prior(torch.rand(batch_size, 1).to(self.device))
         return {'mode_dist': mode_dist,
                 'mode_sample': mode_dist.sample()
                 }
 
     def sample_mode_posterior(self, features_seq, actions_seq):
+        """
+        Args:
+            features_seq    : (N, S + 1, feature_dim) tensor
+            actions_seq     : (N, S, action_dim) tensor
+        """
+        features_seq = features_seq.transpose(0, 1)
+        actions_seq = actions_seq.transpose(0, 1)
         mode_dist = self.mode_encoder(features_seq=features_seq,
                                       actions_seq=actions_seq)
         mode_sample = mode_dist.rsample()
         return {'mode_dist': mode_dist,
-                'mode_samples': mode_sample}
+                'mode_sample': mode_sample}
 
 
 class BiRnn(BaseNetwork):
@@ -189,11 +198,19 @@ class ModeEncoderCombined(BaseNetwork):
                                   hidden_units=hidden_units)
 
     def forward(self, features_seq, actions_seq):
-        # State-seq-len is always shorter by one than action_seq_len, but to stack the
-        # sequence need to have the same length. Solution: learn the missing element in the state seq
+        # State-seq-len is always shorter/longer by one than action_seq_len,
+        # but to stack the
+        # sequence need to have the same length.
+        # Solution: learn the missing element in the state seq
         # Solution: discard last action
-        assert features_seq.size(0) + 1 == actions_seq.size(0)
-        actions_seq = actions_seq[:-1, :, :]
+        if features_seq.size(0) + 1 == actions_seq.size(0):
+            actions_seq = actions_seq[:-1, :, :]
+        elif features_seq.size(0) - 1 == actions_seq.size(0):
+            features_seq = features_seq[:-1, :, :]
+        else:
+            raise ValueError('num sequences is not plausible')
+
+        assert actions_seq.shape[:2] == features_seq.shape[:2]
 
         seq = torch.cat([features_seq, actions_seq], dim=2)
 

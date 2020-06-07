@@ -25,7 +25,9 @@
 
   "memory_size": 100000,
 
-  "skill_policy_path": "./skill_policies/02_Skill_policy_mountain_car/params.pkl",
+  "skill_policy_path": "./models/02_Skill_policy_mountain_car/params.pkl",
+  "dynamics_model_path": "./models/03_dyn_model/mode_disent1-20200607-1737dyn_model.pth",
+
   "log_interval": 25,
   "run_comment": null,
   "log_folder": "hparams",

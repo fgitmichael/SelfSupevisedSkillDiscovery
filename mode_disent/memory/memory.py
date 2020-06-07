@@ -142,8 +142,8 @@ class MyLazyMemory(dict):
             states_seq = torch.from_numpy(states_seq).int().to(self.device)
 
         actions_seq = torch.from_numpy(actions_seq).float().to(self.device)
-        skill_seq = torch.from_numpy(skill_seq).int().to(self.device)
-        dones_seq = torch.from_numpy(dones_seq).bool().to(self.device)
+        skill_seq = torch.from_numpy(skill_seq).int()
+        dones_seq = torch.from_numpy(dones_seq).bool()
 
         return {'states_seq': states_seq,
                 'actions_seq': actions_seq,

@@ -16,8 +16,11 @@ def run():
     args = parse_args()
 
     args.device = args.device if torch.cuda.is_available() else "cpu"
-    args.skill_policy = torch.load(args.skill_policy_path)['evaluation/policy']
     args.env = OrdinaryEnvForPytorch(args.env_id)
+
+    args.skill_policy = torch.load(args.skill_policy_path)['evaluation/policy']
+    args.dyn_latent = torch.load(args.dynamics_model_path)\
+        if args.dynamics_model_path is not None else None
 
     args.run_id = f'mode_disent{args.seed}-{datetime.now().strftime("%Y%m%d-%H%M")}'
     if args.run_comment is not None:
@@ -35,6 +38,7 @@ def run():
     args.pop('domain')
     args.pop('skill_policy_path')
     args.pop('log_folder')
+    args.pop('dynamics_model_path')
     agent = DisentAgent(**args).run()
 
 

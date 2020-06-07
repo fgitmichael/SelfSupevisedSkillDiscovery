@@ -3,6 +3,7 @@ import gym
 import numpy as np
 import torch
 import torch.nn.functional as F
+import torch.distributions as distributions
 from tqdm import tqdm
 from torch.optim import Adam
 from torch.utils.tensorboard import SummaryWriter
@@ -43,6 +44,7 @@ class DisentAgent:
                  memory_size,
                  skill_policy,
                  log_interval,
+                 dyn_latent,
                  run_id,
                  device,
                  leaky_slope=0.2,
@@ -55,7 +57,6 @@ class DisentAgent:
         self.action_repeat = self.env.action_repeat
         self.feature_dim = self.observation_shape[0] if state_rep else feature_dim
 
-
         torch.manual_seed(seed)
         np.random.seed(seed)
         self.env.seed(seed)
@@ -64,19 +65,24 @@ class DisentAgent:
             device if torch.cuda.is_available() else "cpu"
         )
 
-        self.dyn_latent = DynLatentNetwork(
-            observation_shape=self.observation_shape,
-            action_shape=self.action_shape,
-            feature_dim=self.feature_dim,
-            latent1_dim=latent1_dim,
-            latent2_dim=latent2_dim,
-            hidden_units=hidden_units,
-            hidden_units_encoder=hidden_units_encoder,
-            hidden_units_decoder=hidden_units_dyn_decoder,
-            std_decoder=std_dyn_decoder,
-            device=self.device,
-            leaky_slope=0.2,
-            state_rep=state_rep).to(self.device)
+        if dyn_latent is None:
+            self.dyn_latent = DynLatentNetwork(
+                observation_shape=self.observation_shape,
+                action_shape=self.action_shape,
+                feature_dim=self.feature_dim,
+                latent1_dim=latent1_dim,
+                latent2_dim=latent2_dim,
+                hidden_units=hidden_units,
+                hidden_units_encoder=hidden_units_encoder,
+                hidden_units_decoder=hidden_units_dyn_decoder,
+                std_decoder=std_dyn_decoder,
+                device=self.device,
+                leaky_slope=0.2,
+                state_rep=state_rep).to(self.device)
+            self.dyn_loaded = False
+        else:
+            self.dyn_latent = dyn_latent
+            self.dyn_loaded = True
 
         self.mode_latent = ModeLatentNetwork(
             mode_dim=mode_dim,
@@ -89,7 +95,8 @@ class DisentAgent:
             action_dim=self.action_shape[0],
             dyn_latent_network=self.dyn_latent,
             std_decoder=std_action_decoder,
-            leaky_slope=leaky_slope).to(self.device)
+            leaky_slope=leaky_slope,
+            device=self.device).to(self.device)
 
         self.dyn_optim = Adam(self.dyn_latent.parameters(), lr=lr)
         self.mode_optim = Adam(self.mode_latent.parameters(), lr=lr)
@@ -116,8 +123,12 @@ class DisentAgent:
         self.skill_policy = skill_policy
 
         self.steps = 0
-        self.learning_steps = 0
+        self.learn_steps_dyn = 0
+        self.learn_steps_mode = 0
         self.episodes = 0
+        self.mode_dim = mode_dim
+        self.latent1_dim = latent1_dim
+        self.latent2_dim = latent2_dim
         self.min_steps_sampling = min_steps_sampling
         self.num_sequences = num_sequences
         self.batch_size = batch_size
@@ -129,7 +140,11 @@ class DisentAgent:
 
     def run(self):
         self.sample_sequences()
-        self.train()
+
+        if not self.dyn_loaded:
+            self.train_dyn()
+
+        self.train_mode()
 
     def sample_sequences(self):
         for step in range(self.min_steps_sampling//self.num_sequences):
@@ -160,25 +175,29 @@ class DisentAgent:
               f'episode_steps: {episode_steps:<4}  '
               f'skill: {skill: <4}  ')
 
-        self.save_models()
-
     def save_models(self):
         path_name = os.path.join(self.model_dir, self.run_id)
         torch.save(self.dyn_latent, path_name + 'dyn_model.pth')
         torch.save(self.mode_latent, path_name + 'mode_model.pth')
 
-    def train(self):
-        for step in tqdm(range(self.train_steps_dyn)):
+    def train_dyn(self):
+        for _ in tqdm(range(self.train_steps_dyn)):
             self.learn_dyn()
-        #for step in range(self.train_steps_mode):
-        #    self.learn_mode()
+        self.save_models()
+
+    def train_mode(self):
+        for _ in tqdm(range(self.train_steps_mode)):
+            self.learn_mode()
+
+            if self._is_interval(self.log_interval):
+                self.save_models()
 
     def learn_dyn(self):
-        sequence = self.memory.sample_sequence(self.batch_size)
-        loss = self.calc_dyn_loss(sequence)
+        sequences = self.memory.sample_sequence(self.batch_size)
+        loss = self.calc_dyn_loss(sequences)
         update_params(self.dyn_optim, self.dyn_latent, loss)
 
-        self.learning_steps += 1
+        self.learn_steps_dyn += 1
 
     def calc_dyn_loss(self, sequence):
         actions_seq = sequence['actions_seq']
@@ -207,10 +226,11 @@ class DisentAgent:
         loss = kld_loss - ll
 
         # Logging
+        base_str = 'Dynamics Model/'
         if self._is_interval(self.log_interval):
-            self._summary_log('dyn_model/stats/reconstruction loss', mse_loss)
-            self._summary_log('dyn_model/stats/ll-loss', -ll)
-            self._summary_log('dyn_model/stats/kld', kld_loss)
+            self._summary_log_dyn(base_str + 'stats/reconstruction loss', mse_loss)
+            self._summary_log_dyn(base_str + 'stats/ll-loss', -ll)
+            self._summary_log_dyn(base_str + 'stats/kld', kld_loss)
             print('reconstruction error ' + str(mse_loss.item()))
 
         # Testing
@@ -219,15 +239,135 @@ class DisentAgent:
             action_seq = np.array([np.sin(np.arange(0, 5, 0.05))])
             action_seq = self.numpy_to_tensor(action_seq).float().view(-1, 1)
             action_sampler = ActionSamplerSeq(action_seq)
-            self._ar_dyn_test(seq_len=200,
-                             action_sampler=action_sampler,
-                              writer_base_str='Dynamics_Model/'
-                                              'Auto_regressive_test_unseen_actions')
+            self._ar_dyn_test(
+                seq_len=200,
+                action_sampler=action_sampler,
+                writer_base_str=base_str + 'Auto_regressive_test_unseen_actions'
+            )
 
         return loss
 
     def learn_mode(self):
-        raise NotImplementedError
+        sequences = self.memory.sample_sequence(self.batch_size)
+        loss = self.calc_mode_loss(sequences)
+        update_params(self.mode_optim, self.mode_latent, loss)
+
+        self.learn_steps_mode += 1
+
+    def calc_mode_loss(self, sequence):
+        actions_seq = sequence['actions_seq']
+        features_seq = self.dyn_latent.encoder(sequence['states_seq'])
+        skill_seq = sequence['skill_seq']
+
+        # Posterior and prior from mode
+        mode_post = self.mode_latent.sample_mode_posterior(features_seq=features_seq,
+                                                           actions_seq=actions_seq)
+        mode_pri = self.mode_latent.sample_mode_prior(self.batch_size)
+
+        # KLD
+        kld = calc_kl_divergence([mode_post['mode_dist']],
+                                 [mode_pri['mode_dist']])
+
+        # Reconstruct action auto-regressive
+        action_recon = self.reconstruct_action_seq_ar(features_seq, mode_post)
+
+        # Reconstruction loss
+        ll = action_recon['dists'].log_prob(actions_seq).mean(dim=0).sum()
+        mse = F.mse_loss(action_recon['samples'], actions_seq)
+
+        loss = kld - ll
+
+        base_str = 'Mode Model/'
+        if self._is_interval(self.log_interval):
+            self._summary_log_mode(base_str + 'stats/log-likelyhood', ll)
+            self._summary_log_mode(base_str + 'stats/mse', mse)
+            self._summary_log_mode(base_str + 'stats/kld', kld)
+
+        if self._is_interval(self.log_interval * 2):
+            self._plot_mode_map(skill_seq, mode_post['mode_sample'], base_str)
+
+        return loss
+
+    #def _plot_recon_comparison(self, action_seq, action_seq_recon):
+    #    dims = self.action_shape[0]
+
+    #    for dim in dims:
+
+    def _plot_mode_map(self, skill_seq, mode_post_samples, base_str):
+        if not(self.mode_dim == 2):
+            return
+
+        assert len(mode_post_samples.shape) == 2
+
+        skill_seq = self.tensor_to_numpy(skill_seq.float().mean(dim=1)).astype(np.uint8)
+        skill_seq = skill_seq.squeeze()
+        mode_post_samples = self.tensor_to_numpy(mode_post_samples)
+
+        colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'darkorange', 'gray', 'lightgreen']
+        plt.interactive(False)
+        axes = plt.gca()
+        axes.set_ylim([-3, 3])
+        axes.set_xlim([-3, 3])
+
+        for skill in range(skill_seq.max()):
+            bool_idx = skill_seq == skill
+            color = colors[skill]
+            plt.scatter(mode_post_samples[bool_idx, 0],
+                        mode_post_samples[bool_idx, 1],
+                        label=skill,
+                        c=color)
+
+        axes.legend()
+        axes.grid(True)
+        fig = plt.gcf()
+        self.writer.add_figure(base_str + 'Latent test/mode mapping',
+                               fig,
+                               global_step=self.learn_steps_mode)
+
+    def reconstruct_action_seq_ar(self, feature_seq, mode_post):
+        feature_seq = feature_seq.transpose(0, 1)
+        action_recon_dists_loc = []
+        action_recon_dists_scale = []
+        actions_recon = []
+        latent1_samples = []
+        latent2_samples = []
+
+        for t in range(self.num_sequences):
+            if t == 0:
+                latent1_dist = self.dyn_latent.latent1_init_posterior(feature_seq[t])
+                latent1_sample = latent1_dist.rsample()
+
+                latent2_dist = self.dyn_latent.latent2_init_posterior(latent1_sample)
+                latent2_sample = latent2_dist.rsample()
+
+            else:
+                post_t = self.dyn_latent.sample_posterior_single(
+                    feature=feature_seq[t],
+                    action=actions_recon[t-1],
+                    latent2_sample_before=latent2_samples[t-1]
+                )
+                latent1_sample = post_t['latent1_sample']
+                latent2_sample = post_t['latent2_sample']
+
+            action_recon_dist = self.mode_latent.action_decoder(
+                latent1_sample=latent1_sample,
+                latent2_sample=latent2_sample,
+                mode_sample=mode_post['mode_sample'])
+            action_recon_dists_loc.append(action_recon_dist.loc)
+            action_recon_dists_scale.append(action_recon_dist.scale)
+            actions_recon.append(action_recon_dist.loc)
+
+            latent1_samples.append(latent1_sample)
+            latent2_samples.append(latent2_sample)
+
+        action_recon_dists = distributions.normal.Normal(
+            loc=torch.stack(action_recon_dists_loc, dim=1),
+            scale=torch.stack(action_recon_dists_scale, dim=1)
+        )
+        actions_recon = torch.stack(actions_recon, dim=1)
+
+        return {'dists': action_recon_dists,
+                'samples': actions_recon}
 
     def get_skill_action_pixel(self):
         obs_state_space = self.env.get_state_obs()
@@ -248,13 +388,18 @@ class DisentAgent:
             action = self.get_skill_action_pixel()
         return action
 
-    def _summary_log(self, data_name, data):
+    def _summary_log_dyn(self, data_name, data):
         if type(data) == torch.Tensor:
             data = data.detach().cpu().item()
-        self.writer.add_scalar(data_name, data, self.learning_steps)
+        self.writer.add_scalar(data_name, data, self.learn_steps_dyn)
+
+    def _summary_log_mode(self, data_name, data):
+        if type(data) == torch.Tensor:
+            data = data.detach().cpu().item()
+        self.writer.add_scalar(data_name, data, self.learn_steps_mode)
 
     def _is_interval(self, log_interval):
-        return True if self.learning_steps % log_interval == 0 else False
+        return True if self.learn_steps_dyn % log_interval == 0 else False
 
     def _ar_dyn_test(self, seq_len, action_sampler, writer_base_str):
         """
@@ -294,7 +439,7 @@ class DisentAgent:
         plt.legend()
         self.writer.add_figure(writer_base_str + '/random_actions',
                                plt.gcf(),
-                               global_step=self.learning_steps)
+                               global_step=self.learn_steps_dyn)
 
         for dim in range(*self.observation_shape):
             plt.plot(self.tensor_to_numpy(pri['state_seq'][:, dim]),
@@ -304,9 +449,8 @@ class DisentAgent:
             plt.legend()
             self.writer.add_figure(writer_base_str + '/states dim' + str(dim),
                                    plt.gcf(),
-                                   global_step=self.learning_steps)
+                                   global_step=self.learn_steps_dyn)
             plt.clf()
-
 
     @staticmethod
     def tensor_to_numpy(tensor):
@@ -314,3 +458,4 @@ class DisentAgent:
 
     def numpy_to_tensor(self, nd_array):
         return torch.from_numpy(nd_array).to(self.device)
+

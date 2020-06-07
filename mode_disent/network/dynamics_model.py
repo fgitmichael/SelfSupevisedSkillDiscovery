@@ -61,7 +61,7 @@ class DynLatentNetwork(BaseNetwork):
 
         # q(z1(t+1) | feat(t+1), z2(t), a(t))
         self.latent1_posterior = Gaussian(
-            input_dim=feature_dim + latent2_dim + action_shape[0],
+            input_dim=latent2_dim + action_shape[0] + feature_dim,
             output_dim=latent1_dim,
             hidden_units=hidden_units,
             leaky_slope=leaky_slope)
@@ -260,6 +260,8 @@ class DynLatentNetwork(BaseNetwork):
     def sample_posterior(self, features_seq, actions_seq):
         """
         Sample from posterior dynamics.
+        Auto-regressive posterior sampling is not needed, since posterior is only
+        calculated with if the real state_seq is known.
         Args:
             features_seq      : (N, S+1, 256) tensor of feature sequences.
             actions_seq       : (N, S, *action_space) tensor of action sequences.
@@ -288,7 +290,7 @@ class DynLatentNetwork(BaseNetwork):
 
             else:
                 latent1_dist = self.latent1_posterior(
-                    [features_seq[t], latent2_samples[t-1], actions_seq[t-1]])
+                    [latent2_samples[t-1], actions_seq[t-1], features_seq[t]])
                 latent1_sample = latent1_dist.rsample()
 
                 latent2_dist = self.latent2_posterior(
@@ -307,6 +309,30 @@ class DynLatentNetwork(BaseNetwork):
                 'latent2_samples': latent2_samples,
                 'latent1_dists': latent1_dists,
                 'latent2_dists': latent2_dists}
+
+    def sample_posterior_single(self,
+                                feature,
+                                action,
+                                latent2_sample_before):
+        """
+        Sample single posterior step
+        Args:
+            feature                 : (N, feature_dim) tensor
+            action                  : (N, action_dim) tensor
+            latent2_sample_before   : (N, latent2_dim) tensor
+        """
+        latent1_dist = self.latent1_posterior(
+            [latent2_sample_before, action, feature])
+        latent1_sample = latent1_dist.rsample()
+
+        latent2_dist = self.latent2_posterior(
+            [latent1_sample, latent2_sample_before, action])
+        latent2_sample = latent2_dist.rsample()
+
+        return {'latent1_dist': latent1_dist,
+                'latent1_sample': latent1_sample,
+                'latent2_dist': latent2_dist,
+                'latent2_sample': latent2_sample}
 
     def state_to_feature(self, state):
         return self.encoder(torch.from_numpy(state)
