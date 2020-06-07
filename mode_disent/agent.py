@@ -105,7 +105,7 @@ class DisentAgent:
 
         self.log_dir = log_dir
         self.model_dir = os.path.join(log_dir, 'model')
-        self.summary_dir = os.path.join(log_dir, 'summary')
+        self.summary_dir = os.path.join(log_dir, 'summary/' + str(run_id))
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
         if not os.path.exists(self.summary_dir):
