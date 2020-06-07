@@ -215,7 +215,14 @@ class DisentAgent:
 
         # Testing
         if self._is_interval(self.log_interval * 2):
-            self._ar_dyn_test(seq_len=200)
+            # Action not in the training set
+            action_seq = np.array([np.sin(np.arange(0, 5, 0.05))])
+            action_seq = self.numpy_to_tensor(action_seq).float().view(-1, 1)
+            action_sampler = ActionSamplerSeq(action_seq)
+            self._ar_dyn_test(seq_len=200,
+                             action_sampler=action_sampler,
+                              writer_base_str='Dynamics_Model/'
+                                              'Auto_regressive_test_unseen_actions')
 
         return loss
 
@@ -249,7 +256,7 @@ class DisentAgent:
     def _is_interval(self, log_interval):
         return True if self.learning_steps % log_interval == 0 else False
 
-    def _ar_dyn_test(self, seq_len):
+    def _ar_dyn_test(self, seq_len, action_sampler, writer_base_str):
         """
         Auto-regressive test of the dynamics model
         """
@@ -259,10 +266,8 @@ class DisentAgent:
             raise NotImplementedError
 
         # Create action sampler
-        action_seq = np.array(
-            [self.env.action_space.sample() for _ in range(self.num_sequences)])
-        action_seq = self.numpy_to_tensor(action_seq)
-        action_sampler = ActionSamplerSeq(action_seq)
+        #action_seq = np.array(
+        #    [self.env.action_space.sample() for _ in range(self.num_sequences)])
 
         # Sample prior
         pri = self.dyn_latent.sample_prior_eval(
@@ -278,7 +283,7 @@ class DisentAgent:
         state_seq_rec = state_seq_rec_dists.loc
 
         # Plot
-        writer_base_str = 'Dynamics Model/Auto regressive test'
+        writer_base_str = writer_base_str
 
         plt.interactive(False)
         axes = plt.gca()
