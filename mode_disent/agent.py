@@ -296,7 +296,7 @@ class DisentAgent:
         loss = kld - ll
 
         alpha = 1.
-        lamda = 1
+        lamda = 3
         kld_info = (1 - alpha) * kld
         mmd_info = (alpha + lamda - 1) * mmd
         info_loss = mse + kld_info + mmd_info
