@@ -8,6 +8,8 @@ from tqdm import tqdm
 from torch.optim import Adam
 from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 
 from mode_disent.utils.mige import SpectralScoreEstimator, entropy_surrogate
 from mode_disent.utils.mmd import compute_mmd_tutorial
