@@ -295,13 +295,24 @@ class DisentAgent:
         ll = action_recon['dists'].log_prob(actions_seq).mean(dim=0).sum()
         mse = F.mse_loss(action_recon['samples'], actions_seq)
 
-        loss = kld - ll
 
-        alpha = 1.
-        lamda = 3
+        # Classic beta-VAE loss
+        beta = 1.
+        classic_loss = beta * kld - ll
+
+        # Info VAE loss
+        alpha = 0.98
+        lamda = 2
         kld_info = (1 - alpha) * kld
         mmd_info = (alpha + lamda - 1) * mmd
         info_loss = mse + kld_info + mmd_info
+
+        # MI Gradient Estimation Loss (input-data - m)
+        mi_grad_data_m_weight = 2
+        beta_mi_grad = 1
+        mi_grad_kld = beta_mi_grad * kld
+        mi_grad_data_m_loss = \
+            mse + mi_grad_kld - mi_grad_data_m_weight * gradient_estimator_m_data
 
         base_str_stats = 'Mode Model stats/'
         base_str_info = 'Mode Model info vae/'
