@@ -42,8 +42,6 @@ def run():
     agent = DisentAgent(**args).run()
 
 
-    pprint(args)
-
 # python main_disent.py --config ./config/config.json
 if __name__ == "__main__":
     run()
