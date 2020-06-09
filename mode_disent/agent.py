@@ -49,6 +49,7 @@ class DisentAgent:
                  skill_policy,
                  log_interval,
                  dyn_latent,
+                 mode_latent,
                  run_id,
                  device,
                  leaky_slope=0.2,
@@ -85,22 +86,27 @@ class DisentAgent:
                 state_rep=state_rep).to(self.device)
             self.dyn_loaded = False
         else:
-            self.dyn_latent = dyn_latent
+            self.dyn_latent = dyn_latent.to(self.device)
             self.dyn_loaded = True
 
-        self.mode_latent = ModeLatentNetwork(
-            mode_dim=mode_dim,
-            rnn_dim=mode_encode_rnn_dim,
-            num_rnn_layers=mode_encode_num_rnn_layers,
-            hidden_units_mode_encoder=hidden_units_mode_encoder,
-            hidden_units_action_decoder=hidden_units_action_decoder,
-            mode_repeating=False,
-            feature_dim=self.feature_dim,
-            action_dim=self.action_shape[0],
-            dyn_latent_network=self.dyn_latent,
-            std_decoder=std_action_decoder,
-            leaky_slope=leaky_slope,
-            device=self.device).to(self.device)
+        if mode_latent is None:
+            self.mode_latent = ModeLatentNetwork(
+                mode_dim=mode_dim,
+                rnn_dim=mode_encode_rnn_dim,
+                num_rnn_layers=mode_encode_num_rnn_layers,
+                hidden_units_mode_encoder=hidden_units_mode_encoder,
+                hidden_units_action_decoder=hidden_units_action_decoder,
+                mode_repeating=False,
+                feature_dim=self.feature_dim,
+                action_dim=self.action_shape[0],
+                dyn_latent_network=self.dyn_latent,
+                std_decoder=std_action_decoder,
+                leaky_slope=leaky_slope,
+                device=self.device).to(self.device)
+            self.mode_loaded = False
+        else:
+            self.mode_latent = mode_latent.to(self.device)
+            self.mode_loaded = True
 
         self.dyn_optim = Adam(self.dyn_latent.parameters(), lr=lr)
         self.mode_optim = Adam(self.mode_latent.parameters(), lr=lr)
@@ -151,7 +157,28 @@ class DisentAgent:
         if not self.dyn_loaded:
             self.train_dyn()
 
-        self.train_mode()
+        if not self.mode_loaded:
+            self.train_mode()
+
+        self._plot_whole_mode_map()
+
+    def _plot_whole_mode_map(self):
+        #return {'states_seq': states_seq,
+        #        'actions_seq': actions_seq,
+        #        'skill_seq': skill_seq,
+        #        'dones_seq': dones_seq}
+        device_save = self.device
+        self.device = "cpu"
+        all_seqs = self.memory.sample_sequence(batch_size=self.memory.capacity//60)
+        feature_seq = self.dyn_latent.encoder(all_seqs['states_seq'])
+        post = self.mode_latent.sample_mode_posterior(features_seq=feature_seq,
+                                                      actions_seq=all_seqs['actions_seq'])
+        self._plot_mode_map(skill_seq=all_seqs['skill_seq'],
+                            mode_post_samples=post['mode_sample'],
+                            base_str=None,
+                            to='file')
+
+        self.device = device_save
 
     def sample_sequences(self):
         for step in range(self.min_steps_sampling//self.num_sequences):
@@ -360,7 +387,17 @@ class DisentAgent:
                                    global_step=self.learn_steps_mode)
             plt.clf()
 
-    def _plot_mode_map(self, skill_seq, mode_post_samples, base_str):
+    def _plot_mode_map(self,
+                       skill_seq,
+                       mode_post_samples,
+                       base_str,
+                       to='writer'):
+        """
+        Args:
+            skill_seq            : (N, S, 1) - tensor
+            mode_post_samples    : (N, S, 2) - tensor
+            base_str             : string
+        """
         if not(self.mode_dim == 2):
             raise ValueError('mode dim does not equal 2')
 
@@ -373,6 +410,7 @@ class DisentAgent:
         colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'darkorange', 'gray', 'lightgreen']
         plt.interactive(False)
         axes = plt.gca()
+        fig = plt.gcf()
         axes.set_ylim([-3, 3])
         axes.set_xlim([-3, 3])
 
@@ -387,9 +425,22 @@ class DisentAgent:
         axes.legend()
         axes.grid(True)
         fig = plt.gcf()
-        self.writer.add_figure(base_str + 'Latent test/mode mapping',
-                               fig,
-                               global_step=self.learn_steps_mode)
+
+        if to == 'writer':
+            self.writer.add_figure(base_str + 'Latent test/mode mapping',
+                                   fig,
+                                   global_step=self.learn_steps_mode)
+
+        elif to == 'fig':
+            return fig
+
+        elif to == 'file':
+            path_name = os.path.join(self.model_dir, self.run_id)
+            torch.save(obj=fig, f=path_name + 'mode_mapping.fig')
+            torch.save(obj=axes, f=path_name + 'mode_mapping.axes')
+
+        else:
+            raise NotImplementedError("option for 'to' is not known")
 
     def reconstruct_action_seq_ar(self, feature_seq, mode_post):
         feature_seq = feature_seq.transpose(0, 1)
