@@ -16,7 +16,7 @@ from mode_disent.utils.mmd import compute_mmd_tutorial
 from mode_disent.memory.memory import MyLazyMemory
 from mode_disent.network.dynamics_model import DynLatentNetwork
 from mode_disent.network.mode_model import ModeLatentNetwork
-from mode_disent.test.action_sampler import ActionSamplerSeq
+from mode_disent.test.action_sampler import ActionSamplerSeq, ActionSamplerWithActionModel
 from code_slac.utils import calc_kl_divergence, update_params
 
 
@@ -361,6 +361,7 @@ class DisentAgent:
             self._plot_recon_comparison(actions_seq[rand_batch_idx],
                                         action_recon['samples'][rand_batch_idx],
                                         base_str)
+            self._test_mode_influence(mode_post['mode_sample'])
 
         return info_loss
 
@@ -435,12 +436,80 @@ class DisentAgent:
             return fig
 
         elif to == 'file':
-            path_name = os.path.join(self.model_dir, self.run_id)
+            path_name = os.path.join(self.model_dir, self.run_id, 'models')
             torch.save(obj=fig, f=path_name + 'mode_mapping.fig')
             torch.save(obj=axes, f=path_name + 'mode_mapping.axes')
 
         else:
             raise NotImplementedError("option for 'to' is not known")
+
+    def _create_mode_grid(self):
+        """
+        Return:
+            modes   : (N, mode_dim) tensor
+        """
+        grid_vec = torch.linspace(-1.7, 1.7, 4)
+        grid_vec_list = [grid_vec] * self.mode_dim
+        grid = torch.meshgrid(*grid_vec_list)
+        modes = torch.stack(list(grid)).view(self.mode_dim, -1)\
+            .transpose(0, -1).to(self.device)
+        return modes
+
+    def _test_mode_influence(self, mode_post_samples, seq_len=250):
+        """
+        take mode_post_samples and reconstruct
+        apply mode_action_sampler with every mode to the environemnt
+        plot the outcomes
+        Args:
+            mode_post_samples     : (N, mode_dim)
+        """
+
+        with torch.no_grad():
+            mode_action_sampler = ActionSamplerWithActionModel(
+                self.mode_latent,
+                self.dyn_latent,
+                self.device
+            )
+
+            if not(self.mode_dim == 2):
+                modes = mode_post_samples[:10]
+            else:
+                modes = self._create_mode_grid()
+
+            for mode in modes:
+
+                mode_action_sampler.reset(mode=mode.unsqueeze(0))
+                obs = self.env.reset()
+                action_save = []
+                obs_save = []
+                for _ in range(seq_len):
+                    obs_tensor = torch.from_numpy(obs.astype(np.float)).unsqueeze(0).to(self.device).float()
+
+                    action_tensor = mode_action_sampler(
+                        feature=self.dyn_latent.encoder(obs_tensor))
+
+                    action = action_tensor.detach().cpu().numpy()
+                    obs, _, done, _ = self.env.step(action)
+
+                    action_save.append(action)
+                    if obs.shape[0] == 2:
+                        obs = obs.reshape(-1)
+                    obs_save.append(obs)
+
+                actions = np.concatenate(action_save, axis=0)
+                obs = np.stack(obs_save, axis=0)
+
+                plt.interactive(False)
+                ax = plt.gca()
+                ax.set_ylim([-1.5, 1.5])
+                plt.plot(actions, label='actions')
+                for dim in range(obs.shape[1]):
+                    plt.plot(obs[:, dim], label='state_dim' + str(dim))
+                plt.legend()
+                fig = plt.gcf()
+                self.writer.add_figure('mode_grid_plot_test/mode' + str(mode),
+                                       figure=fig,
+                                       global_step=self.learn_steps_mode)
 
     def reconstruct_action_seq_ar(self, feature_seq, mode_post):
         feature_seq = feature_seq.transpose(0, 1)
