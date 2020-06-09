@@ -225,7 +225,7 @@ class DisentAgent:
         for _ in tqdm(range(self.train_steps_mode)):
             self.learn_mode()
 
-            if self._is_interval(self.log_interval):
+            if self._is_interval(self.log_interval, self.learn_steps_mode):
                 self.save_models()
 
     def learn_dyn(self):
@@ -263,14 +263,14 @@ class DisentAgent:
 
         # Logging
         base_str = 'Dynamics Model/'
-        if self._is_interval(self.log_interval):
+        if self._is_interval(self.log_interval, self.learn_steps_dyn):
             self._summary_log_dyn(base_str + 'stats/reconstruction loss', mse_loss)
             self._summary_log_dyn(base_str + 'stats/ll-loss', -ll)
             self._summary_log_dyn(base_str + 'stats/kld', kld_loss)
             print('reconstruction error ' + str(mse_loss.item()))
 
         # Testing
-        if self._is_interval(self.log_interval * 2):
+        if self._is_interval(self.log_interval * 2, self.learn_steps_dyn):
             # Action not in the training set
             action_seq = np.array([np.sin(np.arange(0, 5, 0.05))])
             action_seq = self.numpy_to_tensor(action_seq).float().view(-1, 1)
@@ -345,7 +345,7 @@ class DisentAgent:
 
         base_str_stats = 'Mode Model stats/'
         base_str_info = 'Mode Model info vae/'
-        if self._is_interval(self.log_interval):
+        if self._is_interval(self.log_interval, self.learn_steps_mode):
             self._summary_log_mode(base_str_stats + 'log-likelyhood', ll)
             self._summary_log_mode(base_str_stats + 'mse', mse)
             self._summary_log_mode(base_str_stats + 'kld', kld)
@@ -587,8 +587,8 @@ class DisentAgent:
             data = data.detach().cpu().item()
         self.writer.add_scalar(data_name, data, self.learn_steps_mode)
 
-    def _is_interval(self, log_interval):
-        return True if self.learn_steps_dyn % log_interval == 0 else False
+    def _is_interval(self, log_interval, steps):
+        return True if steps % log_interval == 0 else False
 
     def _ar_dyn_test(self, seq_len, action_sampler, writer_base_str):
         """
