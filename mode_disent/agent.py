@@ -124,8 +124,8 @@ class DisentAgent:
         self.spectral_m = SpectralScoreEstimator(n_eigen_threshold=0.99)
 
         self.log_dir = log_dir
-        self.model_dir = os.path.join(log_dir, 'model')
-        self.summary_dir = os.path.join(log_dir, 'summary/' + str(run_id))
+        self.model_dir = os.path.join(log_dir, 'model', str(run_id))
+        self.summary_dir = os.path.join(log_dir, 'summary', str(run_id))
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
         if not os.path.exists(self.summary_dir):
@@ -210,9 +210,11 @@ class DisentAgent:
               f'skill: {skill: <4}  ')
 
     def save_models(self):
-        path_name = os.path.join(self.model_dir, self.run_id)
-        torch.save(self.dyn_latent, path_name + 'dyn_model.pth')
-        torch.save(self.mode_latent, path_name + 'mode_model.pth')
+        #path_name = os.path.join(self.model_dir, 'models')
+        path_name_dyn = os.path.join(self.model_dir, 'dyn_model.pth')
+        path_name_mode = os.path.join(self.model_dir, 'mode_model.pth')
+        torch.save(self.dyn_latent, path_name_dyn)
+        torch.save(self.mode_latent, path_name_mode)
 
     def train_dyn(self):
         for _ in tqdm(range(self.train_steps_dyn)):
