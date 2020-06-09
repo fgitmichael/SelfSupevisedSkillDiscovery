@@ -2,7 +2,7 @@
   "env_id": "MountainCarContinuous-v0",
   "min_steps_sampling": 5000,
   "batch_size": 128,
-  "num_sequences": 128,
+  "num_sequences": 168,
   "train_steps_dyn": 2000,
   "train_steps_mode": 2000,
   "lr": 0.0001,
