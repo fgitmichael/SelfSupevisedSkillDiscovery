@@ -51,7 +51,8 @@ class ActionSamplerWithActionModel(ActionSampler):
 
     def reset(self, mode=None):
         if mode is None:
-            self._mode = self.mode_model.sample_mode_prior(batch_size=1)
+            self._mode = \
+                self.mode_model.sample_mode_prior(batch_size=1)['mode_sample']
 
         else:
             self._mode = mode
@@ -59,19 +60,26 @@ class ActionSamplerWithActionModel(ActionSampler):
         self._latent2_sample_before = None
         self._action_before = None
 
+    def change_mode_on_fly(self, mode):
+        self._mode = mode.to(self.device)
+
     def _get_action(self,
-                   mode,
-                   feature,
-                   latent2_sample_before=None,
-                   action_before=None):
+                    mode,
+                    feature,
+                    latent2_sample_before=None,
+                    action_before=None):
         """
         Args:
             mode                    : (1, mode_dim) - tensor
             feature                 : (1, feature_dim) - tensor
-            latent1_sample_before   : (1, latent1_dim) - tensor
             latent2_sample_before   : (1, latent2_dim) - tensor
             action_before           : (action_dim) - tensor
+        Return:
+            dict{
+            action                  : (1, action_dim) - tensor
+            latent2_sample          : (1, latent2_dim) - tensor
         """
+
         if latent2_sample_before is None and action_before is None:
 
             latent1_dist = self.dyn_model.latent1_init_posterior(feature)
@@ -102,6 +110,12 @@ class ActionSamplerWithActionModel(ActionSampler):
                 'latent2_sample': latent2_sample}
 
     def __call__(self, feature):
+        """
+        Args:
+            feature    : (1, feature_dim) - tensor
+        Return:
+            action     : (1, action_dim) - tensor
+        """
         res = self._get_action(mode=self._mode,
                                feature=feature,
                                latent2_sample_before=self._latent2_sample_before,
