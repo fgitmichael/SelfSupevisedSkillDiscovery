@@ -31,7 +31,7 @@
 
   "log_interval": 25,
   "run_comment": null,
-  "log_folder": "hparams",
+  "log_folder": "hparams2",
   "domain": "moutain_car",
   "device": "cuda",
   "leaky_slope": 0.2,
