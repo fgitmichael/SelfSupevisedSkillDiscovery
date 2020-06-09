@@ -189,7 +189,10 @@ class ModeEncoderCombined(BaseNetwork):
                  rnn_layers):
         super(BaseNetwork, self).__init__()
 
-        self.rnn = BiRnn(feature_shape + action_dim,
+        #self.rnn = BiRnn(feature_shape + action_dim,
+        #                 hidden_rnn_dim=hidden_rnn_dim,
+        #                 rnn_layers=rnn_layers)
+        self.rnn = BiRnn(feature_shape,
                          hidden_rnn_dim=hidden_rnn_dim,
                          rnn_layers=rnn_layers)
 
@@ -212,7 +215,8 @@ class ModeEncoderCombined(BaseNetwork):
 
         assert actions_seq.shape[:2] == features_seq.shape[:2]
 
-        seq = torch.cat([features_seq, actions_seq], dim=2)
+        #seq = torch.cat([features_seq, actions_seq], dim=2)
+        seq = features_seq
 
         rnn_result = self.rnn(seq)
 

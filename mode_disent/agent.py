@@ -330,8 +330,8 @@ class DisentAgent:
         classic_loss = beta * kld - ll
 
         # Info VAE loss
-        alpha = 0.99
-        lamda = 2
+        alpha = 1
+        lamda = 0.5
         kld_info = (1 - alpha) * kld
         mmd_info = (alpha + lamda - 1) * mmd
         info_loss = mse + kld_info + mmd_info
