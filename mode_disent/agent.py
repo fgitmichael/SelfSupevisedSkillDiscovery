@@ -422,11 +422,10 @@ class DisentAgent:
         colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'darkorange', 'gray', 'lightgreen']
         plt.interactive(False)
         axes = plt.gca()
-        fig = plt.gcf()
         axes.set_ylim([-3, 3])
         axes.set_xlim([-3, 3])
 
-        for skill in range(skill_seq.max()):
+        for skill in range(skill_seq.max() + 1):
             bool_idx = skill_seq == skill
             color = colors[skill]
             plt.scatter(mode_post_samples[bool_idx, 0],
@@ -656,4 +655,5 @@ class DisentAgent:
 
     def numpy_to_tensor(self, nd_array):
         return torch.from_numpy(nd_array).to(self.device)
+
 
