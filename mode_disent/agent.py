@@ -356,7 +356,7 @@ class DisentAgent:
             self._summary_log_mode(base_str_info + 'loss on latent', mmd_info + kld_info)
 
         base_str = 'Mode Model/'
-        if self._is_interval(self.log_interval * 2):
+        if self._is_interval(self.log_interval * 2, self.learn_steps_mode):
             self._plot_mode_map(skill_seq, mode_post['mode_sample'], base_str)
 
             rand_batch_idx = np.random.randint(low=0, high=self.batch_size)
