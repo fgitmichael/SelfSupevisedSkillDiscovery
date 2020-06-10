@@ -440,9 +440,7 @@ class DisentAgent:
 
         elif to == 'file':
             path_name_fig = os.path.join(self.model_dir, 'mode_mapping.fig')
-            path_name_ax = os.path.join(self.model_dir, 'mode_mapping.axes')
             torch.save(obj=fig, f=path_name_fig)
-            torch.save(obj=axes, f=path_name_ax)
 
         else:
             raise NotImplementedError("option for 'to' is not known")
