@@ -160,16 +160,8 @@ class DisentAgent:
         if not self.mode_loaded:
             self.train_mode()
 
-        self._plot_whole_mode_map()
-
     def _plot_whole_mode_map(self):
-        #return {'states_seq': states_seq,
-        #        'actions_seq': actions_seq,
-        #        'skill_seq': skill_seq,
-        #        'dones_seq': dones_seq}
-        device_save = self.device
-        self.device = "cpu"
-        all_seqs = self.memory.sample_sequence(batch_size=self.memory.capacity//60)
+        all_seqs = self.memory.sample_sequence(batch_size=self.batch_size * 1)
         feature_seq = self.dyn_latent.encoder(all_seqs['states_seq'])
         post = self.mode_latent.sample_mode_posterior(features_seq=feature_seq,
                                                       actions_seq=all_seqs['actions_seq'])
@@ -177,8 +169,6 @@ class DisentAgent:
                             mode_post_samples=post['mode_sample'],
                             base_str=None,
                             to='file')
-
-        self.device = device_save
 
     def sample_sequences(self):
         for step in range(self.min_steps_sampling//self.num_sequences):
@@ -225,8 +215,9 @@ class DisentAgent:
         for _ in tqdm(range(self.train_steps_mode)):
             self.learn_mode()
 
-            if self._is_interval(self.log_interval, self.learn_steps_mode):
+            if self._is_interval(self.log_interval * 10, self.learn_steps_mode):
                 self.save_models()
+                self._plot_whole_mode_map()
 
     def learn_dyn(self):
         sequences = self.memory.sample_sequence(self.batch_size)
@@ -448,9 +439,10 @@ class DisentAgent:
             return fig
 
         elif to == 'file':
-            path_name = os.path.join(self.model_dir, self.run_id, 'models')
-            torch.save(obj=fig, f=path_name + 'mode_mapping.fig')
-            torch.save(obj=axes, f=path_name + 'mode_mapping.axes')
+            path_name_fig = os.path.join(self.model_dir, 'mode_mapping.fig')
+            path_name_ax = os.path.join(self.model_dir, 'mode_mapping.axes')
+            torch.save(obj=fig, f=path_name_fig)
+            torch.save(obj=axes, f=path_name_ax)
 
         else:
             raise NotImplementedError("option for 'to' is not known")
