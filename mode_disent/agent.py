@@ -336,7 +336,7 @@ class DisentAgent:
         kld_desired = torch.tensor(1.2).to(self.device)
         kld_diff_control = 0.07 * F.mse_loss(kld_desired, kld)
         mmd_info = (alpha + lamda - 1) * mmd
-        info_loss = mse + kld_info + mmd_info
+        info_loss = mse + kld_info + mmd_info + kld_diff_control
 
         # MI Gradient Estimation Loss (input-data - m)
         mi_grad_data_m_weight = 2
@@ -532,21 +532,22 @@ class DisentAgent:
         latent2_samples = []
 
         for t in range(self.num_sequences):
-            if t == 0:
-                latent1_dist = self.dyn_latent.latent1_init_posterior(feature_seq[t])
-                latent1_sample = latent1_dist.rsample()
+            with torch.no_grad():
+                if t == 0:
+                    latent1_dist = self.dyn_latent.latent1_init_posterior(feature_seq[t])
+                    latent1_sample = latent1_dist.rsample()
 
-                latent2_dist = self.dyn_latent.latent2_init_posterior(latent1_sample)
-                latent2_sample = latent2_dist.rsample()
+                    latent2_dist = self.dyn_latent.latent2_init_posterior(latent1_sample)
+                    latent2_sample = latent2_dist.rsample()
 
-            else:
-                post_t = self.dyn_latent.sample_posterior_single(
-                    feature=feature_seq[t],
-                    action=actions_recon[t-1],
-                    latent2_sample_before=latent2_samples[t-1]
-                )
-                latent1_sample = post_t['latent1_sample']
-                latent2_sample = post_t['latent2_sample']
+                else:
+                    post_t = self.dyn_latent.sample_posterior_single(
+                        feature=feature_seq[t],
+                        action=actions_recon[t-1],
+                        latent2_sample_before=latent2_samples[t-1]
+                    )
+                    latent1_sample = post_t['latent1_sample']
+                    latent2_sample = post_t['latent2_sample']
 
             action_recon_dist = self.mode_latent.action_decoder(
                 latent1_sample=latent1_sample,
