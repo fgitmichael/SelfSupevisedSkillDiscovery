@@ -330,9 +330,11 @@ class DisentAgent:
         classic_loss = beta * kld - ll
 
         # Info VAE loss
-        alpha = 1
+        alpha = 1.
         lamda = 0.5
         kld_info = (1 - alpha) * kld
+        kld_desired = torch.tensor(1.2).to(self.device)
+        kld_diff_control = 0.07 * F.mse_loss(kld_desired, kld)
         mmd_info = (alpha + lamda - 1) * mmd
         info_loss = mse + kld_info + mmd_info
 
