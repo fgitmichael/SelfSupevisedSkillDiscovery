@@ -4,7 +4,7 @@
   "batch_size": 128,
   "num_sequences": 168,
   "train_steps_dyn": 2000,
-  "train_steps_mode": 3000,
+  "train_steps_mode": 4000,
   "lr": 0.0001,
   "state_rep": true,
 
