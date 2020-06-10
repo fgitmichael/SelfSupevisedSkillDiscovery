@@ -10,7 +10,6 @@ def run():
     # Load viz base figure
     axes_path_mode_mapping = './mode_mapping.axes'
     fig_path_mode_mapping = './mode_mapping.fig'
-    axes = torch.load(axes_path_mode_mapping)
     fig = torch.load(fig_path_mode_mapping)
 
     # Load models
@@ -26,7 +25,6 @@ def run():
         device='cuda',
         env=env,
         mode_map_fig=fig,
-        mode_map_axes=axes,
         num_episodes=1000,
         seed=0
     )

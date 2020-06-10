@@ -20,7 +20,6 @@ class InteractiveDisentTester:
                  device: str,
                  env: OrdinaryEnvForPytorch,
                  mode_map_fig,
-                 mode_map_axes,
                  num_episodes: int,
                  seed=0):
 
@@ -47,7 +46,7 @@ class InteractiveDisentTester:
 
         self.viz = IaVisualization(
             fig=mode_map_fig,
-            ax=mode_map_axes,
+            update_rate=20,
             change_mode_fun=self.mode_action_sampler.change_mode_on_fly)
 
         self.steps = 0
@@ -60,7 +59,6 @@ class InteractiveDisentTester:
         #       Find out why!
         # Fix of the problem described above
         if not obs.shape[0] == 1:
-
             obs = obs.T.squeeze()
 
         feature = self.dyn_model.state_to_feature(obs)
@@ -84,13 +82,11 @@ class InteractiveDisentTester:
 
             self.steps += self.env.action_repeat
 
+            self.viz.update_plot()
+
         self.episodes += 1
         print(str(self.num_episodes - self.episodes) + ' episodes left')
 
     def run(self):
         for _ in range(self.num_episodes):
             self.run_episode()
-
-            self.viz.update_plot()
-
-
