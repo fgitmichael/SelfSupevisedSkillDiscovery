@@ -59,7 +59,6 @@ class DisentAgent:
         self.env = env
         self.observation_shape = self.env.observation_space.shape
         self.action_shape = self.env.action_space.shape
-        self.action_repeat = self.env.action_repeat
         self.feature_dim = self.observation_shape[0] if state_rep else feature_dim
 
         torch.manual_seed(seed)
@@ -135,7 +134,8 @@ class DisentAgent:
 
         self.skill_policy = skill_policy
 
-        self.steps = 0
+        self.num_skills = self.skill_policy.stochastic_policy.skill_dim
+        self.steps = np.zeros(shape=self.num_skills, dtype=np.int)
         self.learn_steps_dyn = 0
         self.learn_steps_mode = 0
         self.episodes = 0
@@ -190,15 +190,15 @@ class DisentAgent:
         done = False
         state = self.env.reset()
         self.memory.set_initial_state(state)
-        skill = np.random.randint(self.skill_policy.stochastic_policy.skill_dim)
+        skill = np.random.randint(self.num_skills)
         self.set_policy_skill(skill)
 
         next_state = state
         while not done and episode_steps < self.num_sequences + 1:
             action = self.get_skill_policy_action(next_state)
             next_state, reward, done, _ = self.env.step(action)
-            self.steps += self.action_repeat
-            episode_steps += self.action_repeat
+            self.steps[skill] += self.env.action_repeat
+            episode_steps += self.env.action_repeat
 
             self.memory.append(action=action,
                                skill=np.array([skill], dtype=np.uint8),

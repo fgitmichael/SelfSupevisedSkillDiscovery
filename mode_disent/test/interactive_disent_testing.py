@@ -40,7 +40,6 @@ class InteractiveDisentTester:
         self.mode_action_sampler.reset()
 
         self.env = env
-        self.action_repeat = self.env.action_repeat
 
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -80,11 +79,10 @@ class InteractiveDisentTester:
             action = action_tensor.detach().cpu().numpy()
 
             # Apply action
-            for _ in range(self.action_repeat):
-                obs, _, done, _ = self.env.step(action)
-                self.env.render()
+            obs, _, done, _ = self.env.step(action)
+            self.env.render()
 
-            self.steps += self.action_repeat
+            self.steps += self.env.action_repeat
 
         self.episodes += 1
         print(str(self.num_episodes - self.episodes) + ' episodes left')
