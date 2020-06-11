@@ -1,5 +1,5 @@
 import os
-import gym
+import json
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -16,7 +16,8 @@ from mode_disent.utils.mmd import compute_mmd_tutorial
 from mode_disent.memory.memory import MyLazyMemory
 from mode_disent.network.dynamics_model import DynLatentNetwork
 from mode_disent.network.mode_model import ModeLatentNetwork
-from mode_disent.test.action_sampler import ActionSamplerSeq, ActionSamplerWithActionModel
+from mode_disent.test.action_sampler import ActionSamplerSeq, \
+    ActionSamplerWithActionModel
 from code_slac.utils import calc_kl_divergence, update_params
 
 
@@ -52,6 +53,7 @@ class DisentAgent:
                  mode_latent,
                  run_id,
                  device,
+                 run_hp,
                  leaky_slope=0.2,
                  seed=0
                  ):
@@ -129,6 +131,10 @@ class DisentAgent:
             os.makedirs(self.model_dir)
         if not os.path.exists(self.summary_dir):
             os.makedirs(self.summary_dir)
+
+        hparam_save_path = os.path.join(self.model_dir, 'run_hyperparameter.json')
+        with open(hparam_save_path, 'w', encoding='utf-8') as f:
+            json.dump(run_hp, f, ensure_ascii=False, indent=4)
 
         self.writer = SummaryWriter(log_dir=self.summary_dir)
 
