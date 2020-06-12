@@ -8,8 +8,14 @@ from easydict import EasyDict as edict
 import json
 
 from code_slac.env.ordinary_env import OrdinaryEnvForPytorch
+from code_slac.env.dm_control import DmControlEnvForPytorch
+from mode_disent.env_wrappers.rlkit_wrapper import NormalizedBoxEnvForPytorch
 from mode_disent.agent import DisentAgent
 from mode_disent.utils.utils import parse_args
+# Note: Set path variable for Mujoco using ...
+#       LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/michael/.mujoco/mujoco200/bin
+#       Call using
+#       python main_disent.py --config ./config/NAME_OF_CONFIG.json
 
 
 def run():
@@ -25,6 +31,8 @@ def run():
     args.run_hp = args.copy()
 
     args.device = args.device if torch.cuda.is_available() else "cpu"
+
+    obs_type = "state" if args.state_rep is True else "pixels"
     if args.env_info.env_type == 'normal':
         args.env = OrdinaryEnvForPytorch(args.env_info.env_id)
     elif args.env_info.env_type == 'dm_control':
@@ -32,8 +40,16 @@ def run():
             domain_name=args.env_info.domain_name,
             task_name=args.env_info.task_name,
             action_repeat=args.env_info.action_repeat,
-            obs_type=args.env_info.obs_type
+            obs_type=obs_type
         )
+    elif args.env_info.env_type == 'normalized':
+        args.env = NormalizedBoxEnvForPytorch(
+            gym_id=args.env_info.env_id,
+            action_repeat=args.env_info.action_repeat,
+            obs_type=obs_type
+        )
+    else:
+        raise ValueError('Env_type is not used in if else statements')
 
     args.skill_policy = torch.load(args.skill_policy_path)['evaluation/policy']
     args.dyn_latent = torch.load(args.dynamics_model_path)\
@@ -55,6 +71,5 @@ def run():
     agent = DisentAgent(**args).run()
 
 
-# python main_disent.py --config ./config/config.json
 if __name__ == "__main__":
     run()

@@ -1,5 +1,7 @@
 {
   "env_id": "MountainCarContinuous-v0",
+  "env_type": "normal",
+  "domain_type": null,
   "min_steps_sampling": 5000,
   "batch_size": 128,
   "num_sequences": 168,

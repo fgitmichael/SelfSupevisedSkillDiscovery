@@ -21,6 +21,7 @@ class InteractiveDisentTester:
                  env: OrdinaryEnvForPytorch,
                  mode_map_fig,
                  num_episodes: int,
+                 len_sequence: int,
                  seed=0):
 
         self.device = device if torch.cuda.is_available() else "cpu"
@@ -67,11 +68,12 @@ class InteractiveDisentTester:
 
     def run_episode(self):
         # Reset env
-        obs = self.env.reset()
         self.env.render()
+        obs = self.env.reset()
         done = False
+        episode_steps = 0
 
-        while not done:
+        while not done and episode_steps < self.seq_len:
             # Get action
             action_tensor = self.mode_action_sampler(self.get_feature(obs))
             action = action_tensor.detach().cpu().numpy()
@@ -81,6 +83,7 @@ class InteractiveDisentTester:
             self.env.render()
 
             self.steps += self.env.action_repeat
+            episode_steps += 1
 
             self.viz.update_plot()
 

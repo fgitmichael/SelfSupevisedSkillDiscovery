@@ -1,7 +1,12 @@
 {
-  "env_id": "MountainCarContinuous-v0",
-  "env_type": "normal",
-  "domoin_type": null,
+  "env_info": {
+    "env_type": "normalized",
+    "env_id": "HalfCheetah-v2",
+    "domain_name": "cheetah",
+    "task_name": null,
+    "action_repeat": 1
+  },
+
   "min_steps_sampling": 5000,
   "batch_size": 128,
   "num_sequences": 168,
@@ -28,14 +33,13 @@
 
   "memory_size": 100000,
 
-  "skill_policy_path": "./models/02_Skill_policy_mountain_car/params.pkl",
-  "dynamics_model_path": "./models/03_dyn_model/mode_disent1-20200607-1737dyn_model.pth",
+  "skill_policy_path": "./models/01_Skill_policy_half_cheetah/params.pkl",
+  "dynamics_model_path": null,
   "mode_model_path": null,
 
   "log_interval": 25,
   "run_comment": null,
   "log_folder": "hparams2",
-  "domain": "moutain_car",
   "device": "cuda",
   "leaky_slope": 0.2,
   "seed": 1

@@ -4,10 +4,15 @@ from easydict import EasyDict as edict
 
 from mode_disent.test.action_sampler import ActionSamplerWithActionModel
 from mode_disent.test.interactive_disent_testing import InteractiveDisentTester
+from mode_disent.env_wrappers.dmcontrol import MyDmControlEnvForPytorch
+from mode_disent.env_wrappers.rlkit_wrapper import NormalizedBoxEnvForPytorch
 from code_slac.env.ordinary_env import OrdinaryEnvForPytorch
 from code_slac.env.dm_control import DmControlEnvForPytorch
 
 # Note: This script has to be run in the model-log folder
+#       Set path variable for Mujoco using ...
+#       LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/michael/.mujoco/mujoco200/bin
+#       Call using
 
 
 def load_hparams(file_path):
@@ -30,16 +35,24 @@ def run():
     mode_model = torch.load('./mode_model.pth')
 
     # Environment
-    env = OrdinaryEnvForPytorch('MountainCarContinuous-v0')
+    obs_type = "state" if hparams.state_rep is True else "pixels"
     if hparams.env_info.env_type == 'normal':
         env = OrdinaryEnvForPytorch(hparams.env_info.env_id)
     elif hparams.env_info.env_type == 'dm_control':
-        env = DmControlEnvForPytorch(
+        env = MyDmControlEnvForPytorch(
             domain_name=hparams.env_info.domain_name,
             task_name=hparams.env_info.task_name,
             action_repeat=hparams.env_info.action_repeat,
             obs_type=hparams.env_info.obs_type
         )
+    elif hparams.env_info.env_type == 'normalized':
+        hparams.env = NormalizedBoxEnvForPytorch(
+            gym_id=hparams.env_info.env_id,
+            action_repeat=hparams.env_info.action_repeat,
+            obs_type=obs_type,
+        )
+    else:
+        raise ValueError('Env_type is not used in if else statesments')
 
     tester = InteractiveDisentTester(
         dyn_model=dyn_model,
@@ -48,6 +61,7 @@ def run():
         env=env,
         mode_map_fig=fig,
         num_episodes=1000,
+        len_sequence=hparams.num_sequences * 5,
         seed=0
     )
 
