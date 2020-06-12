@@ -5,6 +5,7 @@ import gym
 from pprint import pprint
 from datetime import datetime
 from easydict import EasyDict as edict
+import json
 
 from code_slac.env.ordinary_env import OrdinaryEnvForPytorch
 from mode_disent.agent import DisentAgent
@@ -15,8 +16,24 @@ def run():
     # Parse arguments from command line
     args = parse_args()
 
+    dir_name = args.env_info.env_id
+    base_dir = os.path.join('logs', dir_name)
+    if args.log_folder is not None:
+        args.log_dir = os.path.join(base_dir, args.log_folder)
+    else:
+        args.log_dir = os.path.join(base_dir, args.run_id)
+    args.run_hp = args.copy()
+
     args.device = args.device if torch.cuda.is_available() else "cpu"
-    args.env = OrdinaryEnvForPytorch(args.env_id)
+    if args.env_info.env_type == 'normal':
+        args.env = OrdinaryEnvForPytorch(args.env_info.env_id)
+    elif args.env_info.env_type == 'dm_control':
+        args.env = DmControlEnvForPytorch(
+            domain_name=args.env_info.domain_name,
+            task_name=args.env_info.task_name,
+            action_repeat=args.env_info.action_repeat,
+            obs_type=args.env_info.obs_type
+        )
 
     args.skill_policy = torch.load(args.skill_policy_path)['evaluation/policy']
     args.dyn_latent = torch.load(args.dynamics_model_path)\
@@ -28,20 +45,13 @@ def run():
     if args.run_comment is not None:
         args.run_id += str(args.run_comment)
 
-    dir_name = args.domain
-    base_dir = os.path.join('logs', dir_name)
-    if args.log_folder is not None:
-        args.log_dir = os.path.join(base_dir, args.log_folder)
-    else:
-        args.log_dir = os.path.join(base_dir, args.run_id)
-
-    args.pop('env_id')
     args.pop('run_comment')
-    args.pop('domain')
     args.pop('skill_policy_path')
     args.pop('log_folder')
     args.pop('dynamics_model_path')
     args.pop('mode_model_path')
+    args.pop('env_info')
+
     agent = DisentAgent(**args).run()
 
 

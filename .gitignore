@@ -104,7 +104,6 @@ celerybeat.pid
 # Environments
 .env
 .venv
-env/
 venv/
 ENV/
 env.bak/
@@ -129,12 +128,9 @@ dmypy.json
 .pyre/
 =======
 logs/
-__pycache__/
 .vscode/
-*.log
 *.out
 code/memory/flag.py
 code/play.py
->>>>>>> 57ea0f1b58a3d9827935151ebbbc5ebf95801d99
 
 .idea
