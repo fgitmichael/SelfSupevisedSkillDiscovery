@@ -53,6 +53,7 @@ class InteractiveDisentTester:
         self.steps = 0
         self.episodes = 0
         self.num_episodes = num_episodes
+        self.seq_len = len_sequence
 
     def get_feature(self, obs):
         # TODO: env seems to occasionally return in shape (action_dim, 1)
