@@ -59,7 +59,7 @@ class InteractiveDisentTester:
         # TODO: env seems to occasionally return in shape (action_dim, 1)
         #       instead of expected (1, action_dim) shape.
         #       Find out why!
-        # Fix of the problem described above
+        # Fix of the problem described above (dirty)
         if not obs.shape[0] == 1:
             obs = obs.T.squeeze()
 
