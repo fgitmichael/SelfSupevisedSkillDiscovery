@@ -62,7 +62,8 @@ class DisentAgent:
         self.env = env
         self.observation_shape = self.env.observation_space.shape
         self.action_shape = self.env.action_space.shape
-        self.feature_dim = self.observation_shape[0] if state_rep else feature_dim
+        self.feature_dim = int(self.observation_shape[0]
+                               if state_rep else feature_dim)
 
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -170,8 +171,8 @@ class DisentAgent:
     def _plot_whole_mode_map(self):
         all_seqs = self.memory.sample_sequence(batch_size=self.batch_size * 1)
         feature_seq = self.dyn_latent.encoder(all_seqs['states_seq'])
-        post = self.mode_latent.sample_mode_posterior(features_seq=feature_seq,
-                                                      actions_seq=all_seqs['actions_seq'])
+        post = self.mode_latent.sample_mode_posterior(
+            features_seq=feature_seq, actions_seq=all_seqs['actions_seq'])
         self._plot_mode_map(skill_seq=all_seqs['skill_seq'],
                             mode_post_samples=post['mode_sample'],
                             base_str=None,
@@ -415,7 +416,8 @@ class DisentAgent:
 
         assert len(mode_post_samples.shape) == 2
 
-        skill_seq = self.tensor_to_numpy(skill_seq.float().mean(dim=1)).astype(np.uint8)
+        skill_seq = self.tensor_to_numpy(skill_seq.float()
+                                         .mean(dim=1)).astype(np.uint8)
         skill_seq = skill_seq.squeeze()
         mode_post_samples = self.tensor_to_numpy(mode_post_samples)
 
