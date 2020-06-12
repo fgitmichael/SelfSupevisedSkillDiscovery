@@ -184,6 +184,7 @@ class DisentAgent:
             self.episodes += 1
 
     def sample_seq(self):
+        episode_steps_repeat = 0
         episode_steps = 0
         done = False
         state = self.env.reset()
@@ -196,7 +197,8 @@ class DisentAgent:
             action = self.get_skill_policy_action(next_state)
             next_state, reward, done, _ = self.env.step(action)
             self.steps[skill] += self.env.action_repeat
-            episode_steps += self.env.action_repeat
+            episode_steps_repeat += self.env.action_repeat
+            episode_steps += 1
 
             self.memory.append(action=action,
                                skill=np.array([skill], dtype=np.uint8),
