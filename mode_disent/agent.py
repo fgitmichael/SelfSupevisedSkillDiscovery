@@ -210,7 +210,6 @@ class DisentAgent:
               f'skill: {skill: <4}  ')
 
     def save_models(self):
-        #path_name = os.path.join(self.model_dir, 'models')
         path_name_dyn = os.path.join(self.model_dir, 'dyn_model.pth')
         path_name_mode = os.path.join(self.model_dir, 'mode_model.pth')
         torch.save(self.dyn_latent, path_name_dyn)
