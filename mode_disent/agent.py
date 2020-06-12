@@ -270,16 +270,18 @@ class DisentAgent:
             print('reconstruction error ' + str(mse_loss.item()))
 
         # Testing
-        if self._is_interval(self.log_interval * 2, self.learn_steps_dyn):
-            # Action not in the training set
-            action_seq = np.array([np.sin(np.arange(0, 5, 0.05))])
-            action_seq = self.numpy_to_tensor(action_seq).float().view(-1, 1)
-            action_sampler = ActionSamplerSeq(action_seq)
-            self._ar_dyn_test(
-                seq_len=200,
-                action_sampler=action_sampler,
-                writer_base_str=base_str + 'Auto_regressive_test_unseen_actions'
-            )
+        if self._is_interval(self.log_interval * 2, self.learn_steps_dyn) \
+                and self.observation_shape[0] + self.action_shape[0] < 8:
+            # Actions not in the training set
+            if self.action_shape[0] == 1:
+                action_seq = np.array([np.sin(np.arange(0, 5, 0.05))])
+                action_seq = self.numpy_to_tensor(action_seq).float().view(-1, 1)
+                action_sampler = ActionSamplerSeq(action_seq)
+                self._ar_dyn_test(
+                    seq_len=200,
+                    action_sampler=action_sampler,
+                    writer_base_str=base_str + 'Auto_regressive_test_unseen_actions'
+                )
 
         return loss
 
@@ -357,9 +359,12 @@ class DisentAgent:
             self._summary_log_mode(base_str_info + 'mmd info weighted', mmd_info)
             self._summary_log_mode(base_str_info + 'loss on latent', mmd_info + kld_info)
 
-        base_str = 'Mode Model/'
-        if self._is_interval(self.log_interval * 2, self.learn_steps_mode):
+            base_str = 'Mode Model/'
             self._plot_mode_map(skill_seq, mode_post['mode_sample'], base_str)
+
+        base_str = 'Mode Model/'
+        if self._is_interval(self.log_interval * 2, self.learn_steps_mode) \
+                and self.observation_shape[0] + self.action_shape[0] < 8:
 
             rand_batch_idx = np.random.randint(low=0, high=self.batch_size)
             self._plot_recon_comparison(actions_seq[rand_batch_idx],
@@ -386,20 +391,22 @@ class DisentAgent:
         action_seq_recon = self.tensor_to_numpy(action_seq_recon)
         state_seq = self.tensor_to_numpy(state_seq)
 
+        plt.interactive(False)
+        axes = plt.gca()
+        axes.set_ylim([-1.5, 1.5])
         for dim in range(dims):
-            plt.interactive(False)
-            axes = plt.gca()
-            axes.set_ylim([-1.5, 1.5])
             plt.plot(action_seq[:, dim], label='real action dim' + str(dim))
             plt.plot(action_seq_recon[:, dim], label='recon action dim' + str(dim))
-            for dim in range(state_seq.shape[1]):
-                plt.plot(state_seq[:, dim], label='state dim' + str(dim))
-            plt.legend()
-            fig = plt.gcf()
-            self.writer.add_figure(base_str + 'reconstruction_test_on_dataset',
-                                   fig,
-                                   global_step=self.learn_steps_mode)
-            plt.clf()
+
+        for dim in range(state_seq.shape[1]):
+            plt.plot(state_seq[:, dim], label='state dim' + str(dim))
+
+        plt.legend()
+        fig = plt.gcf()
+        self.writer.add_figure(base_str + 'reconstruction_test_on_dataset',
+                               fig,
+                               global_step=self.learn_steps_mode)
+        plt.clf()
 
     def _plot_mode_map(self,
                        skill_seq,
