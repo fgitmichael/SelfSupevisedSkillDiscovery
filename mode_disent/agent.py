@@ -316,8 +316,8 @@ class DisentAgent:
         xs = features_actions_seq.view(self.batch_size, -1)
         ys = mode_post['mode_sample']
         xs_ys = torch.cat([xs, ys], dim=1)
-        gradient_estimator_m_data = entropy_surrogate(self.spectral_j, xs_ys) \
-                                    - entropy_surrogate(self.spectral_m, ys)
+        # gradient_estimator_m_data = entropy_surrogate(self.spectral_j, xs_ys) \
+        #                            - entropy_surrogate(self.spectral_m, ys)
 
         # Reconstruct action auto-regressive
         action_recon = self.reconstruct_action_seq_ar(features_seq, mode_post)
@@ -344,8 +344,8 @@ class DisentAgent:
         mi_grad_data_m_weight = 2
         beta_mi_grad = 1
         mi_grad_kld = beta_mi_grad * kld
-        mi_grad_data_m_loss = \
-            mse + mi_grad_kld - mi_grad_data_m_weight * gradient_estimator_m_data
+        #mi_grad_data_m_loss = \
+        #    mse + mi_grad_kld - mi_grad_data_m_weight * gradient_estimator_m_data
 
         base_str_stats = 'Mode Model stats/'
         base_str_info = 'Mode Model info vae/'
