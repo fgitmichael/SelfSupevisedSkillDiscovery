@@ -60,7 +60,7 @@ class OrdinaryEnvForPytorch(DmControlEnvForPytorch):
     def reset(self):
         return self.env.reset()
 
-    def render(self, mode='rgb_array'):
+    def render(self, mode='human'):
         return self.env.render(mode=mode)
 
     def seed(self, seed):
