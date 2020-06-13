@@ -18,7 +18,7 @@
   "info_vae_params": {
     "kld_desired": null,
     "alpha": 1,
-    "reg_weight": 11
+    "reg_weight": 8
   },
 
   "feature_dim": 256,
@@ -40,7 +40,7 @@
   "memory_size": 100000,
 
   "skill_policy_path": "./models/01_Skill_policy_half_cheetah/params.pkl",
-  "dynamics_model_path": null,
+  "dynamics_model_path": "./logs/HalfCheetah-v2/hparams2/model/mode_disent4-20200613-2030/dyn_model.pth",
   "mode_model_path": null,
 
   "log_interval": 25,
@@ -48,5 +48,5 @@
   "log_folder": "hparams2",
   "device": "cuda",
   "leaky_slope": 0.2,
-  "seed": 1
+  "seed": 0
 }

@@ -370,18 +370,18 @@ class DisentAgent:
         classic_loss = beta * kld - ll
 
         # Info VAE loss
-        alpha = self.info_vae_params.alpha
+        alpha = float(self.info_vae_params.alpha)
         #lamda = 11.0
-        lamda = self.info_vae_params.reg_weight
+        lamda = float(self.info_vae_params.reg_weight)
         kld_info = (1 - alpha) * kld
         #kld_desired = torch.tensor(1.1).to(self.device)
-        kld_diff_control = 0.07 * F.mse_loss(kld_desired, kld)
         mmd_info = (alpha + lamda - 1) * mmd
         if self.info_vae_params.kld_desired is None:
             info_loss = mse + kld_info + mmd_info
         else:
             kld_desired = self.info_vae_params.kld_desired
             kld_desired = torch.tensor(kld_desired).to(self.device)
+            kld_diff_control = 0.07 * F.mse_loss(kld_desired, kld)
             info_loss = mse + kld_info + mmd_info + kld_diff_control
 
         # MI Gradient Estimation Loss (input-data - m)
