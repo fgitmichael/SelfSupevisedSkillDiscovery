@@ -52,9 +52,10 @@ class DisentAgent:
                  dyn_latent,
                  mode_latent,
                  mode_repeating,
+                 info_vae_params,
                  run_id,
-                 device,
                  run_hp,
+                 device,
                  leaky_slope=0.2,
                  seed=0
                  ):
@@ -142,6 +143,7 @@ class DisentAgent:
 
         self.skill_policy = skill_policy
 
+        self.info_vae_params = info_vae_params
         self.num_skills = self.skill_policy.stochastic_policy.skill_dim
         self.steps = np.zeros(shape=self.num_skills, dtype=np.int)
         self.learn_steps_dyn = 0
@@ -334,13 +336,19 @@ class DisentAgent:
         classic_loss = beta * kld - ll
 
         # Info VAE loss
-        alpha = 1.
-        lamda = 0.4
+        alpha = self.info_vae_params.alpha
+        #lamda = 11.0
+        lamda = self.info_vae_params.reg_weight
         kld_info = (1 - alpha) * kld
-        kld_desired = torch.tensor(1.1).to(self.device)
+        #kld_desired = torch.tensor(1.1).to(self.device)
         kld_diff_control = 0.07 * F.mse_loss(kld_desired, kld)
         mmd_info = (alpha + lamda - 1) * mmd
-        info_loss = mse + kld_info + mmd_info + kld_diff_control
+        if self.info_vae_params.kld_desired is None:
+            info_loss = mse + kld_info + mmd_info
+        else:
+            kld_desired = self.info_vae_params.kld_desired
+            kld_desired = torch.tensor(kld_desired).to(self.device)
+            info_loss = mse + kld_info + mmd_info + kld_diff_control
 
         # MI Gradient Estimation Loss (input-data - m)
         mi_grad_data_m_weight = 2
