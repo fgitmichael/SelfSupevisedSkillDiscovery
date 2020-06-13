@@ -21,7 +21,7 @@ def load_hparams(file_path):
     return edict(hparams_dict)
 
 
-def run():
+def run(device='cpu'):
     # Load run hyperparameter
     hparams = load_hparams('run_hyperparameter.json')
 
@@ -31,13 +31,14 @@ def run():
     fig = torch.load(fig_path_mode_mapping)
 
     # Load models
-    dyn_model = torch.load('./dyn_model.pth')
-    mode_model = torch.load('./mode_model.pth')
+    dyn_model = torch.load('./dyn_model.pth', map_location=device)
+    mode_model = torch.load('./mode_model.pth', map_location=device)
 
     # Environment
     obs_type = "state" if hparams.state_rep is True else "pixels"
     if hparams.env_info.env_type == 'normal':
         env = OrdinaryEnvForPytorch(hparams.env_info.env_id)
+
     elif hparams.env_info.env_type == 'dm_control':
         env = MyDmControlEnvForPytorch(
             domain_name=hparams.env_info.domain_name,
@@ -46,7 +47,7 @@ def run():
             obs_type=hparams.env_info.obs_type
         )
     elif hparams.env_info.env_type == 'normalized':
-        hparams.env = NormalizedBoxEnvForPytorch(
+        env = NormalizedBoxEnvForPytorch(
             gym_id=hparams.env_info.env_id,
             action_repeat=hparams.env_info.action_repeat,
             obs_type=obs_type,
@@ -57,7 +58,7 @@ def run():
     tester = InteractiveDisentTester(
         dyn_model=dyn_model,
         mode_model=mode_model,
-        device='cuda',
+        device=device,
         env=env,
         mode_map_fig=fig,
         num_episodes=1000,

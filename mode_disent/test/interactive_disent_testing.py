@@ -26,10 +26,12 @@ class InteractiveDisentTester:
 
         self.device = device if torch.cuda.is_available() else "cpu"
 
-        self.dyn_model = dyn_model
+        self.dyn_model = dyn_model.to(self.device)
+        self.dyn_model.device = self.device
         self.dyn_model.eval()
 
-        self.mode_model = mode_model
+        self.mode_model = mode_model.to(self.device)
+        self.mode_model.device = self.device
         self.mode_model.eval()
 
         self.mode_action_sampler = ActionSamplerWithActionModel(
