@@ -168,7 +168,10 @@ class DisentAgent:
         if not self.mode_loaded:
             self.train_mode()
 
-    def _plot_whole_mode_map(self):
+        self.save_models()
+        self._plot_whole_mode_map(to=['file', 'writer'])
+
+    def _plot_whole_mode_map(self, to: list):
         all_seqs = self.memory.sample_sequence(batch_size=self.batch_size * 1)
         feature_seq = self.dyn_latent.encoder(all_seqs['states_seq'])
         post = self.mode_latent.sample_mode_posterior(
@@ -176,7 +179,7 @@ class DisentAgent:
         self._plot_mode_map(skill_seq=all_seqs['skill_seq'],
                             mode_post_samples=post['mode_sample'],
                             base_str=None,
-                            to='file')
+                            to=to)
 
     def sample_sequences(self):
         for step in range(self.min_steps_sampling//self.num_sequences):
@@ -226,7 +229,7 @@ class DisentAgent:
 
             if self._is_interval(self.log_interval * 10, self.learn_steps_mode):
                 self.save_models()
-                self._plot_whole_mode_map()
+                self._plot_whole_mode_map(to=['file'])
 
     def learn_dyn(self):
         sequences = self.memory.sample_sequence(self.batch_size)
@@ -326,7 +329,6 @@ class DisentAgent:
         ll = action_recon['dists'].log_prob(actions_seq).mean(dim=0).sum()
         mse = F.mse_loss(action_recon['samples'], actions_seq)
 
-
         # Classic beta-VAE loss
         beta = 1.
         classic_loss = beta * kld - ll
@@ -360,7 +362,7 @@ class DisentAgent:
             self._summary_log_mode(base_str_info + 'loss on latent', mmd_info + kld_info)
 
             base_str = 'Mode Model/'
-            self._plot_mode_map(skill_seq, mode_post['mode_sample'], base_str)
+            self._plot_mode_map(skill_seq, mode_post['mode_sample'], base_str, to=['writer'])
 
         base_str = 'Mode Model/'
         if self._is_interval(self.log_interval * 2, self.learn_steps_mode) \
@@ -412,7 +414,7 @@ class DisentAgent:
                        skill_seq,
                        mode_post_samples,
                        base_str,
-                       to='writer'):
+                       to: list):
         """
         Args:
             skill_seq            : (N, S, 1) - tensor
@@ -447,20 +449,21 @@ class DisentAgent:
         axes.grid(True)
         fig = plt.gcf()
 
-        if to == 'writer':
-            self.writer.add_figure(base_str + 'Latent test/mode mapping',
-                                   fig,
-                                   global_step=self.learn_steps_mode)
+        for dev in to:
+            if dev == 'writer':
+                self.writer.add_figure(base_str + 'Latent test/mode mapping',
+                                       fig,
+                                       global_step=self.learn_steps_mode)
 
-        elif to == 'fig':
-            return fig
+            elif dev == 'fig':
+                return fig
 
-        elif to == 'file':
-            path_name_fig = os.path.join(self.model_dir, 'mode_mapping.fig')
-            torch.save(obj=fig, f=path_name_fig)
+            elif dev == 'file':
+                path_name_fig = os.path.join(self.model_dir, 'mode_mapping.fig')
+                torch.save(obj=fig, f=path_name_fig)
 
-        else:
-            raise NotImplementedError("option for 'to' is not known")
+            else:
+                raise NotImplementedError("option for 'to' is not known")
 
     def _create_mode_grid(self):
         """
@@ -605,7 +608,8 @@ class DisentAgent:
             data = data.detach().cpu().item()
         self.writer.add_scalar(data_name, data, self.learn_steps_mode)
 
-    def _is_interval(self, log_interval, steps):
+    @staticmethod
+    def _is_interval(log_interval, steps):
         return True if steps % log_interval == 0 else False
 
     def _ar_dyn_test(self, seq_len, action_sampler, writer_base_str):
