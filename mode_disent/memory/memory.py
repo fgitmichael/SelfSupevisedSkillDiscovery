@@ -1,6 +1,8 @@
 from collections import deque
 import numpy as np
 import torch
+import matplotlib.pyplot as plt
+from torch.utils.tensorboard import SummaryWriter
 
 from code_slac.memory.lazy import LazyFrames
 
@@ -149,3 +151,18 @@ class MyLazyMemory(dict):
                 'actions_seq': actions_seq,
                 'skill_seq': skill_seq,
                 'dones_seq': dones_seq}
+
+    def skill_histogram(self, writer: SummaryWriter):
+        all_seq = self.sample_sequence(self._n)
+
+        skills = []
+        for seq in all_seq['skill_seq']:
+            skills.append(seq)
+
+        skills = torch.cat(skills, dim=0).squeeze(dim=1)
+
+        writer.add_histogram('skill histogram of data',
+                             skills,
+                             bins='fd')
+
+

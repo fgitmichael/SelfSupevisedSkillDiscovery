@@ -178,15 +178,22 @@ class DisentAgent:
         feature_seq = self.dyn_latent.encoder(all_seqs['states_seq'])
         post = self.mode_latent.sample_mode_posterior(
             features_seq=feature_seq, actions_seq=all_seqs['actions_seq'])
+        base_str = 'Mode Model/'
         self._plot_mode_map(skill_seq=all_seqs['skill_seq'],
                             mode_post_samples=post['mode_sample'],
-                            base_str=None,
+                            base_str=base_str,
                             to=to)
 
     def sample_sequences(self):
-        for step in range(self.min_steps_sampling//self.num_sequences):
-            self.sample_seq()
+        skill = 0
+        while np.sum(self.steps) < self.min_steps_sampling:
+            self.sample_equal_skill_dist(skill)
+            skill = min(skill + 1, (skill + 1) % self.num_skills)
+
             self.episodes += 1
+
+        print(self.steps)
+        self.memory.skill_histogram(self.writer)
 
     def sample_seq(self):
         episode_steps_repeat = 0
@@ -201,9 +208,36 @@ class DisentAgent:
         while not done and episode_steps < self.num_sequences + 1:
             action = self.get_skill_policy_action(next_state)
             next_state, reward, done, _ = self.env.step(action)
-            self.steps[skill] += self.env.action_repeat
             episode_steps_repeat += self.env.action_repeat
+            self.steps[skill] += 1
             episode_steps += 1
+
+            self.memory.append(action=action,
+                               skill=np.array([skill], dtype=np.uint8),
+                               state=next_state,
+                               done=np.array([done], dtype=np.bool))
+
+        print(f'episode: {self.episodes:<4}  '
+              f'episode_steps: {episode_steps:<4}  '
+              f'skill: {skill: <4}  ')
+
+    def sample_equal_skill_dist(self, skill):
+        episode_steps = 0
+        done = False
+        state = self.env.reset()
+        self.memory.set_initial_state(state)
+
+        self.set_policy_skill(skill)
+
+        next_state = state
+        while not done \
+            and episode_steps < 2 * self.num_sequences \
+            and self.steps[skill] <= np.max(self.steps):
+            action = self.get_skill_policy_action(next_state)
+            next_state, reward, done, _ = self.env.step(action)
+
+            episode_steps += 1
+            self.steps[skill] += 1
 
             self.memory.append(action=action,
                                skill=np.array([skill], dtype=np.uint8),

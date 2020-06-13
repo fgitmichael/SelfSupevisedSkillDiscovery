@@ -7,9 +7,9 @@
     "action_repeat": 1
   },
 
-  "min_steps_sampling": 5000,
-  "batch_size": 128,
   "num_sequences": 168,
+  "min_steps_sampling": 7000,
+  "batch_size": 128,
   "train_steps_dyn": 2000,
   "train_steps_mode": 4000,
   "lr": 0.0001,
