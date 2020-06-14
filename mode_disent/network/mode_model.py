@@ -14,6 +14,7 @@ class ModeLatentNetwork(BaseNetwork):
                  mode_dim,
                  rnn_dim,
                  num_rnn_layers,
+                 rnn_dropout,
                  hidden_units_mode_encoder,
                  hidden_units_action_decoder,
                  mode_repeating,
@@ -37,7 +38,8 @@ class ModeLatentNetwork(BaseNetwork):
             action_dim=action_dim,
             hidden_units=hidden_units_mode_encoder,
             hidden_rnn_dim=rnn_dim,
-            rnn_layers=num_rnn_layers)
+            rnn_layers=num_rnn_layers,
+            rnn_dropout=rnn_dropout)
 
         # Mode prior
         self.mode_prior = ConstantGaussian(mode_dim)
@@ -90,7 +92,8 @@ class BiRnn(BaseNetwork):
     def __init__(self,
                  input_dim,
                  hidden_rnn_dim,
-                 rnn_layers=1,
+                 rnn_layers,
+                 rnn_dropout,
                  learn_initial_state=True):
         super(BiRnn, self).__init__()
 
@@ -101,6 +104,7 @@ class BiRnn(BaseNetwork):
         self.hidden_rnn_dim = hidden_rnn_dim
         self.f_rnn = nn.GRU(self.input_dim, self.hidden_rnn_dim,
                             num_layers=rnn_layers,
+                            dropout=rnn_dropout,
                             bidirectional=True)
 
         # Noisy hidden init state
@@ -152,16 +156,19 @@ class ModeEncoder(BaseNetwork):
                  output_dim,  # typically mode_dim
                  hidden_rnn_dim,
                  hidden_units,
-                 rnn_layers
+                 rnn_layers,
+                 rnn_dropout
                  ):
         super(ModeEncoder, self).__init__()
 
         self.f_rnn_features = BiRnn(feature_shape,
                                     hidden_rnn_dim=hidden_rnn_dim,
-                                    rnn_layers=rnn_layers)
+                                    rnn_layers=rnn_layers,
+                                    rnn_dropout=rnn_dropout)
         self.f_rnn_actions = BiRnn(action_shape,
                                    hidden_rnn_dim=hidden_rnn_dim,
-                                   rnn_layers=rnn_layers)
+                                   rnn_layers=rnn_layers,
+                                   rnn_dropout=rnn_dropout)
 
         # Concatenation of 2*hidden_rnn_dim from the features rnn and
         # 2*hidden_rnn_dim from actions rnn, hence input dim is 4*hidden_rnn_dim
@@ -186,6 +193,7 @@ class ModeEncoderCombined(BaseNetwork):
                  output_dim,  # typicall mode_dim
                  hidden_rnn_dim,
                  hidden_units,
+                 rnn_dropout,
                  rnn_layers):
         super(BaseNetwork, self).__init__()
 
@@ -194,7 +202,8 @@ class ModeEncoderCombined(BaseNetwork):
         #                 rnn_layers=rnn_layers)
         self.rnn = BiRnn(feature_shape,
                          hidden_rnn_dim=hidden_rnn_dim,
-                         rnn_layers=rnn_layers)
+                         rnn_layers=rnn_layers,
+                         rnn_dropout=rnn_dropout)
 
         self.mode_dist = Gaussian(input_dim=2 * hidden_rnn_dim,
                                   output_dim=output_dim,
