@@ -53,6 +53,7 @@ class DisentAgent:
                  dyn_latent,
                  mode_latent,
                  mode_repeating,
+                 info_loss_params,
                  run_id,
                  run_hp,
                  device,
@@ -144,6 +145,7 @@ class DisentAgent:
 
         self.skill_policy = skill_policy
 
+        self.info_loss_params = info_loss_params
         self.num_skills = self.skill_policy.stochastic_policy.skill_dim
         self.steps = np.zeros(shape=self.num_skills, dtype=np.int)
         self.learn_steps_dyn = 0
@@ -370,14 +372,25 @@ class DisentAgent:
         classic_loss = beta * kld - ll
 
         # Info VAE loss
-        alpha = 1.
-        lamda = 3.
+        #alpha = 1.
+        #lamda = 3.
+        #kld_info = (1 - alpha) * kld
+        #kld_desired = torch.tensor(1.1).to(self.device)
+        #kld_diff_control = 0.07 * F.mse_loss(kld_desired, kld)
+        #mmd_info = (alpha + lamda - 1) * mmd
+        ##info_loss = mse + kld_info + mmd_info + kld_diff_control
+        #info_loss = mse + kld_info + mmd_info
+
+        alpha = self.info_loss_params.alpha
+        lamda = self.info_loss_params.lamda
         kld_info = (1 - alpha) * kld
-        kld_desired = torch.tensor(1.1).to(self.device)
-        kld_diff_control = 0.07 * F.mse_loss(kld_desired, kld)
         mmd_info = (alpha + lamda - 1) * mmd
-        #info_loss = mse + kld_info + mmd_info + kld_diff_control
         info_loss = mse + kld_info + mmd_info
+        if self.info_loss_params.kld_diff_desired is not None:
+            kld_desired_scalar = self.info_loss_params.kld_diff_desired
+            kld_desired = torch.tensor(kld_desired_scalar).to(self.device)
+            kld_diff_control = 0.07 * F.mse_loss(kld_desired, kld)
+            info_loss += kld_diff_control
 
         # MI Gradient Estimation Loss (input-data - m)
         mi_grad_data_m_weight = 2
