@@ -71,8 +71,8 @@ class InteractiveDisentTester:
 
     def run_episode(self):
         # Reset env
-        self.env.render()
         obs = self.env.reset()
+        self.env.render()
         done = False
         episode_steps = 0
 

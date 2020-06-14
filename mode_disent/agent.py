@@ -233,7 +233,7 @@ class DisentAgent:
 
         next_state = state
         while not done \
-            and episode_steps < 2 * self.num_sequences \
+            and episode_steps <= self.num_sequences + 1 \
             and self.steps[skill] <= np.max(self.steps):
             action = self.get_skill_policy_action(next_state)
             next_state, reward, done, _ = self.env.step(action)
