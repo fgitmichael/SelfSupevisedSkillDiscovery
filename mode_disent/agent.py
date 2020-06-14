@@ -367,6 +367,20 @@ class DisentAgent:
         ll = action_recon['dists'].log_prob(actions_seq).mean(dim=0).sum()
         mse = F.mse_loss(action_recon['samples'], actions_seq)
 
+        # Sample wise analysis
+        if self._is_interval(self.log_interval, self.learn_steps_mode):
+            with torch.no_grad():
+                distance_sample_wise = ((action_recon['samples'] - actions_seq)**2)\
+                    .sum(dim=2).sum(dim=1).squeeze()
+                skill_batch = skill_seq.float().mean(dim=1).int().squeeze()
+                error_per_skill = []
+                for skill in range(self.num_skills):
+                    idx = skill_batch == skill
+                    num_occurence = torch.sum(idx.int())
+                    error_per_skill.append(
+                        (distance_sample_wise[idx].sum()/num_occurence).item())
+                print([int(el) for el in error_per_skill])
+
         # Classic beta-VAE loss
         beta = 1.
         classic_loss = beta * kld - ll
