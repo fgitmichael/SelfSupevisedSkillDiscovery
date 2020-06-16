@@ -175,6 +175,26 @@ class DisentAgent:
         self.save_models()
         self._plot_whole_mode_map(to=['file', 'writer'])
 
+    def run_dual_training(self):
+        self.sample_sequences()
+
+        train_steps = min(self.train_steps_dyn, self.train_steps_mode)
+        train_steps_ratio = self.train_steps_dyn / self.train_steps_mode
+
+        for _ in train_steps:
+            if train_steps_ratio > 1:
+                for _ in range(int(train_steps_ratio)):
+                    self.train_dyn()
+                self.train_mode()
+
+            else:
+                self.train_dyn()
+                for _ in range(int(train_steps_ratio**-1)):
+                    self.train_mode()
+
+        self.save_models()
+        self._plot_whole_mode_map(to=['file', 'writer'])
+
     def _plot_whole_mode_map(self, to: list):
         all_seqs = self.memory.sample_sequence(batch_size=self.batch_size * 1)
         feature_seq = self.dyn_latent.encoder(all_seqs['states_seq'])
