@@ -60,6 +60,10 @@ def run():
         if args.dynamics_model_path is not None else None
     args.mode_latent = torch.load(args.mode_model_path)\
         if args.mode_model_path is not None else None
+    args.memory = torch.load(args.memory_path)\
+        if args.memory_path is not None else None
+    args.test_memory = torch.load(args.test_memory_path) \
+        if args.test_memory_path is not None else None
 
     args.run_id = f'mode_disent{args.seed}-{datetime.now().strftime("%Y%m%d-%H%M")}'
     if args.run_comment is not None:
@@ -72,6 +76,8 @@ def run():
     args.pop('log_folder')
     args.pop('dynamics_model_path')
     args.pop('mode_model_path')
+    args.pop('memory_path')
+    args.pop('test_memory_path')
     args.pop('env_info')
     args.pop('dual_training')
 

@@ -7,9 +7,9 @@
     "action_repeat": 1
   },
 
-  "min_steps_sampling": 5000,
+  "min_steps_sampling": 100000,
   "batch_size": 128,
-  "num_sequences": 168,
+  "num_sequences": 70,
   "train_steps_dyn": 1000,
   "train_steps_mode": 4000,
   "lr": 0.0001,
@@ -18,12 +18,12 @@
   "info_loss_params": {
     "kld_diff_desired": null,
     "alpha": 1.0,
-    "lamda": 4.0
+    "lamda": 3.0
   },
 
   "feature_dim": 256,
-  "latent1_dim": 4,
-  "latent2_dim": 16,
+  "latent1_dim": 16,
+  "latent2_dim": 64,
   "std_dyn_decoder": 0.0316,
 
   "mode_dim": 2,
@@ -31,9 +31,9 @@
   "mode_encode_rnn_dim": 128,
   "mode_encode_num_rnn_layers": 2,
   "mode_encode_rnn_dropout": 0.0,
-  "hidden_units": [256, 256],
-  "hidden_units_encoder": [256, 256],
-  "hidden_units_dyn_decoder": [256, 256],
+  "hidden_units": [64, 64],
+  "hidden_units_encoder": [64, 64],
+  "hidden_units_dyn_decoder": [64, 64],
   "hidden_units_mode_encoder": [256, 256],
   "hidden_units_action_decoder": [256, 256],
   "std_action_decoder": 0.0316,
@@ -45,6 +45,8 @@
   "dual_training": false,
   "dynamics_model_path": null,
   "mode_model_path": null,
+  "memory_path": null,
+  "test_memory_path": null,
 
   "log_interval": 25,
   "run_comment": "normal training as baseline",

@@ -52,6 +52,8 @@ class DisentAgent:
                  log_interval,
                  dyn_latent,
                  mode_latent,
+                 memory,
+                 test_memory,
                  mode_repeating,
                  info_loss_params,
                  run_id,
@@ -118,22 +120,29 @@ class DisentAgent:
         self.dyn_optim = Adam(self.dyn_latent.parameters(), lr=lr)
         self.mode_optim = Adam(self.mode_latent.parameters(), lr=lr)
 
-        self.memory = MyLazyMemory(
-            state_rep=state_rep,
-            capacity=memory_size,
-            num_sequences=num_sequences,
-            observation_shape=self.observation_shape,
-            action_shape=self.action_shape,
-            device=self.device
-        )
-        self.test_memory = MyLazyMemory(
-            state_rep=state_rep,
-            capacity=memory_size,
-            num_sequences=num_sequences,
-            observation_shape=self.observation_shape,
-            action_shape=self.action_shape,
-            device=self.device
-        )
+        if memory is None:
+            self.memory = MyLazyMemory(
+                state_rep=state_rep,
+                capacity=memory_size,
+                num_sequences=num_sequences,
+                observation_shape=self.observation_shape,
+                action_shape=self.action_shape,
+                device=self.device
+            )
+        else:
+            self.memory = memory
+
+        if test_memory is None:
+            self.test_memory = MyLazyMemory(
+                state_rep=state_rep,
+                capacity=memory_size,
+                num_sequences=num_sequences,
+                observation_shape=self.observation_shape,
+                action_shape=self.action_shape,
+                device=self.device
+            )
+        else:
+            self.test_memory = test_memory
 
         self.spectral_j = SpectralScoreEstimator(n_eigen_threshold=0.99)
         self.spectral_m = SpectralScoreEstimator(n_eigen_threshold=0.99)
@@ -244,6 +253,16 @@ class DisentAgent:
 
         print(self.steps)
         self.memory.skill_histogram(self.writer)
+
+        # Save memory
+        path_name_memory = os.path.join(self.model_dir, 'memory.pth')
+        if os.path.exists(path_name_memory):
+            path_name_memory = os.path.join(self.model_dir, 'memory_test.pth')
+
+            if os.path.exists(path_name_memory):
+                raise NotImplementedError
+
+        torch.save(memory, path_name_memory)
 
     def sample_seq(self):
         episode_steps_repeat = 0
