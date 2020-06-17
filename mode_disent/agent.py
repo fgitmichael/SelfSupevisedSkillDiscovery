@@ -67,9 +67,10 @@ class DisentAgent:
         self.feature_dim = int(self.observation_shape[0]
                                if state_rep else feature_dim)
 
-        torch.manual_seed(seed)
-        np.random.seed(seed)
-        self.env.seed(seed)
+        self.seed = seed
+        torch.manual_seed(self.seed)
+        np.random.seed(self.seed)
+        self.env.seed(self.seed)
 
         self.device = torch.device(
             device if torch.cuda.is_available() else "cpu"
@@ -125,6 +126,14 @@ class DisentAgent:
             action_shape=self.action_shape,
             device=self.device
         )
+        self.test_memory = MyLazyMemory(
+            state_rep=state_rep,
+            capacity=memory_size,
+            num_sequences=num_sequences,
+            observation_shape=self.observation_shape,
+            action_shape=self.action_shape,
+            device=self.device
+        )
 
         self.spectral_j = SpectralScoreEstimator(n_eigen_threshold=0.99)
         self.spectral_m = SpectralScoreEstimator(n_eigen_threshold=0.99)
@@ -148,6 +157,7 @@ class DisentAgent:
         self.info_loss_params = info_loss_params
         self.num_skills = self.skill_policy.stochastic_policy.skill_dim
         self.steps = np.zeros(shape=self.num_skills, dtype=np.int)
+        self.steps_test = np.zeros(shape=self.num_skills, dtype=np.int)
         self.learn_steps_dyn = 0
         self.learn_steps_mode = 0
         self.episodes = 0
@@ -164,7 +174,16 @@ class DisentAgent:
         self.run_id = run_id
 
     def run(self):
-        self.sample_sequences()
+        self.sample_sequences(
+            memory=self.memory,
+            min_steps=self.min_steps_sampling,
+            step_cnt=self.steps)
+
+        self.env.seed(self.seed + 1)
+        self.sample_sequences(
+            memory=self.test_memory,
+            min_steps=self.min_steps_sampling,
+            step_cnt=self.steps_test)
 
         if not self.dyn_loaded:
             self.train_dyn()
@@ -176,7 +195,14 @@ class DisentAgent:
         self._plot_whole_mode_map(to=['file', 'writer'])
 
     def run_dual_training(self):
-        self.sample_sequences()
+        self.sample_sequences(memory=self.memory,
+                              min_steps=self.min_steps_sampling,
+                              step_cnt=self.steps)
+
+        self.env.seed(self.seed + 1)
+        self.sample_sequences(memory=self.test_memory,
+                              min_steps=self.min_steps_sampling,
+                              step_cnt=self.steps_test)
 
         train_steps = min(self.train_steps_dyn, self.train_steps_mode)
         train_steps_ratio = self.train_steps_dyn / self.train_steps_mode
@@ -206,10 +232,12 @@ class DisentAgent:
                             base_str=base_str,
                             to=to)
 
-    def sample_sequences(self):
+    def sample_sequences(self, memory, min_steps, step_cnt):
         skill = 0
-        while np.sum(self.steps) < self.min_steps_sampling:
-            self.sample_equal_skill_dist(skill)
+        while np.sum(step_cnt) < min_steps:
+            self.sample_equal_skill_dist(memory=memory,
+                                         skill=skill,
+                                         step_cnt=step_cnt)
             skill = min(skill + 1, (skill + 1) % self.num_skills)
 
             self.episodes += 1
@@ -243,28 +271,36 @@ class DisentAgent:
               f'episode_steps: {episode_steps:<4}  '
               f'skill: {skill: <4}  ')
 
-    def sample_equal_skill_dist(self, skill):
+    def sample_equal_skill_dist(self,
+                                memory: MyLazyMemory,
+                                skill: int,
+                                step_cnt: np.ndarray):
         episode_steps = 0
-        done = False
         state = self.env.reset()
-        self.memory.set_initial_state(state)
-
+        memory.set_initial_state(state)
         self.set_policy_skill(skill)
 
+
         next_state = state
-        while not done \
-            and episode_steps <= self.num_sequences + 1 \
-            and self.steps[skill] <= np.max(self.steps):
+        done = False
+
+        while self.steps[skill] <= np.max(self.steps):
+            if done:
+                next_state = self.env.reset()
+                done = False
+
             action = self.get_skill_policy_action(next_state)
             next_state, reward, done, _ = self.env.step(action)
 
             episode_steps += 1
-            self.steps[skill] += 1
+            step_cnt[skill] += 1
 
-            self.memory.append(action=action,
-                               skill=np.array([skill], dtype=np.uint8),
-                               state=next_state,
-                               done=np.array([done], dtype=np.bool))
+            seq_pushed = memory.append(action=action,
+                                       skill=np.array([skill], dtype=np.uint8),
+                                       state=next_state,
+                                       done=np.array([done], dtype=np.bool))
+            if seq_pushed:
+                break
 
         print(f'episode: {self.episodes:<4}  '
               f'episode_steps: {episode_steps:<4}  '
@@ -344,6 +380,15 @@ class DisentAgent:
                     writer_base_str=base_str + 'Auto_regressive_test_unseen_actions'
                 )
 
+                test_seq = self.test_memory.sample_sequence(batch_size=1)
+                action_seq = test_seq['actions_seq'][0]
+                action_sampler = ActionSamplerSeq(action_seq)
+                self._ar_dyn_test(
+                    seq_len=200,
+                    action_sampler=action_sampler,
+                    writer_base_str=base_str + 'Auto Reg with test set'
+                )
+
         return loss
 
     def learn_mode(self):
@@ -388,18 +433,18 @@ class DisentAgent:
         mse = F.mse_loss(action_recon['samples'], actions_seq)
 
         # Sample wise analysis
-        if self._is_interval(self.log_interval, self.learn_steps_mode):
-            with torch.no_grad():
-                distance_sample_wise = ((action_recon['samples'] - actions_seq)**2)\
-                    .sum(dim=2).sum(dim=1).squeeze()
-                skill_batch = skill_seq.float().mean(dim=1).int().squeeze()
-                error_per_skill = []
-                for skill in range(self.num_skills):
-                    idx = skill_batch == skill
-                    num_occurence = torch.sum(idx.int())
-                    error_per_skill.append(
-                        (distance_sample_wise[idx].sum()/num_occurence).item())
-                print([int(el) for el in error_per_skill])
+        #if self._is_interval(self.log_interval, self.learn_steps_mode):
+        #    with torch.no_grad():
+        #        distance_sample_wise = ((action_recon['samples'] - actions_seq)**2)\
+        #            .sum(dim=2).sum(dim=1).squeeze()
+        #        skill_batch = skill_seq.float().mean(dim=1).int().squeeze()
+        #        error_per_skill = []
+        #        for skill in range(self.num_skills):
+        #            idx = skill_batch == skill
+        #            num_occurence = torch.sum(idx.int())
+        #            error_per_skill.append(
+        #                (distance_sample_wise[idx].sum()/num_occurence).item())
+        #        print([int(el) for el in error_per_skill])
 
         # Classic beta-VAE loss
         beta = 1.

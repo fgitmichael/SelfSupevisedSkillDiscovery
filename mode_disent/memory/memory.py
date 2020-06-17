@@ -93,10 +93,15 @@ class MyLazyMemory(dict):
 
         self.buff.append(**kwargs)
 
+        seq_pushed = False
         # State sequences length determines length of the buffer
         if len(self.buff) == self.num_sequences + 1:
             seq_dict = self.buff.get()
             self._append(seq_dict)
+            seq_pushed = True
+
+        return seq_pushed
+
 
     def _append(self, seq_dict):
         for key in self.keys:
