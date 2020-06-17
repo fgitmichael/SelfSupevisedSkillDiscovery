@@ -52,6 +52,10 @@ def run():
         raise ValueError('Env_type is not used in if else statements')
 
     args.skill_policy = torch.load(args.skill_policy_path)['evaluation/policy']
+
+    if args.dual_training:
+        assert args.dynamics_model_path is None
+        assert args.mode_model_path is None
     args.dyn_latent = torch.load(args.dynamics_model_path)\
         if args.dynamics_model_path is not None else None
     args.mode_latent = torch.load(args.mode_model_path)\
@@ -61,14 +65,22 @@ def run():
     if args.run_comment is not None:
         args.run_id += str(args.run_comment)
 
+    dual_training = args.dual_training
+
     args.pop('run_comment')
     args.pop('skill_policy_path')
     args.pop('log_folder')
     args.pop('dynamics_model_path')
     args.pop('mode_model_path')
     args.pop('env_info')
+    args.pop('dual_training')
 
-    agent = DisentAgent(**args).run()
+    pprint(args)
+    agent = DisentAgent(**args)
+    if not dual_training:
+        agent.run()
+    else:
+        agent.run_dual_training()
 
 
 if __name__ == "__main__":

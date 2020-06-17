@@ -41,7 +41,7 @@
   "memory_size": 100000,
 
   "skill_policy_path": "./models/01_Skill_policy_half_cheetah/params.pkl",
-  "dynamics_model_path": "./logs/HalfCheetah-v2/hparams2/model/mode_disent4-20200613-2030/dyn_model.pth",
+  "dynamics_model_path": null,
   "mode_model_path": null,
 
   "log_interval": 25,

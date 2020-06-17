@@ -15,6 +15,12 @@
   "lr": 0.0001,
   "state_rep": true,
 
+  "info_loss_params": {
+    "kld_diff_desired": null,
+    "alpha": 1.0,
+    "lamda": 4.0
+  },
+
   "feature_dim": 256,
   "latent1_dim": 4,
   "latent2_dim": 16,
@@ -24,6 +30,7 @@
   "mode_repeating": true,
   "mode_encode_rnn_dim": 128,
   "mode_encode_num_rnn_layers": 2,
+  "mode_encode_rnn_dropout": 0.0,
   "hidden_units": [256, 256],
   "hidden_units_encoder": [256, 256],
   "hidden_units_dyn_decoder": [256, 256],
@@ -35,7 +42,8 @@
 
   "skill_policy_path": "./models/02_Skill_policy_mountain_car/params.pkl",
 
-  "dynamics_model_path": "./models/03_dyn_model/mode_disent1-20200607-1737dyn_model.pth",
+  "dual_training": true,
+  "dynamics_model_path": null,
   "mode_model_path": null,
 
   "log_interval": 25,

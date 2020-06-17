@@ -181,16 +181,16 @@ class DisentAgent:
         train_steps = min(self.train_steps_dyn, self.train_steps_mode)
         train_steps_ratio = self.train_steps_dyn / self.train_steps_mode
 
-        for _ in train_steps:
+        for _ in tqdm(range(train_steps)):
             if train_steps_ratio > 1:
                 for _ in range(int(train_steps_ratio)):
-                    self.train_dyn()
-                self.train_mode()
+                    self.learn_dyn()
+                self.learn_mode()
 
             else:
-                self.train_dyn()
+                self.learn_dyn()
                 for _ in range(int(train_steps_ratio**-1)):
-                    self.train_mode()
+                    self.learn_mode()
 
         self.save_models()
         self._plot_whole_mode_map(to=['file', 'writer'])
