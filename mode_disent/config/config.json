@@ -4,7 +4,8 @@
     "env_id": "MountainCarContinuous-v0",
     "domain_name": null,
     "task_name": null,
-    "action_repeat": 1
+    "action_repeat": 1,
+    "normalize_states": true
   },
 
   "min_steps_sampling": 100000,
