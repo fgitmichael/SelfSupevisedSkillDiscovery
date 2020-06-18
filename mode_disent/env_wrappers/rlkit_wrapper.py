@@ -79,21 +79,30 @@ class NormalizedBoxEnvForPytorch(OrdinaryEnvForPytorch):
         # Only change to OrdinaryEnvForPytorch: Use NormalizedBoxEnv
         self.normalize_states = normalize_states
         env_to_wrap = gym.make(gym_id)
-        low = env_to_wrap.observation_space.low
-        high = env_to_wrap.observation_space.high
-        if self.normalize_states:
+        obs_space = env_to_wrap.observation_space
+
+        low = obs_space.low
+        high = obs_space.high
+        bound_above = bool(np.prod(obs_space.bounded_above.astype(np.int)))
+        bound_below = bool(np.prod(obs_space.bounded_below.astype(np.int)))
+        bounded = bound_above and bound_below
+
+        if self.normalize_states and bounded:
             self.obs_mean = low + (high-low)/2
             self.obs_std = high - low
             self.env = NormalizedBoxEnv(env_to_wrap,
                                         obs_mean=self.obs_mean,
                                         obs_std=self.obs_std)
 
+        elif self.normalize_states and not bounded:
+            self.env = NormalizedBoxEnv(env_to_wrap)
+            self.estimate_obs_stats(num_data=10000)
+
         else:
             self.env = NormalizedBoxEnv(env_to_wrap)
-        # Only change to OrdinaryEnvForPytorch: Use NormalizedBoxEnv
+
         self.action_repeat = action_repeat
         self.obs_type = obs_type
-
 
         self.render_kwargs = dict(
             width=64,
@@ -119,3 +128,24 @@ class NormalizedBoxEnvForPytorch(OrdinaryEnvForPytorch):
             denormalized = state
 
         return  denormalized
+
+    def estimate_obs_stats(self, num_data):
+        # Sample states for estimation of obs stats
+        obs_list = []
+        done = False
+        self.env.reset()
+        for _ in range(num_data):
+            if done:
+                self.env.reset()
+                done = False
+
+            obs, _, done, _ = self.env.step(self.env.action_space.sample())
+            obs_list.append(obs)
+
+        obs_array = np.stack(obs_list, axis=0)
+
+        self.env.estimate_obs_stats(obs_array)
+        self.obs_mean = self.env._obs_mean
+        self.obs_std =  self.env._obs_std
+        self.env._should_normalize = True
+
