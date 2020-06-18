@@ -4,11 +4,12 @@
     "env_id": "HalfCheetah-v2",
     "domain_name": "cheetah",
     "task_name": null,
-    "action_repeat": 1
+    "action_repeat": 1,
+    "normalize_states": true
   },
 
   "num_sequences": 170,
-  "min_steps_sampling": 70000,
+  "min_steps_sampling": 100000,
   "batch_size": 128,
   "train_steps_dyn": 2000,
   "train_steps_mode": 4000,
@@ -17,8 +18,8 @@
 
   "info_loss_params": {
     "kld_diff_desired": null,
-    "alpha": 1.0,
-    "lamda": 4.0
+    "alpha": 0.99,
+    "lamda": 3.0
   },
 
   "feature_dim": 256,
@@ -41,8 +42,12 @@
   "memory_size": 100000,
 
   "skill_policy_path": "./models/01_Skill_policy_half_cheetah/params.pkl",
-  "dynamics_model_path": null,
+
+  "dual_training": false,
+  "dynamics_model_path": "./models/03_dyn_model/cheetah_dyn_model2.pth",
   "mode_model_path": null,
+  "memory_path": null,
+  "test_memory_path": null,
 
   "log_interval": 25,
   "run_comment": null,
