@@ -7,6 +7,7 @@ from code_slac.env.dm_control import DmControlEnvForPytorch
 from code_slac.env.ordinary_env import OrdinaryEnvForPytorch
 
 
+# Copied from module rlkit
 class NormalizedBoxEnv(ProxyEnv):
     """
     Normalize action to in [-1, 1].
