@@ -22,6 +22,7 @@ class ModeLatentNetwork(BaseNetwork):
                  action_dim,
                  dyn_latent_network,
                  std_decoder,
+                 action_normalized,
                  device,
                  leaky_slope):
         super(ModeLatentNetwork, self).__init__()
@@ -55,6 +56,7 @@ class ModeLatentNetwork(BaseNetwork):
                 action_dim=action_dim,
                 hidden_units=hidden_units_action_decoder,
                 std=std_decoder,
+                action_normalized=action_normalized,
                 leaky_slope=leaky_slope)
         else:
             self.action_decoder = ActionDecoderNormal(
@@ -64,6 +66,7 @@ class ModeLatentNetwork(BaseNetwork):
                 action_dim=action_dim,
                 hidden_units=hidden_units_action_decoder,
                 std=std_decoder,
+                action_normalized=action_normalized,
                 leaky_slope=leaky_slope)
 
     def sample_mode_prior(self, batch_size):
@@ -241,6 +244,7 @@ class ActionDecoderModeRepeat(BaseNetwork):
                  action_dim,
                  hidden_units,
                  leaky_slope,
+                 action_normalized,
                  std=None):
         super(ActionDecoderModeRepeat, self).__init__()
 
@@ -249,6 +253,8 @@ class ActionDecoderModeRepeat(BaseNetwork):
             self.mode_repeat = 10 * latent_dim//mode_dim
         else:
             self.mode_repeat = 1
+
+        self.action_normalized = action_normalized
 
         self.net = Gaussian(latent_dim+self.mode_repeat*mode_dim,
                             action_dim,
@@ -263,9 +269,13 @@ class ActionDecoderModeRepeat(BaseNetwork):
         assert len(latent1_sample.shape) \
                == len(latent2_sample.shape) \
                == len(mode_sample.shape)
+
         mode_sample_input = torch.cat(self.mode_repeat * [mode_sample], dim=-1)
         net_input = torch.cat([latent1_sample, latent2_sample, mode_sample_input], dim=-1)
         action_dist = self.net(net_input)
+
+        if self.action_normalized:
+            action_dist.loc = torch.tanh(action_dist.loc)
 
         return action_dist
 
@@ -279,8 +289,11 @@ class ActionDecoderNormal(BaseNetwork):
                  action_dim,
                  hidden_units,
                  leaky_slope,
+                 action_normalized,
                  std=None):
         super(ActionDecoderNormal, self).__init__()
+
+        self.action_normalized = action_normalized
 
         self.net = Gaussian(
             input_dim=latent1_dim + latent2_dim + mode_dim,
@@ -293,4 +306,11 @@ class ActionDecoderNormal(BaseNetwork):
                 latent1_sample,
                 latent2_sample,
                 mode_sample):
-        return self.net([latent1_sample, latent2_sample, mode_sample])
+        action_dist = self.net([latent1_sample, latent2_sample, mode_sample])
+
+        if self.action_normalized:
+            action_dist.loc = torch.tanh(action_dist.loc)
+
+        return action_dist
+
+

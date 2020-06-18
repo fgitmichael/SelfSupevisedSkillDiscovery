@@ -59,6 +59,7 @@ class DisentAgent:
                  run_id,
                  run_hp,
                  device,
+                 normalize_states,
                  leaky_slope=0.2,
                  seed=0
                  ):
@@ -97,6 +98,12 @@ class DisentAgent:
             self.dyn_latent = dyn_latent.to(self.device)
             self.dyn_loaded = True
 
+        if self.env.action_space.low == -1 and \
+            self.env.action_space.high == 1:
+            action_normalized = True
+        else:
+            action_normalized = False
+
         if mode_latent is None:
             self.mode_latent = ModeLatentNetwork(
                 mode_dim=mode_dim,
@@ -111,6 +118,7 @@ class DisentAgent:
                 dyn_latent_network=self.dyn_latent,
                 std_decoder=std_action_decoder,
                 leaky_slope=leaky_slope,
+                action_normalized=action_normalized,
                 device=self.device).to(self.device)
             self.mode_loaded = False
         else:
@@ -164,6 +172,7 @@ class DisentAgent:
         self.skill_policy = skill_policy
 
         self.info_loss_params = info_loss_params
+        self.normalize_states = normalize_states
         self.num_skills = self.skill_policy.stochastic_policy.skill_dim
         self.steps = np.zeros(shape=self.num_skills, dtype=np.int)
         self.steps_test = np.zeros(shape=self.num_skills, dtype=np.int)
@@ -299,7 +308,6 @@ class DisentAgent:
         memory.set_initial_state(state)
         self.set_policy_skill(skill)
 
-
         next_state = state
         done = False
 
@@ -406,6 +414,14 @@ class DisentAgent:
                     seq_len=200,
                     action_sampler=action_sampler,
                     writer_base_str=base_str + 'Auto Reg with test set'
+                )
+                test_seq = self.memory.sample_sequence(batch_size=1)
+                action_seq = test_seq['actions_seq'][0]
+                action_sampler = ActionSamplerSeq(action_seq)
+                self._ar_dyn_test(
+                    seq_len=200,
+                    action_sampler=action_sampler,
+                    writer_base_str=base_str + 'Auto Reg with training set'
                 )
 
         return loss
@@ -655,12 +671,13 @@ class DisentAgent:
                 action_save = []
                 obs_save = []
                 for _ in range(seq_len):
-                    obs_tensor = torch.from_numpy(obs.astype(np.float)).unsqueeze(0).to(self.device).float()
+                    obs_tensor = torch.from_numpy(obs.astype(np.float))\
+                        .unsqueeze(0).to(self.device).float()
 
                     action_tensor = mode_action_sampler(
                         feature=self.dyn_latent.encoder(obs_tensor))
 
-                    action = action_tensor.detach().cpu().numpy()
+                    action = action_tensor[0].detach().cpu().numpy()
                     obs, _, done, _ = self.env.step(action)
 
                     action_save.append(action)
@@ -743,6 +760,7 @@ class DisentAgent:
 
     def get_skill_policy_action(self, obs):
         if self.state_rep:
+            obs = self.env.denormalize(obs) if self.normalize_states else obs
             action = self.get_skill_action_state_rep(obs)
         else:
             action = self.get_skill_action_pixel()

@@ -79,7 +79,7 @@ class InteractiveDisentTester:
         while not done and episode_steps < self.seq_len:
             # Get action
             action_tensor = self.mode_action_sampler(self.get_feature(obs))
-            action = action_tensor.detach().cpu().numpy()
+            action = action_tensor[0].detach().cpu().numpy()
 
             # Apply action
             obs, _, done, _ = self.env.step(action)

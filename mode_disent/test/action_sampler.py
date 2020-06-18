@@ -89,7 +89,6 @@ class ActionSamplerWithActionModel(ActionSampler):
             latent2_sample = latent2_dist.rsample()
 
         else:
-
             latent1_dist = self.dyn_model.latent1_prior(
                 [latent2_sample_before, action_before, feature])
             latent1_sample = latent1_dist.rsample()

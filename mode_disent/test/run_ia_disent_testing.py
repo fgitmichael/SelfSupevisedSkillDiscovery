@@ -46,12 +46,15 @@ def run(device='cpu'):
             action_repeat=hparams.env_info.action_repeat,
             obs_type=hparams.env_info.obs_type
         )
+
     elif hparams.env_info.env_type == 'normalized':
         env = NormalizedBoxEnvForPytorch(
             gym_id=hparams.env_info.env_id,
             action_repeat=hparams.env_info.action_repeat,
             obs_type=obs_type,
+            normalize_states=hparams.env_info.normalize_states,
         )
+
     else:
         raise ValueError('Env_type is not used in if else statesments')
 

@@ -32,6 +32,7 @@ def run():
 
     args.device = args.device if torch.cuda.is_available() else "cpu"
 
+    args.normalize_states = args.env_info.normalize_states
     obs_type = "state" if args.state_rep is True else "pixels"
     if args.env_info.env_type == 'normal':
         args.env = OrdinaryEnvForPytorch(args.env_info.env_id)
@@ -46,7 +47,8 @@ def run():
         args.env = NormalizedBoxEnvForPytorch(
             gym_id=args.env_info.env_id,
             action_repeat=args.env_info.action_repeat,
-            obs_type=obs_type
+            obs_type=obs_type,
+            normalize_states = args.env_info.normalize_states
         )
     else:
         raise ValueError('Env_type is not used in if else statements')
