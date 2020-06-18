@@ -18,13 +18,13 @@
 
   "info_loss_params": {
     "kld_diff_desired": null,
-    "alpha": 1.0,
-    "lamda": 3.0
+    "alpha": 0.999,
+    "lamda": 0.1
   },
 
   "feature_dim": 256,
-  "latent1_dim": 16,
-  "latent2_dim": 64,
+  "latent1_dim": 8,
+  "latent2_dim": 32,
   "std_dyn_decoder": 0.0316,
 
   "mode_dim": 2,
@@ -44,7 +44,7 @@
   "skill_policy_path": "./models/02_Skill_policy_mountain_car/params.pkl",
 
   "dual_training": false,
-  "dynamics_model_path": null,
+  "dynamics_model_path": "./models/03_dyn_model/dyn_model.pth",
   "mode_model_path": null,
   "memory_path": null,
   "test_memory_path": null,
