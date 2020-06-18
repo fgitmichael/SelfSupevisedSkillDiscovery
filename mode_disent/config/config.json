@@ -10,7 +10,7 @@
 
   "min_steps_sampling": 100000,
   "batch_size": 128,
-  "num_sequences": 70,
+  "num_sequences": 120,
   "train_steps_dyn": 3000,
   "train_steps_mode": 4000,
   "lr": 0.0001,
@@ -19,7 +19,7 @@
   "info_loss_params": {
     "kld_diff_desired": null,
     "alpha": 0.999,
-    "lamda": 0.1
+    "lamda": 0.5
   },
 
   "feature_dim": 256,
