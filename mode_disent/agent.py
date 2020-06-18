@@ -436,6 +436,22 @@ class DisentAgent:
                     writer_base_str=base_str + 'Auto Reg with training set'
                 )
 
+        if self._is_interval(self.log_interval * 10, self.learn_steps_dyn):
+            # Scaling Test
+            seq = sequence['states_seq'][0]
+            recon_seq = states_seq_dists.loc[0]
+            for dim in range(*self.observation_shape):
+                plt.plot(self.tensor_to_numpy(seq[:, dim]),
+                         label='states_seq_dim' + str(dim))
+                plt.plot(self.tensor_to_numpy(recon_seq[:, dim]))
+                plt.gca().axes.set_ylim([-1.5, 1.5])
+                plt.legend()
+                self.writer.add_figure('scaling test/dim' + str(dim),
+                                       plt.gcf(),
+                                       global_step=self.learn_steps_dyn)
+                plt.clf()
+
+
         return loss
 
     def learn_mode(self):
