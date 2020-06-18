@@ -137,8 +137,10 @@ class DisentAgent:
                 action_shape=self.action_shape,
                 device=self.device
             )
+            self.memory_loaded = False
         else:
             self.memory = memory
+            self.memory_loaded = True
 
         if test_memory is None:
             self.test_memory = MyLazyMemory(
@@ -149,8 +151,10 @@ class DisentAgent:
                 action_shape=self.action_shape,
                 device=self.device
             )
+            self.memory_test_loaded = False
         else:
             self.test_memory = test_memory
+            self.memory_test_loaded = True
 
         self.spectral_j = SpectralScoreEstimator(n_eigen_threshold=0.99)
         self.spectral_m = SpectralScoreEstimator(n_eigen_threshold=0.99)
@@ -193,13 +197,13 @@ class DisentAgent:
 
     def run(self):
         self.sample_sequences(
-            memory=self.memory,
+            memory_to_fill=self.memory,
             min_steps=self.min_steps_sampling,
             step_cnt=self.steps)
 
         self.env.seed(self.seed + 1)
         self.sample_sequences(
-            memory=self.test_memory,
+            memory_to_fill=self.test_memory,
             min_steps=self.min_steps_sampling,
             step_cnt=self.steps_test)
 
@@ -250,10 +254,10 @@ class DisentAgent:
                             base_str=base_str,
                             to=to)
 
-    def sample_sequences(self, memory, min_steps, step_cnt):
+    def sample_sequences(self, memory_to_fill, min_steps, step_cnt):
         skill = 0
         while np.sum(step_cnt) < min_steps:
-            self.sample_equal_skill_dist(memory=memory,
+            self.sample_equal_skill_dist(memory=memory_to_fill,
                                          skill=skill,
                                          step_cnt=step_cnt)
             skill = min(skill + 1, (skill + 1) % self.num_skills)
@@ -261,17 +265,17 @@ class DisentAgent:
             self.episodes += 1
 
         print(self.steps)
-        self.memory.skill_histogram(self.writer)
+        memory_to_fill.skill_histogram(self.writer)
 
         # Save memory
-        path_name_memory = os.path.join(self.model_dir, 'memory.pth')
-        if os.path.exists(path_name_memory):
-            path_name_memory = os.path.join(self.model_dir, 'memory_test.pth')
+        #path_name_memory = os.path.join(self.model_dir, 'memory.pth')
+        #if os.path.exists(path_name_memory):
+        #    path_name_memory = os.path.join(self.model_dir, 'memory_test.pth')
 
-            if os.path.exists(path_name_memory):
-                raise NotImplementedError
+        #    if os.path.exists(path_name_memory):
+        #        raise NotImplementedError
 
-        torch.save(memory, path_name_memory)
+        #torch.save(memory_to_fill, path_name_memory)
 
     def sample_seq(self):
         episode_steps_repeat = 0
