@@ -101,13 +101,9 @@ class DisentAgent:
         ones_like_action = np.ones_like(self.env.action_space.sample())
         action_bound_low = self.env.action_space.low
         action_bound_high = self.env.action_space.high
-        action_bound_low_test = action_bound_high == -1 * ones_like_action
+        action_bound_low_test = action_bound_low == -1 * ones_like_action
         action_bound_high_test = action_bound_high == ones_like_action
         if np.all(action_bound_high_test & action_bound_low_test):
-        #if np.all(action_bound_low == (-1 * ones_like_action) & \
-        #    action_bound_high == (1 * ones_like_action)):
-        #if self.env.action_space.low == (-1 * ones_like_action) and \
-        #    self.env.action_space.high == (1 * ones_like_action):
             action_normalized = True
         else:
             action_normalized = False
