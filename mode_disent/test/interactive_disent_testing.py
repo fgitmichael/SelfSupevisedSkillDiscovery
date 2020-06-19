@@ -50,7 +50,8 @@ class InteractiveDisentTester:
         self.viz = IaVisualization(
             fig=mode_map_fig,
             update_rate=20,
-            change_mode_fun=self.mode_action_sampler.change_mode_on_fly)
+            change_mode_fun=self.mode_action_sampler.set_mode_next,
+            reset_env_fun=self.env.reset)
 
         self.steps = 0
         self.episodes = 0
@@ -75,6 +76,8 @@ class InteractiveDisentTester:
         self.env.render()
         done = False
         episode_steps = 0
+        self.mode_action_sampler.reset_latent()
+        self.mode_action_sampler.update_mode_to_next()
 
         while not done and episode_steps < self.seq_len:
             # Get action
@@ -94,5 +97,6 @@ class InteractiveDisentTester:
         print(str(self.num_episodes - self.episodes) + ' episodes left')
 
     def run(self):
-        for _ in range(self.num_episodes):
-            self.run_episode()
+        with torch.no_grad():
+            for _ in range(self.num_episodes):
+                self.run_episode()

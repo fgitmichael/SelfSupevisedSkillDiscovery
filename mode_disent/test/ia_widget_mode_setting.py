@@ -1,17 +1,21 @@
 import torch
+from typing import Union
 import matplotlib.pyplot as plt
-from mode_disent.test.action_sampler import ActionSamplerWithActionModel
-from matplotlib.widgets import Slider
 import matplotlib
 matplotlib.use('TkAgg')
-import torch
+
+from mode_disent.test.action_sampler import ActionSamplerWithActionModel
+from gym import Env
+from matplotlib.widgets import Slider
 
 
 class IaVisualization:
 
     def __init__(self,
                  fig,
-                 change_mode_fun: ActionSamplerWithActionModel.change_mode_on_fly,
+                 change_mode_fun: Union[ActionSamplerWithActionModel.set_mode,
+                                        ActionSamplerWithActionModel.set_mode_next],
+                 reset_env_fun: Env.reset,
                  update_rate: int):
         #self.fig, self.ax = plt.subplots()
         self.fig = fig
@@ -34,6 +38,7 @@ class IaVisualization:
         self.slid2.on_changed(self.slider_callback)
 
         self.change_mode_fun = change_mode_fun
+        self.reset_env_fun = reset_env_fun
 
         plt.interactive(False)
         plt.pause(0.05)

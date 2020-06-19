@@ -46,22 +46,34 @@ class ActionSamplerWithActionModel(ActionSampler):
 
         # Temporaray storage
         self._mode = None
+        self._mode_next = None
         self._latent2_sample_before = None
         self._action_before = None
 
     def reset(self, mode=None):
         if mode is None:
-            self._mode = \
-                self.mode_model.sample_mode_prior(batch_size=1)['mode_sample']
+            mode_to_set = self.mode_model.sample_mode_prior(batch_size=1)['mode_sample']
+            self.set_mode(mode_to_set)
 
         else:
-            self._mode = mode
+            self.set_mode(mode)
 
         self._latent2_sample_before = None
         self._action_before = None
 
-    def change_mode_on_fly(self, mode):
+    def reset_latent(self):
+        self._latent2_sample_before = None
+        self._action_before = None
+
+    def set_mode(self, mode):
         self._mode = mode.to(self.device)
+        self._mode_next = mode.to(self.device)
+
+    def set_mode_next(self, mode):
+        self._mode_next = mode.to(self.device)
+
+    def update_mode_to_next(self):
+        self._mode = self._mode_next
 
     def _get_action(self,
                     mode,
