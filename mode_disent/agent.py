@@ -492,18 +492,44 @@ class DisentAgent:
         mse = F.mse_loss(action_recon['samples'], actions_seq)
 
         # Sample wise analysis
-        #if self._is_interval(self.log_interval, self.learn_steps_mode):
-        #    with torch.no_grad():
-        #        distance_sample_wise = ((action_recon['samples'] - actions_seq)**2)\
-        #            .sum(dim=2).sum(dim=1).squeeze()
-        #        skill_batch = skill_seq.float().mean(dim=1).int().squeeze()
-        #        error_per_skill = []
-        #        for skill in range(self.num_skills):
-        #            idx = skill_batch == skill
-        #            num_occurence = torch.sum(idx.int())
-        #            error_per_skill.append(
-        #                (distance_sample_wise[idx].sum()/num_occurence).item())
-        #        print([int(el) for el in error_per_skill])
+        if self._is_interval(self.log_interval, self.learn_steps_mode):
+            with torch.no_grad():
+                distance_sample_wise = ((action_recon['samples'] - actions_seq)**2)\
+                    .sum(dim=2).sum(dim=1).squeeze()
+                skill_batch = skill_seq.float().mean(dim=1).int().squeeze()
+                error_per_skill = []
+                for skill in range(self.num_skills):
+                    idx = skill_batch == skill
+                    num_occurence = torch.sum(idx.int())
+                    error_per_skill.append(
+                        (distance_sample_wise[idx].sum()/num_occurence).item())
+
+                error_per_skill_np = np.array([int(el) for el in error_per_skill])
+                print(error_per_skill_np.astype(np.int))
+
+                highest_error_skill = np.argmax(error_per_skill)
+                skill_seq_mean_per_episode = skill_seq.float().mean(dim=1).int()
+                bool_idx = skill_seq_mean_per_episode == torch.tensor(highest_error_skill)
+                seq_with_skill_to_plot = skill_seq_mean_per_episode[bool_idx]
+                rand_idx = np.random.randint(low=0, high=seq_with_skill_to_plot.size(0))
+                action_seq_to_plot = actions_seq[rand_idx]
+                action_seq_to_plot_recon = action_recon['samples'][rand_idx]
+
+                for dim in range(*self.action_shape):
+                    plt.interactive(False)
+                    plt.ylim([-1.5, 1.5])
+                    plt.plot(self.tensor_to_numpy(action_seq_to_plot[:, dim]),
+                             label='real ' + 'skill' + str(highest_error_skill))
+                    plt.plot(self.tensor_to_numpy(action_seq_to_plot_recon[:, dim]),
+                             label='recon' + 'skill' + str(highest_error_skill))
+
+                    plt.legend()
+                    fig = plt.gcf()
+                    base_str = 'Mode Model'
+                    self.writer.add_figure(base_str + 'reconstruction_test_on_dataset_dim' + str(dim),
+                                           fig,
+                                           global_step=self.learn_steps_mode)
+                    plt.clf()
 
         # Classic beta-VAE loss
         beta = 1.
