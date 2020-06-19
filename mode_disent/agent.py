@@ -570,7 +570,7 @@ class DisentAgent:
 
         base_str = 'Mode Model/'
         if self._is_interval(self.log_interval * 2, self.learn_steps_mode) \
-                and self.observation_shape[0] + self.action_shape[0] < 8:
+            and self.observation_shape[0] + self.action_shape[0] < 8:
 
             rand_batch_idx = np.random.randint(low=0, high=self.batch_size)
             self._plot_recon_comparison(actions_seq[rand_batch_idx],
@@ -579,7 +579,37 @@ class DisentAgent:
                                         base_str)
             self._test_mode_influence(mode_post['mode_sample'])
 
-        return info_loss
+        elif self._is_interval(self.log_interval * 2, self.learn_steps_mode) \
+            and self.observation_shape[0] + self.action_shape[0] >= 8:
+            rand_batch_idx = np.random.randint(low=0, high=self.batch_size)
+            self._plot_recon_comparison_high_dim(actions_seq[rand_batch_idx],
+                                                 action_recon['samples'][rand_batch_idx],
+                                                 base_str)
+
+        return 10 * info_loss
+
+    def _plot_recon_comparison_high_dim(self,
+                                        action_seq,
+                                        action_seq_recon,
+                                        base_str):
+        dims = self.action_shape[0]
+
+        action_seq = self.tensor_to_numpy(action_seq)
+        action_seq_recon = self.tensor_to_numpy(action_seq_recon)
+
+        for dim in range(dims):
+            plt.interactive(False)
+            axes = plt.gca()
+            axes.set_ylim([-1.5, 1.5])
+            plt.plot(action_seq[:, dim], label='real action dim' + str(dim))
+            plt.plot(action_seq_recon[:, dim], label='recon action dim' + str(dim))
+
+            plt.legend()
+            fig = plt.gcf()
+            self.writer.add_figure(base_str + 'reconstruction_test_on_dataset dim' + str(dim),
+                                   fig,
+                                   global_step=self.learn_steps_mode)
+            plt.gcf()
 
     def _plot_recon_comparison(self,
                                action_seq,
