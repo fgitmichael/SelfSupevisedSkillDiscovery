@@ -206,10 +206,10 @@ class DisentAgent:
             step_cnt=self.steps)
 
         self.env.seed(self.seed + 1)
-        self.sample_sequences(
-            memory_to_fill=self.test_memory,
-            min_steps=self.min_steps_sampling,
-            step_cnt=self.steps_test)
+        #self.sample_sequences(
+        #    memory_to_fill=self.test_memory,
+        #    min_steps=self.min_steps_sampling,
+        #    step_cnt=self.steps_test)
 
         if not self.dyn_loaded:
             self.train_dyn()
@@ -415,14 +415,14 @@ class DisentAgent:
                     writer_base_str=base_str + 'Auto_regressive_test_unseen_actions'
                 )
 
-                test_seq = self.test_memory.sample_sequence(batch_size=1)
-                action_seq = test_seq['actions_seq'][0]
-                action_sampler = ActionSamplerSeq(action_seq)
-                self._ar_dyn_test(
-                    seq_len=200,
-                    action_sampler=action_sampler,
-                    writer_base_str=base_str + 'Auto Reg with test set'
-                )
+                #test_seq = self.test_memory.sample_sequence(batch_size=1)
+                #action_seq = test_seq['actions_seq'][0]
+                #action_sampler = ActionSamplerSeq(action_seq)
+                #self._ar_dyn_test(
+                #    seq_len=200,
+                #    action_sampler=action_sampler,
+                #    writer_base_str=base_str + 'Auto Reg with test set'
+                #)
                 test_seq = self.memory.sample_sequence(batch_size=1)
                 action_seq = test_seq['actions_seq'][0]
                 action_sampler = ActionSamplerSeq(action_seq)
