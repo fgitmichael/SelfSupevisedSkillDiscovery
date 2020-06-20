@@ -10,6 +10,7 @@ from code_slac.network.latent import Gaussian, ConstantGaussian
 from mode_disent.network.mode_model import BiRnn
 
 
+# Note: Normalized Actions are assumed
 class ModeLatentNetwork(BaseNetwork):
 
     def __init__(self,
@@ -74,12 +75,16 @@ class ModeEncoderFeaturesOnly(BaseNetwork):
                                   hidden_units=hidden_units)
 
     def forward(self, features_seq):
+        """
+        Args:
+            features_seq    : (S, N, feature_dim) tensor
+        """
         rnn_out = self.rnn(features_seq)
         return self.mode_dist(rnn_out)
 
 
 # TODO: implement a abstract baseclass for ActionDecoder (name ActionDecoderBase)
-# Note: This Decoder Network return normalized Actions!
+# Note: This Decoder Network returns normalized Actions!
 class ActionDecoder(BaseNetwork):
 
     def __init__(self,
