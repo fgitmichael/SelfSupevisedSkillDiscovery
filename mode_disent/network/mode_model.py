@@ -188,6 +188,8 @@ class ModeEncoder(BaseNetwork):
         return self.f_dist(rnn_result)
 
 
+#TODO: Rename this class as it isn't using combination of features and actions
+#      It is just using features
 class ModeEncoderCombined(BaseNetwork):
 
     def __init__(self,
