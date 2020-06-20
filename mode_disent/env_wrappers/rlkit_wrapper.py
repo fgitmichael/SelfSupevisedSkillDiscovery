@@ -150,3 +150,7 @@ class NormalizedBoxEnvForPytorch(OrdinaryEnvForPytorch):
         self.obs_std =  self.env._obs_std
         self.env._should_normalize = True
 
+    @property
+    def state_normalization(self):
+        return self.env._should_normalize
+
