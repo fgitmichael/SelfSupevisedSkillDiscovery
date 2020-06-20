@@ -15,6 +15,7 @@ class ModeLatentNetwork(BaseNetwork):
 
     def __init__(self,
                  mode_dim,
+                 representation_dim,
                  rnn_dim,
                  num_rnn_layers,
                  rnn_dropout,
@@ -22,7 +23,6 @@ class ModeLatentNetwork(BaseNetwork):
                  hidden_units_action_decoder,
                  num_mode_repeat: int,
                  feature_dim,
-                 representation_dim,
                  action_dim,
                  std_decoder,
                  device,
@@ -70,8 +70,8 @@ class ModeLatentNetwork(BaseNetwork):
 
     def sample_mode_prior(self, batch_size):
         mode_dist = self.mode_prior(torch.rand(batch_size, 1).to(self.device))
-        return {'mode_dist': mode_dist,
-                'mode_sample': mode_dist.sample()}
+        return {'dists': mode_dist,
+                'samples': mode_dist.sample()}
 
     def sample_mode_posterior(self,
                               features_seq):
@@ -114,6 +114,8 @@ class ModeEncoderFeaturesOnly(BaseNetwork):
         """
         Args:
             features_seq    : (S, N, feature_dim) tensor
+        Return:
+            mode_dist       : (N, mode_dim) distribution
         """
         rnn_out = self.rnn(features_seq)
         return self.mode_dist(rnn_out)
@@ -142,24 +144,29 @@ class ActionDecoder(BaseNetwork):
         )
 
     def forward(self,
-                state_rep,
-                mode_sample):
+                state_rep_seq,
+                mode_sample: torch.tensor):
         """
         Args:
-            state_rep       : (N, state_rep_dim) - tensor
-            i                 Representation of state. Can be a latent variable,
+            state_rep_seq   : (N, S + 1, state_rep_dim) - tensor
+                              Representation of state. Can be a latent variable,
                               list of latent variable or just a feature
-            mode_sample     : (N, mode_dim) - tensor
+            mode_sample     : (N, S + 1, mode_dim) - tensor
         Return:
-            action_dist     : Distribution over decoded actions
+            action_dist     : (N, S + 1) Distribution over decoded actions
         """
-        #Decode
-        action_dist = self.net([state_rep, mode_sample])
+        # Repeat mode samples
+        seq_len = state_rep_seq.size(1)
+        mode_samples_repetition = torch.stack(seq_len * [mode_sample], dim=1)
+
+        # Decode
+        action_dist = self.net([state_rep_seq, mode_samples_repetition])
 
         # Normalize action mean
         action_dist.loc = torch.tanh(action_dist.loc)
 
-        return action_dist
+        return {'dist': action_dist,
+                'sample': action_dist.loc}
 
 
 class ActionDecoderModeRepeat(ActionDecoder):
@@ -188,15 +195,21 @@ class ActionDecoderModeRepeat(ActionDecoder):
         )
 
     def forward(self,
-                state_rep,
-                mode_sample):
+                state_rep_seq,
+                mode_sample: torch.tensor):
         """
-        See ActionDecoder
+        Args:
+            state_rep_seq   : (N, S + 1, state_rep_dim) - tensor
+                              Representation of state. Can be a latent variable,
+                              list of latent variable or just a feature
+            mode_sample     : (N, S + 1, mode_dim) - tensor
+        Return:
+            action_dist     : (N, S + 1) Distribution over decoded actions
         """
         mode_sample_repeated = torch.cat(self.mode_repeat * [mode_sample], dim=1)
-        action_dist = super(ActionDecoderModeRepeat, self).forward(
-            state_rep=state_rep,
+        actions = super(ActionDecoderModeRepeat, self).forward(
+            state_rep_seq=state_rep_seq,
             mode_sample=mode_sample_repeated
         )
 
-        return action_dist
+        return actions
