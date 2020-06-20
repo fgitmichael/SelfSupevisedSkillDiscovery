@@ -20,12 +20,11 @@ class ModeLatentNetwork(BaseNetwork):
                  rnn_dropout,
                  hidden_units_mode_encoder,
                  hidden_units_action_decoder,
-                 mode_repeating,
+                 num_mode_repeat: int,
                  feature_dim,
                  representation_dim,
                  action_dim,
                  std_decoder,
-                 action_normalized,
                  device,
                  leaky_slope
                  ):
@@ -48,8 +47,45 @@ class ModeLatentNetwork(BaseNetwork):
         self.mode_prior = ConstantGaussian(mode_dim)
 
         # Action decoder
-        if mode_repeating:
-            self.ac
+        if not num_mode_repeat == 0:
+            self.action_decoder = ActionDecoderModeRepeat(
+                state_rep_dim=representation_dim,
+                mode_dim=mode_dim,
+                action_dim=action_dim,
+                hidden_units=hidden_units_action_decoder,
+                std=std_decoder,
+                leaky_slope=leaky_slope,
+                num_mode_repeat=num_mode_repeat,
+            )
+
+        else:
+            self.action_decoder = ActionDecoder(
+                state_rep_dim=representation_dim,
+                mode_dim=mode_dim,
+                action_dim=action_dim,
+                hidden_units=hidden_units_action_decoder,
+                std=std_decoder,
+                leaky_slope=leaky_slope,
+            )
+
+    def sample_mode_prior(self, batch_size):
+        mode_dist = self.mode_prior(torch.rand(batch_size, 1).to(self.device))
+        return {'mode_dist': mode_dist,
+                'mode_sample': mode_dist.sample()}
+
+    def sample_mode_posterior(self,
+                              features_seq):
+        """
+        Args:
+            features_seq    : (N, S + 1, feature_dim) tensor
+        """
+        features_seq = features_seq.transpose(0, 1)
+
+        mode_dist = self.mode_encoder(features_seq=features_seq)
+        mode_sample = mode_dist.rsample()
+
+        return {'mode_dist': mode_dist,
+                'mode_sample': mode_sample}
 
 
 class ModeEncoderFeaturesOnly(BaseNetwork):
