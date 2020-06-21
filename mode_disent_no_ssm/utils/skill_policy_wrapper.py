@@ -20,7 +20,7 @@ class DiaynSkillPolicyWrapper():
 
     @property
     def num_skills(self):
-        return self.skill_dim - 1
+        return self.skill_dim
 
     def get_action(self,
                    obs_denormalized,
