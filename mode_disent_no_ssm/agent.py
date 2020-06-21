@@ -137,7 +137,7 @@ class DisentTrainerNoSSM:
 
         self._train()
 
-        #self._save_models()
+        self._save_models()
 
     def _train(self):
         for _ in tqdm(range(self.train_steps)):
@@ -263,4 +263,9 @@ class DisentTrainerNoSSM:
     @staticmethod
     def _is_interval(log_interval, steps):
         return True if steps % log_interval == 0 else False
+
+    def _save_models(self):
+        path_name = os.path.join(self.model_dir, 'mode_model.pkl')
+        torch.save(self.mode_latent_model, path_name)
+
 
