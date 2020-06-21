@@ -73,7 +73,7 @@ class DisentTrainerNoSSM:
             input_dim=self.observation_shape[0],
             output_dim=self.feature_dim,
             hidden_units=hidden_units_obs_encoder
-        )
+        ).to(self.device)
 
         if mode_latent_model is None:
             self.mode_latent_model = ModeLatentNetwork(
@@ -90,7 +90,7 @@ class DisentTrainerNoSSM:
                 std_decoder=std_decoder,
                 device=self.device,
                 leaky_slope=leaky_slope,
-            )
+            ).to(self.device)
             self.mode_model_loaded = False
 
         else:
