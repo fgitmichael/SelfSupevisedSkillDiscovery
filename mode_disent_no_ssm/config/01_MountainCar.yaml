@@ -21,8 +21,8 @@ hidden_units_mode_encoder:
   - 256
   - 256
 hidden_units_obs_encoder:
-  - 64
-  - 64
+  - 256
+  - 256
 hidden_units_action_decoder:
   - 256
   - 256
@@ -31,13 +31,13 @@ memory_size: 100000
 
 info_loss_params:
   kld_diff_desired: null
-  alpha: 0.995
-  lamda: 0.11
+  alpha: 0.9999
+  lamda: 0.001
 
 skill_policy_path: "./data/01_skill_policies/01_MoutainCar_Policy_Object.pkl"
 
 mode_model_path: null
-log_interval: 25
+log_interval: 75
 run_comment: null
 log_folder: hparams
 device: cuda
