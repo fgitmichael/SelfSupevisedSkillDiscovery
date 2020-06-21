@@ -194,6 +194,18 @@ class DisentTrainerNoSSM:
             kld_diff_control = 0.07 * F.mse_loss(kld_desired, kld)
             info_loss += kld_diff_control
 
+        # Logging
+        base_str_stats = 'Mode Model stats'
+        if self._is_interval(self.log_interval, self.learn_steps):
+            self._summary_log_mode(base_str_stats + 'log-liklyhood', ll)
+            self._summary_log_mode(base_str_stats + 'mse', mse)
+            self._summary_log_mode(base_str_stats + 'kld', kld)
+            self._summary_log_mode(base_str_stats + 'mmd', mmd)
+            self._summary_log_mode(base_str_stats + 'kld info-weighted', kld_info)
+            self._summary_log_mode(base_str_stats + 'mmd info weighted', mmd_info)
+            self._summary_log_mode(
+                base_str_stats + 'loss on latent', mmd_info+ kld_info)
+
         return info_loss
 
     def _sample_sequences(self,
@@ -267,5 +279,10 @@ class DisentTrainerNoSSM:
     def _save_models(self):
         path_name = os.path.join(self.model_dir, 'mode_model.pkl')
         torch.save(self.mode_latent_model, path_name)
+
+    def _summary_log_mode(self, data_name, data):
+        if type(data) == torch.Tensor:
+            data = data.detach().cpu().item()
+        self.writer.add_scalar(data_name, data, self.learn_steps)
 
 
