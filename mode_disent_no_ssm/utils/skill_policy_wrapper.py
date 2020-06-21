@@ -33,7 +33,7 @@ class DiaynSkillPolicyWrapper():
         Return:
             action             : action as trained with Diayn
         """
-        action = self.policy.get_action(obs_denormalized)
+        action, info = self.policy.get_action(obs_denormalized)
         return action
 
 
