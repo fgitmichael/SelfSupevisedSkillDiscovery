@@ -45,7 +45,6 @@ class DisentTrainerNoSSM:
                  run_id,
                  run_hp,
                  device,
-                 normalize_states,
                  leaky_slope=0.2,
                  seed=0,
                  ):
@@ -138,18 +137,19 @@ class DisentTrainerNoSSM:
 
         self._train()
 
-        self._save_models()
+        #self._save_models()
 
     def _train(self):
         for _ in tqdm(range(self.train_steps)):
             self._learn_step()
 
-        raise NotImplementedError
-
     def _learn_step(self):
         sequences = self.memory.sample_sequence(self.batch_size)
+
         loss = self._calc_loss(sequences)
-        raise NotImplementedError
+        update_params(self.optim, self.mode_latent_model, loss)
+
+        self.learn_steps += 1
 
     def _calc_loss(self, sequence):
         actions_seq = sequence['actions_seq']
@@ -193,6 +193,8 @@ class DisentTrainerNoSSM:
             kld_desired = torch.tensor(kld_desired_scalar).to(self.device)
             kld_diff_control = 0.07 * F.mse_loss(kld_desired, kld)
             info_loss += kld_diff_control
+
+        return info_loss
 
     def _sample_sequences(self,
                           memory_to_fill: MyLazyMemory,
@@ -257,4 +259,8 @@ class DisentTrainerNoSSM:
             device_str if torch.cuda.is_available() else "cpu"
         )
         print("device set to " + str(self.device))
+
+    @staticmethod
+    def _is_interval(log_interval, steps):
+        return True if steps % log_interval == 0 else False
 
