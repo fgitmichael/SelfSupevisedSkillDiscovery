@@ -336,10 +336,6 @@ class DisentTrainerNoSSM:
         )
         print("device set to " + str(self.device))
 
-    @staticmethod
-    def _is_interval(log_interval, steps):
-        return True if steps % log_interval == 0 else False
-
     def _save_models(self):
         path_name = os.path.join(self.model_dir, 'mode_model.pkl')
         torch.save(self.mode_latent_model, path_name)
@@ -348,5 +344,38 @@ class DisentTrainerNoSSM:
         if type(data) == torch.Tensor:
             data = data.detach().cpu().item()
         self.writer.add_scalar(data_name, data, self.learn_steps)
+
+    @staticmethod
+    def _is_interval(log_interval, steps):
+        return True if steps % log_interval == 0 else False
+
+    @staticmethod
+    def _tensor_to_numpy(tensor: torch.tensor):
+        return tensor.detach().cpu().numpy()
+
+    def _numpy_to_tensor(self, nd_array: np.ndarray):
+        return torch.from_numpy(nd_array).to(self.device)
+
+    def _save_fig(self, fig, locations: list, base_str):
+        for loc in locations:
+            if loc == 'writer':
+                self.writer.add_figure(base_str + 'mode mapping',
+                                       fig,
+                                       global_step=self.learn_steps)
+
+            elif loc == 'file':
+                path_name_fig = os.path.join(self.model_dir, 'mode_mapping.fig')
+                torch.save(obj=fig, f=path_name_fig)
+
+            else:
+                raise NotImplementedError(f'Location {loc} is not implemented')
+
+        plt.clf()
+
+
+
+
+
+
 
 
