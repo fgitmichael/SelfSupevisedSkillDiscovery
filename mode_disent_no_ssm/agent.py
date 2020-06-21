@@ -161,17 +161,17 @@ class DisentTrainerNoSSM:
         mode_pri = self.mode_latent_model.sample_mode_prior(self.batch_size)
 
         # KLD
-        kld = calc_kl_divergence([mode_post['mode_dist']],
-                                 [mode_pri['mode_dist']])
+        kld = calc_kl_divergence([mode_post['dists']],
+                                 [mode_pri['dists']])
 
         # MMD
-        mmd = compute_mmd_tutorial(mode_pri['mode_sample'],
-                                   mode_post['mode_sample'])
+        mmd = compute_mmd_tutorial(mode_pri['samples'],
+                                   mode_post['samples'])
 
         # Reconstruction
         actions_seq_recon = self.mode_latent_model.action_decoder(
-            state_rep_dim=features_seq,
-            mode_sample=mode_post['mode_sample']
+            state_rep_seq=features_seq[:, :-1, :],
+            mode_sample=mode_post['samples']
         )
 
         # Reconstruction loss

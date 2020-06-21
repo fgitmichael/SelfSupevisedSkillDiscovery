@@ -84,8 +84,8 @@ class ModeLatentNetwork(BaseNetwork):
         mode_dist = self.mode_encoder(features_seq=features_seq)
         mode_sample = mode_dist.rsample()
 
-        return {'mode_dist': mode_dist,
-                'mode_sample': mode_sample}
+        return {'dists': mode_dist,
+                'samples': mode_sample}
 
 
 class ModeEncoderFeaturesOnly(BaseNetwork):
@@ -165,8 +165,8 @@ class ActionDecoder(BaseNetwork):
         # Normalize action mean
         action_dist.loc = torch.tanh(action_dist.loc)
 
-        return {'dist': action_dist,
-                'sample': action_dist.loc}
+        return {'dists': action_dist,
+                'samples': action_dist.loc}
 
 
 class ActionDecoderModeRepeat(ActionDecoder):
