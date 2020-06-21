@@ -15,7 +15,7 @@ from mode_disent.utils.utils import parse_args
 # Note: Set path variable for Mujoco using ...
 #       LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/michael/.mujoco/mujoco200/bin
 #       Call using
-#       python main_disent.py --config ./config/NAME_OF_CONFIG.json
+#       python main_disent_nossm.py --config ./config/NAME_OF_CONFIG.json
 
 
 def run():
