@@ -9,6 +9,7 @@ from easydict import EasyDict as edict
 from mode_disent.env_wrappers.rlkit_wrapper import NormalizedBoxEnvForPytorch
 from mode_disent_no_ssm.agent import DisentTrainerNoSSM
 from mode_disent_no_ssm.utils.parse_args import parse_args
+from mode_disent_no_ssm.utils.skill_policy_wrapper import DiaynSkillPolicyWrapper
 
 def run():
     args = parse_args()
@@ -30,7 +31,8 @@ def run():
         normalize_states = True
     )
 
-    args.skill_policy = torch.load(args.skill_policy_path)['evaluation/policy']
+    skill_policy_object = torch.load(args.skill_policy_path)['evaluation/policy']
+    args.skill_policy = DiaynSkillPolicyWrapper(skill_policy=skill_policy_object)
     args.mode_latent_model = torch.load(args.mode_model_path) \
         if args.mode_model_path is not None else None
 
@@ -41,14 +43,11 @@ def run():
     args.pop('run_comment')
     args.pop('skill_policy_path')
     args.pop('log_folder')
-    args.pop('dynamics_model_path')
     args.pop('mode_model_path')
-    args.pop('memory_path')
-    args.pop('test_memory_path')
     args.pop('env_info')
 
     pprint(args)
-    agent = DisentTrainerNoSSM(*args)
+    agent = DisentTrainerNoSSM(**args)
     agent.run_training()
 
 
