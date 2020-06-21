@@ -7,6 +7,8 @@ from torch.optim import Adam
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 import matplotlib
+import matplotlib.pyplot as plt
+import warnings
 matplotlib.use('Agg')
 
 from mode_disent_no_ssm.utils.skill_policy_wrapper import DiaynSkillPolicyWrapper
@@ -195,16 +197,29 @@ class DisentTrainerNoSSM:
             info_loss += kld_diff_control
 
         # Logging
-        base_str_stats = 'Mode Model stats'
+        base_str_stats = 'Mode Model stats/'
+        base_str_info = 'Mode Model info-vae/'
+        base_str_mode_map = 'Mode Model'
         if self._is_interval(self.log_interval, self.learn_steps):
             self._summary_log_mode(base_str_stats + 'log-liklyhood', ll)
             self._summary_log_mode(base_str_stats + 'mse', mse)
             self._summary_log_mode(base_str_stats + 'kld', kld)
             self._summary_log_mode(base_str_stats + 'mmd', mmd)
-            self._summary_log_mode(base_str_stats + 'kld info-weighted', kld_info)
-            self._summary_log_mode(base_str_stats + 'mmd info weighted', mmd_info)
+
+            self._summary_log_mode(base_str_info + 'kld info-weighted', kld_info)
+            self._summary_log_mode(base_str_info + 'mmd info weighted', mmd_info)
             self._summary_log_mode(
-                base_str_stats + 'loss on latent', mmd_info+ kld_info)
+                base_str_info + 'loss on latent', mmd_info+ kld_info)
+
+            mode_map_fig = self._plot_mode_map(
+                skill_seq=skill_seq,
+                mode_post_samples=mode_post['samples']
+            )
+            self._save_fig(
+                locations=['writer'],
+                fig=mode_map_fig,
+                base_str=base_str_mode_map
+            )
 
         return info_loss
 
@@ -259,6 +274,55 @@ class DisentTrainerNoSSM:
         print(f'episode: {self.episodes:<4}  '
               f'episode_steps: {episode_steps:<4}  '
               f'skill: {skill: <4}  ')
+
+    def _plot_mode_map(self,
+                       skill_seq,
+                       mode_post_samples,
+                       ):
+        """
+        Args:
+            skill_seq           : (N, S, 1) - tensor
+            mode_post_samples   : (N, 2) - tensor
+            base_str            : string
+        """
+        plot_dim = 2
+        if not self.mode_dim == plot_dim:
+            warnings.warn(f'Warning: Mode-Dimension is not equal to {plot_dim:<2}.'
+                          f'No mode map is plotted')
+            return None
+
+        colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k',
+                  'darkorange', 'gray', 'lightgreen']
+
+        if self.num_skills > len(colors):
+            raise ValueError(f'Not more than then {len(colors):<3} '
+                             f'skill supported for mode'
+                             f'plotting right now (more color needed)')
+
+        assert mode_post_samples.shape == torch.Size((self.batch_size, plot_dim))
+
+        skill_seq = self._tensor_to_numpy(skill_seq.float().mean(dim=1))\
+            .astype(np.uint8).squeeze()
+        mode_post_samples = self._tensor_to_numpy(mode_post_samples)
+
+        plt.interactive(False)
+        _, axes = plt.subplots()
+        lim = [-3., 3.]
+        axes.set_ylim(lim)
+        axes.set_xlim(lim)
+
+        for skill in range(skill_seq.max() + 1):
+            bool_idx = skill_seq == skill
+            plt.scatter(mode_post_samples[bool_idx, 0],
+                        mode_post_samples[bool_idx, 1],
+                        label=skill,
+                        c=colors[skill])
+
+        axes.legend()
+        axes.grid(True)
+        fig = plt.gcf()
+
+        return fig
 
     def _set_seed(self, seed):
         self.seed = seed
