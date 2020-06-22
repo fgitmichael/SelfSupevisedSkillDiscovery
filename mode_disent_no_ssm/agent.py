@@ -9,15 +9,18 @@ from tqdm import tqdm
 import matplotlib
 import matplotlib.pyplot as plt
 import warnings
-matplotlib.use('Agg')
 
 from mode_disent_no_ssm.utils.skill_policy_wrapper import DiaynSkillPolicyWrapper
 from mode_disent.memory.memory import MyLazyMemory
 from mode_disent.env_wrappers.rlkit_wrapper import NormalizedBoxEnvForPytorch
 from mode_disent.utils.mmd import compute_mmd_tutorial
-from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
+
 from code_slac.utils import calc_kl_divergence, update_params
 from code_slac.network.base import create_linear_network
+
+from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
+
+matplotlib.use('Agg')
 
 
 class DisentTrainerNoSSM:
