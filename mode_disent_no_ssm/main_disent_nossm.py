@@ -8,11 +8,12 @@ from easydict import EasyDict as edict
 
 from mode_disent.env_wrappers.rlkit_wrapper import NormalizedBoxEnvForPytorch
 from mode_disent_no_ssm.agent import DisentTrainerNoSSM
-from mode_disent_no_ssm.utils.parse_args import parse_args
+from mode_disent_no_ssm.utils.parse_args import parse_args, yaml_save_hyperparameters
 from mode_disent_no_ssm.utils.skill_policy_wrapper import DiaynSkillPolicyWrapper
 
 def run():
     args = parse_args()
+    args.run_hp = args.copy()
 
     dir_name = args.env_info.env_id
     base_dir = os.path.join('logs', dir_name)
@@ -20,7 +21,7 @@ def run():
         args.log_dir = os.path.join(base_dir, args.log_folder)
     else:
         args.log_dir = os.path.join(base_dir, args.run_id)
-    args.run_hp = args.copy()
+    args.params_for_testing = args.copy()
 
     args.device = args.device if torch.cuda.is_available() else "cpu"
 

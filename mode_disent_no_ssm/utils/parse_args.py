@@ -18,6 +18,7 @@ def parse_args():
         if args.config is not None:
             with open(args.config, 'r') as config_file:
                 config_args_dict = yaml.safe_load(config_file)
+                #config_args_dict = yaml.load(config_file, Loader=yaml.Loader)
         else:
             print("Add a config file using \'--config file_name.json\'",
                   file=sys.stderr)
@@ -37,5 +38,10 @@ def parse_args():
     print("\n")
 
     return config_args
+
+
+def yaml_save_hyperparameters(hparams: edict, path_name):
+    with open(path_name, 'w') as hparamfile:
+        yaml.dump(hparams, hparamfile)
 
 

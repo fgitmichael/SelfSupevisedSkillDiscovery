@@ -16,10 +16,10 @@ from mode_disent.env_wrappers.rlkit_wrapper import NormalizedBoxEnvForPytorch
 from mode_disent.utils.mmd import compute_mmd_tutorial
 
 from code_slac.utils import calc_kl_divergence, update_params
-from code_slac.network.base import create_linear_network
 
 from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
 from mode_disent_no_ssm.utils.empty_network import Empty
+from mode_disent_no_ssm.utils.parse_args import yaml_save_hyperparameters
 
 
 matplotlib.use('Agg')
@@ -50,6 +50,7 @@ class DisentTrainerNoSSM:
                  info_loss_params,
                  run_id,
                  run_hp,
+                 params_for_testing,
                  device,
                  leaky_slope=0.2,
                  seed=0,
@@ -122,9 +123,10 @@ class DisentTrainerNoSSM:
         if not os.path.exists(self.summary_dir):
             os.makedirs(self.summary_dir)
 
-        hparam_save_path = os.path.join(self.model_dir, 'run_hyperparameter.json')
-        with open(hparam_save_path, 'w', encoding='utf-8') as f:
-            json.dump(run_hp, f, ensure_ascii=False, indent=4)
+        testparams_save_path = os.path.join(self.model_dir, 'parameters_for_testing.yaml')
+        yaml_save_hyperparameters(params_for_testing, testparams_save_path)
+        run_hp_save_path = os.path.join(self.model_dir, 'run_hyperparameters.yaml')
+        yaml_save_hyperparameters(run_hp, run_hp_save_path)
 
         self.writer = SummaryWriter(log_dir=self.summary_dir)
         self.log_interval = log_interval
