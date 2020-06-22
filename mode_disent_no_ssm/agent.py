@@ -19,7 +19,7 @@ from code_slac.utils import calc_kl_divergence, update_params
 
 from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
 from mode_disent_no_ssm.utils.empty_network import Empty
-from mode_disent_no_ssm.utils.parse_args import yaml_save_hyperparameters
+from mode_disent_no_ssm.utils.parse_args import json_save
 
 
 matplotlib.use('Agg')
@@ -124,9 +124,9 @@ class DisentTrainerNoSSM:
             os.makedirs(self.summary_dir)
 
         testparams_save_path = os.path.join(self.model_dir, 'parameters_for_testing.yaml')
-        yaml_save_hyperparameters(params_for_testing, testparams_save_path)
+        json_save(params_for_testing, testparams_save_path)
         run_hp_save_path = os.path.join(self.model_dir, 'run_hyperparameters.yaml')
-        yaml_save_hyperparameters(run_hp, run_hp_save_path)
+        json_save(run_hp, run_hp_save_path)
 
         self.writer = SummaryWriter(log_dir=self.summary_dir)
         self.log_interval = log_interval

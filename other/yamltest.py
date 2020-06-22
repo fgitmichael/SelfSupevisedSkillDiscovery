@@ -10,4 +10,8 @@ with open("yaml_example.yaml", 'r') as stream:
     except yaml.YAMLError as exc:
         print(exc)
 
-    pass
+
+with open('yaml_save_test.yml', 'w') as outfile:
+    yaml.safe_dump(yaml_l_easy, outfile)
+
+pass
