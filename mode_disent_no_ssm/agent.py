@@ -43,7 +43,6 @@ class DisentTrainerNoSSM:
                  hidden_units_mode_encoder,
                  std_decoder,
                  mode_latent_model: ModeLatentNetwork,
-                 hidden_units_obs_encoder,
                  hidden_units_action_decoder,
                  memory_size,
                  skill_policy: DiaynSkillPolicyWrapper,
