@@ -28,11 +28,11 @@ hidden_units_action_decoder:
   - 256
   - 256
 
-memory_size: 100000
+memory_size: 10000
 
 info_loss_params:
   kld_diff_desired: null
-  alpha: 0.9999
+  alpha: 1.
   lamda: 0.001
 
 skill_policy_path: "./data/01_skill_policies/01_MoutainCar_Policy_Object.pkl"

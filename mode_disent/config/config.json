@@ -51,7 +51,7 @@
 
   "log_interval": 25,
   "run_comment": "normal training as baseline",
-  "log_folder": "hparams2",
+  "log_folder": "hparams3",
   "device": "cuda",
   "leaky_slope": 0.2,
   "seed": 1
