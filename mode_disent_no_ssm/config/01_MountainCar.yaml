@@ -28,7 +28,7 @@ memory_size: 100000
 
 info_loss_params:
   kld_diff_desired: null
-  alpha: 0.9999
+  alpha: 0.999
   lamda: 0.22
 
 skill_policy_path: "./data/01_skill_policies/01_MoutainCar_Policy_Object.pkl"
