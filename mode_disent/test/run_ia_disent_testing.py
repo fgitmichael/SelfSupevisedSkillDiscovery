@@ -26,7 +26,6 @@ def run(device='cpu'):
     hparams = load_hparams('run_hyperparameter.json')
 
     # Load viz base figure
-    axes_path_mode_mapping = './mode_mapping.axes'
     fig_path_mode_mapping = './mode_mapping.fig'
     fig = torch.load(fig_path_mode_mapping)
 
