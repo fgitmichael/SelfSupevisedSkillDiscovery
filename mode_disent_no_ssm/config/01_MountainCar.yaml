@@ -4,7 +4,6 @@ env_info:
   domain_name:
   task_name:
   action_repeat: 1
-normalize_states: True
 
 min_steps_sampling: 100000
 batch_size: 128
@@ -28,12 +27,12 @@ hidden_units_action_decoder:
   - 256
   - 256
 
-memory_size: 10000
+memory_size: 100000
 
 info_loss_params:
   kld_diff_desired: null
   alpha: 1.
-  lamda: 0.001
+  lamda: 0.1
 
 skill_policy_path: "./data/01_skill_policies/01_MoutainCar_Policy_Object.pkl"
 
