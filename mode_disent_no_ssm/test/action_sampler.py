@@ -26,6 +26,9 @@ class ActionSamplerNoSSM(ActionSampler):
         self._mode = mode.to(self.device)
         self._mode_next = mode.to(self.device)
 
+    def set_mode_next(self, mode):
+        self._mode_next = mode.to(self.device)
+
     def update_mode_to_next(self):
         self._mode = self._mode_next
 
