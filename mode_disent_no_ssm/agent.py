@@ -202,7 +202,7 @@ class DisentTrainerNoSSM:
         # Logging
         base_str_stats = 'Mode Model stats/'
         base_str_info = 'Mode Model info-vae/'
-        base_str_mode_map = 'Mode Model'
+        base_str_mode_map = 'Mode Model/'
         if self._is_interval(self.log_interval, self.learn_steps):
             self._summary_log_mode(base_str_stats + 'log-liklyhood', ll)
             self._summary_log_mode(base_str_stats + 'mse', mse)
@@ -221,8 +221,29 @@ class DisentTrainerNoSSM:
             self._save_fig(
                 locations=['writer'],
                 fig=mode_map_fig,
-                base_str=base_str_mode_map
+                base_str=base_str_mode_map + 'Mode Map'
             )
+
+        base_str_recon = 'Mode Model Action Reconstruction'
+        base_str_states_features = 'Mode Model States Features'
+        if self._is_interval(self.log_interval, self.learn_steps):
+            rand_batch_idx = np.random.randint(0, self.batch_size)
+
+            fig_actions = self._plot_recon_comparison(
+                action_seq=actions_seq[rand_batch_idx],
+                action_seq_recon=actions_seq_recon['samples'][rand_batch_idx],
+                skill=skill_seq_np_squeezed[rand_batch_idx]
+            )
+            self._save_fig(fig_actions, ['writer'],
+                           base_str=base_str_recon)
+
+            fig_states = self._plot_state_features(
+                states_seq=sequence['states_seq'][rand_batch_idx, :-1, :],
+                features_seq=features_seq[rand_batch_idx, :-1, :],
+                skill=skill_seq_np_squeezed[rand_batch_idx]
+            )
+            self._save_fig(fig_states, ['writer'],
+                           base_str=base_str_states_features)
 
         return info_loss
 
@@ -323,6 +344,79 @@ class DisentTrainerNoSSM:
 
         axes.legend()
         axes.grid(True)
+        fig = plt.gcf()
+
+        return fig
+
+    def _plot_recon_comparison(self,
+                               action_seq,
+                               action_seq_recon,
+                               skill: int,
+                               ):
+        """
+        Args:
+            action_seq         : (S, action_dim)
+            action_seq_recon   : (S, action_dim)
+        Return:
+            figure
+        """
+        action_dim = self.action_shape[0]
+
+        assert action_seq.size(1) == action_seq_recon.size(1) == action_dim
+        assert action_seq.size(0) == action_seq_recon.size(0) \
+               == self.num_sequences
+
+        action_seq = self._tensor_to_numpy(action_seq)
+        action_seq_recon = self._tensor_to_numpy(action_seq_recon)
+
+        plt.interactive(False)
+        _, axes1 = plt.subplots()
+        lim = [-1.3, 1.3]
+        axes1.set_ylim(lim)
+        plt.title(f'Skill: {skill:<3}')
+
+        for dim in range(action_dim):
+            plt.plot(action_seq[:, dim], label=f'real action dim {dim:<2}')
+            plt.plot(action_seq_recon[:, dim], label=f'recon action dim {dim:<2}')
+        plt.legend()
+        fig = plt.gcf()
+
+        return fig
+
+    def _plot_state_features(self,
+                             states_seq,
+                             features_seq,
+                             skill: int,
+                             ):
+        """
+        Args:
+            states_seq       : (S, obs_dim)
+            features_seq     : (S, feature_dim)
+        Return:
+            figure
+        """
+        obs_dim = self.observation_shape[0]
+        feature_dim = self.feature_dim
+
+        assert states_seq.size(0) == features_seq.size(0) == self.num_sequences
+        assert features_seq.size(1) == feature_dim
+        assert states_seq.size(1) == obs_dim
+
+        states_seq = self._tensor_to_numpy(states_seq)
+        features_seq = self._tensor_to_numpy(features_seq)
+
+        plt.interactive(False)
+        _, axes = plt.subplots()
+        lim = [-3, 3]
+        axes.set_ylim(lim)
+        plt.title(f'Skill: {skill:<3}')
+
+        for dim in range(obs_dim):
+            plt.plot(states_seq[:, dim], label=f'state dim {dim:<2}')
+        for dim in range(feature_dim):
+            plt.plot(features_seq[:, dim], label=f'features dim {dim:<2}')
+
+        plt.legend()
         fig = plt.gcf()
 
         return fig
