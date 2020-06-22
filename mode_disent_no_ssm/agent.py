@@ -157,6 +157,9 @@ class DisentTrainerNoSSM:
         actions_seq = sequence['actions_seq']
         features_seq = self.obs_encoder(sequence['states_seq'])
         skill_seq = sequence['skill_seq']
+        skill_seq_np_squeezed =\
+            self._tensor_to_numpy(skill_seq.float().mean(dim=1)) \
+            .astype(np.uint8).squeeze()
 
         # Posterior and prior
         mode_post = self.mode_latent_model.sample_mode_posterior(features_seq=features_seq)
