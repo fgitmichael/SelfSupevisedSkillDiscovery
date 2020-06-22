@@ -83,3 +83,8 @@ class InteractiveDisentTester:
 
         self.episodes += 1
         print(str(self.num_episodes - self.episodes) + ' episodes left')
+
+    def run(self):
+        with torch.no_grad():
+            for _ in range(self.num_episodes):
+                self.run_episode()
