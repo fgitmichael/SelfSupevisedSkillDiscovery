@@ -20,6 +20,7 @@ from code_slac.utils import calc_kl_divergence, update_params
 from code_slac.network.base import create_linear_network
 
 from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
+from mode_disent_no_ssm.utils.empty_network import Empty
 
 
 matplotlib.use('Agg')
@@ -77,11 +78,17 @@ class DisentTrainerNoSSM:
         self.device = None
         self._set_device(device)
 
-        self.obs_encoder = create_linear_network(
-            input_dim=self.observation_shape[0],
-            output_dim=self.feature_dim,
-            hidden_units=hidden_units_obs_encoder
-        ).to(self.device)
+        #self.obs_encoder = create_linear_network(
+        #    input_dim=self.observation_shape[0],
+        #    output_dim=self.feature_dim,
+        #    hidden_units=hidden_units_obs_encoder
+        #).to(self.device)
+        if self.observation_shape[0] == self.feature_dim:
+            self.obs_encoder = Empty().to(self.device)
+        else:
+            self.obs_encoder = torch.nn.Linear(self.observation_shape[0],
+                                               self.feature_dim)
+
 
         if mode_latent_model is None:
             self.mode_latent_model = ModeLatentNetwork(
@@ -298,7 +305,7 @@ class DisentTrainerNoSSM:
         obs = self.env.reset()
         memory.set_initial_state(obs)
 
-        next_obs = obs
+        next_state = obs
         done = False
         while self.steps[skill] <= np.max(self.steps):
             if done:
@@ -308,7 +315,7 @@ class DisentTrainerNoSSM:
             #    obs_denormalized=self.env.denormalize(next_obs)
             #    if self.env.state_normalization else next_obs
             #)
-            action = self.get_skill_policy_action(next_obs)
+            action = self.get_skill_policy_action(next_state)
 
             next_state, reward, done, _ = self.env.step(action)
 
@@ -434,7 +441,7 @@ class DisentTrainerNoSSM:
 
         plt.interactive(False)
         _, axes = plt.subplots()
-        lim = [-3, 3]
+        lim = [-1, 1]
         axes.set_ylim(lim)
         plt.title(f'Skill: {skill:<3}')
 
