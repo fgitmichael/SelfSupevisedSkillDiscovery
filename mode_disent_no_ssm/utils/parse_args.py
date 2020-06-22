@@ -16,21 +16,28 @@ def parse_args():
                         help='Config file')
     args = parser.parse_args()
 
-    _, extension = os.path.splitext(args.config)
-    if extension == '.json':
-        config_args_dict = open_json(args.config)
-
-    elif extension == '.yaml' or extension == '.yml':
-        config_args_dict = open_yaml(args.config)
-
-    else:
-        raise NotImplementedError(f'extension {extension} not known')
+    config_args_dict = load_hparams(args.config)
 
     config_args = edict(config_args_dict)
     pprint(config_args)
     print("\n")
 
     return config_args
+
+
+def load_hparams(path_name):
+    _, extension = os.path.splitext(path_name)
+
+    if extension == '.json':
+        loaded = open_json(path_name)
+
+    elif extension == '.yaml' or extension == '.yml':
+        loaded = open_yaml(path_name)
+
+    else:
+        raise NotImplementedError(f'Loading of {extension}-files not implemented yet')
+
+    return loaded
 
 
 def open_yaml(path_name):
