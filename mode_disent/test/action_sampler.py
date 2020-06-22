@@ -32,6 +32,7 @@ class ActionSamplerSeq(ActionSampler):
         self._increment_p()
         return action
 
+
 class ActionSamplerWithActionModel(ActionSampler):
 
     def __init__(self,
@@ -88,8 +89,9 @@ class ActionSamplerWithActionModel(ActionSampler):
             action_before           : (action_dim) - tensor
         Return:
             dict{
-            action                  : (1, action_dim) - tensor
-            latent2_sample          : (1, latent2_dim) - tensor
+                action              : (1, action_dim) - tensor
+                latent2_sample      : (1, latent2_dim) - tensor
+            }
         """
 
         if latent2_sample_before is None and action_before is None:
