@@ -1,57 +1,41 @@
 ---
 env_info:
-  env_type: normalized
   env_id: HalfCheetah-v2
-  domain_name: cheetah
+  domain_name:
   task_name:
   action_repeat: 1
-  normalize_states: true
 
-num_sequences: 100
-min_steps_sampling: 200000
+min_steps_sampling: 100000
 batch_size: 128
-train_steps_dyn: 20000
-train_steps_mode: 20000
+num_sequences: 100
+train_steps: 20000
 lr: 0.0001
-state_rep: true
-info_loss_params:
-  kld_diff_desired:
-  alpha: 0.9965
-  lamda: 0.1
-feature_dim: 256
-latent1_dim: 16
-latent2_dim: 128
-std_dyn_decoder: 0.0316
+
 mode_dim: 2
-mode_repeating: true
-mode_encode_rnn_dim: 128
-mode_encode_num_rnn_layers: 2
-mode_encode_rnn_dropout: 0
-hidden_units:
-  - 156
-  - 156
-hidden_units_encoder:
-  - 156
-  - 156
-hidden_units_dyn_decoder:
-  - 156
-  - 156
+num_mode_repitions: 1
+rnn_dim: 128
+num_rnn_layers: 2
+rnn_dropout: 0
+std_decoder: 0.0316
 hidden_units_mode_encoder:
   - 256
   - 256
 hidden_units_action_decoder:
   - 256
   - 256
-std_action_decoder: 0.0316
-memory_size: 1000000
-skill_policy_path: "./models/01_Skill_policy_half_cheetah/params.pkl"
-dual_training: false
-dynamics_model_path: "./models/03_dyn_model/dyn_model_1906_0042.pth"
-mode_model_path:
-memory_path:
-test_memory_path:
+
+memory_size: 100000
+
+info_loss_params:
+  kld_diff_desired: null
+  alpha: 0.9999
+  lamda: 0.22
+
+skill_policy_path: "./data/01_skill_policies/02_HalfCheetah_Policy_Object.pkl"
+
+mode_model_path: null
 log_interval: 25
-run_comment:
+run_comment: null
 log_folder: hparams2
 device: cuda
 leaky_slope: 0.2
