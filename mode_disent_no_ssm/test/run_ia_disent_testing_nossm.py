@@ -38,10 +38,3 @@ def run(device='cpu'):
     )
 
     tester.run()
-
-
-
-
-
-
-
