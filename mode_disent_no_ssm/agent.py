@@ -123,9 +123,9 @@ class DisentTrainerNoSSM:
         if not os.path.exists(self.summary_dir):
             os.makedirs(self.summary_dir)
 
-        testparams_save_path = os.path.join(self.model_dir, 'parameters_for_testing.yaml')
+        testparams_save_path = os.path.join(self.model_dir, 'parameters_for_testing.json')
         json_save(params_for_testing, testparams_save_path)
-        run_hp_save_path = os.path.join(self.model_dir, 'run_hyperparameters.yaml')
+        run_hp_save_path = os.path.join(self.model_dir, 'run_hyperparameters.json')
         json_save(run_hp, run_hp_save_path)
 
         self.writer = SummaryWriter(log_dir=self.summary_dir)
