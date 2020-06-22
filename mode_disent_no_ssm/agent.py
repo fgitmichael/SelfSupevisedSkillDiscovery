@@ -75,17 +75,11 @@ class DisentTrainerNoSSM:
         self.device = None
         self._set_device(device)
 
-        #self.obs_encoder = create_linear_network(
-        #    input_dim=self.observation_shape[0],
-        #    output_dim=self.feature_dim,
-        #    hidden_units=hidden_units_obs_encoder
-        #).to(self.device)
         if self.observation_shape[0] == self.feature_dim:
             self.obs_encoder = Empty().to(self.device)
         else:
             self.obs_encoder = torch.nn.Linear(self.observation_shape[0],
                                                self.feature_dim)
-
 
         if mode_latent_model is None:
             self.mode_latent_model = ModeLatentNetwork(
@@ -222,7 +216,7 @@ class DisentTrainerNoSSM:
             self._summary_log_mode(base_str_info + 'kld info-weighted', kld_info)
             self._summary_log_mode(base_str_info + 'mmd info weighted', mmd_info)
             self._summary_log_mode(
-                base_str_info + 'loss on latent', mmd_info+ kld_info)
+                base_str_info + 'loss on latent', mmd_info + kld_info)
 
             mode_map_fig = self._plot_mode_map(
                 skill_seq=skill_seq,
@@ -317,7 +311,6 @@ class DisentTrainerNoSSM:
         Args:
             skill_seq           : (N, S, 1) - tensor
             mode_post_samples   : (N, 2) - tensor
-            base_str            : string
         """
         plot_dim = 2
         if not self.mode_dim == plot_dim:
@@ -478,11 +471,3 @@ class DisentTrainerNoSSM:
                 raise NotImplementedError(f'Location {loc} is not implemented')
 
         plt.clf()
-
-
-
-
-
-
-
-
