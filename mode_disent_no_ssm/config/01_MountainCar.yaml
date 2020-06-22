@@ -4,6 +4,7 @@ env_info:
   domain_name:
   task_name:
   action_repeat: 1
+normalize_states: True
 
 min_steps_sampling: 100000
 batch_size: 128

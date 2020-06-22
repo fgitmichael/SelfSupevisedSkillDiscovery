@@ -9,6 +9,7 @@ from tqdm import tqdm
 import matplotlib
 import matplotlib.pyplot as plt
 import warnings
+from rlkit.torch.sac.diayn.policies import MakeDeterministic
 
 from mode_disent_no_ssm.utils.skill_policy_wrapper import DiaynSkillPolicyWrapper
 from mode_disent.memory.memory import MyLazyMemory
@@ -19,6 +20,7 @@ from code_slac.utils import calc_kl_divergence, update_params
 from code_slac.network.base import create_linear_network
 
 from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
+
 
 matplotlib.use('Agg')
 
@@ -44,7 +46,8 @@ class DisentTrainerNoSSM:
                  hidden_units_obs_encoder,
                  hidden_units_action_decoder,
                  memory_size,
-                 skill_policy: DiaynSkillPolicyWrapper,
+                 skill_policy: MakeDeterministic,
+                 normalize_states,
                  log_interval,
                  info_loss_params,
                  run_id,
@@ -130,8 +133,26 @@ class DisentTrainerNoSSM:
 
         self.skill_policy = skill_policy
         self.info_loss_params = info_loss_params
-        self.num_skills = self.skill_policy.num_skills
+        #self.num_skills = self.skill_policy.num_skills
+        self.num_skills = self.skill_policy.stochastic_policy.skill_dim
+        self.normalize_states = normalize_states
+        self.state_rep = True
         self.steps = np.zeros(shape=self.num_skills, dtype=np.int)
+
+    def get_skill_action_state_rep(self, observation):
+        action, info = self.skill_policy.get_action(observation)
+        return action
+
+    def set_policy_skill(self, skill):
+        self.skill_policy.stochastic_policy.skill = skill
+
+    def get_skill_policy_action(self, obs):
+        if self.state_rep:
+            obs = self.env.denormalize(obs) if self.normalize_states else obs
+            action = self.get_skill_action_state_rep(obs)
+        else:
+            raise NotImplementedError
+        return action
 
     def run_training(self):
         self._sample_sequences(
@@ -271,7 +292,8 @@ class DisentTrainerNoSSM:
                                  skill,
                                  step_cnt: np.ndarray):
         episode_steps = 0
-        self.skill_policy.set_skill(skill)
+        #self.skill_policy.set_skill(skill)
+        self.set_policy_skill(skill)
 
         obs = self.env.reset()
         memory.set_initial_state(obs)
@@ -282,10 +304,12 @@ class DisentTrainerNoSSM:
             if done:
                 next_obs = self.env.reset()
 
-            action = self.skill_policy.get_action(
-                obs_denormalized=self.env.denormalize(next_obs)
-                if self.env.state_normalization else next_obs
-            )
+            #action = self.skill_policy.get_action(
+            #    obs_denormalized=self.env.denormalize(next_obs)
+            #    if self.env.state_normalization else next_obs
+            #)
+            action = self.get_skill_policy_action(next_obs)
+
             next_state, reward, done, _ = self.env.step(action)
 
             episode_steps += 1
