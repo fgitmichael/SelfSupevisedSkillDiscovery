@@ -151,11 +151,14 @@ class ActionDecoder(BaseNetwork):
             state_rep_seq   : (N, S + 1, state_rep_dim) - tensor
                               Representation of state. Can be a latent variable,
                               list of latent variable or just a feature
-            mode_sample     : (N, S + 1, mode_dim) - tensor
+            mode_sample     : (N, mode_dim) - tensor
         Return:
             action_dist     : (N, S + 1) Distribution over decoded actions
         """
-        # Repeat mode samples
+        assert mode_sample.shape == torch.Size((state_rep_seq.size(0),
+                                               mode_sample.size(-1)))
+
+        # Repeat mode samples to match dimensions
         seq_len = state_rep_seq.size(1)
         mode_samples_repetition = torch.stack(seq_len * [mode_sample], dim=1)
 
@@ -202,7 +205,7 @@ class ActionDecoderModeRepeat(ActionDecoder):
             state_rep_seq   : (N, S + 1, state_rep_dim) - tensor
                               Representation of state. Can be a latent variable,
                               list of latent variable or just a feature
-            mode_sample     : (N, S + 1, mode_dim) - tensor
+            mode_sample     : (N, mode_dim) - tensor
         Return:
             action_dist     : (N, S + 1) Distribution over decoded actions
         """
