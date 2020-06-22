@@ -151,6 +151,9 @@ class DisentTrainerNoSSM:
         for _ in tqdm(range(self.train_steps)):
             self._learn_step()
 
+            if self._is_interval(self.log_interval * 25, self.learn_steps):
+                self._save_models()
+
     def _learn_step(self):
         sequences = self.memory.sample_sequence(self.batch_size)
 
@@ -439,8 +442,22 @@ class DisentTrainerNoSSM:
         print("device set to " + str(self.device))
 
     def _save_models(self):
-        path_name = os.path.join(self.model_dir, 'mode_model.pkl')
-        torch.save(self.mode_latent_model, path_name)
+        # Models
+        path_name_mode = os.path.join(self.model_dir, 'mode_model.pkl')
+        path_name_obs_encoder = os.path.join(self.model_dir, 'obs_encoder.pkl')
+        torch.save(self.mode_latent_model, path_name_mode)
+        torch.save(self.obs_encoder, path_name_obs_encoder)
+
+        # Mode mapping fig
+        sequence = self.memory.sample_sequence(self.batch_size)
+        features_seq = self.obs_encoder(sequence['states_seq'])
+        fig = self._plot_mode_map(
+            sequence['skill_seq'],
+            self.mode_latent_model.sample_mode_posterior(features_seq)['samples']
+        )
+        self._save_fig(fig,
+                       locations=['file'],
+                       base_str='mode_mapping.fig')
 
     def _summary_log_mode(self, data_name, data):
         if type(data) == torch.Tensor:
