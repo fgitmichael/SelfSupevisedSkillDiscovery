@@ -186,7 +186,7 @@ class ActionDecoderModeRepeat(ActionDecoder):
         if state_rep_dim > mode_dim:
             self.mode_repeat = num_mode_repeat * state_rep_dim//mode_dim
         else:
-            self.mode_repeat = 1
+            self.mode_repeat = num_mode_repeat
 
         super(ActionDecoderModeRepeat, self).__init__(
             state_rep_dim=state_rep_dim,
