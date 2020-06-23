@@ -20,6 +20,7 @@ from code_slac.utils import calc_kl_divergence, update_params
 from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
 from mode_disent_no_ssm.utils.empty_network import Empty
 from mode_disent_no_ssm.utils.parse_args import json_save
+from mode_disent_no_ssm.test.action_sampler import ActionSamplerNoSSM
 
 
 matplotlib.use('Agg')
@@ -210,49 +211,53 @@ class DisentTrainerNoSSM:
 
         # Logging
         base_str_stats = 'Mode Model stats/'
-        base_str_info = 'Mode Model info-vae/'
-        base_str_mode_map = 'Mode Model/'
-        if self._is_interval(self.log_interval, self.learn_steps):
-            self._summary_log_mode(base_str_stats + 'log-liklyhood', ll)
-            self._summary_log_mode(base_str_stats + 'mse', mse)
-            self._summary_log_mode(base_str_stats + 'kld', kld)
-            self._summary_log_mode(base_str_stats + 'mmd', mmd)
+        with torch.no_grad():
+            base_str_info = 'Mode Model info-vae/'
+            base_str_mode_map = 'Mode Model/'
+            if self._is_interval(self.log_interval, self.learn_steps):
+                self._summary_log_mode(base_str_stats + 'log-liklyhood', ll)
+                self._summary_log_mode(base_str_stats + 'mse', mse)
+                self._summary_log_mode(base_str_stats + 'kld', kld)
+                self._summary_log_mode(base_str_stats + 'mmd', mmd)
 
-            self._summary_log_mode(base_str_info + 'kld info-weighted', kld_info)
-            self._summary_log_mode(base_str_info + 'mmd info weighted', mmd_info)
-            self._summary_log_mode(
-                base_str_info + 'loss on latent', mmd_info + kld_info)
+                self._summary_log_mode(base_str_info + 'kld info-weighted', kld_info)
+                self._summary_log_mode(base_str_info + 'mmd info weighted', mmd_info)
+                self._summary_log_mode(
+                    base_str_info + 'loss on latent', mmd_info + kld_info)
 
-            mode_map_fig = self._plot_mode_map(
-                skill_seq=skill_seq,
-                mode_post_samples=mode_post['samples']
-            )
-            self._save_fig(
-                locations=['writer'],
-                fig=mode_map_fig,
-                base_str=base_str_mode_map + 'Mode Map'
-            )
+                mode_map_fig = self._plot_mode_map(
+                    skill_seq=skill_seq,
+                    mode_post_samples=mode_post['samples']
+                )
+                self._save_fig(
+                    locations=['writer'],
+                    fig=mode_map_fig,
+                    base_str=base_str_mode_map + 'Mode Map'
+                )
 
-        base_str_recon = 'Mode Model Action Reconstruction'
-        base_str_states_features = 'Mode Model States Features'
-        if self._is_interval(self.log_interval, self.learn_steps):
-            rand_batch_idx = np.random.randint(0, self.batch_size)
+            base_str_recon = 'Mode Model Action Reconstruction'
+            base_str_states_features = 'Mode Model States Features'
+            if self._is_interval(self.log_interval, self.learn_steps):
+                rand_batch_idx = np.random.randint(0, self.batch_size)
 
-            fig_actions = self._plot_recon_comparison(
-                action_seq=actions_seq[rand_batch_idx],
-                action_seq_recon=actions_seq_recon['samples'][rand_batch_idx],
-                skill=skill_seq_np_squeezed[rand_batch_idx]
-            )
-            self._save_fig(fig_actions, ['writer'],
-                           base_str=base_str_recon)
+                fig_actions = self._plot_recon_comparison(
+                    action_seq=actions_seq[rand_batch_idx],
+                    action_seq_recon=actions_seq_recon['samples'][rand_batch_idx],
+                    skill=skill_seq_np_squeezed[rand_batch_idx]
+                )
+                self._save_fig(fig_actions, ['writer'],
+                               base_str=base_str_recon)
 
-            fig_states = self._plot_state_features(
-                states_seq=sequence['states_seq'][rand_batch_idx, :-1, :],
-                features_seq=features_seq[rand_batch_idx, :-1, :],
-                skill=skill_seq_np_squeezed[rand_batch_idx]
-            )
-            self._save_fig(fig_states, ['writer'],
-                           base_str=base_str_states_features)
+                fig_states = self._plot_state_features(
+                    states_seq=sequence['states_seq'][rand_batch_idx, :-1, :],
+                    features_seq=features_seq[rand_batch_idx, :-1, :],
+                    skill=skill_seq_np_squeezed[rand_batch_idx]
+                )
+                self._save_fig(fig_states, ['writer'],
+                               base_str=base_str_states_features)
+
+            if self._is_interval(self.log_interval * 4, self.learn_steps):
+                self._test_mode_influence(mode_post_samples=mode_post['samples'])
 
         return info_loss
 
@@ -428,6 +433,66 @@ class DisentTrainerNoSSM:
         fig = plt.gcf()
 
         return fig
+
+    def _test_mode_influence(self, mode_post_samples, seq_len=250):
+        with torch.no_grad():
+            mode_action_sampler = ActionSamplerNoSSM(
+                mode_model=self.mode_latent_model,
+                device=self.device
+            )
+
+            if not(self.mode_dim == 2):
+                modes = mode_post_samples[:10]
+            else:
+                modes = self._create_grid()
+
+            for mode in modes:
+                mode_action_sampler.reset(mode=mode.unsqueeze(0))
+                obs = self.env.reset()
+                action_save = []
+                obs_save = []
+
+                for _ in range(seq_len):
+                    obs_tensor = torch.from_numpy(obs.astype(np.float))\
+                        .unsqueeze(0).to(self.device).float()
+
+                    action_tensor = mode_action_sampler(
+                        state_rep=self.obs_encoder(obs_tensor)
+                    )
+
+                    action = action_tensor.squeeze().detach().cpu().numpy()
+                    obs, _, done, _ = self.env.step(action)
+
+                    action_save.append(action)
+                    assert obs.shape == self.env.observation_space.shape
+                    obs_save.append(obs)
+
+                actions = np.stack(action_save, axis=0)
+                obs = np.stack(obs_save, axis=0)
+
+                plt.interactive(False)
+                ax = plt.gca()
+                ax.set_ylim([-1.5, 1.5])
+                plt.plot(actions, label='actions')
+                for dim in range(obs.shape[1]):
+                    plt.plot(obs[:, dim], label='state_dim' + str(dim))
+                plt.legend()
+                fig = plt.gcf()
+                self.writer.add_figure('mode_grid_plot_test/mode' + str(mode),
+                                       figure=fig,
+                                       global_step=self.learn_steps)
+
+    def _create_grid(self):
+        min = -1.7
+        max = -min
+        num_steps = 4
+
+        grid_vec = torch.linspace(min, max, num_steps)
+        grid_vec_list = [grid_vec] * self.mode_dim
+        grid = torch.meshgrid(*grid_vec_list)
+        modes = torch.stack(list(grid)).view(self.mode_dim, -1) \
+                            .transpose(0, -1).to(self.device)
+        return modes
 
     def _set_seed(self, seed):
         self.seed = seed
