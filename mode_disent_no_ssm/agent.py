@@ -472,7 +472,7 @@ class DisentTrainerNoSSM:
 
                 plt.interactive(False)
                 ax = plt.gca()
-                ax.set_ylim([-1.5, 1.5])
+                ax.set_ylim([-3.5, 3.5])
                 plt.plot(actions, label='actions')
                 for dim in range(obs.shape[1]):
                     plt.plot(obs[:, dim], label='state_dim' + str(dim))
