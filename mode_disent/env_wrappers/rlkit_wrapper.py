@@ -89,7 +89,7 @@ class NormalizedBoxEnvForPytorch(OrdinaryEnvForPytorch):
         bounded = bound_above and bound_below
 
         self.env = NormalizedBoxEnv(env_to_wrap)
-        self.estimate_obs_stats(num_data=10000)
+        self.estimate_obs_stats(num_data=100000)
 
         self.action_repeat = action_repeat
         self.obs_type = obs_type
