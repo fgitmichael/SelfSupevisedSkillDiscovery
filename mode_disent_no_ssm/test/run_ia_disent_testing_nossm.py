@@ -38,7 +38,7 @@ def run(device='cpu'):
         mode_map_fig=fig,
         num_episodes=1000,
         len_sequence=None,
-        seed=0
+        seed=2
     )
 
     tester.run()
