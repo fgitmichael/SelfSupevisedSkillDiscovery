@@ -88,19 +88,8 @@ class NormalizedBoxEnvForPytorch(OrdinaryEnvForPytorch):
         bound_below = bool(np.prod(obs_space.bounded_below.astype(np.int)))
         bounded = bound_above and bound_below
 
-        if self.normalize_states and bounded:
-            self.obs_mean = low + (high-low)/2
-            self.obs_std = high - low
-            self.env = NormalizedBoxEnv(env_to_wrap,
-                                        obs_mean=self.obs_mean,
-                                        obs_std=self.obs_std)
-
-        elif self.normalize_states and not bounded:
-            self.env = NormalizedBoxEnv(env_to_wrap)
-            self.estimate_obs_stats(num_data=10000)
-
-        else:
-            self.env = NormalizedBoxEnv(env_to_wrap)
+        self.env = NormalizedBoxEnv(env_to_wrap)
+        self.estimate_obs_stats(num_data=10000)
 
         self.action_repeat = action_repeat
         self.obs_type = obs_type
