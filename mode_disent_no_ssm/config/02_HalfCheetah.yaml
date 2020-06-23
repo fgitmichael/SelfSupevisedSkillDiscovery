@@ -34,7 +34,7 @@ info_loss_params:
 skill_policy_path: "./data/01_skill_policies/02_HalfCheetah_Policy_Object.pkl"
 
 mode_model_path: null
-log_interval: 25
+log_interval: 200
 run_comment: null
 log_folder: hparams2
 device: cuda
