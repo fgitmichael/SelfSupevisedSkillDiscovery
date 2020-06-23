@@ -18,11 +18,11 @@ class ActionSamplerNoSSM(ActionSampler):
     def reset(self, mode=None):
         if mode is None:
             mode_to_set = self.mode_model.sample_mode_prior(batch_size=1)['samples']
-            self._set_mode(mode_to_set)
+            self.set_mode(mode_to_set)
         else:
-            self._set_mode(mode)
+            self.set_mode(mode)
 
-    def _set_mode(self, mode):
+    def set_mode(self, mode):
         self._mode = mode.to(self.device)
         self._mode_next = mode.to(self.device)
 
