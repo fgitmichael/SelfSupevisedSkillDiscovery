@@ -56,11 +56,15 @@ class InteractiveDisentTester:
 
     def get_feature(self, obs):
         """
-        obs       : (1, observation_shape) ndarray
+        Args:
+            obs       : (1, observation_shape) ndarray
+        Return:
+            feature   : (1, feature_dim) tensor
         """
-        assert obs.shape == (1, self.env.observation_space.shape[0])
+        assert obs.shape == self.env.observation_space.shape
 
-        feature = self.obs_encoder(obs)
+        obs_tensor = torch.from_numpy(obs).to(self.device).unsqueeze(0)
+        feature = self.obs_encoder(obs_tensor)
 
         return feature
 
@@ -73,10 +77,10 @@ class InteractiveDisentTester:
         self.mode_action_sampler.update_mode_to_next()
 
         while not done and episode_steps < self.seq_len:
-            action_tensor = self.mode_action_sampler(self.get_feature(obs))
+            action_tensor = self.mode_action_sampler(self.get_feature(obs).float())
             action = action_tensor[0].detach().cpu().numpy()
 
-            obs, _, done = self.env.step(action)
+            obs, _, done, _ = self.env.step(action)
             episode_steps += 1
 
             self.viz.update_plot()

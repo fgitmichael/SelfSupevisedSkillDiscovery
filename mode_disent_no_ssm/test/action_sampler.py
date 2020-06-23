@@ -54,4 +54,6 @@ class ActionSamplerNoSSM(ActionSampler):
         Args:
             state_rep     : (1, state_rep_dim) tensor
         """
-        return self._get_action(state_rep)
+        # Action decoder needs sequences of type (N, S, dim)
+        state_rep = state_rep.unsqueeze(0)
+        return self._get_action(self._mode, state_rep)
