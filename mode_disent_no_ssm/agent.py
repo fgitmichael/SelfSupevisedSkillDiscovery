@@ -256,7 +256,7 @@ class DisentTrainerNoSSM:
                 self._save_fig(fig_states, ['writer'],
                                base_str=base_str_states_features)
 
-            if self._is_interval(self.log_interval * 20, self.learn_steps):
+            if self._is_interval(self.log_interval * 20, self.learn_steps) and self.env.observation_space.shape[0] < 4:
                 self._test_mode_influence(mode_post_samples=mode_post['samples'])
 
         return info_loss
