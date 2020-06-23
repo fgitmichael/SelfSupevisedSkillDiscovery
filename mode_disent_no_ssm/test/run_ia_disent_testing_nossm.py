@@ -1,4 +1,5 @@
 import torch
+from easydict import EasyDict as edict
 
 from mode_disent_no_ssm.utils.parse_args import load_hparams
 from mode_disent_no_ssm.test.interactive_disent_tester \
@@ -12,12 +13,15 @@ from mode_disent.env_wrappers.rlkit_wrapper import NormalizedBoxEnvForPytorch
 
 def run(device='cpu'):
     hparams = load_hparams('run_hyperparameters.json')
+    hparams = edict(hparams)
 
     fig_path_mode_mapping = './mode_mapping.fig'
     fig = torch.load(fig_path_mode_mapping)
 
     mode_model = torch.load('./mode_model.pkl', map_location=device)
     obs_encoder = torch.load('./obs_encoder.pkl', map_location=device)
+    mode_model.device = device
+    obs_encoder.device = device
 
     env = NormalizedBoxEnvForPytorch(
         gym_id=hparams.env_info.env_id,
@@ -38,3 +42,7 @@ def run(device='cpu'):
     )
 
     tester.run()
+
+if __name__ == '__main__':
+    run(device='cpu')
+
