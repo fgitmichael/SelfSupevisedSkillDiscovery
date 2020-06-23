@@ -37,7 +37,7 @@ def run(device='cpu'):
         env=env,
         mode_map_fig=fig,
         num_episodes=1000,
-        len_sequence=hparams.num_sequences * 2,
+        len_sequence=None,
         seed=0
     )
 
