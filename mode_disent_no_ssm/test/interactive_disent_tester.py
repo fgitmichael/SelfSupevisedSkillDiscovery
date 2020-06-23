@@ -78,12 +78,12 @@ class InteractiveDisentTester:
 
         while not done and episode_steps < self.seq_len:
             action_tensor = self.mode_action_sampler(self.get_feature(obs).float())
-            action = action_tensor[0].detach().cpu().numpy()
+            action = action_tensor.squeeze().detach().cpu().numpy()
 
             obs, _, done, _ = self.env.step(action)
             episode_steps += 1
-
             self.viz.update_plot()
+
 
         self.episodes += 1
         print(str(self.num_episodes - self.episodes) + ' episodes left')
