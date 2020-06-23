@@ -136,13 +136,8 @@ class NormalizedBoxEnvForPytorch(OrdinaryEnvForPytorch):
         done = False
         self.env.reset()
         for _ in range(num_data):
-            if done:
-                self.env.reset()
-                done = False
-
-            obs, _, done, _ = self.env.step(self.env.action_space.sample())
+            obs = self.env.observation_space.sample()
             obs_list.append(obs)
-
         obs_array = np.stack(obs_list, axis=0)
 
         self.env.estimate_obs_stats(obs_array)
