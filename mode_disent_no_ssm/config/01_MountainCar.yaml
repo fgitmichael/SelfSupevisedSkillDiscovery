@@ -1,0 +1,42 @@
+---
+env_info:
+  env_id: MountainCarContinuous-v0
+  domain_name:
+  task_name:
+  action_repeat: 1
+
+min_steps_sampling: 100000
+batch_size: 128
+num_sequences: 120
+train_steps: 20000
+lr: 0.0001
+
+mode_dim: 2
+num_mode_repitions: 1
+rnn_dim: 128
+num_rnn_layers: 2
+rnn_dropout: 0
+std_decoder: 0.0316
+hidden_units_mode_encoder:
+  - 256
+  - 256
+hidden_units_action_decoder:
+  - 256
+  - 256
+
+memory_size: 100000
+
+info_loss_params:
+  kld_diff_desired: null
+  alpha: 0.999
+  lamda: 0.22
+
+skill_policy_path: "./data/01_skill_policies/01_MoutainCar_Policy_Object.pkl"
+
+mode_model_path: null
+log_interval: 25
+run_comment: null
+log_folder: hparams2
+device: cuda
+leaky_slope: 0.2
+seed: 1
