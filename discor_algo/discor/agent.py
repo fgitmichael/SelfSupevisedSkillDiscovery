@@ -122,15 +122,11 @@ class Agent:
 
     def evaluate(self):
         total_return = 0.0
-        if self._test_env.is_metaworld:
-            total_success = 0.0
 
         for _ in range(self._num_eval_episodes):
             state = self._test_env.reset()
             episode_return = 0.0
             done = False
-            if self._test_env.is_metaworld:
-                success = 0.0
 
             while (not done):
                 action = self._algo.exploit(state)
@@ -138,18 +134,9 @@ class Agent:
                 episode_return += reward
                 state = next_state
 
-                if self._test_env.is_metaworld and info['success'] > 1e-8:
-                    success = 1.0
-
             total_return += episode_return
-            if self._test_env.is_metaworld:
-                total_success += success
 
         mean_return = total_return / self._num_eval_episodes
-        if self._test_env.is_metaworld:
-            success_rate = total_success / self._num_eval_episodes
-            self._writer.add_scalar(
-                'reward/success_rate', success_rate, self._steps)
 
         if mean_return > self._best_eval_score:
             self._best_eval_score = mean_return

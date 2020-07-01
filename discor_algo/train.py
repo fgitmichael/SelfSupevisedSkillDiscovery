@@ -3,10 +3,11 @@ import yaml
 import argparse
 from datetime import datetime
 import torch
+import gym
 
-from discor.env import make_env
-from discor.algorithm import SAC, DisCor
-from discor.agent import Agent
+from discor_algo.discor.env import make_env
+from discor_algo.discor.algorithm import SAC, DisCor
+from discor_algo.discor.agent import Agent
 
 
 def run(args):
@@ -17,8 +18,8 @@ def run(args):
         config['Agent']['num_steps'] = args.num_steps
 
     # Create environments.
-    env = make_env(args.env_id)
-    test_env = make_env(args.env_id)
+    env = gym.make('HalfCheetah-v2')
+    test_env = gym.make('HalfCheetah-v2')
 
     # Device to use.
     device = torch.device(
