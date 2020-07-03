@@ -106,20 +106,12 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
             next_observation    : (obs_dim, path_len) array of observations
             terminal            : (1, path_len) of uint8's
         """
-        assert observation.shape \
-               == next_observation.shape \
-               == (self._observation_dim, self._seq_len)
-        assert action.shape == (self._action_dim, self._seq_len)
-        assert reward.shape == (1, self._seq_len)
-        assert terminal.shape == (1, self._seq_len)
-
-        assert observation.dtype \
-               == next_observation.dtype \
-               == action.dtype \
-               == reward.dtype \
-               == np.float64
-
-        assert terminal.dtype == np.uint8
+        self._test_dimensions(
+            observation = observation,
+            action = action,
+            reward = reward,
+            next_observation = next_observation,
+            terminal = terminal)
 
         self._obs_seqs[self._top] = observation
         self._action_seqs[self._top] = action
@@ -160,3 +152,26 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
         return OrderedDict([
             ('size', self._size)
         ])
+
+    def _test_dimensions(self,
+                         observation: np.ndarray,
+                         action: np.ndarray,
+                         reward: np.ndarray,
+                         next_observation: np.ndarray,
+                         terminal: np.ndarray):
+
+        assert observation.shape \
+               == next_observation.shape \
+               == (self._observation_dim, self._seq_len)
+        assert action.shape == (self._action_dim, self._seq_len)
+        assert reward.shape == (1, self._seq_len)
+        assert terminal.shape == (1, self._seq_len)
+
+        assert observation.dtype \
+               == next_observation.dtype \
+               == action.dtype \
+               == reward.dtype \
+               == np.float64
+
+        assert terminal.dtype == np.uint8
+
