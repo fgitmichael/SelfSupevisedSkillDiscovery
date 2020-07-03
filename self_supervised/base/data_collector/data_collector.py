@@ -42,7 +42,8 @@ class PathCollectorSelfSupervised(PathCollector):
     ) -> List[PathMapping]:
         """
         Args:
-            num_steps                  : int i.e. num_eval_steps_per_epoch (typically higher
+            num_steps                  : int i.e. num_eval_steps_per_epoch
+                                         (typically higher
                                          than max_path_length, typically a multiply of
                                          max_path_length)
             max_path_length            : maximal path length
