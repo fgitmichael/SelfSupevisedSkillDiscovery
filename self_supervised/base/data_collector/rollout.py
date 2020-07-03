@@ -59,4 +59,15 @@ class Rollouter(object):
             render_kwargs=render_kwargs
         )
 
+        path = self._reshape_path(path)
+
         return PathMapping(**path)
+
+    @staticmethod
+    def _reshape_path(path):
+        assert len(path['rewards'].shape) == len(path['terminals'].shape) == 1
+
+        path['rewards'] = np.expand_dims(path['rewards'], 1)
+        path['terminals'] = np.expand_dims(path['terminals'], 1)
+
+        return path
