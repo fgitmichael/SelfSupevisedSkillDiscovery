@@ -19,6 +19,24 @@ class PathMapping(Prodict):
     agent_infos: dict
     env_infos: dict
 
+    def __init__(self,
+                 observations: np.ndarray,
+                 actions: np.ndarray,
+                 rewards: np.ndarray,
+                 next_observations: np.ndarray,
+                 terminals: np.ndarray,
+                 agent_infos: dict,
+                 env_infos: dict):
+        super(PathMapping, self).__init__(
+            observations=observations,
+            actions=actions,
+            rewards=rewards,
+            next_observations=next_observations,
+            terminals=terminals,
+            agent_infos=agent_infos,
+            env_infos=env_infos
+        )
+
 
 class Rollouter(object):
 
