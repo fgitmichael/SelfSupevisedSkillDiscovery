@@ -34,7 +34,6 @@ class SequenceEnvReplayBuffer(NormalSequenceReplayBuffer):
             env_info_sizes=env_info_sizes,
         )
 
-
     def add_sample(self,
                    observation: np.ndarray,
                    action: np.ndarray,
