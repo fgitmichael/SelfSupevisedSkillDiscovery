@@ -2,6 +2,8 @@ import abc
 
 from rlkit.data_management.replay_buffer import ReplayBuffer
 
+from self_supervised.base.data_collector.rollout import PathMapping
+
 
 # Adding skills
 class SequenceReplayBuffer(ReplayBuffer, metaclass=abc.ABCMeta):
@@ -32,7 +34,7 @@ class SequenceReplayBuffer(ReplayBuffer, metaclass=abc.ABCMeta):
         """
         pass
 
-    def add_path(self, path):
+    def add_path(self, path: PathMapping):
         """
         Add a path to the replay buffer.
 
@@ -54,14 +56,14 @@ class SequenceReplayBuffer(ReplayBuffer, metaclass=abc.ABCMeta):
                 env_info,
                 skills
         ) in enumerate(zip(
-            path["observations"],
-            path["actions"],
-            path["rewards"],
-            path["next_observations"],
-            path["terminals"],
-            path["agent_infos"],
-            path["env_infos"],
-            path["skills"]
+            path.observations,
+            path.actions,
+            path.rewards,
+            path.next_observations,
+            path.terminals,
+            path.agent_infos,
+            path.env_infos,
+            path.skills
         )):
             self.add_sample(
                 observation=obs,
