@@ -6,7 +6,6 @@ from self_supervised.base.replay_buffer.replay_buffer import SequenceReplayBuffe
 from rlkit.envs.env_utils import get_dim
 
 
-
 class SequenceEnvReplayBuffer(NormalSequenceReplayBuffer):
 
     def __init__(self,

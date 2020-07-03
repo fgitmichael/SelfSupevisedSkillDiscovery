@@ -74,6 +74,7 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
              self._max_replay_buffer_size),
             dtype='uint8'
         )
+
         self._env_infos = {}
         for key, size in env_info_sizes.items():
             self._env_infos[key] = np.zeros(
@@ -83,11 +84,6 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
             )
         self._env_info_keys = env_info_sizes.keys()
 
-        self._obs_seqs = np.zeros(
-            (self._max_replay_buffer_size,
-             self._observation_dim,
-             self._seq_len)
-        )
         self._top = 0
         self._size = 0
 
