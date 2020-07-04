@@ -163,7 +163,6 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
                 return_log_prob: bool = False) -> ForwardReturnMapping:
         assert obs.shape[-1] == self.dimensions['obs_dim']
         obs_tensor = obs
-        #obs_tensor = torch_ify(obs)
 
         if self.std is None:
             mean_log_std_cat = MyMlp.__call__(self, obs_tensor)
