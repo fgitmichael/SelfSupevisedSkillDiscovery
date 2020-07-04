@@ -87,11 +87,13 @@ class TanhGaussianPolicy(MyMlp, metaclass=abc.ABCMeta):
     def get_action(self,
                    obs_np: np.ndarray,
                    deterministic: bool = False) -> ActionMapping:
-        batch_size = obs_np.shape[0]
-        assert obs_np.shape == (batch_size, self.dimensions['obs_dim'])
+        assert obs_np.shape[-1] == self.dimensions['obs_dim']
 
         actions = self.get_actions(obs_np[None], deterministic=deterministic)
-        assert actions.shape == (batch_size, self.dimensions['action_dim'])
+        assert actions.shape == self.dimensions['action_dim']
+
+        if len(obs_np.shape) > 1:
+            assert obs_np.shape[:-1] == actions.shape[:-1]
 
         return ActionMapping(
             action=actions,
