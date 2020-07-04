@@ -11,22 +11,22 @@ class SequenceBatch(Prodict):
     obs_seqs: np.ndarray
     action_seqs: np.ndarray
     rewards: np.ndarray
-    terminals: np.ndarray
-    next_observations: np.ndarray
+    terminal_seqs: np.ndarray
+    next_obs_seqs: np.ndarray
 
     def __init__(self,
                  obs_seqs: np.ndarray,
                  action_seqs: np.ndarray,
-                 rewards: np.ndarray,
-                 terminals: np.ndarray,
-                 next_observations: np.ndarray):
+                 reward_seqs: np.ndarray,
+                 terminal_seqs: np.ndarray,
+                 next_obs_seqs: np.ndarray):
 
         super(SequenceBatch, self).__init__(
             obs_seqs=obs_seqs,
             action_seqs=action_seqs,
-            rewards=rewards,
-            terminals=terminals,
-            next_observations=next_observations
+            reward_seqs=reward_seqs,
+            terminal_seqs=terminal_seqs,
+            next_obs_seqs=next_obs_seqs
         )
 
 
@@ -124,7 +124,7 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
     def terminate_episode(self):
         pass
 
-    def random_batch(self, batch_size: int):
+    def random_batch(self, batch_size: int) -> SequenceBatch:
         idx = np.random.randint(
             low=0,
             high=self._size,
@@ -134,9 +134,9 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
         batch = SequenceBatch(
             obs_seqs=self._obs_seqs[idx],
             action_seqs=self._action_seqs[idx],
-            rewards=self._rewards_seqs[idx],
-            terminals=self._terminal_seqs[idx],
-            next_observations=self._obs_next_seqs,
+            reward_seqs=self._rewards_seqs[idx],
+            terminal_seqs=self._terminal_seqs[idx],
+            next_obs_seqs=self._obs_next_seqs,
         )
 
         return batch
