@@ -221,3 +221,13 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
             mean_action_log_prob=mean_action_log_prob,
             pre_tanh_value=pre_tanh_value
         )
+
+class MakeDeterministic(Policy):
+
+    def __init__(self,
+                 stochastic_policy: SkillTanhGaussianPolicy):
+        self.stochastic_policy = stochastic_policy
+
+    def get_action(self, observation):
+        return self.stochastic_policy.get_action(observation,
+                                                 deterministic=True)
