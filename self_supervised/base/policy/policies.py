@@ -6,6 +6,7 @@ import numpy as np
 
 from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy
 from rlkit.torch.core import eval_np, torch_ify
+from rlkit.policies.base import Policy
 
 from self_supervised.base.network.mlp import MyMlp
 from self_supervised.base.distribution.tanh_normal import TanhNormal
@@ -60,7 +61,7 @@ class ForwardReturnMapping(Prodict):
 
 
 # Abstract Base class
-class TanhGaussianPolicy(MyMlp, metaclass=abc.ABCMeta):
+class TanhGaussianPolicy(MyMlp, Policy, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def __init__(self,

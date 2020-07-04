@@ -2,6 +2,7 @@ import torch
 import numpy as np
 
 from rlkit.torch.core import eval_np, torch_ify, np_ify
+from rlkit.policies.base import Policy
 
 from self_supervised.base.policy.policies import \
     TanhGaussianPolicyLogStd, ActionMapping, ForwardReturnMapping
@@ -107,9 +108,12 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
         assert skill.size(-1) == self.skill_dim
 
 
+class MakeDeterministic(Policy):
 
+    def __init__(self,
+                 stochastic_policy: SkillTanhGaussianPolicy):
+        self.stochastic_policy = stochastic_policy
 
-
-
-
-
+    def get_action(self, observation):
+        return self.stochastic_policy.get_action(observation,
+                                                 deterministic=True)
