@@ -5,9 +5,9 @@ import abc
 import numpy as np
 
 from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy
-from rlkit.torch.core import eval_np
+from rlkit.torch.core import eval_np, torch_ify
 
-from self_supervised.base.network.mlp import MyMlp as Mlp
+from self_supervised.base.network.mlp import MyMlp
 from self_supervised.base.distribution.tanh_normal import TanhNormal
 
 from code_slac.network.base import weights_init_xavier
@@ -21,7 +21,7 @@ class ActionMapping(Prodict):
     agent_info: dict
 
     def __init__(self,
-                 action: float,
+                 action: np.ndarray,
                  agent_info: dict):
         super().__init__(
             action=action,
@@ -60,7 +60,7 @@ class ForwardReturnMapping(Prodict):
 
 
 # Abstract Base class
-class TanhGaussianPolicy(Mlp, metaclass=abc.ABCMeta):
+class TanhGaussianPolicy(MyMlp, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def __init__(self,
@@ -94,14 +94,14 @@ class TanhGaussianPolicy(Mlp, metaclass=abc.ABCMeta):
         assert actions.shape == (batch_size, self.dimensions['action_dim'])
 
         return ActionMapping(
-            action=actions[0, :],
+            action=actions,
             agent_info={}
         )
 
     def get_actions(self,
                     obs_np: np.ndarray,
                     deterministic=False) -> np.ndarray:
-        return eval_np(self, obs_np, deterministic=deterministic)[0]
+        return eval_np(self, obs_np, deterministic=deterministic).action
 
     @abc.abstractmethod
     def forward(self,
@@ -154,17 +154,20 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
             assert LOG_SIG_MIN <= self.log_std <= LOG_SIG_MAX
 
     def forward(self,
-                obs,
-                reparameterize=True,
-                deterministic=False,
-                return_log_prob=False) -> ForwardReturnMapping:
-        batch_size = obs.shape[0]
-        assert obs.shape == (batch_size, self.dimensions['obs_dim'])
+                obs: torch.Tensor,
+                reparameterize: bool = True,
+                deterministic: bool = False,
+                return_log_prob: bool = False) -> ForwardReturnMapping:
+        assert obs.shape[-1] == self.dimensions['obs_dim']
+        obs_tensor = obs
+        #obs_tensor = torch_ify(obs)
 
         if self.std is None:
-            mean_log_std_cat = eval_np(Mlp, obs)
-            assert mean_log_std_cat.shape == \
-                   torch.Size((batch_size, 2 * self.dimensions['action_dim']))
+            mean_log_std_cat = MyMlp.__call__(self, obs_tensor)
+
+            assert mean_log_std_cat.size(-1) == 2 * self.dimensions['action_dim']
+            if len(mean_log_std_cat.size) > 1 and len(obs_tensor.shape) > 1:
+                assert mean_log_std_cat.shape[:-1] == obs_tensor.shape[:-1]
 
             mean, log_std = torch.chunk(mean_log_std_cat,
                                         chunks=2,
@@ -172,7 +175,7 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
             log_std = torch.clamp(log_std, LOG_SIG_MIN, LOG_SIG_MAX)
             std = torch.exp(log_std)
         else:
-            mean = eval_np(Mlp, obs)
+            mean = MyMlp.__call__(self, obs_tensor)
             std = self.std
             log_std = self.log_std
 
