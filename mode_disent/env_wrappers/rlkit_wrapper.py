@@ -67,12 +67,12 @@ class NormalizedBoxEnv(ProxyEnv):
 class NormalizedBoxEnvForPytorch(OrdinaryEnvForPytorch):
 
     def __init__(self,
-                 gym_id,
-                 action_repeat=1,
-                 obs_type='state',
-                 normalize_states=False,
-                 render_kwargs=None):
-        super(DmControlEnvForPytorch, self).__init__()
+                 gym_id: str,
+                 action_repeat: int = 1,
+                 obs_type: str ='state',
+                 normalize_states: bool = False,
+                 render_kwargs: bool = None):
+        super(NormalizedBoxEnvForPytorch, self).__init__()
 
         assert obs_type in self.keys
 
