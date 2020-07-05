@@ -3,7 +3,6 @@ import gym
 from rlkit.envs.wrappers import ProxyEnv
 from gym.spaces import Box
 
-from code_slac.env.dm_control import DmControlEnvForPytorch
 from code_slac.env.ordinary_env import OrdinaryEnvForPytorch
 
 
@@ -119,7 +118,8 @@ class NormalizedBoxEnvForPytorch(OrdinaryEnvForPytorch):
 
         return  denormalized
 
-    def estimate_obs_stats(self, num_data):
+    def estimate_obs_stats(self,
+                           num_data: int):
         # Sample states for estimation of obs stats
         obs_list = []
         done = False

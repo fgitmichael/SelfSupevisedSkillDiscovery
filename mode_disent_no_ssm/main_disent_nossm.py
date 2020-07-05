@@ -29,7 +29,7 @@ def run():
         gym_id=args.env_info.env_id,
         action_repeat=args.env_info.action_repeat,
         obs_type='state',
-        normalize_states = True
+        normalize_states=True
     )
 
     skill_policy_object = torch.load(args.skill_policy_path)['evaluation/policy']
