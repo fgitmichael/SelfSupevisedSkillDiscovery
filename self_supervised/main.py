@@ -113,15 +113,15 @@ def run(variant: VariantMapping):
     #    skill_dim=skill_dim,
     #    hidden_sizes=variant.hidden_layer,
     #)
-    eval_policy = MakeDeterministic(policy)
-    eval_path_collector = PathCollectorSelfSupervised(
-        env=eval_env,
-        policy=policy,
-    )
-    expl_step_collector = PathCollectorSelfSupervised(
-        env=expl_env,
-        policy=policy
-    )
+    #eval_policy = MakeDeterministic(policy)
+    #eval_path_collector = PathCollectorSelfSupervised(
+    #    env=eval_env,
+    #    policy=policy,
+    #)
+    #expl_step_collector = PathCollectorSelfSupervised(
+    #    env=expl_env,
+    #    policy=policy
+    #)
 
 
 
