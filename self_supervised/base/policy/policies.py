@@ -146,23 +146,26 @@ class TanhGaussianPolicy(MyMlp, Policy, metaclass=abc.ABCMeta):
 class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
 
     def __init__(self,
-                 hidden_sizes,
-                 obs_dim,
-                 action_dim,
-                 std=None,
-                 initializer=weights_init_xavier,
                  **kwargs):
+        """
+        Args:
+            std
+            hidden_sizes,
+            obs_dim,
+            action_dim,
+            std=None,
+            initializer=weights_init_xavier,
+            hidden_activation=F.leaky_relu(torch.tensor(0.2)),
+            layer_norm=False,
+            output_activation=None,
+        """
         super(TanhGaussianPolicyLogStd, self).__init__(
-            hidden_sizes=hidden_sizes,
-            obs_dim=obs_dim,
-            action_dim=action_dim,
-            std=std,
-            initializer=initializer,
             **kwargs
         )
+        kwargs = Prodict(**kwargs)
 
         self.log_std = None
-        self.std = std
+        self.std = kwargs.std
 
         if self.std is not None:
             self.log_std = np.log(self.std)
@@ -233,6 +236,7 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
             mean_action_log_prob=mean_action_log_prob,
             pre_tanh_value=pre_tanh_value
         )
+
 
 class MakeDeterministic(Policy):
 
