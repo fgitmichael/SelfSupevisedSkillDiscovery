@@ -70,6 +70,8 @@ class TanhGaussianPolicy(MyMlp, Policy, metaclass=abc.ABCMeta):
                  action_dim,
                  std=None,
                  initializer=weights_init_xavier,
+                 hidden_activation=F.leaky_relu(torch.tensor(0.2)),
+                 layer_norm=False,
                  **kwargs):
         super().__init__(
             hidden_sizes=hidden_sizes,
@@ -78,6 +80,14 @@ class TanhGaussianPolicy(MyMlp, Policy, metaclass=abc.ABCMeta):
             initializer=weights_init_xavier,
             hidden_activation=F.leaky_relu(torch.tensor(0.2))
             **kwargs
+        )
+        super().__init__(
+            input_size=obs_dim,
+            output_size=action_dim,
+            initializer=initializer,
+            hidden_activation=hidden_activation,
+            hidden_sizes=hidden_sizes,
+            layer_norm=layer_norm
         )
 
         self.dimensions = dict(
