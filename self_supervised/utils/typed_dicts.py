@@ -62,6 +62,7 @@ class ModeLatentKwargsMapping(Prodict):
     num_mode_repeat: int
     std_decoder: float
     leaky_slope: float
+    info_loss_kwargs: InfoLossParamsMapping
 
     def __init__(self,
                  feature_dim: int,
@@ -73,6 +74,7 @@ class ModeLatentKwargsMapping(Prodict):
                  num_mode_repeat: int,
                  std_decoder: float,
                  leaky_slope: float,
+                 info_loss_kwargs: InfoLossParamsMapping
                  ):
         super().__init__(
             feature_dim=feature_dim,

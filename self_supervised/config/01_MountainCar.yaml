@@ -22,10 +22,10 @@ ModeLatentKwargs:
   num_mode_repeat: 1
   std_decoder: 0.0316
   leaky_slope: 0.2
+  info_loss_kwargs:
+    alpha: 0.999
+    lamda: 0.22
 
-InfoLossParams:
-  alpha: 0.999
-  lamda: 0.22
 
 Other:
   algorithm: Self Supervised
