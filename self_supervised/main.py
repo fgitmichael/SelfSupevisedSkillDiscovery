@@ -5,48 +5,20 @@ from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.policy.skill_policy import \
     SkillTanhGaussianPolicy, MakeDeterministic
 from self_supervised.base.data_collector.data_collector import PathCollectorSelfSupervised
-from self_supervised.memory.self_sup_replay_buffer import SelfSupervisedEnvSequenceReplayBuffer
+from self_supervised.memory.self_sup_replay_buffer import \
+    SelfSupervisedEnvSequenceReplayBuffer
+from self_supervised.base.utils.typed_dicts import \
+    ModeLatentKwargsMapping, \
+    EnvKwargsMapping, \
+    TrainerKwargsMapping, \
+    AlgoKwargsMapping, \
+    InfoLossParamsMapping
 
 from rlkit.torch.networks import FlattenMlp
 
-from
+from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
 
 
-class AlgoKwargsMapping(Prodict):
-    num_epochs: int
-    def __init__(self,
-                 num_epochs: int):
-        super().__init__(
-            num_epochs=num_epochs
-        )
-
-
-class TrainerKwargsMapping(Prodict):
-    discount: float
-    def __init__(self,
-                 discount: float):
-        super().__init__(
-            discount=discount
-        )
-
-
-class EnvKwargsMapping(Prodict):
-    gym_id: str
-    action_repeat: int
-    normalize_states: bool
-
-    def __init__(self,
-                 gym_id: str,
-                 action_repeat: int,
-                 normalize_states: bool):
-        super().__init__(
-            gym_id=gym_id,
-            action_repeat=action_repeat,
-            normalize_states=normalize_states
-        )
-
-    def init(self):
-        self.normalize_states = True
 
 
 class VariantMapping(Prodict):
