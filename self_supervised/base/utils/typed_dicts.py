@@ -84,3 +84,40 @@ class ModeLatentKwargsMapping(Prodict):
             device=device,
             leaky_slope=leaky_slope,
         )
+
+
+class VariantMapping(Prodict):
+    algorithm: str
+    version: str
+    hidden_layer: list
+    replay_buffer_size: int
+    skill_dim: int
+    layer_norm: bool
+    mode_latent_kwargs: ModeLatentKwargsMapping
+    env_kwargs: EnvKwargsMapping
+    algo_kwargs: AlgoKwargsMapping
+    trainer_kwargs: TrainerKwargsMapping
+
+    def __init__(self,
+                 algorithm: str,
+                 version: str,
+                 hidden_layer: list,
+                 replay_buffer_size: int,
+                 skill_dim: int,
+                 layer_norm: bool,
+                 mode_latent_kwargs: ModeLatentKwargsMapping,
+                 env_kwargs: EnvKwargsMapping,
+                 algo_kwargs: AlgoKwargsMapping,
+                 trainer_kwargs: TrainerKwargsMapping):
+        super().__init__(
+            algorithm=algorithm,
+            version=version,
+            hidden_layer=hidden_layer,
+            replay_buffer_size=replay_buffer_size,
+            skill_dim=skill_dim,
+            layer_norm=layer_norm,
+            mode_latent_kwargs=mode_latent_kwargs,
+            env_kwargs=env_kwargs,
+            algo_kwargs=algo_kwargs,
+            trainer_kwargs=trainer_kwargs,
+        )
