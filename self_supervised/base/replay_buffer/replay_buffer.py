@@ -4,8 +4,6 @@ from collections import OrderedDict
 
 from self_supervised.base.replay_buffer.replay_buffer_base import SequenceReplayBuffer
 
-from rlkit.data_management.simple_replay_buffer import SimpleReplayBuffer
-
 
 class SequenceBatch(Prodict):
     obs_seqs: np.ndarray
@@ -88,32 +86,24 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
         self._size = 0
 
     def add_sample(self,
-                   observation: np.ndarray,
-                   action: np.ndarray,
-                   reward: np.ndarray,
-                   next_observation: np.ndarray,
-                   terminal: np.ndarray,
+                   sample: SequenceBatch,
                    **kwargs):
         """
         Args:
-            observation         : (obs_dim, path_len) array of observations
-            action              : (action_dim, path_len) array of actions
-            reward              : (1, path_len) of rewards
-            next_observation    : (obs_dim, path_len) array of observations
-            terminal            : (1, path_len) of uint8's
+            sample       : SequenceBatch
         """
         self._test_dimensions(
-            observation = observation,
-            action = action,
-            reward = reward,
-            next_observation = next_observation,
-            terminal = terminal)
+            observation=sample.obs_seqs,
+            action=sample.action_seqs,
+            reward=sample.rewards,
+            next_observation=sample.next_obs_seqs,
+            terminal=sample.next_obs_seqs)
 
-        self._obs_seqs[self._top] = observation
-        self._action_seqs[self._top] = action
-        self._obs_next_seqs[self._top] = next_observation
-        self._rewards_seqs[self._top] = reward
-        self._terminal_seqs[self._top] = terminal
+        self._obs_seqs[self._top] = sample.observation
+        self._action_seqs[self._top] = sample.action_seqs
+        self._obs_next_seqs[self._top] = sample.next_obs_seqs
+        self._rewards_seqs[self._top] = sample.rewards
+        self._terminal_seqs[self._top] = sample.terminal_seqs
 
         self._advance()
 

@@ -34,33 +34,20 @@ class SequenceEnvReplayBuffer(NormalSequenceReplayBuffer):
         )
 
     def add_sample(self,
-                   observation: np.ndarray,
-                   action: np.ndarray,
-                   reward: np.ndarray,
-                   next_observation: np.ndarray,
-                   terminal: np.ndarray,
+                   sample: SequenceBatch,
                    **kwargs):
-        self._test_dimensions(
-            observation = observation,
-            action = action,
-            reward = reward,
-            next_observation = next_observation,
-            terminal = terminal)
 
         if isinstance(self._action_space, Discrete):
             # One Hot over sequences
             new_action = np.zeros(
-                (action.shape[0], self._action_dim, self._seq_len)
+                (self._action_dim, self._seq_len)
             )
-            new_action[action] = 1
+            new_action[sample.action_seqs] = 1
         else:
-            new_action = action
+            new_action = sample.action_seqs
+        sample.action_seqs = new_action
 
         super().add_sample(
-            observation=observation,
-            action=new_action,
-            reward=reward,
-            next_observation=next_observation,
-            terminal=terminal,
+            sample=sample
             **kwargs
         )
