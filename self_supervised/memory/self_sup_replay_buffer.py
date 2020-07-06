@@ -1,13 +1,14 @@
 from gym import Env
 import numpy as np
 from prodict import Prodict
+from typing import List
 
 from self_supervised.base.replay_buffer.env_replay_buffer import \
     SequenceEnvReplayBuffer, SequenceBatch
 
 
 class SequenceSelfSupervisedBatch(SequenceBatch):
-    mode: np.ndarray
+    mode_per_seqs: np.ndarray
 
     def __init__(self,
                  obs_seqs: np.ndarray,
@@ -66,6 +67,22 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
             terminal=terminal,
             **kwargs
         )
+
+    def add_self_sup_path(self,
+                          path: SequenceSelfSupervisedBatch):
+        self.add_sample(
+            observation=path.obs_seqs,
+            action=path.action_seqs,
+            reward=path.rewards,
+            next_observation=path.next_obs_seqs,
+            terminal=path.terminal_seqs,
+            mode=path.mode_per_seqs,
+        )
+
+    def add_self_sup_paths(self,
+                           paths: List[SequenceSelfSupervisedBatch]):
+        for path in paths:
+            self.add_self_sup_path(path)
 
     def random_batch(self,
                      batch_size: int) -> SequenceSelfSupervisedBatch:
