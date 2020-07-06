@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from torch.optim import Adam
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
+from itertools import chain
 import matplotlib
 import matplotlib.pyplot as plt
 import warnings
@@ -105,7 +106,12 @@ class DisentTrainerNoSSM:
             self.mode_latent_model = mode_latent_model.to(self.device)
             self.mode_model_loaded = True
 
-        self.optim = Adam(self.mode_latent_model.parameters(), lr=lr)
+        self.optim = Adam(
+            chain(
+                self.mode_latent_model.parameters(),
+                self.obs_encoder.parameters()
+            ),
+            lr=lr)
 
         self.memory = MyLazyMemory(
             state_rep=True,
