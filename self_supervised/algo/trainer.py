@@ -1,4 +1,6 @@
 import torch
+import torch.nn as nn
+from typing import Iterable
 
 from rlkit.torch.torch_rl_algorithm import TorchTrainer
 from rlkit.torch.networks import FlattenMlp
@@ -13,7 +15,7 @@ class SelfSupTrainer(TorchTrainer):
     def __init__(self,
                  env: NormalizedBoxEnvWrapper,
                  policy: SkillTanhGaussianPolicy,
-                 gf1: FlattenMlp,
+                 qf1: FlattenMlp,
                  qf2: FlattenMlp,
                  target_qf1: FlattenMlp,
                  target_qf2: FlattenMlp,
@@ -35,4 +37,28 @@ class SelfSupTrainer(TorchTrainer):
                  use_automatic_entropy_tuning=True,
                  ):
         super().__init__()
-        pass
+
+        self.env = env
+        self.policy = policy
+        self.qf1 = qf1
+        self.qf2 = qf2
+        self.target_qf1 = target_qf1
+        self.target_qf2 = target_qf2
+        self.mode_latent_trainer = mode_latent_trainer
+
+        self.soft_target_tau = soft_target_tau
+        self.target_update_period = target_update_period
+        self.use_automatic_entropy_tuning = use_automatic_entropy_tuning
+
+    @property
+    def networks(self) -> Iterable[nn.Module]:
+        return dict(
+            policy=self.policy,
+            qf1=self.qf1,
+            qf2=self.qf2,
+            target_qf1=self.qf1,
+            target_qf2=self.qf2,
+            mode_latent=self.mode_latent_trainer.model,
+        )
+
+

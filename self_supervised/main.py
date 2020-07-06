@@ -9,6 +9,8 @@ from self_supervised.utils.get_variant import parse_variant
 from self_supervised.algo.trainer_mode_latent import ModeLatentTrainer
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
+from self_supervised.algo.trainer import SelfSupTrainer
+from self_supervised.algo.algorithm import SelfSupAlgo
 
 from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
 from mode_disent_no_ssm.utils.empty_network import Empty

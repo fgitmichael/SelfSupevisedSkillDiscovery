@@ -5,9 +5,11 @@ from self_supervised.base.data_collector.data_collector import PathCollectorSelf
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
+from self_supervised.base.data_collector.rollout import PathMapping
+from self_supervised.base.algo.algo_base import BaseRLAlgorithmSelfSup
 
 
-class SelfSupAlgo(BaseRLAlgorithm):
+class SelfSupAlgo(BaseRLAlgorithmSelfSup):
 
     def __init__(self,
                  trainer: SelfSupTrainer,
@@ -41,7 +43,7 @@ class SelfSupAlgo(BaseRLAlgorithm):
 
         self.batch_size = batch_size
         self.seq_len = seq_len
-        self.num_epoch = num_epochs
+        self.num_epochs = num_epochs
         self.num_eval_steps_per_epoch = num_eval_steps_per_epoch
         self.num_trains_per_train_loop = num_trains_per_train_loop
         self.num_train_loops_per_epoch = num_train_loops_per_epoch
