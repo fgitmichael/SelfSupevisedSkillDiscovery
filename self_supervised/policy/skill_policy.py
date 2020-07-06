@@ -35,8 +35,8 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
 
     def get_action(self,
                    obs_np: np.ndarray,
-                   skill=None,
-                   deterministic=False):
+                   skill: torch.Tensor = None,
+                   deterministic: bool = False):
         obs_tensor = torch_ify(obs_np)
 
         if skill is not None:
