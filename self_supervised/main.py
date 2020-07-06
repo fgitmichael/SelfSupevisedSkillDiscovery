@@ -1,16 +1,18 @@
 import torch
-from prodict import Prodict
-import gym
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.policy.skill_policy import \
     SkillTanhGaussianPolicy, MakeDeterministic
 from self_supervised.base.data_collector.data_collector import PathCollectorSelfSupervised
 from self_supervised.utils.typed_dicts import VariantMapping
+from self_supervised.utils.get_variant import parse_variant
+from self_supervised.algo.trainer_mode_latent import ModeLatentTrainer
+
+from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
+from mode_disent_no_ssm.utils.empty_network import Empty
 
 from rlkit.torch.networks import FlattenMlp
 
-from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
 
 
 def run(variant: VariantMapping):
@@ -88,32 +90,9 @@ def run(variant: VariantMapping):
     )
 
 
+
 if __name__ == "__main__":
-    env_kwargs = EnvKwargsMapping(
-        gym_id='MountainCarContinuous-v0',
-        action_repeat=1,
-        normalize_states=True
-    )
-
-    algo_kwargs = AlgoKwargsMapping(
-        num_epochs=1000
-    )
-    trainer_kwargs = TrainerKwargsMapping(
-        discount=0.99
-    )
-    env_id = 'mountain'
-    variant = VariantMapping(
-        algorithm='Self Supervised',
-        version='0.0.1',
-        hidden_layer=[256, 256],
-        replay_buffer_size=int(1E6),
-        skill_dim=2,
-        layer_norm=True,
-        env_kwargs=env_kwargs,
-        trainer_kwargs=trainer_kwargs,
-        algo_kwargs=algo_kwargs,
-    )
-
+    variant = parse_variant()
     run(variant)
 
 
