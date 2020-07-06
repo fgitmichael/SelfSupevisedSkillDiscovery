@@ -34,3 +34,6 @@ Other:
   replay_buffer_size: 1000000
   skill_dim: 2
   layer_norm: True
+  seq_len: 100
+  batch_size: 128
+  num_epochs: 1000

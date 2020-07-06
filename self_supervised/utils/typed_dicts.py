@@ -96,6 +96,8 @@ class VariantMapping(Prodict):
     hidden_layer: list
     replay_buffer_size: int
     skill_dim: int
+    seq_len: int
+    batch_size: int
     layer_norm: bool
     mode_latent_kwargs: ModeLatentKwargsMapping
     env_kwargs: EnvKwargsMapping
@@ -108,6 +110,9 @@ class VariantMapping(Prodict):
                  hidden_layer: list,
                  replay_buffer_size: int,
                  skill_dim: int,
+                 seq_len: int,
+                 batch_size: int,
+                 num_epochs: int,
                  layer_norm: bool,
                  mode_latent_kwargs: ModeLatentKwargsMapping,
                  env_kwargs: EnvKwargsMapping,
@@ -119,6 +124,9 @@ class VariantMapping(Prodict):
             hidden_layer=hidden_layer,
             replay_buffer_size=replay_buffer_size,
             skill_dim=skill_dim,
+            seq_len=seq_len,
+            batch_size=batch_size,
+            num_epochs=num_epochs,
             layer_norm=layer_norm,
             mode_latent_kwargs=mode_latent_kwargs,
             env_kwargs=env_kwargs,

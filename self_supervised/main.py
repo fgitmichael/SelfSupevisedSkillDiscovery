@@ -7,6 +7,8 @@ from self_supervised.base.data_collector.data_collector import PathCollectorSelf
 from self_supervised.utils.typed_dicts import VariantMapping
 from self_supervised.utils.get_variant import parse_variant
 from self_supervised.algo.trainer_mode_latent import ModeLatentTrainer
+from self_supervised.memory.self_sup_replay_buffer import \
+    SelfSupervisedEnvSequenceReplayBuffer
 
 from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
 from mode_disent_no_ssm.utils.empty_network import Empty
@@ -88,6 +90,15 @@ def run(variant: VariantMapping):
         env=expl_env,
         policy=policy
     )
+
+    replay_buffer = SelfSupervisedEnvSequenceReplayBuffer(
+        max_replay_buffer_size=variant.replay_buffer_size,
+        seq_len=variant.seq_len,
+        mode_dim=variant.skill_dim,
+        env=expl_env,
+    )
+
+
 
 
 
