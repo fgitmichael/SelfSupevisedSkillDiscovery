@@ -33,6 +33,7 @@ def run(variant: VariantMapping):
         hidden_sizes=variant.hidden_layer,
         layer_norm=variant.layer_norm,
     )
+
     target_qf1 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
@@ -45,6 +46,7 @@ def run(variant: VariantMapping):
         hidden_sizes=variant.hidden_layer,
         layer_norm=variant.layer_norm,
     )
+
     mode_latent = ModeLatentNetwork(
         mode_dim=skill_dim,
         representation_dim=obs_dim,
@@ -75,6 +77,7 @@ def run(variant: VariantMapping):
         layer_norm=variant.layer_norm
     )
     eval_policy = MakeDeterministic(policy)
+
     eval_path_collector = PathCollectorSelfSupervised(
         env=eval_env,
         policy=policy,
