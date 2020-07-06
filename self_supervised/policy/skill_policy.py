@@ -60,6 +60,11 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
 
         return action
 
+    def set_skill(self,
+                  skill: torch.Tensor):
+        self._check_skill(skill)
+        self.skill = skill
+
     def get_actions(self,
                     obs_np: np.ndarray,
                     deterministic=False) -> np.ndarray:
