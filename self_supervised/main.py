@@ -1,3 +1,4 @@
+import torch
 from prodict import Prodict
 import gym
 
@@ -68,44 +69,51 @@ def run(variant: VariantMapping):
     qf1 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
-        hidden_sizes=variant.hidden_layer
+        hidden_sizes=variant.hidden_layer,
+        layer_norm=variant.layer_norm
+
     )
     qf2 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
-        hidden_sizes=variant.hidden_layer
+        hidden_sizes=variant.hidden_layer,
+        layer_norm=variant.layer_norm,
     )
     target_qf1 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
-        hidden_sizes=variant.hidden_layer
+        hidden_sizes=variant.hidden_layer,
+        layer_norm=variant.layer_norm,
     )
     target_qf2 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
-        hidden_sizes=variant.hidden_layer
+        hidden_sizes=variant.hidden_layer,
+        layer_norm=variant.layer_norm,
     )
-    #policy = SkillTanhGaussianPolicy(
-    #    obs_dim=obs_dim,
-    #    action_dim=action_dim,
-    #    skill_dim=skill_dim,
-    #    hidden_sizes=variant.hidden_layer,
-    #)
-    #eval_policy = MakeDeterministic(policy)
-    #eval_path_collector = PathCollectorSelfSupervised(
-    #    env=eval_env,
-    #    policy=policy,
-    #)
-    #expl_step_collector = PathCollectorSelfSupervised(
-    #    env=expl_env,
-    #    policy=policy
-    #)
-
-
-
-
-
-
+    mode_latent = ModeLatentNetwork(
+        mode_dim=skill_dim,
+        representation_dim=obs_dim,
+        feature_dim=obs_dim,
+        action_dim=action_dim,
+        **variant.mode_latent_kwargs
+    )
+    policy = SkillTanhGaussianPolicy(
+        obs_dim=obs_dim,
+        action_dim=action_dim,
+        hidden_sizes=variant.hidden_layer,
+        skill_dim=skill_dim,
+        layer_norm=variant.layer_norm
+    )
+    eval_policy = MakeDeterministic(policy)
+    eval_path_collector = PathCollectorSelfSupervised(
+        env=eval_env,
+        policy=policy,
+    )
+    expl_step_collector = PathCollectorSelfSupervised(
+        env=expl_env,
+        policy=policy
+    )
 
 
 if __name__ == "__main__":
