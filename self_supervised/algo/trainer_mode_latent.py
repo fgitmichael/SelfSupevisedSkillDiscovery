@@ -2,6 +2,8 @@ import torch
 from torch.optim import Adam
 import torch.nn.functional as F
 import gym
+from itertools import chain
+
 
 from code_slac.utils import calc_kl_divergence, update_params
 
@@ -20,9 +22,9 @@ class ModeLatentTrainer():
                  env: gym.Env,
                  feature_dim: int,
                  mode_dim: int,
+                 obs_encoder: torch.nn.Module,
                  info_loss_parms: InfoLossParamsMapping,
                  mode_latent: ModeLatentNetwork,
-                 device: torch.device,
                  lr = 0.0001):
 
         self.obs_dim = env.observation_space.low.size
@@ -30,15 +32,15 @@ class ModeLatentTrainer():
         self.feature_dim = feature_dim
         self.mode_dim = mode_dim
         self.info_loss_params = info_loss_parms
-        self.device = device
 
         self.model = mode_latent
-        self.optim = Adam(mode_latent.parameters(), lr=lr)
-
-        if self.obs_dim == self.feature_dim:
-            self.obs_encoder = Empty().to(self.device)
-        else:
-            self.obs_encoder = torch.nn.Linear(self.obs_dim, self.feature_dim).to(self.device)
+        self.obs_encoder = obs_encoder
+        self.optim = Adam(
+            chain(
+                self.model.parameters(),
+                self.obs_encoder.parameters()
+            ),
+            lr=lr)
 
         self.learn_steps = 0
 

@@ -53,6 +53,7 @@ class InfoLossParamsMapping(Prodict):
 
 
 class ModeLatentKwargsMapping(Prodict):
+    feature_dim: int
     rnn_dim: int
     num_rnn_layers: int
     rnn_dropout: float
@@ -60,10 +61,10 @@ class ModeLatentKwargsMapping(Prodict):
     hidden_units_action_decoder: list
     num_mode_repeat: int
     std_decoder: float
-    device: torch.device
     leaky_slope: float
 
     def __init__(self,
+                 feature_dim: int,
                  rnn_dim: int,
                  num_rnn_layers: int,
                  rnn_dropout: float,
@@ -71,10 +72,10 @@ class ModeLatentKwargsMapping(Prodict):
                  hidden_units_action_decoder: list,
                  num_mode_repeat: int,
                  std_decoder: float,
-                 device: torch.device,
                  leaky_slope: float,
                  ):
         super().__init__(
+            feature_dim=feature_dim,
             rnn_dim=rnn_dim,
             num_rnn_layers=num_rnn_layers,
             rnn_dropout=rnn_dropout,
@@ -82,7 +83,7 @@ class ModeLatentKwargsMapping(Prodict):
             hidden_units_action_decoder=hidden_units_action_decoder,
             num_mode_repeat=num_mode_repeat,
             std_decoder=std_decoder,
-            device=device,
+            info_loss_kwargs=info_loss_kwargs,
             leaky_slope=leaky_slope,
         )
 

@@ -52,6 +52,21 @@ def run(variant: VariantMapping):
         action_dim=action_dim,
         **variant.mode_latent_kwargs
     )
+    feature_dim_mode_latent = variant.mode_latent_kwargs.feature_dim
+    if obs_dim == feature_dim_mode_latent:
+        obs_encoder_mode_latent = Empty()
+    else:
+        obs_encoder_mode_latent = torch.nn.Linear(obs_dim, feature_dim_mode_latent)
+    mode_latent_trainer = ModeLatentTrainer(
+        env=expl_env,
+        feature_dim=variant.mode_latent_kwargs.feature_dim,
+        mode_dim=variant.skill_dim,
+        mode_latent=mode_latent,
+        obs_encoder=obs_encoder_mode_latent,
+        info_loss_parms=variant.mode_latent_kwargs.info_loss_kwargs,
+        lr=0.0001,
+    )
+
     policy = SkillTanhGaussianPolicy(
         obs_dim=obs_dim,
         action_dim=action_dim,
