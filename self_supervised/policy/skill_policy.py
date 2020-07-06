@@ -12,12 +12,13 @@ from code_slac.network.base import weights_init_xavier
 class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
 
     def __init__(self,
-                 hidden_sizes,
                  obs_dim,
                  action_dim,
+                 hidden_sizes,
                  std=None,
                  initializer=weights_init_xavier,
                  skill_dim=2,
+                 layer_norm=False,
                  **kwargs):
         self.skill_dim = skill_dim
         self.skill = torch.rand(self.skill_dim)
@@ -28,6 +29,7 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
             action_dim=action_dim,
             std=std,
             initializer=initializer,
+            layer_norm=layer_norm,
             **kwargs
         )
 

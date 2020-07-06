@@ -27,6 +27,8 @@ class VariantMapping(Prodict):
     hidden_layer: list
     replay_buffer_size: int
     skill_dim: int
+    layer_norm: bool
+    mode_latent_kwargs: ModeLatentKwargsMapping
     env_kwargs: EnvKwargsMapping
     algo_kwargs: AlgoKwargsMapping
     trainer_kwargs: TrainerKwargsMapping
@@ -37,6 +39,8 @@ class VariantMapping(Prodict):
                  hidden_layer: list,
                  replay_buffer_size: int,
                  skill_dim: int,
+                 layer_norm: bool,
+                 mode_latent_kwargs: ModeLatentKwargsMapping,
                  env_kwargs: EnvKwargsMapping,
                  algo_kwargs: AlgoKwargsMapping,
                  trainer_kwargs: TrainerKwargsMapping):
@@ -46,9 +50,11 @@ class VariantMapping(Prodict):
             hidden_layer=hidden_layer,
             replay_buffer_size=replay_buffer_size,
             skill_dim=skill_dim,
+            layer_norm=layer_norm,
+            mode_latent_kwargs=mode_latent_kwargs,
             env_kwargs=env_kwargs,
             algo_kwargs=algo_kwargs,
-            trainer_kwargs=trainer_kwargs
+            trainer_kwargs=trainer_kwargs,
         )
 
 
@@ -122,6 +128,7 @@ if __name__ == "__main__":
         hidden_layer=[256, 256],
         replay_buffer_size=int(1E6),
         skill_dim=2,
+        layer_norm=True,
         env_kwargs=env_kwargs,
         trainer_kwargs=trainer_kwargs,
         algo_kwargs=algo_kwargs,
