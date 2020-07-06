@@ -6,23 +6,11 @@ from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.policy.skill_policy import \
     SkillTanhGaussianPolicy, MakeDeterministic
 from self_supervised.base.data_collector.data_collector import PathCollectorSelfSupervised
-from self_supervised.memory.self_sup_replay_buffer import \
-    SelfSupervisedEnvSequenceReplayBuffer
-from self_supervised.base.utils.typed_dicts import \
-    ModeLatentKwargsMapping, \
-    EnvKwargsMapping, \
-    TrainerKwargsMapping, \
-    AlgoKwargsMapping, \
-    InfoLossParamsMapping, \
-    VariantMapping
+from self_supervised.utils.typed_dicts import VariantMapping
 
 from rlkit.torch.networks import FlattenMlp
 
 from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
-
-
-
-
 
 
 def run(variant: VariantMapping):

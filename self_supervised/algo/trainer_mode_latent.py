@@ -10,7 +10,7 @@ from mode_disent_no_ssm.utils.empty_network import Empty
 
 from mode_disent.utils.mmd import compute_mmd_tutorial
 
-from self_supervised.base.utils.typed_dicts import InfoLossParamsMapping
+from self_supervised.utils.typed_dicts import InfoLossParamsMapping
 
 
 
