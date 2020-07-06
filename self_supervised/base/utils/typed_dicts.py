@@ -1,4 +1,5 @@
 from prodict import Prodict
+import torch
 
 
 class AlgoKwargsMapping(Prodict):
