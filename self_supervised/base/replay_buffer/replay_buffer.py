@@ -115,6 +115,8 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
         self._rewards_seqs[self._top] = reward
         self._terminal_seqs[self._top] = terminal
 
+        self._advance()
+
     def _advance(self):
         self._top = (self._top + 1) % self._max_replay_buffer_size
 

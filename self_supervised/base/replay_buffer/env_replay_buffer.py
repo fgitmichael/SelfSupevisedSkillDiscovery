@@ -56,7 +56,7 @@ class SequenceEnvReplayBuffer(NormalSequenceReplayBuffer):
         else:
             new_action = action
 
-        return super().add_sample(
+        super().add_sample(
             observation=observation,
             action=new_action,
             reward=reward,
