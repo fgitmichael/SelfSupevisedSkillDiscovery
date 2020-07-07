@@ -113,5 +113,5 @@ class ModeLatentTrainer():
 
         return info_loss
 
-    def end_epoch(self):
+    def end_epoch(self, epoch):
         pass

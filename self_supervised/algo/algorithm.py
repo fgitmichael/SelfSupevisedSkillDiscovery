@@ -6,7 +6,6 @@ from self_supervised.base.data_collector.data_collector import PathCollectorSelf
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
-from self_supervised.utils.typed_dicts import TransitionMapping
 from self_supervised.base.algo.algo_base import BaseRLAlgorithmSelfSup
 from self_supervised.algo.trainer_mode_latent import ModeLatentTrainer
 
@@ -103,7 +102,7 @@ class SelfSupAlgo(BaseRLAlgorithmSelfSup):
         for post_epoch_func in self.post_epoch_funcs:
             post_epoch_func(self, epoch)
 
-    def set_train_mode(self, mode):
+    def training_mode(self, mode):
         for net in self.trainer.networks:
             net.train(mode)
 
