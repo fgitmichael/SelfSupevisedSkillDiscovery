@@ -9,12 +9,10 @@ import rlkit.torch.pytorch_util as ptu
 
 from code_slac.utils import calc_kl_divergence, update_params
 
-from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
-from mode_disent_no_ssm.utils.empty_network import Empty
-
 from mode_disent.utils.mmd import compute_mmd_tutorial
 
 from self_supervised.utils.typed_dicts import InfoLossParamsMapping
+from self_supervised.network.mode_latent_model import ModeLatentNetworkWithEncoder
 
 
 
@@ -24,9 +22,8 @@ class ModeLatentTrainer():
                  env: gym.Env,
                  feature_dim: int,
                  mode_dim: int,
-                 obs_encoder: torch.nn.Module,
                  info_loss_parms: InfoLossParamsMapping,
-                 mode_latent: ModeLatentNetwork,
+                 mode_latent: ModeLatentNetworkWithEncoder,
                  lr = 0.0001):
 
         self.obs_dim = env.observation_space.low.size
@@ -36,11 +33,9 @@ class ModeLatentTrainer():
         self.info_loss_params = info_loss_parms
 
         self.model = mode_latent
-        self.obs_encoder = obs_encoder
         self.optim = Adam(
             chain(
                 self.model.parameters(),
-                self.obs_encoder.parameters()
             ),
             lr=lr)
 
@@ -60,7 +55,7 @@ class ModeLatentTrainer():
 
     def _calc_loss(self,
                    skills: np.ndarray,
-                   state_seq: np.ndarray,
+                   obs_seq: np.ndarray,
                    action_seq: np.ndarray):
         """
         Args:
@@ -69,7 +64,7 @@ class ModeLatentTrainer():
             action_seq         : (N, action_dim, S) array
         """
         skills = self.numpy_to_tensor(skills)
-        state_seq = self.numpy_to_tensor(state_seq)
+        state_seq = self.numpy_to_tensor(obs_seq)
         action_seq = self.numpy_to_tensor(action_seq)
 
         assert state_seq.size(-1) == action_seq.size(-1)
@@ -81,9 +76,7 @@ class ModeLatentTrainer():
             # TODO: implement two-dimensional case
             raise NotImplementedError('Tensors have to be three dimensional')
 
-        features_seq = self.obs_encoder(state_seq)
-
-        mode_post = self.model.sample_mode_posterior(features_seq=features_seq)
+        mode_post = self.model.sample_mode_posterior(obs_seq=ptu.from_numpy(obs_seq))
         mode_pri = self.model.sample_mode_prior(batch_size)
 
         kld = calc_kl_divergence(
@@ -97,7 +90,7 @@ class ModeLatentTrainer():
         )
 
         actions_seq_recon = self.model.action_decoder(
-            state_rep_seq=features_seq,
+            state_rep_seq=obs_seq,
             mode_sample=mode_post['samples']
         )
 

@@ -11,15 +11,15 @@ from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 from self_supervised.algo.trainer import SelfSupTrainer
 from self_supervised.algo.algorithm import SelfSupAlgo
-
-from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
-from mode_disent_no_ssm.utils.empty_network import Empty
+from self_supervised.network.mode_latent_model import ModeLatentNetworkWithEncoder
 
 from rlkit.torch.networks import FlattenMlp
+import rlkit.torch.pytorch_util as ptu
 
 
 
 def run(variant: VariantMapping):
+    ptu.set_gpu_mode(True)
     expl_env = NormalizedBoxEnvWrapper(**variant.env_kwargs)
     eval_env = NormalizedBoxEnvWrapper(**variant.env_kwargs)
     obs_dim = expl_env.observation_space.low.size
@@ -53,24 +53,20 @@ def run(variant: VariantMapping):
         layer_norm=variant.layer_norm,
     )
 
-    mode_latent = ModeLatentNetwork(
+    mode_latent = ModeLatentNetworkWithEncoder(
+        obs_dim=expl_env.env.observation_space[0],
         mode_dim=skill_dim,
         representation_dim=obs_dim,
         feature_dim=obs_dim,
         action_dim=action_dim,
         **variant.mode_latent_kwargs
     )
-    feature_dim_mode_latent = variant.mode_latent_kwargs.feature_dim
-    if obs_dim == feature_dim_mode_latent:
-        obs_encoder_mode_latent = Empty()
-    else:
-        obs_encoder_mode_latent = torch.nn.Linear(obs_dim, feature_dim_mode_latent)
+
     mode_latent_trainer = ModeLatentTrainer(
         env=expl_env,
         feature_dim=variant.mode_latent_kwargs.feature_dim,
         mode_dim=variant.skill_dim,
         mode_latent=mode_latent,
-        obs_encoder=obs_encoder_mode_latent,
         info_loss_parms=variant.mode_latent_kwargs.info_loss_kwargs,
         lr=0.0001,
     )
