@@ -67,7 +67,7 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
                    **kwargs):
         """
         Args:
-            sample       : TransitionMapping consiting of (dim, S) np.ndarrays
+            path           : TransitionMapping consiting of (dim, S) np.ndarrays
         """
         self._test_dimensions(
             observation=path.obs,

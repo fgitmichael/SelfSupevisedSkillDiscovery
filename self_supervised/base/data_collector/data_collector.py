@@ -1,11 +1,9 @@
 import gym
+import numpy as np
 from collections import deque
 from typing import List
 
 from rlkit.samplers.data_collector.base import PathCollector
-from rlkit.samplers.rollout_functions import rollout
-from rlkit.torch.sac.policies import TanhGaussianPolicy
-from rlkit.policies.base import Policy
 from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy
 
 from self_supervised.base.data_collector.rollout import Rollouter
@@ -32,8 +30,13 @@ class PathCollectorSelfSupervised(PathCollector):
             policy=policy
         )
 
+        self.obs_dim = env.observation_space[0]
+        self.action_dim = env.action_space[0]
+
         self._num_steps_total = 0
         self._num_paths_total = 0
+        self.seq_len = 0
+
 
     def collect_new_paths(
             self,
@@ -55,24 +58,27 @@ class PathCollectorSelfSupervised(PathCollector):
         """
         paths = []
         num_steps_collected = 0
+        self.seq_len = seq_len
 
-        while num_steps_collected < num_steps:
-            max_path_length_this_loop = min(max_path_length,
-                                            num_steps - num_steps_collected)
+        for _ in range(num_seqs):
 
             path = self._rollouter.do_rollout(
-                max_path_length=max_path_length_this_loop,
+                max_path_length=seq_len,
             )
+            for i, k in path:
+                assert len(path[i].shape) == 2
+            assert path.action.shape[-1] == self._rollouter._env.action_space[0]
+            assert path.obs.shape[-1] \
+                   == path.next_obs.shape[-1] \
+                   == self._rollouter._env.observation_space[0]
+            assert path.action.shape[-2] \
+                   == path.obs.shape[-2] \
+                   == path.reward.shape[-2] \
+                   == path.terminal.shape[-2] \
+                   == path.next_obs.shape[-2] \
+                   == seq_len
 
-            path_len = len(path.actions)
-
-            if path_len != max_path_length \
-                and not path.terminals[-1] \
-                and discard_incomplete_paths:
-
-                break
-
-            num_steps_collected += path_len
+            num_steps_collected += seq_len
             paths.append(path)
 
         self._num_paths_total += len(paths)
@@ -80,4 +86,8 @@ class PathCollectorSelfSupervised(PathCollector):
         self._epoch_paths.extend(paths)
 
     def get_epoch_paths(self) -> List[TransitionMapping]:
+        """
+        Return:
+            list of TransistionMapping consisting of (N, dim, S) np.ndarrays
+        """
         return list(self._epoch_paths)

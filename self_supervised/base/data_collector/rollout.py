@@ -1,6 +1,4 @@
 import gym
-from collections import deque,namedtuple
-from prodict import Prodict
 import numpy as np
 
 from rlkit.samplers.rollout_functions import rollout
