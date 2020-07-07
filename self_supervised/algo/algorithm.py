@@ -1,4 +1,5 @@
 from rlkit.core.rl_algorithm import BaseRLAlgorithm
+import numpy as np
 
 from self_supervised.algo.trainer import SelfSupTrainer
 from self_supervised.base.data_collector.data_collector import PathCollectorSelfSupervised
@@ -7,12 +8,14 @@ from self_supervised.memory.self_sup_replay_buffer import \
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.utils.typed_dicts import TransitionMapping
 from self_supervised.base.algo.algo_base import BaseRLAlgorithmSelfSup
+from self_supervised.algo.trainer_mode_latent import ModeLatentTrainer
 
 
 class SelfSupAlgo(BaseRLAlgorithmSelfSup):
 
     def __init__(self,
                  trainer: SelfSupTrainer,
+                 mode_latent_trainer: ModeLatentTrainer,
 
                  exploration_env: NormalizedBoxEnvWrapper,
                  evaluation_env: NormalizedBoxEnvWrapper,
