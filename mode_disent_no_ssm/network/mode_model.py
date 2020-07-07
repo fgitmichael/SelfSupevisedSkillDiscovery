@@ -78,6 +78,9 @@ class ModeLatentNetwork(BaseNetwork):
         """
         Args:
             features_seq    : (N, S + 1, feature_dim) tensor
+        Return:
+            mode_dist       : (N, mode_dim) distribution
+            samples         : (N, mode_dim) tensor of samples
         """
         features_seq = features_seq.transpose(0, 1)
 
