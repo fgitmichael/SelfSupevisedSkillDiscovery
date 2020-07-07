@@ -86,7 +86,7 @@ def run(variant: VariantMapping):
 
     eval_path_collector = PathCollectorSelfSupervised(
         env=eval_env,
-        policy=policy,
+        policy=eval_policy,
     )
     expl_step_collector = PathCollectorSelfSupervised(
         env=expl_env,
