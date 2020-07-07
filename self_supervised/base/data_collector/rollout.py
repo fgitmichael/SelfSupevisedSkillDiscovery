@@ -3,39 +3,10 @@ from collections import deque,namedtuple
 from prodict import Prodict
 import numpy as np
 
-from rlkit.samplers.data_collector.base import PathCollector
 from rlkit.samplers.rollout_functions import rollout
-from rlkit.torch.sac.policies import TanhGaussianPolicy
-from rlkit.policies.base import Policy
 from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy
 
-
-class PathMapping(Prodict):
-    observations: np.ndarray
-    actions: np.ndarray
-    rewards: np.ndarray
-    next_observations: np.ndarray
-    terminals: np.ndarray
-    agent_infos: dict
-    env_infos: dict
-
-    def __init__(self,
-                 observations: np.ndarray,
-                 actions: np.ndarray,
-                 rewards: np.ndarray,
-                 next_observations: np.ndarray,
-                 terminals: np.ndarray,
-                 agent_infos: dict,
-                 env_infos: dict):
-        super(PathMapping, self).__init__(
-            observations=observations,
-            actions=actions,
-            rewards=rewards,
-            next_observations=next_observations,
-            terminals=terminals,
-            agent_infos=agent_infos,
-            env_infos=env_infos
-        )
+from self_supervised.utils.typed_dicts import TransitionMapping
 
 
 class Rollouter(object):
@@ -49,7 +20,7 @@ class Rollouter(object):
     def do_rollout(self,
                 max_path_length: int=None,
                 render: bool=None,
-                render_kwargs: dict=None) -> PathMapping:
+                render_kwargs: dict=None) -> TransitionMapping:
 
         path = rollout(
             env=self._env,
@@ -61,7 +32,7 @@ class Rollouter(object):
 
         path = self._reshape_path(path)
 
-        return PathMapping(**path)
+        return TransitionMapping(**path)
 
     @staticmethod
     def _reshape_path(path):

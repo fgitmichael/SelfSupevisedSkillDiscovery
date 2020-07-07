@@ -2,7 +2,7 @@ import numpy as np
 from collections import OrderedDict
 
 from self_supervised.base.replay_buffer.replay_buffer_base import SequenceReplayBuffer
-from self_supervised.utils.typed_dicts import SequenceBatch
+from self_supervised.utils.typed_dicts import TransitionMapping
 
 
 class NormalSequenceReplayBuffer(SequenceReplayBuffer):
@@ -63,11 +63,11 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
         self._size = 0
 
     def add_sample(self,
-                   sample: SequenceBatch,
+                   sample: TransitionMapping,
                    **kwargs):
         """
         Args:
-            sample       : SequenceBatch
+            sample       : TransitionMapping
         """
         self._test_dimensions(
             observation=sample.obs_seqs,
@@ -93,14 +93,14 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
     def terminate_episode(self):
         pass
 
-    def random_batch(self, batch_size: int) -> SequenceBatch:
+    def random_batch(self, batch_size: int) -> TransitionMapping:
         idx = np.random.randint(
             low=0,
             high=self._size,
             size=batch_size
         )
 
-        batch = SequenceBatch(
+        batch = TransitionMapping(
             obs=self._obs_seqs[idx],
             action=self._action_seqs[idx],
             reward=self._rewards_seqs[idx],

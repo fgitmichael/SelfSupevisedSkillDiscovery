@@ -5,7 +5,7 @@ from self_supervised.base.data_collector.data_collector import PathCollectorSelf
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
-from self_supervised.base.data_collector.rollout import PathMapping
+from self_supervised.utils.typed_dicts import TransitionMapping
 from self_supervised.base.algo.algo_base import BaseRLAlgorithmSelfSup
 
 

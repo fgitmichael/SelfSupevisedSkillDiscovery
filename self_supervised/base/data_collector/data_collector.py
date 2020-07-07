@@ -8,7 +8,8 @@ from rlkit.torch.sac.policies import TanhGaussianPolicy
 from rlkit.policies.base import Policy
 from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy
 
-from self_supervised.base.data_collector.rollout import Rollouter, PathMapping
+from self_supervised.base.data_collector.rollout import Rollouter
+from self_supervised.utils.typed_dicts import TransitionMapping
 
 
 class PathCollectorSelfSupervised(PathCollector):
@@ -39,7 +40,7 @@ class PathCollectorSelfSupervised(PathCollector):
             max_path_length: int,
             num_steps: int,
             discard_incomplete_paths: bool,
-    ) -> List[PathMapping]:
+    ):
         """
         Args:
             num_steps                  : int i.e. num_eval_steps_per_epoch
@@ -78,4 +79,5 @@ class PathCollectorSelfSupervised(PathCollector):
         self._num_steps_total += num_steps_collected
         self._epoch_paths.extend(paths)
 
-        return paths
+    def get_epoch_paths(self) -> List[TransitionMapping]:
+        return list(self._epoch_paths)

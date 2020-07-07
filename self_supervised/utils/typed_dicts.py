@@ -136,7 +136,7 @@ class VariantMapping(Prodict):
         )
 
 
-class SequenceBatch(Prodict):
+class TransitionMapping(Prodict):
     obs: np.ndarray
     action: np.ndarray
     reward: np.ndarray
@@ -148,18 +148,20 @@ class SequenceBatch(Prodict):
                  action: np.ndarray,
                  reward: np.ndarray,
                  terminal: np.ndarray,
-                 next_obs: np.ndarray):
+                 next_obs: np.ndarray,
+                 **kwargs):
 
-        super(SequenceBatch, self).__init__(
+        super(TransitionMapping, self).__init__(
             obs=obs,
             action=action,
             reward=reward,
             terminal=terminal,
-            next_obs=next_obs
+            next_obs=next_obs,
+            **kwargs
         )
 
 
-class SequenceSelfSupervisedBatch(SequenceBatch):
+class TransitionModeMapping(TransitionMapping):
     mode: np.ndarray
 
     def __init__(self,
@@ -168,7 +170,8 @@ class SequenceSelfSupervisedBatch(SequenceBatch):
                  reward: np.ndarray,
                  terminal: np.ndarray,
                  next_obs: np.ndarray,
-                 mode: np.ndarray):
+                 mode: np.ndarray,
+                 **kwargs):
 
         Prodict.__init__(
             self,
@@ -177,5 +180,6 @@ class SequenceSelfSupervisedBatch(SequenceBatch):
             reward_seqs=reward,
             terminal_seqs=terminal,
             next_obs_seqs=next_obs,
-            mode=mode
+            mode=mode,
+            **kwargs
            )

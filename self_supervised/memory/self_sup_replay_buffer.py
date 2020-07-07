@@ -4,7 +4,7 @@ from typing import List
 
 from self_supervised.base.replay_buffer.env_replay_buffer import \
     SequenceEnvReplayBuffer
-from self_supervised.utils.typed_dicts import SequenceSelfSupervisedBatch
+from self_supervised.utils.typed_dicts import TransitionModeMapping
 
 
 class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
@@ -47,7 +47,7 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
         )
 
     def add_self_sup_path(self,
-                          path: SequenceSelfSupervisedBatch):
+                          path: TransitionModeMapping):
         self.add_sample(
             observation=path.obs_seqs,
             action=path.action_seqs,
@@ -58,15 +58,15 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
         )
 
     def add_self_sup_paths(self,
-                           paths: List[SequenceSelfSupervisedBatch]):
+                           paths: List[TransitionModeMapping]):
         for path in paths:
             self.add_self_sup_path(path)
 
     def random_batch(self,
-                     batch_size: int) -> SequenceSelfSupervisedBatch:
+                     batch_size: int) -> TransitionModeMapping:
         idx = np.random.randint(0, self._size, batch_size)
 
-        batch = SequenceSelfSupervisedBatch(
+        batch = TransitionModeMapping(
             obs=self._obs_seqs[idx],
             action=self._action_seqs[idx],
             reward=self._rewards_seqs[idx],
