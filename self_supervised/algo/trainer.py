@@ -1,18 +1,23 @@
 import torch
 import torch.nn as nn
+import numpy as np
 from typing import Iterable
 
-from rlkit.torch.torch_rl_algorithm import TorchTrainer
+from rlkit.torch.torch_rl_algorithm import Trainer
 from rlkit.torch.networks import FlattenMlp
+import rlkit.torch.pytorch_util as ptu
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.policy.skill_policy import SkillTanhGaussianPolicy
+from self_supervised.utils.typed_dicts import \
+    TransitionModeMapping, TransitionModeMappingTorch
+from self_supervised.utils.conversion import np_dict_to_torch
 
 from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
 
 
 
-class SelfSupTrainer(TorchTrainer):
+class SelfSupTrainer(Trainer):
     def __init__(self,
                  env: NormalizedBoxEnvWrapper,
                  policy: SkillTanhGaussianPolicy,
@@ -36,6 +41,7 @@ class SelfSupTrainer(TorchTrainer):
                  render_eval_paths=False,
 
                  use_automatic_entropy_tuning=True,
+                 target_entropy=None
                  ):
         super().__init__()
 
@@ -49,7 +55,49 @@ class SelfSupTrainer(TorchTrainer):
 
         self.soft_target_tau = soft_target_tau
         self.target_update_period = target_update_period
+
         self.use_automatic_entropy_tuning = use_automatic_entropy_tuning
+        if self.use_automatic_entropy_tuning:
+            if target_entropy:
+                self.target_entropy = target_entropy
+
+            else:
+                self.target_entropy = -np.prod(self.env.action_space.shape).item()
+
+            self.log_alpha = ptu.zeros(1, requires_grad=True)
+            self.alpha_optimizer = optimizer_class(
+                [self.log_alpha],
+                lr=policy_lr
+            )
+
+        self.qf_criterion = nn.MSELoss()
+
+        self.policy_optimizer = optimizer_class(
+            self.policy.parameters(),
+            lr=policy_lr,
+        )
+        self.qf1_optimizer = optimizer_class(
+            self.qf1.parameters(),
+            lr=qf_lr
+        )
+        self.qf2_optimizer = optimizer_class(
+            self.qf2.parameters(),
+            lr=qf_lr
+        )
+
+        self.discount = discount
+        self.reward_scale = reward_scale
+        self._n_train_steps_total = 0
+
+    def train(self, data: TransitionModeMapping):
+        data_torch = np_dict_to_torch(data)
+        data_torch = TransitionModeMappingTorch(**data_torch)
+
+        # Reward
+
+
+
+
 
     @property
     def networks(self) -> Iterable[nn.Module]:
