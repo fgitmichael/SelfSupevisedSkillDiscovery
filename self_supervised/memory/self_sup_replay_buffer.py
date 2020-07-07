@@ -31,7 +31,8 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
                    **kwargs):
         """
         Args:
-            path      : TransitionMapping consisting of (1, dim) arrays
+            path      : TransitionMapping consisting of (N, dim, S) np.ndarrays
+            mode      : (N, mode_dim, S) np.ndarray
         """
 
         if mode is None:
@@ -47,7 +48,7 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
                            paths: List[TransitionModeMapping]):
         """
         Args:
-            seqs           : TransitionMapping consiting of (N, 1, dim) arrays
+            paths           : TransitionMapping consiting of (N, 1, dim) arrays
         """
         for path in paths:
             self.add_sample(path)
