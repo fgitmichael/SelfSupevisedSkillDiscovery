@@ -3,7 +3,9 @@ from torch.optim import Adam
 import torch.nn.functional as F
 import gym
 from itertools import chain
+import numpy as np
 
+import rlkit.torch.pytorch_util as ptu
 
 from code_slac.utils import calc_kl_divergence, update_params
 
@@ -53,17 +55,22 @@ class ModeLatentTrainer():
         )
         self.learn_steps += 1
 
+    def numpy_to_tensor(self, array: np.ndarray):
+        return ptu.from_numpy(array)
+
     def _calc_loss(self,
-                   skills: torch.Tensor,
-                   state_seq: torch.Tensor,
-                   action_seq: torch.Tensor):
+                   skills: np.ndarray,
+                   state_seq: np.ndarray,
+                   action_seq: np.ndarray):
         """
         Args:
-            skills             : (N, skill_dim, 1) tensor
-            state_seq          : (N, obs_dim, S) tensor
-            action_seq         : (N, action_dim, S) tensor
+            skills             : (N, skill_dim, 1) array
+            state_seq          : (N, obs_dim, S) array
+            action_seq         : (N, action_dim, S) array
         """
-        seq_len = state_seq.size(-1)
+        skills = self.numpy_to_tensor(skills)
+        state_seq = self.numpy_to_tensor(state_seq)
+        action_seq = self.numpy_to_tensor(action_seq)
 
         assert state_seq.size(-1) == action_seq.size(-1)
         assert skills.shape[1:] == torch.Size([self.mode_dim, 1])
