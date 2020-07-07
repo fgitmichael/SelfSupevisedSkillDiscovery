@@ -40,8 +40,8 @@ class PathCollectorSelfSupervised(PathCollector):
 
     def collect_new_paths(
             self,
-            max_path_length: int,
-            num_steps: int,
+            seq_len: int,
+            num_seqs: int,
             discard_incomplete_paths: bool,
     ):
         """
