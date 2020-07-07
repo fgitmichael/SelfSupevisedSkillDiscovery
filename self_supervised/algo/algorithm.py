@@ -1,4 +1,3 @@
-from rlkit.core.rl_algorithm import BaseRLAlgorithm
 import numpy as np
 
 from self_supervised.algo.trainer import SelfSupTrainer
@@ -65,7 +64,6 @@ class SelfSupAlgo(BaseRLAlgorithmSelfSup):
             )
             self.replay_buffer.add_paths(paths)
             self.expl_data_collector.end_epoch(-1)
-
 
         for epoch in range(self._start_epoch, self.num_epochs):
 

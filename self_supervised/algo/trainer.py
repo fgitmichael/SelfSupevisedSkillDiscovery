@@ -7,7 +7,8 @@ from rlkit.torch.networks import FlattenMlp
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.policy.skill_policy import SkillTanhGaussianPolicy
-from self_supervised.algo.trainer_mode_latent import ModeLatentTrainer
+
+from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
 
 
 
@@ -19,7 +20,7 @@ class SelfSupTrainer(TorchTrainer):
                  qf2: FlattenMlp,
                  target_qf1: FlattenMlp,
                  target_qf2: FlattenMlp,
-                 mode_latent_trainer: ModeLatentTrainer,
+                 mode_latent_network: ModeLatentNetwork,
 
                  discount=0.99,
                  reward_scale=1.0,
@@ -44,7 +45,7 @@ class SelfSupTrainer(TorchTrainer):
         self.qf2 = qf2
         self.target_qf1 = target_qf1
         self.target_qf2 = target_qf2
-        self.mode_latent_trainer = mode_latent_trainer
+        self.mode_latent_network = mode_latent_network
 
         self.soft_target_tau = soft_target_tau
         self.target_update_period = target_update_period
@@ -58,7 +59,7 @@ class SelfSupTrainer(TorchTrainer):
             qf2=self.qf2,
             target_qf1=self.qf1,
             target_qf2=self.qf2,
-            mode_latent=self.mode_latent_trainer.model,
+            mode_latent=self.mode_latent_network,
         )
 
 
