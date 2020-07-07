@@ -1,31 +1,8 @@
 import numpy as np
-from prodict import Prodict
 from collections import OrderedDict
 
 from self_supervised.base.replay_buffer.replay_buffer_base import SequenceReplayBuffer
-
-
-class SequenceBatch(Prodict):
-    obs_seqs: np.ndarray
-    action_seqs: np.ndarray
-    rewards: np.ndarray
-    terminal_seqs: np.ndarray
-    next_obs_seqs: np.ndarray
-
-    def __init__(self,
-                 obs_seqs: np.ndarray,
-                 action_seqs: np.ndarray,
-                 reward_seqs: np.ndarray,
-                 terminal_seqs: np.ndarray,
-                 next_obs_seqs: np.ndarray):
-
-        super(SequenceBatch, self).__init__(
-            obs_seqs=obs_seqs,
-            action_seqs=action_seqs,
-            reward_seqs=reward_seqs,
-            terminal_seqs=terminal_seqs,
-            next_obs_seqs=next_obs_seqs
-        )
+from self_supervised.utils.typed_dicts import SequenceBatch
 
 
 class NormalSequenceReplayBuffer(SequenceReplayBuffer):
@@ -124,11 +101,11 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
         )
 
         batch = SequenceBatch(
-            obs_seqs=self._obs_seqs[idx],
-            action_seqs=self._action_seqs[idx],
-            reward_seqs=self._rewards_seqs[idx],
-            terminal_seqs=self._terminal_seqs[idx],
-            next_obs_seqs=self._obs_next_seqs,
+            obs=self._obs_seqs[idx],
+            action=self._action_seqs[idx],
+            reward=self._rewards_seqs[idx],
+            terminal=self._terminal_seqs[idx],
+            next_obs=self._obs_next_seqs,
         )
 
         return batch

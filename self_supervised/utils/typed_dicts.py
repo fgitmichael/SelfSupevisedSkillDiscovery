@@ -1,3 +1,4 @@
+import numpy as np
 from prodict import Prodict
 import torch
 
@@ -133,3 +134,48 @@ class VariantMapping(Prodict):
             algo_kwargs=algo_kwargs,
             trainer_kwargs=trainer_kwargs,
         )
+
+
+class SequenceBatch(Prodict):
+    obs: np.ndarray
+    action: np.ndarray
+    reward: np.ndarray
+    terminal: np.ndarray
+    next_obs: np.ndarray
+
+    def __init__(self,
+                 obs: np.ndarray,
+                 action: np.ndarray,
+                 reward: np.ndarray,
+                 terminal: np.ndarray,
+                 next_obs: np.ndarray):
+
+        super(SequenceBatch, self).__init__(
+            obs=obs,
+            action=action,
+            reward=reward,
+            terminal=terminal,
+            next_obs=next_obs
+        )
+
+
+class SequenceSelfSupervisedBatch(SequenceBatch):
+    mode: np.ndarray
+
+    def __init__(self,
+                 obs: np.ndarray,
+                 action: np.ndarray,
+                 reward: np.ndarray,
+                 terminal: np.ndarray,
+                 next_obs: np.ndarray,
+                 mode: np.ndarray):
+
+        Prodict.__init__(
+            self,
+            obs_seqs=obs,
+            action_seqs=action,
+            reward_seqs=reward,
+            terminal_seqs=terminal,
+            next_obs_seqs=next_obs,
+            mode=mode
+           )

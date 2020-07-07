@@ -1,32 +1,10 @@
 from gym import Env
 import numpy as np
-from prodict import Prodict
 from typing import List
 
 from self_supervised.base.replay_buffer.env_replay_buffer import \
-    SequenceEnvReplayBuffer, SequenceBatch
-
-
-class SequenceSelfSupervisedBatch(SequenceBatch):
-    mode_per_seqs: np.ndarray
-
-    def __init__(self,
-                 obs_seqs: np.ndarray,
-                 action_seqs: np.ndarray,
-                 reward_seqs: np.ndarray,
-                 terminal_seqs: np.ndarray,
-                 next_obs_seqs: np.ndarray,
-                 mode_per_seqs: np.array):
-
-        Prodict.__init__(
-            self,
-            obs_seqs=obs_seqs,
-            action_seqs=action_seqs,
-            reward_seqs=reward_seqs,
-            terminal_seqs=terminal_seqs,
-            next_obs_seqs=next_obs_seqs,
-            mode_per_seqs=mode_per_seqs
-           )
+    SequenceEnvReplayBuffer
+from self_supervised.utils.typed_dicts import SequenceSelfSupervisedBatch
 
 
 class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
@@ -76,7 +54,7 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
             reward=path.rewards,
             next_observation=path.next_obs_seqs,
             terminal=path.terminal_seqs,
-            mode=path.mode_per_seqs,
+            mode=path.mode,
         )
 
     def add_self_sup_paths(self,
@@ -89,12 +67,12 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
         idx = np.random.randint(0, self._size, batch_size)
 
         batch = SequenceSelfSupervisedBatch(
-            obs_seqs=self._obs_seqs[idx],
-            action_seqs=self._action_seqs[idx],
-            reward_seqs=self._rewards_seqs[idx],
-            next_obs_seqs=self._obs_next_seqs[idx],
-            terminal_seqs=self._terminal_seqs[idx],
-            mode_per_seqs=self._mode_per_seqs[idx]
+            obs=self._obs_seqs[idx],
+            action=self._action_seqs[idx],
+            reward=self._rewards_seqs[idx],
+            next_obs=self._obs_next_seqs[idx],
+            terminal=self._terminal_seqs[idx],
+            mode=self._mode_per_seqs[idx]
         )
 
         return batch
