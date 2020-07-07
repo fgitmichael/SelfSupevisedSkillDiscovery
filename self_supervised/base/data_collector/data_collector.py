@@ -1,10 +1,10 @@
 import gym
 import numpy as np
 from collections import deque
-from typing import List
+from typing import List, Union
 
 from rlkit.samplers.data_collector.base import PathCollector
-from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy
+from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy, MakeDeterministic
 
 from self_supervised.base.data_collector.rollout import Rollouter
 from self_supervised.utils.typed_dicts import TransitionMapping
@@ -14,7 +14,7 @@ class PathCollectorSelfSupervised(PathCollector):
 
     def __init__(self,
                  env: gym.Env,
-                 policy: SkillTanhGaussianPolicy,
+                 policy: Union[SkillTanhGaussianPolicy, MakeDeterministic],
                  max_num_epoch_paths_saved: int = None,
                  render: bool = False,
                  render_kwargs: bool = None
