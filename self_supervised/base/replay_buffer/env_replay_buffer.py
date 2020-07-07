@@ -36,20 +36,25 @@ class SequenceEnvReplayBuffer(NormalSequenceReplayBuffer):
         )
 
     def add_sample(self,
-                   sample: TransitionMapping,
+                   path: TransitionMapping,
                    **kwargs):
+        """
+        Args:
+            path     : TransitionMapping consiting
+                       of (dim, S) np.ndarrays
+        """
 
         if isinstance(self._action_space, Discrete):
-            # One Hot over sequences
+            # One Hot over pathuences
             new_action = np.zeros(
                 (self._action_dim, self._seq_len)
             )
-            new_action[sample.action_seqs] = 1
+            new_action[path.action] = 1
         else:
-            new_action = sample.action_seqs
-        sample.action_seqs = new_action
+            new_action = path.action_seqs
+        path.action_seqs = new_action
 
         super().add_sample(
-            sample=sample
+            path=path
             **kwargs
         )

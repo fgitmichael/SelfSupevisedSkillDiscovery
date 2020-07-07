@@ -63,24 +63,24 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
         self._size = 0
 
     def add_sample(self,
-                   sample: TransitionMapping,
+                   path: TransitionMapping,
                    **kwargs):
         """
         Args:
-            sample       : TransitionMapping
+            sample       : TransitionMapping consiting of (dim, S) np.ndarrays
         """
         self._test_dimensions(
-            observation=sample.obs_seqs,
-            action=sample.action_seqs,
-            reward=sample.rewards,
-            next_observation=sample.next_obs_seqs,
-            terminal=sample.next_obs_seqs)
+            observation=path.obs,
+            action=path.action,
+            reward=path.reward,
+            next_observation=path.next_obs,
+            terminal=path.next_obs)
 
-        self._obs_seqs[self._top] = sample.observation
-        self._action_seqs[self._top] = sample.action_seqs
-        self._obs_next_seqs[self._top] = sample.next_obs_seqs
-        self._rewards_seqs[self._top] = sample.rewards
-        self._terminal_seqs[self._top] = sample.terminal_seqs
+        self._obs_seqs[self._top] = path.obs
+        self._action_seqs[self._top] = path.action
+        self._obs_next_seqs[self._top] = path.next_obs
+        self._rewards_seqs[self._top] = path.reward
+        self._terminal_seqs[self._top] = path.terminal
 
         self._advance()
 

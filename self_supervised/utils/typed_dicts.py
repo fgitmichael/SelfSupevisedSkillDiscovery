@@ -149,7 +149,7 @@ class TransitionMapping(Prodict):
                  reward: np.ndarray,
                  terminal: np.ndarray,
                  next_obs: np.ndarray,
-                 **kwargs):
+                 ):
 
         super(TransitionMapping, self).__init__(
             obs=obs,
@@ -157,7 +157,6 @@ class TransitionMapping(Prodict):
             reward=reward,
             terminal=terminal,
             next_obs=next_obs,
-            **kwargs
         )
 
 
@@ -171,7 +170,7 @@ class TransitionModeMapping(TransitionMapping):
                  terminal: np.ndarray,
                  next_obs: np.ndarray,
                  mode: np.ndarray,
-                 **kwargs):
+                 ):
 
         Prodict.__init__(
             self,
@@ -181,5 +180,4 @@ class TransitionModeMapping(TransitionMapping):
             terminal_seqs=terminal,
             next_obs_seqs=next_obs,
             mode=mode,
-            **kwargs
            )
