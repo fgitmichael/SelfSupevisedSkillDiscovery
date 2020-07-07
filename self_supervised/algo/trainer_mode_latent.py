@@ -112,3 +112,6 @@ class ModeLatentTrainer():
         info_loss = mse + kld_info + mmd_info
 
         return info_loss
+
+    def end_epoch(self):
+        pass
