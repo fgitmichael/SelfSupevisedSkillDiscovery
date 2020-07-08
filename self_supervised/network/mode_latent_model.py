@@ -49,16 +49,21 @@ class ModeLatentNetworkWithEncoder(ModeLatentNetwork):
             return post
 
     def reconstruct_action(self,
-                           obs_seq: torch.Tensor):
+                           features_seq,
+                           mode_sample):
         """
         Args:
-            obs_seq          : (N, obs_dim, S) tensor
+            features_seq        : (N, S, feature_dim) tensor
+            mode_sample         : (N, mode_dim) tensor
+        Return:
+            action_recon_dist   : tuple of ...
+                dists           : (N, S) Distribution over decoded actions
+                samples         : (N, S) tensor
         """
-        post, features_seq = self.sample_mode_posterior(obs_seq, return_features=True)
 
-        action_seq_recon = self.action_decoder(
+        action_recon_dist = self.action_decoder(
             state_rep_seq=features_seq,
-            mode_sample=post['samples']
+            mode_sample=mode_sample
         )
 
-        return action_seq_recon
+        return action_recon_dist
