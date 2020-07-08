@@ -93,14 +93,126 @@ class SelfSupTrainer(Trainer):
         self._n_train_steps_total = 0
 
     def train(self, data: TransitionModeMapping):
-        data_torch = np_dict_to_torch(data)
-        data_torch = TransitionModeMappingTorch(**data_torch)
+        """
+        data        : TransitionModeMapping consisting of (N, dim, seq_len) data
+        """
+        data = np_dict_to_torch(data)
 
         # Reward
+        # TODO: Normalize loss values?
+        intrinsic_rewards = reconstruction_based_rewards(
+            mode_latent_model=self.mode_latent_trainer.model,
+            obs_seq=data.obs,
+            action_seq=data.action,
+            skill_seq=data.mode
+        )
 
+        # Train SAC
+        for idx, transition in \
+                enumerate(data.get_transition_mapping().permute(2, 0, 1)):
+            self.train_sac(
+                batch=transition,
+                mode=data.mode,
+                intrinsic_rewards=intrinsic_rewards[:, :, idx]
 
+            )
 
+        # Train latent
+        self.mode_latent_trainer.train(
+            obs_seq=data.obs,
+            action_seq=data.action,
+            skills=data.mode
+        )
 
+    def train_sac(self, batch: TransitionMappingTorch,
+                         mode: torch.Tensor,
+                         intrinsic_rewards: torch.Tensor):
+        """
+        batch               : TransitionModeMapping consisting of  (N, dim) data
+        mode                : (N, mode_dim) tensor
+        intrinsic_rewards   : (N, 1) tensor
+        """
+        obs = batch.obs
+        actions = batch.action
+        next_obs = batch.next_obs
+        terminals = batch.terminal
+        skills = mode
+        rewards = intrinsic_rewards
+
+        """
+        Policy and Alpha Loss
+        """
+        new_obs_actions, policy_mean, policy_log_std, log_pi, *_ = self.policy(
+            obs, skill_vec=skills, reparameterize=True, return_log_prob=True,
+        )
+        obs_skills = torch.cat((obs, skills), dim=1)
+        if self.use_automatic_entropy_tuning:
+            alpha_loss = -(self.log_alpha *
+                           (log_pi + self.target_entropy).detach()).mean()
+            self.alpha_optimizer.zero_grad()
+            alpha_loss.backward()
+            self.alpha_optimizer.step()
+            alpha = self.log_alpha.exp()
+        else:
+            alpha_loss = 0
+            alpha = 1
+
+        q_new_actions = torch.min(
+            self.qf1(obs_skills, new_obs_actions),
+            self.qf2(obs_skills, new_obs_actions),
+        )
+
+        assert type(q_new_actions) \
+               == type(log_pi) \
+               == torch.Tensor
+
+        policy_loss = (alpha*log_pi - q_new_actions).mean()
+
+        """
+        QF Loss
+        """
+        q1_pred = self.qf1(obs_skills, actions)
+        q2_pred = self.qf2(obs_skills, actions)
+        # Make sure policy accounts for squashing functions like tanh correctly!
+        new_next_actions, _, _, new_log_pi, *_ = self.policy(
+            next_obs, skill_vec=skills, reparameterize=True, return_log_prob=True,
+        )
+        next_obs_skills = torch.cat((next_obs, skills), dim=1)
+        target_q_values = torch.min(
+            self.target_qf1(next_obs_skills, new_next_actions),
+            self.target_qf2(next_obs_skills, new_next_actions),
+        ) - alpha * new_log_pi
+
+        q_target = self.reward_scale * rewards + (1. - terminals) *\
+                   self.discount * target_q_values
+        qf1_loss = self.qf_criterion(q1_pred, q_target.detach())
+        qf2_loss = self.qf_criterion(q2_pred, q_target.detach())
+
+        """
+        Update networks
+        """
+        self.qf1_optimizer.zero_grad()
+        qf1_loss.backward()
+        self.qf1_optimizer.step()
+
+        self.qf2_optimizer.zero_grad()
+        qf2_loss.backward()
+        self.qf2_optimizer.step()
+
+        self.policy_optimizer.zero_grad()
+        policy_loss.backward()
+        self.policy_optimizer.step()
+
+        """
+        Soft Updates
+        """
+        if self._n_train_steps_total % self.target_update_period == 0:
+            ptu.soft_update_from_to(
+                self.qf1, self.target_qf1, self.soft_target_tau
+            )
+            ptu.soft_update_from_to(
+                self.qf2, self.target_qf2, self.soft_target_tau
+            )
 
     @property
     def networks(self) -> Iterable[nn.Module]:
