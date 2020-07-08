@@ -3,15 +3,15 @@ import torch.nn as nn
 import numpy as np
 from typing import Iterable
 
+import rlkit.torch.pytorch_util as ptu
 from rlkit.torch.torch_rl_algorithm import Trainer
 from rlkit.torch.networks import FlattenMlp
-import rlkit.torch.pytorch_util as ptu
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.policy.skill_policy import SkillTanhGaussianPolicy
-from self_supervised.utils.typed_dicts import \
-    TransitionModeMapping, TransitionModeMappingTorch
+from self_supervised.utils.typed_dicts import *
 from self_supervised.utils.conversion import np_dict_to_torch
+from self_supervised.loss.loss_intrin_selfsup import reconstruction_based_rewards
 
 from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
 
