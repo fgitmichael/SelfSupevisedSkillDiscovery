@@ -1,6 +1,7 @@
 import numpy as np
 from prodict import Prodict
 import torch
+import sys
 
 
 class AlgoKwargsMapping(Prodict):
@@ -136,7 +137,32 @@ class VariantMapping(Prodict):
         )
 
 
-class TransitionMapping(Prodict):
+class SlicableProdict(Prodict):
+
+    def __getitem__(self, item):
+        if type(item) is str:
+            return super().__getitem__(item)
+
+        else:
+            return self.get_constr()(
+                **{
+                    k: v[item] for (k, v) in self.items()
+                }
+            )
+
+    def transpose(self, *args, **kwargs):
+        return self.get_constr()(
+            **{
+                k: v.transpose(*args, **kwargs) for k, v in self.items()
+            }
+        )
+
+    def get_constr(self):
+        constr = getattr(sys.modules[__name__], self.__class__.__name__)
+        return constr
+
+
+class TransitionMapping(SlicableProdict):
     obs: np.ndarray
     action: np.ndarray
     reward: np.ndarray
@@ -181,3 +207,68 @@ class TransitionModeMapping(TransitionMapping):
             next_obs_seqs=next_obs,
             mode=mode,
            )
+
+
+class TransitionMappingTorch(SlicableProdict):
+    obs: torch.Tensor
+    action: torch.Tensor
+    reward: torch.Tensor
+    terminal: torch.Tensor
+    next_obs: torch.Tensor
+
+    def __init__(self,
+                 obs: torch.Tensor,
+                 action: torch.Tensor,
+                 reward: torch.Tensor,
+                 terminal: torch.Tensor,
+                 next_obs: torch.Tensor,
+                 ):
+        super(TransitionMappingTorch, self).__init__(
+            obs=obs,
+            action=action,
+            reward=reward,
+            terminal=terminal,
+            next_obs=next_obs,
+        )
+
+    def permute(self, *args, **kwargs):
+        return self.get_constr()(
+            **{
+                k: v.permute(*args, **kwargs) for k, v in self.items()
+            }
+        )
+
+
+class TransitionModeMappingTorch(SlicableProdict):
+    obs: torch.Tensor
+    action: torch.Tensor
+    reward: torch.Tensor
+    terminal: torch.Tensor
+    next_obs: torch.Tensor
+    mode: torch.Tensor
+
+    def __init__(self,
+                 obs: torch.Tensor,
+                 action: torch.Tensor,
+                 reward: torch.Tensor,
+                 terminal: torch.Tensor,
+                 next_obs: torch.Tensor,
+                 mode: torch.Tensor
+                 ):
+        super(TransitionModeMappingTorch, self).__init__(
+            obs=obs,
+            action=action,
+            reward=reward,
+            terminal=terminal,
+            next_obs=next_obs,
+            mode=mode
+        )
+
+    def get_transition_mapping(self) -> TransitionMappingTorch:
+        return TransitionMappingTorch(
+            obs=self.obs,
+            action=self.action,
+            reward=self.reward,
+            terminal=self.terminal,
+            next_obs=self.next_obs
+        )
