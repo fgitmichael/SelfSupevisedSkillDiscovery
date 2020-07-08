@@ -26,22 +26,26 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
         self._obs_seqs = np.zeros(
             (self._max_replay_buffer_size,
              self._observation_dim,
-             self._seq_len)
+             self._seq_len),
+            dtype=np.float32
         )
         self._obs_next_seqs = np.zeros(
             (self._max_replay_buffer_size,
              self._observation_dim,
-             self._seq_len)
+             self._seq_len),
+            dtype=np.float32
         )
         self._action_seqs = np.zeros(
             (self._max_replay_buffer_size,
              self._action_dim,
-             self._seq_len)
+             self._seq_len),
+            dtype=np.float32
         )
         self._rewards_seqs = np.zeros(
             (self._max_replay_buffer_size,
              1,
-             self._seq_len)
+             self._seq_len),
+            dtype=np.float32
         )
         self._terminal_seqs = np.zeros(
             (self._seq_len,
