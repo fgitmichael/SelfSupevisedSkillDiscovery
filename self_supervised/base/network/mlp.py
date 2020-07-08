@@ -45,5 +45,6 @@ class MyMlp(nn.Module):
 
         self.net = nn.Sequential(*model).apply(initializer)
 
-    def forward(self, input: torch.Tensor):
+    def forward(self, input: torch.Tensor) \
+            -> torch.Tensor:
         return self.net(input)
