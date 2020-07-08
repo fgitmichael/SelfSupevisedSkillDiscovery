@@ -28,7 +28,7 @@ class SelfSupTrainer(Trainer):
                  qf2: FlattenMlp,
                  target_qf1: FlattenMlp,
                  target_qf2: FlattenMlp,
-                 mode_latent_network: ModeLatentNetwork,
+                 mode_latent_trainer: ModeLatentTrainer,
 
                  discount=0.99,
                  reward_scale=1.0,
@@ -54,7 +54,7 @@ class SelfSupTrainer(Trainer):
         self.qf2 = qf2
         self.target_qf1 = target_qf1
         self.target_qf2 = target_qf2
-        self.mode_latent_network = mode_latent_network
+        self.mode_latent_trainer = mode_latent_trainer
 
         self.soft_target_tau = soft_target_tau
         self.target_update_period = target_update_period
@@ -110,7 +110,7 @@ class SelfSupTrainer(Trainer):
             qf2=self.qf2,
             target_qf1=self.qf1,
             target_qf2=self.qf2,
-            mode_latent=self.mode_latent_network,
+            mode_latent=self.mode_latent_trainer.model,
         )
 
 
