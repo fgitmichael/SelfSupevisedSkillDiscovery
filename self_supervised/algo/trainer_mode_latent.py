@@ -41,31 +41,37 @@ class ModeLatentTrainer():
 
         self.learn_steps = 0
 
-    def train(self,*args, **kwargs):
-        loss = self._calc_loss(*args, **kwargs)
+    def train(self,
+              skills: torch.Tensor,
+              obs_seq: torch.Tensor,
+              action_seq: torch.Tensor) -> None:
+        loss = self._calc_loss(
+            skills=skills,
+            obs_seq=obs_seq,
+            action_seq=action_seq)
+
         update_params(
             optim=self.optim,
             network=self.model,
             loss=loss,
         )
+
         self.learn_steps += 1
 
     def numpy_to_tensor(self, array: np.ndarray):
         return ptu.from_numpy(array)
 
     def _calc_loss(self,
-                   skills: np.ndarray,
-                   obs_seq: np.ndarray,
-                   action_seq: np.ndarray):
+                   skills: torch.Tensor,
+                   obs_seq: torch.Tensor,
+                   action_seq: torch.Tensor):
         """
         Args:
             skills             : (N, skill_dim, 1) array
-            state_seq          : (N, obs_dim, S) array
+            obs_seq            : (N, obs_dim, S) array
             action_seq         : (N, action_dim, S) array
         """
-        skills = self.numpy_to_tensor(skills)
-        state_seq = self.numpy_to_tensor(obs_seq)
-        action_seq = self.numpy_to_tensor(action_seq)
+        state_seq = obs_seq
 
         assert state_seq.size(-1) == action_seq.size(-1)
         assert skills.shape[1:] == torch.Size([self.mode_dim, 1])
