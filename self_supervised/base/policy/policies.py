@@ -217,7 +217,7 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
                 else:
                     action, pre_tanh_value = tanh_normal.sample_with_pre_tanh()
 
-                log_prob = tanh_normal.log_prob_with_pre_tanh(action, pre_tanh_value)
+                log_prob, _ = tanh_normal.log_prob_with_pre_tanh(action, pre_tanh_value)
 
             else:
                 if reparameterize is True:

@@ -22,11 +22,10 @@ class ModeLatentNetworkWithEncoder(ModeLatentNetwork):
 
         self.obs_dim = obs_dim
 
-    def sample_mode_posterior(
+    def sample_mode_posterior_with_features(
             self,
-            obs_seq: torch.Tensor,
-            return_features: bool = False) \
-            -> Union[dict, Tuple[dict, torch.Tensor]]:
+            obs_seq: torch.Tensor)\
+            -> Tuple[dict, torch.Tensor]:
         """
         Args:
             obs_seq          : (N, obs_dim, S) tensor
@@ -43,10 +42,12 @@ class ModeLatentNetworkWithEncoder(ModeLatentNetwork):
             features_seq=features_seq
         )
 
-        if return_features:
-            return post, features_seq
-        else:
-            return post
+        return post, features_seq
+
+    def sample_mode_posterior(self,
+                              obs_seq: torch.Tensor) -> dict:
+        post, _ = self.sample_mode_posterior_with_features(obs_seq)
+        return post
 
     def reconstruct_action(self,
                            features_seq,
