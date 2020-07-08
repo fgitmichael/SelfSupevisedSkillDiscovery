@@ -12,7 +12,7 @@ class MyMlp(nn.Module):
     def __init__(self,
                  input_size: int,
                  output_size: int,
-                 initializer: weights_init_xavier,
+                 initializer=weights_init_xavier,
                  hidden_activation=F.relu,
                  hidden_sizes: tuple = (256, 256),
                  output_activation=None,
