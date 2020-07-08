@@ -74,7 +74,7 @@ class ModeLatentNetwork(BaseNetwork):
                 'samples': mode_dist.sample()}
 
     def sample_mode_posterior(self,
-                              features_seq):
+                              features_seq)->dict:
         """
         Args:
             features_seq    : (N, S + 1, feature_dim) tensor

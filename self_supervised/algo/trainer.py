@@ -12,8 +12,11 @@ from self_supervised.policy.skill_policy import SkillTanhGaussianPolicy
 from self_supervised.utils.typed_dicts import *
 from self_supervised.utils.conversion import np_dict_to_torch
 from self_supervised.loss.loss_intrin_selfsup import reconstruction_based_rewards
+from self_supervised.algo.trainer_mode_latent import \
+    ModeLatentTrainer, ModeLatentNetworkWithEncoder
 
 from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
+
 
 
 

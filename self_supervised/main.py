@@ -12,8 +12,9 @@ from self_supervised.memory.self_sup_replay_buffer import \
 from self_supervised.algo.trainer import SelfSupTrainer
 from self_supervised.algo.algorithm import SelfSupAlgo
 from self_supervised.network.mode_latent_model import ModeLatentNetworkWithEncoder
+from self_supervised.network.flatten_mlp import FlattenMlp
 
-from rlkit.torch.networks import FlattenMlp
+#from rlkit.torch.networks import FlattenMlp
 import rlkit.torch.pytorch_util as ptu
 
 
