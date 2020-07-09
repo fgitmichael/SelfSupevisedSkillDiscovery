@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 from prodict import Prodict
 from torch.nn import functional as F
 import abc
@@ -70,7 +71,7 @@ class TanhGaussianPolicy(MyMlp, Policy, metaclass=abc.ABCMeta):
                  action_dim,
                  std=None,
                  initializer=weights_init_xavier,
-                 hidden_activation=F.leaky_relu(torch.tensor(0.2)),
+                 hidden_activation=nn.LeakyReLU(0.2),
                  layer_norm=False,
                  output_activation=None,
                  **kwargs):
@@ -79,7 +80,7 @@ class TanhGaussianPolicy(MyMlp, Policy, metaclass=abc.ABCMeta):
             input_size=obs_dim,
             output_size=2 * action_dim if std is None else action_dim,
             initializer=weights_init_xavier,
-            hidden_activation=F.leaky_relu(torch.tensor(0.2)),
+            hidden_activation=hidden_activation,
             **kwargs
         )
         super().__init__(
@@ -155,7 +156,7 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
             action_dim,
             std=None,
             initializer=weights_init_xavier,
-            hidden_activation=F.leaky_relu(torch.tensor(0.2)),
+            hidden_activation=leaky relu with 0.2
             layer_norm=False,
             output_activation=None,
         """

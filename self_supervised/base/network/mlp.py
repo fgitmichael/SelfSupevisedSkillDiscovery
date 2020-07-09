@@ -13,8 +13,8 @@ class MyMlp(nn.Module):
                  input_size: int,
                  output_size: int,
                  initializer=weights_init_xavier,
-                 hidden_activation=F.relu,
-                 hidden_sizes: tuple = (256, 256),
+                 hidden_activation=torch.nn.ReLU(),
+                 hidden_sizes: Union[list, tuple] = (256, 256),
                  output_activation=None,
                  layer_norm: bool = False):
         super(MyMlp, self).__init__()

@@ -30,13 +30,12 @@ class PathCollectorSelfSupervised(PathCollector):
             policy=policy
         )
 
-        self.obs_dim = env.observation_space[0]
-        self.action_dim = env.action_space[0]
+        self.obs_dim = env.observation_space.shape[0]
+        self.action_dim = env.action_space.shape[0]
 
         self._num_steps_total = 0
         self._num_paths_total = 0
         self.seq_len = 0
-
 
     def collect_new_paths(
             self,
