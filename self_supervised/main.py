@@ -55,7 +55,7 @@ def run(variant: VariantMapping):
     )
 
     mode_latent = ModeLatentNetworkWithEncoder(
-        obs_dim=expl_env.env.observation_space[0],
+        obs_dim=expl_env.env.observation_space.shape[0],
         mode_dim=skill_dim,
         representation_dim=obs_dim,
         feature_dim=obs_dim,
