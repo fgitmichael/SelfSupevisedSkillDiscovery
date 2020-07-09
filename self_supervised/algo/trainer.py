@@ -31,7 +31,6 @@ class SelfSupTrainer(Trainer):
 
                  policy_lr=1e-3,
                  qf_lr=1e-3,
-                 df_lr=1e-3,
                  optimizer_class=torch.optim.Adam,
 
                  soft_target_tau=1e-2,
