@@ -97,8 +97,36 @@ def run(variant: VariantMapping):
         env=expl_env,
     )
 
+    trainer = SelfSupTrainer(
+        env=eval_env,
 
+        policy=policy,
 
+        qf1=qf1,
+        qf2=qf2,
+        target_qf1=target_qf1,
+        target_qf2=target_qf2,
+
+        mode_latent_model=mode_latent,
+
+        **variant.trainer_kwargs,
+    )
+
+    algo = SelfSupAlgo(
+        trainer=trainer,
+        mode_latent_trainer=mode_latent_trainer,
+
+        exploration_env=expl_env,
+        evaluation_env=eval_env,
+
+        exploration_data_collector=expl_step_collector,
+        evaluation_data_collector=eval_path_collector,
+
+        replay_buffer=replay_buffer,
+        seq_len=variant.seq_len,
+
+        **variant.algo_kwargs
+    )
 
 
 if __name__ == "__main__":

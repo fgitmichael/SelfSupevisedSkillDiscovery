@@ -4,16 +4,9 @@ EnvKwargs:
   action_repeat: 1
   normalize_states: True
 
-AlgoKwargs:
-  num_epochs: 1000
-
-TrainerKwargs:
-  discount: 0.99
-
 ModeLatentKwargs:
   # if null feature_dim == obs_dim
   feature_dim: null
-
   rnn_dim: 128
   num_rnn_layers: 2
   rnn_dropout: 0.
@@ -22,10 +15,27 @@ ModeLatentKwargs:
   num_mode_repeat: 1
   std_decoder: 0.0316
   leaky_slope: 0.2
-  info_loss_kwargs:
-    alpha: 0.999
-    lamda: 0.22
 
+InfoLossKwargs:
+  alpha: 0.999
+  lamda: 0.22
+
+TrainerKwargs:
+  discount: 0.99
+  soft_target_tau: 5e-3
+  target_update_period: 1
+  policy_lr: 3E-4
+  qf_lr: 3E-4
+  reward_scale: 1
+  use_automatic_entropy_tuning: True
+
+AlgoKwargs:
+  batch_size: null
+  num_epochs: 1000
+  num_eval_steps_per_epoch: 200
+  num_trains_per_expl_step: 1
+  num_train_loops_per_epoch: 1
+  min_num_steps_before_training: 1000
 
 Other:
   algorithm: Self Supervised
@@ -35,5 +45,3 @@ Other:
   skill_dim: 2
   layer_norm: True
   seq_len: 100
-  batch_size: 128
-  num_epochs: 1000

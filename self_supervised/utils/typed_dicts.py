@@ -5,20 +5,54 @@ import sys
 
 
 class AlgoKwargsMapping(Prodict):
+    batch_size: int
     num_epochs: int
+    num_eval_steps_per_epoch: int
+    num_trains_per_expl_step: int
+    num_train_loops_per_epoch: int
+    min_num_steps_before_training: int
     def __init__(self,
-                 num_epochs: int):
+                 batch_size: int,
+                 num_epochs: int,
+                 num_eval_steps_per_epoch: int,
+                 num_trains_per_expl_step: int,
+                 num_train_loops_per_epoch: int,
+                 min_num_steps_before_training: int,
+                 ):
         super().__init__(
-            num_epochs=num_epochs
+            batch_size=batch_size,
+            num_epochs=num_epochs,
+            num_eval_steps_per_epoch=num_eval_steps_per_epoch,
+            num_trains_per_expl_step=num_trains_per_expl_step,
+            num_train_loops_per_epoch=num_train_loops_per_epoch,
+            min_num_steps_before_training=min_num_steps_before_training,
         )
 
 
 class TrainerKwargsMapping(Prodict):
     discount: float
+    soft_target_tau: float
+    target_update_period: int
+    policy_lr: float
+    qf_lr: float
+    reward_scale: int
+    use_automatic_entropy_tuning: float
     def __init__(self,
-                 discount: float):
+                 discount: float,
+                 soft_target_tau: float,
+                 target_update_period: int,
+                 policy_lr: float,
+                 qf_lr: float,
+                 reward_scale: int,
+                 use_automatic_entropy_tuning: float,):
         super().__init__(
-            discount=discount
+            discount=discount,
+            soft_target_tau=soft_target_tau,
+            target_update_period=target_update_period,
+            policy_lr=policy_lr,
+            qf_lr=qf_lr,
+            reward_scale=reward_scale,
+            use_automatic_entropy_tuning=use_automatic_entropy_tuning
         )
 
 
@@ -64,7 +98,6 @@ class ModeLatentKwargsMapping(Prodict):
     num_mode_repeat: int
     std_decoder: float
     leaky_slope: float
-    info_loss_kwargs: InfoLossParamsMapping
 
     def __init__(self,
                  feature_dim: int,
@@ -76,7 +109,6 @@ class ModeLatentKwargsMapping(Prodict):
                  num_mode_repeat: int,
                  std_decoder: float,
                  leaky_slope: float,
-                 info_loss_kwargs: InfoLossParamsMapping
                  ):
         super().__init__(
             feature_dim=feature_dim,
@@ -87,7 +119,6 @@ class ModeLatentKwargsMapping(Prodict):
             hidden_units_action_decoder=hidden_units_action_decoder,
             num_mode_repeat=num_mode_repeat,
             std_decoder=std_decoder,
-            info_loss_kwargs=info_loss_kwargs,
             leaky_slope=leaky_slope,
         )
 
@@ -99,9 +130,9 @@ class VariantMapping(Prodict):
     replay_buffer_size: int
     skill_dim: int
     seq_len: int
-    batch_size: int
     layer_norm: bool
     mode_latent_kwargs: ModeLatentKwargsMapping
+    info_loss_kwargs: InfoLossParamsMapping
     env_kwargs: EnvKwargsMapping
     algo_kwargs: AlgoKwargsMapping
     trainer_kwargs: TrainerKwargsMapping
@@ -113,10 +144,9 @@ class VariantMapping(Prodict):
                  replay_buffer_size: int,
                  skill_dim: int,
                  seq_len: int,
-                 batch_size: int,
-                 num_epochs: int,
                  layer_norm: bool,
                  mode_latent_kwargs: ModeLatentKwargsMapping,
+                 info_loss_kwargs: InfoLossParamsMapping,
                  env_kwargs: EnvKwargsMapping,
                  algo_kwargs: AlgoKwargsMapping,
                  trainer_kwargs: TrainerKwargsMapping):
@@ -127,10 +157,9 @@ class VariantMapping(Prodict):
             replay_buffer_size=replay_buffer_size,
             skill_dim=skill_dim,
             seq_len=seq_len,
-            batch_size=batch_size,
-            num_epochs=num_epochs,
             layer_norm=layer_norm,
             mode_latent_kwargs=mode_latent_kwargs,
+            info_loss_kwargs=info_loss_kwargs,
             env_kwargs=env_kwargs,
             algo_kwargs=algo_kwargs,
             trainer_kwargs=trainer_kwargs,
