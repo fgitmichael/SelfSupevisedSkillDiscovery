@@ -8,6 +8,8 @@ from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.base.algo.algo_base import BaseRLAlgorithmSelfSup
 from self_supervised.algo.trainer_mode_latent import ModeLatentTrainer
 
+import rlkit.torch.pytorch_util as ptu
+
 
 class SelfSupAlgo(BaseRLAlgorithmSelfSup):
 
@@ -80,9 +82,9 @@ class SelfSupAlgo(BaseRLAlgorithmSelfSup):
                 for _ in range(self.num_trains_per_expl_seq):
                     train_data = self.replay_buffer.random_batch(self.batch_size)
                     self.mode_latent_trainer.train(
-                        skills=train_data.mode,
-                        state_seq=train_data.obs,
-                        action_seq=train_data.action
+                        skills=ptu.from_numpy(train_data.mode),
+                        obs_seq=ptu.from_numpy(train_data.obs),
+                        action_seq=ptu.from_numpy(train_data.action),
                     )
                     self.trainer.train(train_data)
 
