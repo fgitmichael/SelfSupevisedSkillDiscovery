@@ -72,7 +72,12 @@ class NormalizedBoxEnvForPytorch(OrdinaryEnvForPytorch):
                  obs_type: str ='state',
                  normalize_states: bool = False,
                  render_kwargs: bool = None):
-        super(NormalizedBoxEnvForPytorch, self).__init__()
+        super(NormalizedBoxEnvForPytorch, self).__init__(
+            gym_id=gym_id,
+            action_repeat=action_repeat,
+            obs_type=obs_type,
+            render_kwargs=render_kwargs
+        )
 
         assert obs_type in self.keys
 
