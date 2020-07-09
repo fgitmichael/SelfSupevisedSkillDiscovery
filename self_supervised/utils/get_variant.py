@@ -11,6 +11,7 @@ def parse_variant() -> VariantMapping:
         algo_kwargs=config_args.AlgoKwargs,
         trainer_kwargs=config_args.TrainerKwargs,
         mode_latent_kwargs=config_args.ModeLatentKwargs,
+        info_loss_kwargs=config_args.InfoLossKwargs,
         **config_args.Other
     )
 

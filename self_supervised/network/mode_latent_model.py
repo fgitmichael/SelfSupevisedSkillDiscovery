@@ -12,6 +12,9 @@ class ModeLatentNetworkWithEncoder(ModeLatentNetwork):
                  obs_dim,
                  **kwargs,
                  ):
+        if kwargs['feature_dim'] is None:
+            kwargs['feature_dim'] = obs_dim
+
         super().__init__(**kwargs)
 
         if obs_dim == kwargs['feature_dim']:
