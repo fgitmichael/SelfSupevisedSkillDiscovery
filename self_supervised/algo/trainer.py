@@ -24,7 +24,7 @@ class SelfSupTrainer(Trainer):
                  qf2: FlattenMlp,
                  target_qf1: FlattenMlp,
                  target_qf2: FlattenMlp,
-                 mode_latent_trainer: ModeLatentTrainer,
+                 mode_latent_model: ModeLatentNetworkWithEncoder,
 
                  discount=0.99,
                  reward_scale=1.0,
@@ -50,7 +50,7 @@ class SelfSupTrainer(Trainer):
         self.qf2 = qf2
         self.target_qf1 = target_qf1
         self.target_qf2 = target_qf2
-        self.mode_latent_trainer = mode_latent_trainer
+        self.mode_latent_model = mode_latent_model
 
         self.soft_target_tau = soft_target_tau
         self.target_update_period = target_update_period
@@ -97,7 +97,7 @@ class SelfSupTrainer(Trainer):
         # Reward
         # TODO: Normalize loss values?
         intrinsic_rewards = reconstruction_based_rewards(
-            mode_latent_model=self.mode_latent_trainer.model,
+            mode_latent_model=self.mode_latent_model,
             obs_seq=data.obs,
             action_seq=data.action,
             skill_seq=data.mode
@@ -218,7 +218,7 @@ class SelfSupTrainer(Trainer):
             qf2=self.qf2,
             target_qf1=self.qf1,
             target_qf2=self.qf2,
-            mode_latent=self.mode_latent_trainer.model,
+            mode_latent=self.mode_latent_model,
         )
 
 
