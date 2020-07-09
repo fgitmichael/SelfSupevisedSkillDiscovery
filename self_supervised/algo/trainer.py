@@ -113,13 +113,6 @@ class SelfSupTrainer(Trainer):
 
             )
 
-        # Train latent
-        self.mode_latent_trainer.train(
-            obs_seq=data.obs,
-            action_seq=data.action,
-            skills=data.mode
-        )
-
     def train_sac(self, batch: TransitionMappingTorch,
                          mode: torch.Tensor,
                          intrinsic_rewards: torch.Tensor):
