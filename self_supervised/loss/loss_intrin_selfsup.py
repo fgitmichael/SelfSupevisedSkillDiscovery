@@ -24,9 +24,8 @@ def reconstruction_based_rewards(
     seq_len = obs_seq.size(2)
     obs_seq.requires_grad = True
 
-    posterior, features_seq = mode_latent_model.sample_mode_posterior(
-        obs_seq=obs_seq,
-        return_features=True
+    posterior, features_seq = mode_latent_model.sample_mode_posterior_with_features(
+        obs_seq=obs_seq
     )
 
     action_recon = mode_latent_model.reconstruct_action(
