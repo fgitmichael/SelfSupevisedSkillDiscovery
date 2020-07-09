@@ -58,8 +58,8 @@ def run(variant: VariantMapping):
         obs_dim=expl_env.env.observation_space.shape[0],
         mode_dim=skill_dim,
         representation_dim=obs_dim,
-        feature_dim=obs_dim,
         action_dim=action_dim,
+        device=ptu.device,
         **variant.mode_latent_kwargs
     )
 
@@ -68,7 +68,7 @@ def run(variant: VariantMapping):
         feature_dim=variant.mode_latent_kwargs.feature_dim,
         mode_dim=variant.skill_dim,
         mode_latent=mode_latent,
-        info_loss_parms=variant.mode_latent_kwargs.info_loss_kwargs,
+        info_loss_parms=variant.info_loss_kwargs,
         lr=0.0001,
     )
 
