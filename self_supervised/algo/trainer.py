@@ -10,14 +10,10 @@ from rlkit.torch.networks import FlattenMlp
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.policy.skill_policy import SkillTanhGaussianPolicy
 from self_supervised.utils.typed_dicts import *
-from self_supervised.utils.conversion import np_dict_to_torch
 from self_supervised.loss.loss_intrin_selfsup import reconstruction_based_rewards
 from self_supervised.algo.trainer_mode_latent import \
     ModeLatentTrainer, ModeLatentNetworkWithEncoder
-
-from mode_disent_no_ssm.network.mode_model import ModeLatentNetwork
-
-
+import self_supervised.utils.conversion as self_sup_conversion
 
 
 class SelfSupTrainer(Trainer):
@@ -96,7 +92,7 @@ class SelfSupTrainer(Trainer):
         """
         data        : TransitionModeMapping consisting of (N, dim, seq_len) data
         """
-        data = np_dict_to_torch(data)
+        data = self_sup_conversion.from_numpy(data)
 
         # Reward
         # TODO: Normalize loss values?
