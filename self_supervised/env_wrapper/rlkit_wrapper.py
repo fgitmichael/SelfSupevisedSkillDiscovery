@@ -21,17 +21,10 @@ class NormalizedBoxEnvWrapper(NormalizedBoxEnvForPytorch):
 
     # Only change: default for normalize states
     def __init__(self,
-                 gym_id: str,
-                 action_repeat: int = 1,
-                 obs_type: str ='state',
-                 normalize_states: bool = True,
-                 render_kwargs: bool = None):
+                 **env_kwargs,
+                 ):
         super().__init__(
-            gym_id=gym_id,
-            action_repeat=action_repeat,
-            obs_type=obs_type,
-            normalize_states=normalize_states,
-            render_kwargs=render_kwargs
+            **env_kwargs
         )
 
     # Only change: put denormalization into env
