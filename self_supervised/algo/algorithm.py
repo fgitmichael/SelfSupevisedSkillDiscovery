@@ -71,6 +71,7 @@ class SelfSupAlgo(BaseRLAlgorithmSelfSup):
 
             for train_loop in range(self.num_train_loops_per_epoch):
 
+                # Explore
                 if train_loop % self.seq_len == 0:
                     self.expl_data_collector.collect_new_paths(
                         seq_len=self.seq_len,
@@ -78,14 +79,19 @@ class SelfSupAlgo(BaseRLAlgorithmSelfSup):
                         discard_incomplete_paths=False
                     )
 
+                # Train
                 self.training_mode(True)
                 for _ in range(self.num_trains_per_expl_seq):
                     train_data = self.replay_buffer.random_batch(self.batch_size)
+
+                    # Train Latent
                     self.mode_latent_trainer.train(
                         skills=ptu.from_numpy(train_data.mode),
                         obs_seq=ptu.from_numpy(train_data.obs),
                         action_seq=ptu.from_numpy(train_data.action),
                     )
+
+                    # Train SAC
                     self.trainer.train(train_data)
 
                 self.training_mode(False)
