@@ -70,7 +70,9 @@ class SelfSupAlgo(BaseRLAlgorithmSelfSup):
             self.replay_buffer.add_self_sup_paths(paths)
             self.expl_data_collector.end_epoch(-1)
 
-        for epoch in range(self._start_epoch, self.num_epochs):
+        #TODO: where is the skill set and changed?
+
+        for epoch in tqdm(range(self._start_epoch, self.num_epochs)):
 
             for train_loop in range(self.num_train_loops_per_epoch):
 
