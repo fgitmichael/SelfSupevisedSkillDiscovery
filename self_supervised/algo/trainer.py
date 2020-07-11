@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from typing import Iterable
+from typing import Iterable, Dict
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.torch.torch_rl_algorithm import Trainer
@@ -9,11 +9,11 @@ from rlkit.torch.networks import FlattenMlp
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.policy.skill_policy import SkillTanhGaussianPolicy
-from self_supervised.utils.typed_dicts import *
 from self_supervised.loss.loss_intrin_selfsup import reconstruction_based_rewards
 from self_supervised.algo.trainer_mode_latent import \
     ModeLatentTrainer, ModeLatentNetworkWithEncoder
 import self_supervised.utils.conversion as self_sup_conversion
+import self_supervised.utils.typed_dicts as td
 
 
 class SelfSupTrainer(Trainer):
@@ -112,9 +112,8 @@ class SelfSupTrainer(Trainer):
 
             )
 
-    def train_sac(self, batch: TransitionMappingTorch,
-                         mode: torch.Tensor,
-                         intrinsic_rewards: torch.Tensor):
+    def train_sac(self, batch: td.TransitionModeMappingTorch,
+                        intrinsic_rewards: torch.Tensor):
         """
         batch               : TransitionModeMapping consisting of  (N, dim) data
         mode                : (N, mode_dim) tensor
@@ -130,9 +129,17 @@ class SelfSupTrainer(Trainer):
         """
         Policy and Alpha Loss
         """
-        new_obs_actions, policy_mean, policy_log_std, log_pi, *_ = self.policy(
-            obs, skill_vec=skills, reparameterize=True, return_log_prob=True,
+        #new_obs_actions, policy_mean, policy_log_std, log_pi, *_ = (1, 1, 1, 1)
+        policy_ret_mapping = self.policy(
+            obs,
+            skill_vec=skills,
+            reparameterize=True,
+            return_log_prob=True,
         )
+        # just to make auto complete work
+        policy_ret_mapping = td.ForwardReturnMapping(**policy_ret_mapping)
+        log_pi = policy_ret_mapping.log_prob
+
         obs_skills = torch.cat((obs, skills), dim=1)
         if self.use_automatic_entropy_tuning:
             alpha_loss = -(self.log_alpha *
@@ -146,15 +153,11 @@ class SelfSupTrainer(Trainer):
             alpha = 1
 
         q_new_actions = torch.min(
-            self.qf1(obs_skills, new_obs_actions),
-            self.qf2(obs_skills, new_obs_actions),
+            self.qf1(obs_skills, policy_ret_mapping.action),
+            self.qf2(obs_skills, policy_ret_mapping.action),
         )
 
-        assert type(q_new_actions) \
-               == type(log_pi) \
-               == torch.Tensor
-
-        policy_loss = (alpha*log_pi - q_new_actions).mean()
+        policy_loss = (alpha * log_pi - q_new_actions).mean()
 
         """
         QF Loss
@@ -162,13 +165,20 @@ class SelfSupTrainer(Trainer):
         q1_pred = self.qf1(obs_skills, actions)
         q2_pred = self.qf2(obs_skills, actions)
         # Make sure policy accounts for squashing functions like tanh correctly!
-        new_next_actions, _, _, new_log_pi, *_ = self.policy(
-            next_obs, skill_vec=skills, reparameterize=True, return_log_prob=True,
+        new_policy_ret_mapping = self.policy(
+            next_obs,
+            skill_vec=skills,
+            reparameterize=True,
+            return_log_prob=True,
         )
+        new_policy_ret_mapping = td.ForwardReturnMapping(**new_policy_ret_mapping)
+        new_log_pi = new_policy_ret_mapping.log_prob
+
+
         next_obs_skills = torch.cat((next_obs, skills), dim=1)
         target_q_values = torch.min(
-            self.target_qf1(next_obs_skills, new_next_actions),
-            self.target_qf2(next_obs_skills, new_next_actions),
+            self.target_qf1(next_obs_skills, new_policy_ret_mapping.action),
+            self.target_qf2(next_obs_skills, new_policy_ret_mapping.action),
         ) - alpha * new_log_pi
 
         q_target = self.reward_scale * rewards + (1. - terminals) *\
