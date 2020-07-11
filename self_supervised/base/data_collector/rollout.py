@@ -21,25 +21,38 @@ class Rollouter(object):
     def do_rollout(self,
                 max_path_length: int=None,
                 render: bool=None,
-                render_kwargs: dict=None) -> TransitionMapping:
+                render_kwargs: dict=None) -> td.TransitionModeMapping:
 
         path = rollout(
             env=self._env,
-            agent=self._policy,
+            agent=self._rlkit_policy,
             max_path_length=max_path_length,
             render=render,
             render_kwargs=render_kwargs
         )
 
-        path = self._reshape_path(path)
+        path = self._reshape(path)
 
-        return TransitionMapping(**path)
+        mode_np = ptu.get_numpy(self._real_policy.skill)
+        mode_np_seq = np.stack([mode_np] * max_path_length, axis=1)
 
-    @staticmethod
-    def _reshape_path(path):
-        assert len(path['rewards'].shape) == len(path['terminals'].shape) == 1
+        return td.TransitionModeMapping(
+            obs=path['observations'],
+            action=path['actions'],
+            reward=path['rewards'],
+            next_obs=path['next_observations'],
+            terminal=path['terminals'],
+            mode=mode_np_seq,
+            agent_infos=path['agent_infos'],
+            env_infos=path['env_infos'],
+        )
 
-        path['rewards'] = np.expand_dims(path['rewards'], 1)
-        path['terminals'] = np.expand_dims(path['terminals'], 1)
+    def _reshape(self, path: dict):
+        for k, v in path.items():
+            if type(path[k]) is np.ndarray:
+                path[k] = np.transpose(path[k])
 
         return path
+
+    def reset(self):
+        self._env.reset()
