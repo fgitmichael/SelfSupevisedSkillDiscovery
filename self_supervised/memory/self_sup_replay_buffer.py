@@ -4,7 +4,7 @@ from typing import List
 
 from self_supervised.base.replay_buffer.env_replay_buffer import \
     SequenceEnvReplayBuffer
-from self_supervised.utils.typed_dicts import TransitionModeMapping, TransitionMapping
+import self_supervised.utils.typed_dicts as td
 
 
 class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
@@ -26,8 +26,7 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
         )
 
     def add_sample(self,
-                   path: TransitionMapping,
-                   mode: np.ndarray=None,
+                   path: td.TransitionModeMapping,
                    **kwargs):
         """
         Args:
@@ -44,8 +43,12 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
             **kwargs
         )
 
+    def add_paths(self, paths: List[td.TransitionModeMapping]):
+        # Avoid changing signature
+        raise NotImplementedError("In this class add_self_sup_paths should be used!")
+
     def add_self_sup_paths(self,
-                           paths: List[TransitionModeMapping]):
+                           paths: List[td.TransitionModeMapping]):
         """
         Args:
             paths           : TransitionMapping consiting of (N, 1, dim) arrays
@@ -54,10 +57,10 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
             self.add_sample(path)
 
     def random_batch(self,
-                     batch_size: int) -> TransitionModeMapping:
+                     batch_size: int) -> td.TransitionModeMapping:
         idx = np.random.randint(0, self._size, batch_size)
 
-        batch = TransitionModeMapping(
+        batch = td.TransitionModeMapping(
             obs=self._obs_seqs[idx],
             action=self._action_seqs[idx],
             reward=self._rewards_seqs[idx],

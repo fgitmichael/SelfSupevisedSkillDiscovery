@@ -1,4 +1,6 @@
 import torch
+import numpy as np
+import gym
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.policy.skill_policy import \
