@@ -1,5 +1,5 @@
 from prodict import Prodict
-from typing import Tuple
+from typing import Tuple, Union
 import numpy as np
 
 from mode_disent.env_wrappers.rlkit_wrapper import NormalizedBoxEnvForPytorch
@@ -28,12 +28,15 @@ class NormalizedBoxEnvWrapper(NormalizedBoxEnvForPytorch):
         )
 
     # Only change: put denormalization into env
-    def step(self, action: np.ndarray) -> Tuple[ObsReturn, float, bool, dict]:
+    def step(self,
+             action: np.ndarray,
+             denormalize: bool = False) \
+            -> Tuple[np.ndarray, float, bool, dict]:
         next_obs, reward, done, info = super().step(action)
 
-        obs_return = self.ObsReturn(
-            normalized=next_obs,
-            denormalized=self.denormalize(next_obs)
-        )
+        if denormalize:
+            obs_return = self.denormalize(next_obs)
+        else:
+            obs_return = next_obs
 
         return obs_return, reward, done, info
