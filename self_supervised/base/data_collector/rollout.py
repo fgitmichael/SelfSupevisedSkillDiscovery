@@ -2,9 +2,11 @@ import gym
 import numpy as np
 
 from rlkit.samplers.rollout_functions import rollout
-from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy
+import rlkit.torch.pytorch_util as ptu
 
-from self_supervised.utils.typed_dicts import TransitionMapping
+import self_supervised.utils.typed_dicts as td
+from self_supervised.policy.skill_policy import SkillTanhGaussianPolicy
+from self_supervised.utils.wrapper import SkillTanhGaussianPolicyRlkitBehaviour
 
 
 class Rollouter(object):
@@ -13,7 +15,8 @@ class Rollouter(object):
                  env: gym.Env,
                  policy: SkillTanhGaussianPolicy):
         self._env = env
-        self._policy = policy
+        self._real_policy = policy
+        self._rlkit_policy = SkillTanhGaussianPolicyRlkitBehaviour(policy)
 
     def do_rollout(self,
                 max_path_length: int=None,
