@@ -1,12 +1,12 @@
 from mode_disent_no_ssm.utils.parse_args import parse_args
 
-from self_supervised.utils.typed_dicts import *
+import self_supervised.utils.typed_dicts as td
 
 
-def parse_variant() -> VariantMapping:
+def parse_variant() -> td.VariantMapping:
     config_args = parse_args()
 
-    variant = VariantMapping(
+    variant = td.VariantMapping(
         env_kwargs=config_args.EnvKwargs,
         algo_kwargs=config_args.AlgoKwargs,
         trainer_kwargs=config_args.TrainerKwargs,
