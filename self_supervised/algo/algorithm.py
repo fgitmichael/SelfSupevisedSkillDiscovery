@@ -59,12 +59,13 @@ class SelfSupAlgo(BaseRLAlgorithmSelfSup):
 
         # Collect first steps with the untrained gaussian policy
         if self.min_num_steps_before_training > 0:
-            paths = self.expl_data_collector.collect_new_paths(
+            self.expl_data_collector.collect_new_paths(
                 seq_len=self.seq_len,
                 num_seqs=np.ceil(self.min_num_steps_before_training/self.seq_len),
                 discard_incomplete_paths=False
             )
-            self.replay_buffer.add_paths(paths)
+            paths = self.expl_data_collector.get_epoch_paths()
+            self.replay_buffer.add_self_sup_paths(paths)
             self.expl_data_collector.end_epoch(-1)
 
         for epoch in range(self._start_epoch, self.num_epochs):
@@ -81,6 +82,7 @@ class SelfSupAlgo(BaseRLAlgorithmSelfSup):
 
                 # Train
                 self.training_mode(True)
+
                 for _ in range(self.num_trains_per_expl_seq):
                     train_data = self.replay_buffer.random_batch(self.batch_size)
 
@@ -95,6 +97,9 @@ class SelfSupAlgo(BaseRLAlgorithmSelfSup):
                     self.trainer.train(train_data)
 
                 self.training_mode(False)
+
+            new_expl_paths = self.expl_data_collector.get_epoch_paths()
+            self.replay_buffer.add_self_sup_paths(new_expl_paths)
 
             self._end_epoch(epoch)
 

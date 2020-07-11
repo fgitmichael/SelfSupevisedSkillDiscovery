@@ -9,6 +9,7 @@ from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy
 from rlkit.torch.core import eval_np, torch_ify
 from rlkit.policies.base import Policy
 
+import self_supervised.utils.typed_dicts as td
 from self_supervised.base.network.mlp import MyMlp
 from self_supervised.base.distribution.tanh_normal import TanhNormal
 
@@ -16,49 +17,6 @@ from code_slac.network.base import weights_init_xavier
 
 LOG_SIG_MAX = 2
 LOG_SIG_MIN = -20
-
-# TODO: Nest Mapping into TanhGaussianPolicy
-class ActionMapping(Prodict):
-    action: np.ndarray
-    agent_info: dict
-
-    def __init__(self,
-                 action: np.ndarray,
-                 agent_info: dict):
-        super().__init__(
-            action=action,
-            agent_info=agent_info
-        )
-
-
-class ForwardReturnMapping(Prodict):
-    action: np.ndarray
-    mean: torch.Tensor
-    log_std: torch.Tensor
-    log_prob: torch.Tensor
-    entropy: torch.Tensor
-    std: torch.Tensor
-    mean_action_log_prob: torch.Tensor
-    pre_tanh_value: torch.Tensor
-
-    def __init__(self,
-                 action: np.ndarray,
-                 mean: torch.Tensor,
-                 log_std: torch.Tensor,
-                 log_prob: torch.Tensor,
-                 entropy: torch.Tensor,
-                 std: torch.Tensor,
-                 mean_action_log_prob: torch.Tensor,
-                 pre_tanh_value: torch.Tensor):
-        super().__init__()
-        self.action = action
-        self.mean = mean
-        self.log_std = log_std
-        self.log_prob = log_prob
-        self.entropy = entropy
-        self.std = std
-        self.mean_action_log_prob = mean_action_log_prob
-        self.pre_tanh_value = pre_tanh_value
 
 
 # Abstract Base class
@@ -75,6 +33,7 @@ class TanhGaussianPolicy(MyMlp, Policy, metaclass=abc.ABCMeta):
                  layer_norm=False,
                  output_activation=None,
                  **kwargs):
+
         super().__init__(
             hidden_sizes=hidden_sizes,
             input_size=obs_dim,
@@ -100,7 +59,7 @@ class TanhGaussianPolicy(MyMlp, Policy, metaclass=abc.ABCMeta):
 
     def get_action(self,
                    obs_np: np.ndarray,
-                   deterministic: bool = False) -> ActionMapping:
+                   deterministic: bool = False) -> td.ActionMapping:
         assert obs_np.shape[-1] == self.dimensions['obs_dim']
 
         actions = self.get_actions(obs_np[None], deterministic=deterministic)
@@ -109,7 +68,7 @@ class TanhGaussianPolicy(MyMlp, Policy, metaclass=abc.ABCMeta):
         if len(obs_np.shape) > 1:
             assert obs_np.shape[:-1] == actions.shape[:-1]
 
-        return ActionMapping(
+        return td.ActionMapping(
             action=actions,
             agent_info={}
         )
@@ -124,7 +83,7 @@ class TanhGaussianPolicy(MyMlp, Policy, metaclass=abc.ABCMeta):
                 obs: np.ndarray,
                 reparameterize: bool = True,
                 deterministic: bool = False,
-                return_log_prob:bool = False) -> ForwardReturnMapping:
+                return_log_prob:bool = False) -> td.ForwardReturnMapping:
         """
         Args:
             obs                 : (N, obs_dim) np-array
@@ -176,8 +135,7 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
                 obs: torch.Tensor,
                 reparameterize: bool = True,
                 deterministic: bool = False,
-                return_log_prob: bool = False) -> ForwardReturnMapping:
-        assert obs.shape[-1] == self.dimensions['obs_dim']
+                return_log_prob: bool = False) -> td.ForwardReturnMapping:
         obs_tensor = obs
 
         if self.std is None:
@@ -227,7 +185,7 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
                 else:
                     action = tanh_normal.rsample()
 
-        return ForwardReturnMapping(
+        return td.ForwardReturnMapping(
             action=action,
             mean=mean,
             log_std=log_std,

@@ -301,3 +301,47 @@ class TransitionModeMappingTorch(SlicableProdict):
             terminal=self.terminal,
             next_obs=self.next_obs
         )
+
+
+# TODO: Nest Mapping into TanhGaussianPolicy
+class ActionMapping(Prodict):
+    action: np.ndarray
+    agent_info: dict
+
+    def __init__(self,
+                 action: np.ndarray,
+                 agent_info: dict):
+        super().__init__(
+            action=action,
+            agent_info=agent_info
+        )
+
+
+class ForwardReturnMapping(Prodict):
+    action: torch.Tensor
+    mean: torch.Tensor
+    log_std: torch.Tensor
+    log_prob: torch.Tensor
+    entropy: torch.Tensor
+    std: torch.Tensor
+    mean_action_log_prob: torch.Tensor
+    pre_tanh_value: torch.Tensor
+
+    def __init__(self,
+                 action: torch.Tensor,
+                 mean: torch.Tensor,
+                 log_std: torch.Tensor,
+                 log_prob: torch.Tensor,
+                 entropy: torch.Tensor,
+                 std: torch.Tensor,
+                 mean_action_log_prob: torch.Tensor,
+                 pre_tanh_value: torch.Tensor):
+        super().__init__()
+        self.action = action
+        self.mean = mean
+        self.log_std = log_std
+        self.log_prob = log_prob
+        self.entropy = entropy
+        self.std = std
+        self.mean_action_log_prob = mean_action_log_prob
+        self.pre_tanh_value = pre_tanh_value

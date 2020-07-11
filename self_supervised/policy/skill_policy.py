@@ -4,8 +4,9 @@ import numpy as np
 from rlkit.torch.core import eval_np, torch_ify, np_ify
 from rlkit.policies.base import Policy
 
-from self_supervised.base.policy.policies import \
-    TanhGaussianPolicyLogStd, ActionMapping, ForwardReturnMapping
+from self_supervised.base.policy.policies import TanhGaussianPolicyLogStd
+import self_supervised.utils.my_pytorch_util as my_ptu
+import self_supervised.utils.typed_dicts as td
 
 from code_slac.network.base import weights_init_xavier
 
@@ -36,7 +37,7 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
     def get_action(self,
                    obs_np: np.ndarray,
                    skill: torch.Tensor = None,
-                   deterministic: bool = False):
+                   deterministic: bool = False)->td.ActionMapping:
         obs_tensor = torch_ify(obs_np)
 
         if skill is not None:
@@ -49,16 +50,19 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
 
         obs_skill_cat = torch.cat([obs_tensor, self.skill], dim=-1)
 
-        self.get_skill_actions(obs_skill_cat)
-
         action = self.get_skill_actions(obs_skill_cat,
                                         deterministic=deterministic)
 
-        assert action.size(-1) == self.dimensions['action_dim']
+        assert action.shape[-1] == self.dimensions['action_dim']
         if len(obs_tensor.shape) > 1:
             assert obs_tensor.shape[:-1] == action[:-1]
 
-        return action
+        return td.ActionMapping(
+            action=action,
+            agent_info={
+                'skill': ptu.get_numpy(self.skill)
+            }
+        )
 
     def set_skill(self,
                   skill: torch.Tensor):
@@ -76,16 +80,19 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
                           obs_skill_cat: torch.Tensor,
                           deterministic: bool=False
                           ) -> np.ndarray:
-        return super().__call__(
+        action_tensor = super().forward(
             obs=obs_skill_cat,
-            deterministic=deterministic).action
+            deterministic=deterministic
+        ).action
+
+        return ptu.get_numpy(action_tensor)
 
     def forward(self,
                 obs: torch.Tensor,
                 skill_vec=None,
                 reparameterize=True,
                 return_log_prob=False,
-                deterministic=False) -> ForwardReturnMapping:
+                deterministic=False) -> td.ForwardReturnMapping:
         """
         Args
             obs                     : (N, obs_dim) tensor
