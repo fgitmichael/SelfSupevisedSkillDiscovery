@@ -1,7 +1,9 @@
 import numpy as np
+from tqdm import tqdm
 
 from self_supervised.algo.trainer import SelfSupTrainer
-from self_supervised.base.data_collector.data_collector import PathCollectorSelfSupervised
+from self_supervised.base.data_collector.data_collector import \
+    PathCollectorSelfSupervised
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
