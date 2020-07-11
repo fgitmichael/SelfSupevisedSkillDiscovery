@@ -1,8 +1,9 @@
 import abc
+from typing import List
 
 from rlkit.data_management.replay_buffer import ReplayBuffer
 
-from self_supervised.utils.typed_dicts import TransitionMapping
+import self_supervised.utils.typed_dicts as td
 
 
 # Adding skills
@@ -34,7 +35,7 @@ class SequenceReplayBuffer(ReplayBuffer, metaclass=abc.ABCMeta):
         """
         pass
 
-    def add_path(self, path: TransitionMapping):
+    def add_path(self, path: td.TransitionMapping):
         """
         Add a path to the replay buffer.
 
@@ -77,7 +78,8 @@ class SequenceReplayBuffer(ReplayBuffer, metaclass=abc.ABCMeta):
             )
         self.terminate_episode()
 
-    def add_paths(self, paths):
+    def add_paths(self, paths: List[td.TransitionModeMapping]):
+        assert paths is not None
         for path in paths:
             self.add_path(path)
 
