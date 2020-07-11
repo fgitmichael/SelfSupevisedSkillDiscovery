@@ -167,28 +167,78 @@ class VariantMapping(Prodict):
 
 
 class SlicableProdict(Prodict):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._iter_counter = 0
 
     def __getitem__(self, item):
         if type(item) is str:
             return super().__getitem__(item)
 
         else:
-            return self.get_constr()(
+            return self._get_constr()(
                 **{
-                    k: v[item] for (k, v) in self.items()
+                    # TODO: use hasattr in stead type checking for torch.Tensor or np.ndarray
+                    k: v[item]
+                    if self._is_array_type(v) else v
+                    for (k, v) in self.items()
                 }
             )
 
     def transpose(self, *args, **kwargs):
-        return self.get_constr()(
+        return self._get_constr()(
             **{
-                k: v.transpose(*args, **kwargs) for k, v in self.items()
+                #TODO: use hasattr in stead type checking for torch.Tensor or np.ndarray
+                k: v.transpose(*args, **kwargs)
+                if self._is_array_type(v) else v
+                for k, v in self.items()
             }
         )
 
-    def get_constr(self):
+    def permute(self, *args, **kwargs):
+        return self._get_constr()(
+            **{
+                #TODO: use hasattr in stead type checking for torch.Tensor or np.ndarray
+                k: v.permute(*args, **kwargs)
+                if self._is_array_type(v) else v
+                for k, v in self.items()
+            }
+        )
+
+    def shape(self):
+        for k, v in self.items():
+            if self._is_array_type(v):
+                print("%s: %s" % (k, str(v.shape)))
+            else:
+                print("%s: no array type")
+
+    def _get_constr(self):
         constr = getattr(sys.modules[__name__], self.__class__.__name__)
         return constr
+
+    @property
+    def size_first_dim(self):
+        sizes_first_dim = [v.shape[0] for v in self.values() if self._is_array_type(v)]
+
+        if all(sizes_first_dim[0]== size for size in sizes_first_dim):
+            return sizes_first_dim[0]
+        else:
+            raise ValueError("Arrays in the Mapping don't match on the first dimension")
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        #for idx in range(self.size_first_dim):
+        #    return self[idx]
+        if self._iter_counter < self.size_first_dim:
+            self._iter_counter += 1
+            return self[self._iter_counter - 1]
+        else:
+            raise StopIteration
+
+    def _is_array_type(self, to_check):
+        return type(to_check) in [torch.Tensor, np.ndarray]
 
 
 class TransitionMapping(SlicableProdict):

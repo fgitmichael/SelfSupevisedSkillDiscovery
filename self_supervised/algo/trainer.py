@@ -87,11 +87,18 @@ class SelfSupTrainer(Trainer):
         self.reward_scale = reward_scale
         self._n_train_steps_total = 0
 
-    def train(self, data: TransitionModeMapping):
+    def train(self, data: td.TransitionModeMapping):
         """
-        data        : TransitionModeMapping consisting of (N, dim, seq_len) data
+        data        : TransitionModeMapping consisting of (N, data_dim, S) data
         """
-        data = self_sup_conversion.from_numpy(data)
+        seq_dim = -1
+        data_dim = -2
+        batch_dim = 0
+
+        data = data.transpose(batch_dim, seq_dim, data_dim)
+        data = td.TransitionModeMappingTorch(**self_sup_conversion.from_numpy(data))
+        data_dim = -1
+        seq_dim = -2
 
         # Reward
         # TODO: Normalize loss values?
@@ -103,28 +110,33 @@ class SelfSupTrainer(Trainer):
         )
 
         # Train SAC
-        for idx, transition in \
-                enumerate(data.get_transition_mapping().permute(2, 0, 1)):
+        for idx, transition in enumerate(
+                data.permute(seq_dim, batch_dim, data_dim)):
             self.train_sac(
                 batch=transition,
-                mode=data.mode,
-                intrinsic_rewards=intrinsic_rewards[:, :, idx]
-
+                intrinsic_rewards=intrinsic_rewards[:, idx]
             )
 
     def train_sac(self, batch: td.TransitionModeMappingTorch,
                         intrinsic_rewards: torch.Tensor):
         """
         batch               : TransitionModeMapping consisting of  (N, dim) data
-        mode                : (N, mode_dim) tensor
         intrinsic_rewards   : (N, 1) tensor
         """
+        batch_dim = 0
         obs = batch.obs
         actions = batch.action
         next_obs = batch.next_obs
         terminals = batch.terminal
-        skills = mode
+        skills = batch.mode
         rewards = intrinsic_rewards
+
+        batch_dim = 0
+        data_dim = -1
+
+        assert obs.size(data_dim) == next_obs.size(data_dim) == self.env.observation_space.shape[0]
+        assert actions.size(data_dim) == self.env.action_space.shape[0]
+        assert rewards.size(data_dim) == terminals.size(data_dim) == 1
 
         """
         Policy and Alpha Loss
