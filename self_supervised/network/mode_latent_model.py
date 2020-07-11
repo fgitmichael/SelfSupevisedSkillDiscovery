@@ -31,13 +31,11 @@ class ModeLatentNetworkWithEncoder(ModeLatentNetwork):
             -> Tuple[dict, torch.Tensor]:
         """
         Args:
-            obs_seq          : (N, obs_dim, S) tensor
+            obs_seq          : (N, S, obs_dim) tensor
         """
-        assert obs_seq.size(1) == self.obs_dim
+        data_dim = -1
+        assert obs_seq.size(data_dim) == self.obs_dim
         assert len(obs_seq.shape) == 3
-
-        obs_seq = obs_seq.transpose(0, 1)
-        assert obs_seq.size(2) == self.obs_dim
 
         features_seq = self.obs_encoder(obs_seq)
 
@@ -49,6 +47,11 @@ class ModeLatentNetworkWithEncoder(ModeLatentNetwork):
 
     def sample_mode_posterior(self,
                               obs_seq: torch.Tensor) -> dict:
+        """
+        Args:
+            obs_seq          : (N, S, obs_dim) tensor
+        """
+        data_dim = 1
         post, _ = self.sample_mode_posterior_with_features(obs_seq)
         return post
 

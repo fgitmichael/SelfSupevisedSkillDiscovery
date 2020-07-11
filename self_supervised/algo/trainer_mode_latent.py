@@ -82,7 +82,7 @@ class ModeLatentTrainer():
             # TODO: implement two-dimensional case
             raise NotImplementedError('Tensors have to be three dimensional')
 
-        mode_post = self.model.sample_mode_posterior(obs_seq=ptu.from_numpy(obs_seq))
+        mode_post, features_seq = self.model.sample_mode_posterior_with_features(obs_seq=obs_seq)
         mode_pri = self.model.sample_mode_prior(batch_size)
 
         kld = calc_kl_divergence(
