@@ -136,11 +136,18 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
         assert reward.shape == (1, self._seq_len)
         assert terminal.shape == (1, self._seq_len)
 
-        assert observation.dtype \
-               == next_observation.dtype \
-               == action.dtype \
-               == reward.dtype \
-               == np.float64
+        check_type = lambda array_, dtype_: array_.dtype == dtype_
+        assert check_type(observation, np.float64) \
+               or check_type(observation, np.float32)
 
-        assert terminal.dtype == np.uint8
+        assert check_type(next_observation, np.float64) \
+               or check_type(next_observation, np.float32)
+
+        assert check_type(reward, np.float64) \
+               or check_type(reward, np.float32)
+
+        assert check_type(action, np.float64) \
+               or check_type(action, np.float32)
+
+        assert terminal.dtype == np.bool
 
