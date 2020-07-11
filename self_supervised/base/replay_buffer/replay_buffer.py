@@ -48,10 +48,10 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
             dtype=np.float32
         )
         self._terminal_seqs = np.zeros(
-            (self._seq_len,
+            (self._max_replay_buffer_size,
              1,
-             self._max_replay_buffer_size),
-            dtype='uint8'
+            self._seq_len),
+            dtype=np.uint8
         )
 
         self._env_infos = {}
