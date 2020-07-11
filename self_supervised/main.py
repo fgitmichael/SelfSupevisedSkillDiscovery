@@ -135,6 +135,7 @@ def run(variant: VariantMapping):
 
 
 if __name__ == "__main__":
+    # TODO: Set seeds
     variant = parse_variant()
     run(variant)
 
