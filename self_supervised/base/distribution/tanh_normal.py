@@ -19,7 +19,7 @@ class TanhNormal(Normal):
         return torch.tanh(z), z
 
     def rsample(self, sample_shape=torch.Size()):
-        z = self.rsample(sample_shape)
+        z = super().rsample(sample_shape)
         return torch.tanh(z)
 
     def rsample_with_pre_tanh(self,
@@ -42,7 +42,7 @@ class TanhNormal(Normal):
         ) / 2
 
     def log_prob_with_pre_tanh(self, value, pre_tanh_value):
-        log_prob_pre = self.log_prob(pre_tanh_value)
+        log_prob_pre = super().log_prob(pre_tanh_value)
         log_prob_tanh_term = torch.log(1 - value * value + self.eps)
 
         return log_prob_pre - log_prob_tanh_term, pre_tanh_value
