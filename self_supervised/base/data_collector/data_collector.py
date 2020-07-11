@@ -110,3 +110,10 @@ class PathCollectorSelfSupervised(PathCollector):
             list of TransistionMapping consisting of (S, dim) np.ndarrays
         """
         return list(self._epoch_paths)
+
+    def end_epoch(self, epoch):
+        super().end_epoch(epoch)
+
+        self._rollouter.reset()
+        self._epoch_paths = deque(maxlen=self._max_num_epoch_paths_saved)
+
