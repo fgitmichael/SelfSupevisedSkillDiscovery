@@ -64,7 +64,7 @@ class SequenceReplayBuffer(ReplayBuffer, metaclass=abc.ABCMeta):
             path.terminal,
             path.agent_infos,
             path.env_infos,
-            path.skills
+            path.mode
         )):
             self.add_sample(
                 observation=obs,

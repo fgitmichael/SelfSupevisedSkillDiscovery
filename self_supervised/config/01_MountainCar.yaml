@@ -30,7 +30,7 @@ TrainerKwargs:
   use_automatic_entropy_tuning: True
 
 AlgoKwargs:
-  batch_size: null
+  batch_size: 16
   num_epochs: 1000
   num_eval_steps_per_epoch: 200
   num_trains_per_expl_step: 1
