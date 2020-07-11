@@ -8,6 +8,7 @@ import numpy as np
 from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy
 from rlkit.torch.core import eval_np, torch_ify
 from rlkit.policies.base import Policy
+import rlkit.torch.pytorch_util as ptu
 
 import self_supervised.utils.typed_dicts as td
 from self_supervised.base.network.mlp import MyMlp
@@ -35,21 +36,14 @@ class TanhGaussianPolicy(MyMlp, Policy, metaclass=abc.ABCMeta):
                  **kwargs):
 
         super().__init__(
-            hidden_sizes=hidden_sizes,
             input_size=obs_dim,
             output_size=2 * action_dim if std is None else action_dim,
-            initializer=weights_init_xavier,
-            hidden_activation=hidden_activation,
-            **kwargs
-        )
-        super().__init__(
-            input_size=obs_dim,
-            output_size=action_dim,
             initializer=initializer,
             hidden_activation=hidden_activation,
             hidden_sizes=hidden_sizes,
             layer_norm=layer_norm,
-            output_activation=output_activation
+            output_activation=output_activation,
+            **kwargs
         )
 
         self.dimensions = dict(
@@ -139,10 +133,10 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
         obs_tensor = obs
 
         if self.std is None:
-            mean_log_std_cat = MyMlp.__call__(self, obs_tensor)
+            mean_log_std_cat = MyMlp.forward(self, obs_tensor)
 
             assert mean_log_std_cat.size(-1) == 2 * self.dimensions['action_dim']
-            if len(mean_log_std_cat.size) > 1 and len(obs_tensor.shape) > 1:
+            if len(mean_log_std_cat.size()) > 1 and len(obs_tensor.shape) > 1:
                 assert mean_log_std_cat.shape[:-1] == obs_tensor.shape[:-1]
 
             mean, log_std = torch.chunk(mean_log_std_cat,
@@ -151,7 +145,7 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
             log_std = torch.clamp(log_std, LOG_SIG_MIN, LOG_SIG_MAX)
             std = torch.exp(log_std)
         else:
-            mean = MyMlp.__call__(self, obs_tensor)
+            mean = MyMlp.forward(self, obs_tensor)
             std = self.std
             log_std = self.log_std
 

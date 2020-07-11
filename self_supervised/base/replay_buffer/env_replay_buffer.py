@@ -55,6 +55,6 @@ class SequenceEnvReplayBuffer(NormalSequenceReplayBuffer):
         path.action_seqs = new_action
 
         super().add_sample(
-            path=path
+            path=path,
             **kwargs
         )
