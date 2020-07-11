@@ -254,6 +254,8 @@ class TransitionMapping(SlicableProdict):
                  reward: np.ndarray,
                  terminal: np.ndarray,
                  next_obs: np.ndarray,
+                 agent_infos=None,
+                 env_infos=None,
                  ):
 
         super(TransitionMapping, self).__init__(
@@ -262,6 +264,8 @@ class TransitionMapping(SlicableProdict):
             reward=reward,
             terminal=terminal,
             next_obs=next_obs,
+            agent_infos=agent_infos,
+            env_infos=env_infos,
         )
 
 
@@ -275,16 +279,20 @@ class TransitionModeMapping(TransitionMapping):
                  terminal: np.ndarray,
                  next_obs: np.ndarray,
                  mode: np.ndarray,
+                 agent_infos=None,
+                 env_infos=None,
                  ):
 
         Prodict.__init__(
             self,
-            obs_seqs=obs,
-            action_seqs=action,
-            reward_seqs=reward,
-            terminal_seqs=terminal,
-            next_obs_seqs=next_obs,
+            obs=obs,
+            action=action,
+            reward=reward,
+            terminal=terminal,
+            next_obs=next_obs,
             mode=mode,
+            agent_infos=agent_infos,
+            env_infos=env_infos
            )
 
 
@@ -310,13 +318,6 @@ class TransitionMappingTorch(SlicableProdict):
             next_obs=next_obs,
         )
 
-    def permute(self, *args, **kwargs):
-        return self.get_constr()(
-            **{
-                k: v.permute(*args, **kwargs) for k, v in self.items()
-            }
-        )
-
 
 class TransitionModeMappingTorch(SlicableProdict):
     obs: torch.Tensor
@@ -332,7 +333,8 @@ class TransitionModeMappingTorch(SlicableProdict):
                  reward: torch.Tensor,
                  terminal: torch.Tensor,
                  next_obs: torch.Tensor,
-                 mode: torch.Tensor
+                 mode: torch.Tensor,
+                 **kwargs
                  ):
         super(TransitionModeMappingTorch, self).__init__(
             obs=obs,
@@ -340,7 +342,8 @@ class TransitionModeMappingTorch(SlicableProdict):
             reward=reward,
             terminal=terminal,
             next_obs=next_obs,
-            mode=mode
+            mode=mode,
+            **kwargs
         )
 
     def get_transition_mapping(self) -> TransitionMappingTorch:
