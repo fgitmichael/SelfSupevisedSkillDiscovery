@@ -3,6 +3,7 @@ import numpy as np
 
 from rlkit.torch.core import eval_np, torch_ify, np_ify
 from rlkit.policies.base import Policy
+import rlkit.torch.pytorch_util as ptu
 
 from self_supervised.base.policy.policies import TanhGaussianPolicyLogStd
 import self_supervised.utils.my_pytorch_util as my_ptu
@@ -22,7 +23,7 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
                  layer_norm=False,
                  **kwargs):
         self.skill_dim = skill_dim
-        self.skill = torch.rand(self.skill_dim)
+        self.skill = my_ptu.rand(self.skill_dim)
 
         super().__init__(
             hidden_sizes=hidden_sizes,

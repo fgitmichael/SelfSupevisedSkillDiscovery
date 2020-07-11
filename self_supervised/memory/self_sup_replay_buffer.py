@@ -37,10 +37,14 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
             mode      : (N, mode_dim, S) np.ndarray
         """
 
-        if mode is None:
-            raise ValueError('Mode is needed')
 
-        self._mode_per_seqs[self._top] = mode
+        self._mode_per_seqs[self._top] = path.mode
+        try:
+            path.pop('mode')
+        except:
+            pass
+
+
         super().add_sample(
             path=path,
             **kwargs
