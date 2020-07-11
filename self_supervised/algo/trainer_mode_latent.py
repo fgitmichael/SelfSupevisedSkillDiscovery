@@ -45,10 +45,23 @@ class ModeLatentTrainer():
               skills: torch.Tensor,
               obs_seq: torch.Tensor,
               action_seq: torch.Tensor) -> None:
+        """
+        Args:
+            obs_seq          : (N, obs_dim, S) tensor
+            action_seq       : (N, action_dim, S) tensor
+            skills           : (N, skill_dim, S) tensor
+        """
+        seq_dim = -1
+        data_dim = -2
+
+        obs_seq = obs_seq.transpose(seq_dim, data_dim)
+        action_seq = action_seq.transpose(seq_dim, data_dim)
+        skills = skills.transpose(seq_dim, data_dim)
+
         loss = self._calc_loss(
-            skills=skills,
             obs_seq=obs_seq,
-            action_seq=action_seq)
+            action_seq=action_seq
+        )
 
         update_params(
             optim=self.optim,
@@ -58,29 +71,22 @@ class ModeLatentTrainer():
 
         self.learn_steps += 1
 
-    def numpy_to_tensor(self, array: np.ndarray):
-        return ptu.from_numpy(array)
-
     def _calc_loss(self,
-                   skills: torch.Tensor,
                    obs_seq: torch.Tensor,
                    action_seq: torch.Tensor):
         """
         Args:
-            skills             : (N, skill_dim, 1) array
-            obs_seq            : (N, obs_dim, S) array
-            action_seq         : (N, action_dim, S) array
+            obs_seq            : (N, S, obs_dim) array
+            action_seq         : (N, S, action_dim) array
         """
-        state_seq = obs_seq
-
-        assert state_seq.size(-1) == action_seq.size(-1)
-        assert skills.shape[1:] == torch.Size([self.mode_dim, 1])
-        if len(state_seq.size()) > 2:
-            batch_size = state_seq.size(0)
-            assert skills.size(0) == state_seq.size(0) == action_seq.size(0)
+        batch_dim = 0
+        seq_dim = -2
+        assert obs_seq.size(seq_dim) == action_seq.size(seq_dim)
+        if len(obs_seq.size()) > 2:
+            batch_size = obs_seq.size(batch_dim)
+            assert obs_seq.size(batch_dim) == action_seq.size(batch_dim)
         else:
-            # TODO: implement two-dimensional case
-            raise NotImplementedError('Tensors have to be three dimensional')
+            raise NotImplementedError('Tensors have to be 3-dimensional')
 
         mode_post, features_seq = self.model.sample_mode_posterior_with_features(obs_seq=obs_seq)
         mode_pri = self.model.sample_mode_prior(batch_size)
@@ -96,7 +102,7 @@ class ModeLatentTrainer():
         )
 
         actions_seq_recon = self.model.action_decoder(
-            state_rep_seq=obs_seq,
+            state_rep_seq=features_seq,
             mode_sample=mode_post['samples']
         )
 

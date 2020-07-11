@@ -14,14 +14,18 @@ def reconstruction_based_rewards(
     """
     Args:
         mode_latent_model        : latent variable model
-        obs_seq                  : (N, obs_dim, S) tensor
-        action_seq               : (N, action_dim, S) tensor
-        skill_seq                : (N, skill_dim, S) tensor
+        obs_seq                  : (N, S, obs_dim) tensor
+        action_seq               : (N, S, action_dim) tensor
+        skill_seq                : (N, S, skill_dim) tensor
     Return:
         Loss                     : tensor
     """
-    batch_size = obs_seq.size(0)
-    seq_len = obs_seq.size(2)
+    batch_dim = 0
+    seq_dim = -2
+    data_dim = -1
+
+    batch_size = obs_seq.size(batch_dim)
+    seq_len = obs_seq.size(seq_dim)
     obs_seq.requires_grad = True
 
     posterior, features_seq = mode_latent_model.sample_mode_posterior_with_features(
@@ -33,13 +37,12 @@ def reconstruction_based_rewards(
         mode_sample=posterior['samples']
     )
 
-    action_seq = action_seq.transpose(1, 2)
     ll = action_recon['dists'].log_prob(action_seq).mean(dim=0).sum()
     mse = F.mse_loss(action_recon['samples'], action_seq)
 
     ll.backward()
-    gradients_per_transition = obs_seq.grad.sum(dim=1)
-    assert gradients_per_transition.shape == torch.Size((batch_size, seq_len))
+    gradients_per_transition = obs_seq.grad.sum(dim=data_dim, keepdim=True)
+    assert gradients_per_transition.shape == torch.Size((batch_size, seq_len, 1))
 
     return -torch.abs(gradients_per_transition)
 

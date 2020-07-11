@@ -103,18 +103,29 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
         Return:
             ForwardReturnMapping
         """
+        batch_dim = 0
+        data_dim = -1
+
+        batch_size = obs.size(batch_dim)
         if skill_vec is None:
-            obs_skill_cat = torch.cat([obs, self.skill], dim=-1)
+            assert len(self.skill.shape) == len(obs.shape) == 2
+
+            skill_to_cat = torch.stack([self.skill] * batch_size, dim=0)
+            obs_skill_cat = torch.cat([obs, skill_to_cat], dim=data_dim)
 
         else:
-            self._check_skill(skill_vec)
-            obs_skill_cat = torch.cat([obs, skill_vec], dim=-1)
+            assert len(skill_vec.shape) == len(obs.shape) == 2
+            assert skill_vec.size(batch_dim) == obs.size(batch_dim)
 
-        return super().__call__(
-                obs=obs_skill_cat,
-                reparameterize=reparameterize,
-                return_log_prob=return_log_prob,
-                deterministic=deterministic)
+            self._check_skill(skill_vec)
+            obs_skill_cat = torch.cat([obs, skill_vec], dim=data_dim)
+
+        return super().forward(
+            obs=obs_skill_cat,
+            reparameterize=reparameterize,
+            return_log_prob=return_log_prob,
+            deterministic=deterministic
+        )
 
     def _check_skill(self,
                      skill: torch.Tensor):
