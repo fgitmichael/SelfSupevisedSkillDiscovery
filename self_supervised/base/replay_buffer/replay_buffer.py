@@ -78,7 +78,7 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
             action=path.action,
             reward=path.reward,
             next_observation=path.next_obs,
-            terminal=path.next_obs)
+            terminal=path.terminal)
 
         self._obs_seqs[self._top] = path.obs
         self._action_seqs[self._top] = path.action
@@ -109,7 +109,7 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
             action=self._action_seqs[idx],
             reward=self._rewards_seqs[idx],
             terminal=self._terminal_seqs[idx],
-            next_obs=self._obs_next_seqs,
+            next_obs=self._obs_next_seqs[idx],
         )
 
         return batch
