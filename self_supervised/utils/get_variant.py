@@ -16,8 +16,3 @@ def parse_variant() -> td.VariantMapping:
     )
 
     return variant
-
-
-
-
-
