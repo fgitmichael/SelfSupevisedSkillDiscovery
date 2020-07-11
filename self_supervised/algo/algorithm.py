@@ -118,7 +118,7 @@ class SelfSupAlgo(BaseRLAlgorithmSelfSup):
             post_epoch_func(self, epoch)
 
     def training_mode(self, mode):
-        for net in self.trainer.networks:
+        for net in self.trainer.networks.values():
             net.train(mode)
 
     def to(self, device):
