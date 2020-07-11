@@ -63,7 +63,7 @@ class SelfSupAlgo(BaseRLAlgorithmSelfSup):
         if self.min_num_steps_before_training > 0:
             self.expl_data_collector.collect_new_paths(
                 seq_len=self.seq_len,
-                num_seqs=np.ceil(self.min_num_steps_before_training/self.seq_len),
+                num_seqs=int(np.ceil(self.min_num_steps_before_training/self.seq_len)),
                 discard_incomplete_paths=False
             )
             paths = self.expl_data_collector.get_epoch_paths()
