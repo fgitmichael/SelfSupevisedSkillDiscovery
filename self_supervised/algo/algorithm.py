@@ -121,6 +121,10 @@ class SelfSupAlgo(BaseRLAlgorithmSelfSup):
         for net in self.trainer.networks:
             net.train(mode)
 
+    def to(self, device):
+        for net in self.trainer.networks.values():
+            net.to(device)
+
 
 
 

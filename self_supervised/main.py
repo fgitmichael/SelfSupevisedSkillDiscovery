@@ -128,6 +128,9 @@ def run(variant: VariantMapping):
         **variant.algo_kwargs
     )
 
+    algo.to(ptu.device)
+    algo.train()
+
 
 if __name__ == "__main__":
     variant = parse_variant()
