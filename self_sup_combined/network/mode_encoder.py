@@ -49,6 +49,8 @@ class ModeEncoderSelfSupComb(BaseNetwork):
         seq_dim = 1
         batch_size = features_seq.size(batch_dim)
 
+        assert len(features_seq.shape) == 3
+
         # Posterior
         features_seq = features_seq.transpose(seq_dim, batch_dim)
         post_mode_dist = self.mode_encoder(features_seq=features_seq)
