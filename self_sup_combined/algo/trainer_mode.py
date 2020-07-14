@@ -23,6 +23,8 @@ class ModeTrainer:
                  ):
         self.info_loss_params = info_loss_params
         self.model = mode_net
+
+        # All parameters of the model, including the feature-encoder net
         self.optim = torch.optim.Adam(
             chain(
                 self.model.parameters(),
