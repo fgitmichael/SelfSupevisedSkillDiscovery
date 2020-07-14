@@ -114,6 +114,12 @@ class ModeTrainer:
         self.learn_steps += 1
         self.epoch = epoch
 
+    def get_snapshot(self):
+        return {}
+
+    def get_diagnostics(self):
+        return {}
+
 
 
 
