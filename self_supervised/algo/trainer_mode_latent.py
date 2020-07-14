@@ -88,7 +88,8 @@ class ModeLatentTrainer():
         else:
             raise NotImplementedError('Tensors have to be 3-dimensional')
 
-        mode_post, features_seq = self.model.sample_mode_posterior_with_features(obs_seq=obs_seq)
+        mode_post, features_seq = self.model.\
+            sample_mode_posterior_with_features(obs_seq=obs_seq)
         mode_pri = self.model.sample_mode_prior(batch_size)
 
         kld = calc_kl_divergence(
