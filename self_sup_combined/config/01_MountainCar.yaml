@@ -1,0 +1,47 @@
+---
+EnvKwargs:
+  gym_id: MountainCarContinuous-v0
+  action_repeat: 1
+  normalize_states: True
+
+ModeLatentKwargs:
+  # if null feature_dim == obs_dim
+  feature_dim: null
+  rnn_dim: 128
+  num_rnn_layers: 2
+  rnn_dropout: 0.
+  hidden_units_mode_encoder: [256, 256]
+  hidden_units_action_decoder: [256, 256]
+  num_mode_repeat: 1
+  std_decoder: 0.0316
+  leaky_slope: 0.2
+
+InfoLossKwargs:
+  alpha: 0.999
+  lamda: 0.22
+
+TrainerKwargs:
+  discount: 0.99
+  soft_target_tau: 5e-3
+  target_update_period: 1
+  policy_lr: 3E-4
+  qf_lr: 3E-4
+  reward_scale: 1
+  use_automatic_entropy_tuning: True
+
+AlgoKwargs:
+  batch_size: 16
+  num_epochs: 1000
+  num_eval_steps_per_epoch: 200
+  num_trains_per_expl_step: 1
+  num_train_loops_per_epoch: 1
+  min_num_steps_before_training: 1000
+
+Other:
+  algorithm: Self Supervised
+  version: 0.0.1
+  hidden_layer: [256, 256]
+  replay_buffer_size: 1000000
+  skill_dim: 2
+  layer_norm: True
+  seq_len: 100
