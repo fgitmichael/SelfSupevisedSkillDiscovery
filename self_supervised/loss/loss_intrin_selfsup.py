@@ -19,6 +19,12 @@ def reconstruction_based_rewards(
         skill_seq                : (N, S, skill_dim) tensor
     Return:
         Loss                     : tensor
+
+    Overall goal for the SAC-Agent is a high reconstruction error for
+    the mode latent model. Hence ll should be low. Changing transitions, that
+    have a high gradient, should have high influence on the reconstruction error.
+    Transition that have a high gradient on ll should be changed further and therefore
+    given a low reward.
     """
     batch_dim = 0
     seq_dim = -2
