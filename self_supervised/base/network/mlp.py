@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 from typing import Union
+from code_slac.network.base import BaseNetwork
 
 
 
@@ -8,7 +9,7 @@ from typing import Union
 from code_slac.network.base import weights_init_xavier
 
 
-class MyMlp(nn.Module):
+class MyMlp(BaseNetwork):
     def __init__(self,
                  input_size: int,
                  output_size: int,
