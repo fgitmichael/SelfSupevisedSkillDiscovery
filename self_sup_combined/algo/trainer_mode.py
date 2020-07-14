@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from itertools import chain
 
-
 from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
 
 import self_supervised.utils.typed_dicts as td
@@ -20,16 +19,13 @@ class ModeTrainer:
     def __init__(self,
                  mode_net: ModeEncoderSelfSupComb,
                  info_loss_params: td.InfoLossParamsMapping,
-                 feature_extractor_net: nn.Module = Empty(),
                  lr = 0.0001
                  ):
         self.info_loss_params = info_loss_params
         self.model = mode_net
-        self.feature_extractor = feature_extractor_net
         self.optim = torch.optim.Adam(
             chain(
                 self.model.parameters(),
-                self.feature_extractor.parameters()
             ),
             lr=lr
         )
@@ -38,17 +34,17 @@ class ModeTrainer:
         self.epoch = 0
 
     def loss(self,
-             features_seq: torch.Tensor,
+             obs_seq: torch.Tensor,
              skill_per_seq: torch.Tensor
              ) -> torch.Tensor:
         """
-        features_seq        : (N, S, feature_dim) tensor
+        obs_seq             : (N, S, feature_dim) tensor
         skills_gt           : (N, skill_dim) skill per sequence
         """
         assert len(skill_per_seq.shape) == 2
-        assert len(features_seq.shape) == 3
+        assert len(obs_seq.shape) == 3
 
-        mode_enc = self.model(features_seq)
+        mode_enc = self.model(obs_seq)
         assert mode_enc.shape == skill_per_seq.shape
 
         # KLD
@@ -95,12 +91,10 @@ class ModeTrainer:
         assert torch.all(skills_gt)
         assert torch.stack([skills_gt[:, :, 0]] * seq_len, dim=seq_dim) == skills_gt
 
-        # In: (N, S, obs_dim) Out: (N, S, feature_dim)
-        features_seq = self.feature_extractor(obs_seq.transpose(seq_dim, data_dim))
         skills = skills_gt[:, :, 0]
 
         loss = self.loss(
-            features_seq=features_seq,
+            obs_seq=obs_seq.transpose(seq_dim, data_dim),
             skill_per_seq=skills_gt
         )
 

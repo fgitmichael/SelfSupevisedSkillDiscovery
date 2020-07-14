@@ -8,6 +8,7 @@ from code_slac.network.base import BaseNetwork
 from code_slac.network.latent import Gaussian, ConstantGaussian
 
 from mode_disent_no_ssm.network.mode_model import ModeEncoderFeaturesOnly
+from mode_disent_no_ssm.utils.empty_network import Empty
 
 class ModeEncoderSelfSupComb(BaseNetwork):
 
@@ -18,6 +19,7 @@ class ModeEncoderSelfSupComb(BaseNetwork):
                  hidden_units,
                  rnn_dropout,
                  num_rnn_layers,
+                 obs_encoder=Empty(),
                  ):
 
         super().__init__()
@@ -33,10 +35,12 @@ class ModeEncoderSelfSupComb(BaseNetwork):
 
         self.mode_prior = ConstantGaussian(mode_dim)
 
-    def forward(self, features_seq: torch.Tensor) -> dict:
+        self.obs_encoder = obs_encoder
+
+    def forward(self, obs_seq: torch.Tensor) -> dict:
         """
         Args:
-            features_seq        : (N, S, feature_dim) tensor
+            obs_seq             : (N, S, obs_dim) tensor
         Return:
             post
                 dist            : (N, mode_dim) distributions
@@ -47,9 +51,12 @@ class ModeEncoderSelfSupComb(BaseNetwork):
         """
         batch_dim = 0
         seq_dim = 1
-        batch_size = features_seq.size(batch_dim)
+        batch_size = obs_seq.size(batch_dim)
 
-        assert len(features_seq.shape) == 3
+        assert len(obs_seq.shape) == 3
+
+        # In: (N, S, obs_dim), Out: (N, S, feature_dim)
+        features_seq = self.obs_encoder(obs_seq)
 
         # Posterior
         features_seq = features_seq.transpose(seq_dim, batch_dim)
