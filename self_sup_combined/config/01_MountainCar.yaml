@@ -4,16 +4,13 @@ EnvKwargs:
   action_repeat: 1
   normalize_states: True
 
-ModeLatentKwargs:
+ModeEncoderKwargs:
   # if null feature_dim == obs_dim
   feature_dim: null
   rnn_dim: 128
   num_rnn_layers: 2
   rnn_dropout: 0.
-  hidden_units_mode_encoder: [256, 256]
-  hidden_units_action_decoder: [256, 256]
-  num_mode_repeat: 1
-  std_decoder: 0.0316
+  hidden_units: [256, 256]
   leaky_slope: 0.2
 
 InfoLossKwargs:
