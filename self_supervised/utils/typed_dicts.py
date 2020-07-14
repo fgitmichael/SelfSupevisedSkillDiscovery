@@ -205,6 +205,24 @@ class SlicableProdict(Prodict):
             }
         )
 
+    def reshape(self, *args, **kwargs):
+        return self._get_constr()(
+            **{
+                k: v.reshape(*args, **kwargs)
+                if self._is_array_type(v) else v
+                for k, v in self.items()
+            }
+        )
+
+    def view(self, *args, **kwargs):
+        return self._get_constr()(
+            **{
+                k: v.view(*args, **kwargs)
+                if self._is_array_type(v) else v
+                for k, v in self.items()
+            }
+        )
+
     def shape(self):
         for k, v in self.items():
             if self._is_array_type(v):
