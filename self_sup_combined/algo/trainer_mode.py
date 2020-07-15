@@ -2,19 +2,20 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from itertools import chain
+from typing import Dict
 
 from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
+import self_sup_combined.utils.typed_dicts as tdssc
 
 import self_supervised.utils.typed_dicts as td
-
-from mode_disent_no_ssm.utils.empty_network import Empty
+from self_supervised.base.trainer.trainer_base import Trainer
 
 from code_slac.utils import calc_kl_divergence, update_params
 
 from mode_disent.utils.mmd import compute_mmd_tutorial
 
 
-class ModeTrainer:
+class ModeTrainer(Trainer):
 
     def __init__(self,
                  mode_net: ModeEncoderSelfSupComb,
@@ -71,8 +72,7 @@ class ModeTrainer:
         return info_loss
 
     def train(self,
-              skills_gt: torch.Tensor,
-              obs_seq: torch.Tensor,
+              data: tdssc.ModeTrainerDataMapping,
               ) -> None:
         """
         Args:
@@ -82,6 +82,9 @@ class ModeTrainer:
                            features_seq and this make only sense if on the whole sequence
                            the same skill was applied
         """
+        skills_gt = data.skills_gt
+        obs_seq = data.obs_seq
+
         batch_dim = 0
         data_dim = 1
         seq_dim = 2
@@ -119,6 +122,12 @@ class ModeTrainer:
 
     def get_diagnostics(self):
         return {}
+
+    @property
+    def networks(self) -> Dict[str, nn.Module]:
+        return dict(
+            mode_encoder=self.model
+        )
 
 
 

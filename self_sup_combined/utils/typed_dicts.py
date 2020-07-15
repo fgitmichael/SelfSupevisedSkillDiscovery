@@ -1,6 +1,20 @@
 from prodict import Prodict
+import torch
 
 import self_supervised.utils.typed_dicts as tdss
+
+
+class ModeTrainerDataMapping(tdss.SlicableProdict):
+    skills_gt: torch.Tensor
+    obs_seq: torch.Tensor
+
+    def __init__(self,
+                 skills_gt: torch.Tensor,
+                 obs_seq: torch.Tensor):
+        super().__init__(
+            skills_gt=skills_gt,
+            obs_seq=obs_seq
+        )
 
 
 class ModeEncoderKwargsMapping(Prodict):
