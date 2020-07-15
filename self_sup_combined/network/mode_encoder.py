@@ -68,17 +68,22 @@ class ModeEncoderSelfSupComb(BaseNetwork):
         }
 
         # Prior
-        pri_mode_dist = self.mode_prior(ptu.randn(batch_size, 1))
-        pri_mode_samples = pri_mode_dist.sample()
-        pri = {
-            'dist': pri_mode_dist,
-            'samples': pri_mode_samples
-        }
+        pri = self.sample_prior(batch_size=batch_size)
 
         return {
             'post': post,
             'pri': pri
         }
+
+    def sample_prior(self, batch_size):
+        pri_mode_dist = self.mode_prior(ptu.randn(batch_size, 1))
+        pri_mode_samples = pri_mode_dist.sample()
+        pri = {
+            'dist': pri_mode_dist,
+            'sample': pri_mode_samples
+        }
+
+        return pri
 
 
 

@@ -12,6 +12,7 @@ from self_supervised.base.algo.algo_base import BaseRLAlgorithmSelfSup
 
 from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
 from self_sup_combined.algo.trainer_mode import ModeTrainer
+import self_sup_combined.utils.typed_dicts as tdssc
 
 import rlkit.torch.pytorch_util as ptu
 
@@ -59,6 +60,78 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
         self.num_trains_per_expl_seq = num_trains_per_expl_step
 
         self.policy = self.trainer.policy
+        self.mode_encoder = mode_trainer.model
+
+    def _train(self):
+        self.training_mode(False)
+
+        #Collect first steps with the untrained gaussian policy
+        if self.min_num_steps_before_training > 0:
+
+            num_seqs = int(np.ceil(self.min_num_steps_before_training / self.seq_len))
+            for _ in range(num_seqs):
+
+                skill_pri = self.mode_encoder.sample_prior(batch_size=1)
+                self.policy.set_skill(skill_pri['sample'][0])
+
+                self.expl_data_collector.collect_new_paths(
+                    seq_len=self.seq_len,
+                    num_seqs=1,
+                    discard_incomplete_paths=False
+                )
+
+            paths = self.expl_data_collector.get_epoch_paths()
+            self.replay_buffer.add_self_sup_paths(paths)
+
+        for epoch in tqdm(range(self._start_epoch, self.num_epochs)):
+
+            for train_loop in range(self.num_train_loops_per_epoch):
+                """
+                Explore
+                """
+                if train_loop % self.seq_len == 0:
+                    self.expl_data_collector.collect_new_paths(
+                        seq_len=self.seq_len,
+                        num_seqs=1,
+                        discard_incomplete_paths=False
+                    )
+
+                """
+                Train
+                """
+                self.training_mode(True)
+
+                for _ in range(self.num_trains_per_expl_seq):
+
+                    train_data = self.replay_buffer.random_batch(self.batch_size)
+
+                    # Train Latent
+                    self.mode_trainer.train(
+                        data=tdssc.ModeTrainerDataMapping(
+                            skills_gt=ptu.from_numpy(train_data.mode),
+                            obs_seq=ptu.from_numpy(train_data.obs)
+                        )
+                    )
+
+                    # Train SAC
+                    self.trainer.train(train_data)
+
+                self.training_mode(False)
+
+            new_expl_paths = self.expl_data_collector.get_epoch_paths()
+            self.replay_buffer.add_self_sup_paths(new_expl_paths)
+
+            self._end_epoch(epoch)
+
+    def _end_epoch(self, epoch):
+        self.expl_data_collector.end_epoch(epoch)
+        self.eval_data_collector.end_epoch(epoch)
+        self.replay_buffer.end_epoch(epoch)
+        self.trainer.end_epoch(epoch)
+        self.mode_trainer.end_epoch(epoch)
+
+        for post_epoch_fun in self.post_epoch_funcs:
+            post_epoch_fun(self, epoch)
 
     @property
     def networks(self) -> Dict[str, torch.nn.Module]:
