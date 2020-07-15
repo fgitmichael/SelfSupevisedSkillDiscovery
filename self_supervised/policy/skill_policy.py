@@ -67,6 +67,10 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
 
     def set_skill(self,
                   skill: torch.Tensor):
+        """
+        Args:
+            skill       : (skill_dim) tensor
+        """
         self._check_skill(skill)
         self.skill = skill
 
