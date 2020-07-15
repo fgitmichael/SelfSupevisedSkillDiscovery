@@ -2,6 +2,7 @@ import numpy as np
 from tqdm import tqdm
 from typing import Dict
 import torch
+import gtimer as gt
 
 from self_supervised.base.data_collector.data_collector import \
     PathCollectorSelfSupervised
@@ -15,6 +16,8 @@ from self_sup_combined.algo.trainer_mode import ModeTrainer
 import self_sup_combined.utils.typed_dicts as tdssc
 
 import rlkit.torch.pytorch_util as ptu
+from rlkit.core import logger, eval_util
+from rlkit.core.rl_algorithm import _get_epoch_timings
 
 
 class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
@@ -143,6 +146,46 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
     def training_mode(self, mode):
         for net in self.networks.values():
             net.train(mode)
+
+    def _log_stats(self, epoch):
+        logger.log("Epoch {} finished".format(epoch), with_timestamp=True)
+
+        """
+        Replay Buffer
+        """
+        logger.record_dict(
+            self.replay_buffer.get_diagnostics(),
+            prefix='replay_buffer/'
+        )
+
+        """
+        Trainer
+        """
+        logger.record_dict(self.trainer.get_diagnostics(), prefix='trainer/')
+
+        """
+        Exploration
+        """
+        logger.record_dict(
+            self.expl_data_collector.get_diagnostics(),
+            prefix='exploration/'
+        )
+
+        """
+        Evaluation
+        """
+        logger.record_dict(
+            self.eval_data_collector.get_diagnostics(),
+            prefix='evaluation/',
+        )
+
+        """
+        Misc
+        """
+        gt.stamp('logging')
+        logger.record_dict(_get_epoch_timings())
+        logger.record_tabular('Epoch', epoch)
+        logger.dump_tabular(with_prefix=False, with_timestamp=False)
 
     def to(self, device):
         for net in self.trainer.networks.values():
