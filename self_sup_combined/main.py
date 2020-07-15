@@ -20,7 +20,6 @@ from mode_disent_no_ssm.utils.empty_network import Empty
 import rlkit.torch.pytorch_util as ptu
 
 
-
 def run(variant: VariantMapping):
     ptu.set_gpu_mode(True)
     expl_env = NormalizedBoxEnvWrapper(**variant.env_kwargs)

@@ -124,8 +124,3 @@ class SelfSupAlgo(BaseRLAlgorithmSelfSup):
     def to(self, device):
         for net in self.trainer.networks.values():
             net.to(device)
-
-
-
-
-
