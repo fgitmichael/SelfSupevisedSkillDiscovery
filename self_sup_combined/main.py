@@ -63,8 +63,8 @@ def run(variant: VariantMapping):
         layer_norm=variant.layer_norm,
     )
 
-    feature_dim = variant.mode_latent_kwargs.feature_dim
-    if obs_dim == feature_dim:
+    feature_dim = variant.mode_encoder_kwargs.feature_dim
+    if obs_dim == feature_dim or feature_dim is None:
         obs_encoder = Empty()
     else:
         obs_encoder = MyMlp(
