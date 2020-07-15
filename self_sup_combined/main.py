@@ -16,6 +16,7 @@ from self_sup_combined.algo.trainer_mode import ModeTrainer
 from self_sup_combined.algo.algorithm import SelfSupCombAlgo
 from self_sup_combined.loss.mode_likelihood_based_reward import \
     ReconstructionLikelyhoodBasedRewards
+from self_sup_combined.utils.set_seed import set_seeds, set_env_seed
 
 from mode_disent_no_ssm.utils.empty_network import Empty
 
@@ -28,7 +29,12 @@ def run(variant: VariantMapping):
     eval_env = NormalizedBoxEnvWrapper(**variant.env_kwargs)
     obs_dim = expl_env.observation_space.low.size
     action_dim = expl_env.action_space.low.size
+
     skill_dim = variant.skill_dim
+
+    seed = 0
+    set_seeds(seed)
+    set_env_seed(seed, [expl_env, eval_env])
 
     qf1 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
@@ -129,7 +135,6 @@ def run(variant: VariantMapping):
         evaluation_env=eval_env,
         exploration_data_collector=expl_step_collector,
         evaluation_data_collector=eval_path_collector,
-
         replay_buffer=replay_buffer,
 
         **variant.algo_kwargs
@@ -139,6 +144,5 @@ def run(variant: VariantMapping):
 
 
 if __name__ == "__main__":
-    # TODO: Set seeds
     variant = parse_variant()
     run(variant)
