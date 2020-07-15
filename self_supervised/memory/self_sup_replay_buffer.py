@@ -65,6 +65,12 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
 
     def random_batch(self,
                      batch_size: int) -> td.TransitionModeMapping:
+        """
+        Args:
+            batch_size                 : N
+        Return:
+            TransitionModeMapping      : consisting of (N, data_dim, S) tensors
+        """
         idx = np.random.randint(0, self._size, batch_size)
 
         batch = td.TransitionModeMapping(
