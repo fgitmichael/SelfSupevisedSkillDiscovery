@@ -8,7 +8,7 @@ from rlkit.torch.networks import FlattenMlp
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.policy.skill_policy import SkillTanhGaussianPolicy
-from self_supervised.base.trainer.trainer_base import Trainer
+from self_supervised.base.trainer.trainer_base import MyTrainerBaseClass
 import self_supervised.utils.conversion as self_sup_conversion
 import self_supervised.utils.typed_dicts as td
 
@@ -17,7 +17,7 @@ from self_sup_combined.loss.mode_likelihood_based_reward import \
     ReconstructionLikelyhoodBasedRewards
 
 
-class SelfSupCombSACTrainer(Trainer):
+class SelfSupCombSACTrainer(MyTrainerBaseClass):
 
     def __init__(self,
                  env: NormalizedBoxEnvWrapper,

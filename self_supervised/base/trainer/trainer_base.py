@@ -1,4 +1,6 @@
 import abc
+from typing import Dict
+import torch.nn as nn
 
 from rlkit.core.trainer import Trainer
 
@@ -18,5 +20,10 @@ class MyTrainerBaseClass(Trainer, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get_diagnostics(self):
+        return {}
+
+    @abc.abstractmethod
+    @property
+    def networks(self) -> Dict[str, nn.Module]:
         return {}
 

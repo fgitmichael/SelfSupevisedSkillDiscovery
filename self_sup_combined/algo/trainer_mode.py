@@ -8,14 +8,14 @@ from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
 import self_sup_combined.utils.typed_dicts as tdssc
 
 import self_supervised.utils.typed_dicts as td
-from self_supervised.base.trainer.trainer_base import Trainer
+from self_supervised.base.trainer.trainer_base import MyTrainerBaseClass
 
 from code_slac.utils import calc_kl_divergence, update_params
 
 from mode_disent.utils.mmd import compute_mmd_tutorial
 
 
-class ModeTrainer(Trainer):
+class ModeTrainer(MyTrainerBaseClass):
 
     def __init__(self,
                  mode_net: ModeEncoderSelfSupComb,

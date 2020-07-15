@@ -11,12 +11,12 @@ from self_supervised.policy.skill_policy import SkillTanhGaussianPolicy
 from self_supervised.loss.loss_intrin_selfsup import reconstruction_based_rewards
 from self_supervised.algo.trainer_mode_latent import \
     ModeLatentTrainer, ModeLatentNetworkWithEncoder
-from self_supervised.base.trainer.trainer_base import Trainer
+from self_supervised.base.trainer.trainer_base import MyTrainerBaseClass
 import self_supervised.utils.conversion as self_sup_conversion
 import self_supervised.utils.typed_dicts as td
 
 
-class SelfSupTrainer(Trainer):
+class SelfSupTrainer(MyTrainerBaseClass):
     def __init__(self,
                  env: NormalizedBoxEnvWrapper,
                  policy: SkillTanhGaussianPolicy,
