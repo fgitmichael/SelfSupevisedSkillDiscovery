@@ -4,7 +4,6 @@ import numpy as np
 from typing import Iterable, Dict
 
 import rlkit.torch.pytorch_util as ptu
-from rlkit.torch.torch_rl_algorithm import Trainer
 from rlkit.torch.networks import FlattenMlp
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
@@ -12,6 +11,7 @@ from self_supervised.policy.skill_policy import SkillTanhGaussianPolicy
 from self_supervised.loss.loss_intrin_selfsup import reconstruction_based_rewards
 from self_supervised.algo.trainer_mode_latent import \
     ModeLatentTrainer, ModeLatentNetworkWithEncoder
+from self_supervised.base.trainer.trainer_base import Trainer
 import self_supervised.utils.conversion as self_sup_conversion
 import self_supervised.utils.typed_dicts as td
 
