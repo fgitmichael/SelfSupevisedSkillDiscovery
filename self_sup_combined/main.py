@@ -11,7 +11,9 @@ from self_supervised.base.network.mlp import MyMlp
 from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
 from self_sup_combined.utils.get_variant import parse_variant
 from self_sup_combined.utils.typed_dicts import VariantMapping
-from self_sup_combined.algo.trainer import SelfSupCombTrainer
+from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
+from self_sup_combined.algo.trainer_mode import ModeTrainer
+from self_sup_combined.algo.algorithm import SelfSupCombAlgo
 from self_sup_combined.loss.mode_likelihood_based_reward import \
     ReconstructionLikelyhoodBasedRewards
 
@@ -70,6 +72,11 @@ def run(variant: VariantMapping):
         **variant.mode_encoder_kwargs
     )
 
+    mode_trainer = ModeTrainer(
+        mode_net=mode_encoder,
+        info_loss_params=variant.info_loss_kwargs,
+    )
+
     policy = SkillTanhGaussianPolicy(
         obs_dim=obs_dim,
         action_dim=action_dim,
@@ -100,7 +107,7 @@ def run(variant: VariantMapping):
         mode_encoder=mode_encoder
     )
 
-    trainer = SelfSupCombTrainer(
+    sac_trainer = SelfSupCombSACTrainer(
         env=expl_env,
         policy=policy,
 
@@ -109,11 +116,26 @@ def run(variant: VariantMapping):
         target_qf1=target_qf1,
         target_qf2=target_qf2,
 
-        mode_encoder=mode_encoder,
         intrinsic_reward_calculator=reward_calculator,
 
         **variant.trainer_kwargs
     )
+
+    algorithm = SelfSupCombAlgo(
+        sac_trainer=sac_trainer,
+        mode_trainer=mode_trainer,
+
+        exploration_env=expl_env,
+        evaluation_env=eval_env,
+        exploration_data_collector=expl_step_collector,
+        evaluation_data_collector=eval_path_collector,
+
+        replay_buffer=replay_buffer,
+
+        **variant.algo_kwargs
+    )
+    algorithm.to(ptu.device)
+    algorithm.train()
 
 
 if __name__ == "__main__":
