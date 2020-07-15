@@ -68,34 +68,35 @@ class PathCollectorSelfSupervised(PathCollector):
             )
 
             assert len(path.obs.shape) \
-                       == len(path.next_obs.shape) \
-                       == len(path.action.shape) \
-                       == len(path.terminal.shape) \
-                       == len(path.reward.shape) \
-                       == len(path.mode.shape)
+                == len(path.next_obs.shape) \
+                == len(path.action.shape) \
+                == len(path.terminal.shape) \
+                == len(path.reward.shape) \
+                == len(path.mode.shape)
 
             batch_dim = 0
             shape_dim = -2
             seq_dim = -1
-            assert path.action.shape[shape_dim] == self._rollouter._env.action_space.shape[0]
+            assert path.action.shape[shape_dim] \
+                == self._rollouter._env.action_space.shape[0]
             assert path.obs.shape[shape_dim] \
-                   == path.next_obs.shape[shape_dim] \
-                   == self._rollouter._env.observation_space.shape[0]
+                == path.next_obs.shape[shape_dim] \
+                == self._rollouter._env.observation_space.shape[0]
             assert path.mode.shape[shape_dim] == self._rollouter._real_policy.skill_dim
             assert path.action.shape[seq_dim] \
-                   == path.obs.shape[seq_dim] \
-                   == path.reward.shape[seq_dim] \
-                   == path.terminal.shape[seq_dim] \
-                   == path.next_obs.shape[seq_dim] \
-                   == path.mode.shape[seq_dim] \
-                   == seq_len
+                == path.obs.shape[seq_dim] \
+                == path.reward.shape[seq_dim] \
+                == path.terminal.shape[seq_dim] \
+                == path.next_obs.shape[seq_dim] \
+                == path.mode.shape[seq_dim] \
+                == seq_len
             if len(path.obs.shape) > 2:
                 assert path.action.shape[batch_dim] \
-                       == path.obs.shape[batch_dim] \
-                       == path.reward.shape[batch_dim] \
-                       == path.terminal.shape[batch_dim] \
-                       == path.next_obs.shape[batch_dim] \
-                       == path.mode.shape[batch_dim]
+                    == path.obs.shape[batch_dim] \
+                    == path.reward.shape[batch_dim] \
+                    == path.terminal.shape[batch_dim] \
+                    == path.next_obs.shape[batch_dim] \
+                    == path.mode.shape[batch_dim]
 
             num_steps_collected += seq_len
             paths.append(path)
