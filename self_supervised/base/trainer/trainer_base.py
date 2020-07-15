@@ -22,8 +22,8 @@ class MyTrainerBaseClass(Trainer, metaclass=abc.ABCMeta):
     def get_diagnostics(self):
         return {}
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def networks(self) -> Dict[str, nn.Module]:
         return {}
 
