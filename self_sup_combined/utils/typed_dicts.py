@@ -23,7 +23,6 @@ class ModeEncoderKwargsMapping(Prodict):
     num_rnn_layers: int
     rnn_dropout: float
     hidden_units: list
-    leaky_slope: float
 
     def __init__(self,
                  feature_dim: int,
@@ -31,7 +30,6 @@ class ModeEncoderKwargsMapping(Prodict):
                  num_rnn_layers: int,
                  rnn_dropout: float,
                  hidden_units: list,
-                 leaky_slope: float,
                  ):
         super().__init__(
             feature_dim=feature_dim,
@@ -39,7 +37,6 @@ class ModeEncoderKwargsMapping(Prodict):
             num_rnn_layers=num_rnn_layers,
             rnn_dropout=rnn_dropout,
             hidden_units=hidden_units,
-            leaky_slope=leaky_slope,
         )
 
 

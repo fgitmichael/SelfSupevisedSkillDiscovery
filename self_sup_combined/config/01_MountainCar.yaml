@@ -11,7 +11,6 @@ ModeEncoderKwargs:
   num_rnn_layers: 2
   rnn_dropout: 0.
   hidden_units: [256, 256]
-  leaky_slope: 0.2
 
 InfoLossKwargs:
   alpha: 0.999
