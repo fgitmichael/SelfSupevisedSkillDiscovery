@@ -4,12 +4,11 @@ import numpy as np
 from typing import Iterable, Dict
 
 import rlkit.torch.pytorch_util as ptu
-from rlkit.torch.torch_rl_algorithm import Trainer
 from rlkit.torch.networks import FlattenMlp
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.policy.skill_policy import SkillTanhGaussianPolicy
-from self_supervised.loss.loss_intrin_selfsup import reconstruction_based_rewards
+from self_supervised.base.trainer.trainer_base import Trainer
 import self_supervised.utils.conversion as self_sup_conversion
 import self_supervised.utils.typed_dicts as td
 
@@ -18,7 +17,7 @@ from self_sup_combined.loss.mode_likelihood_based_reward import \
     ReconstructionLikelyhoodBasedRewards
 
 
-class SelfSupCombTrainer(Trainer):
+class SelfSupCombSACTrainer(Trainer):
 
     def __init__(self,
                  env: NormalizedBoxEnvWrapper,
@@ -27,7 +26,6 @@ class SelfSupCombTrainer(Trainer):
                  qf2: FlattenMlp,
                  target_qf1: FlattenMlp,
                  target_qf2: FlattenMlp,
-                 mode_encoder: ModeEncoderSelfSupComb,
 
                  intrinsic_reward_calculator: ReconstructionLikelyhoodBasedRewards,
                  discount=0.99,
@@ -52,7 +50,6 @@ class SelfSupCombTrainer(Trainer):
         self.qf2 = qf2
         self.target_qf1 = target_qf1
         self.target_qf2 = target_qf2
-        self.mode_latent_model = mode_encoder
 
         self.soft_target_tau = soft_target_tau
         self.target_update_period = target_update_period
@@ -244,5 +241,4 @@ class SelfSupCombTrainer(Trainer):
             qf2=self.qf2,
             target_qf1=self.target_qf1,
             target_qf2=self.target_qf2,
-            mode_latent=self.mode_latent_model,
         )
