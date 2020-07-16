@@ -224,6 +224,8 @@ class SelfSupTrainer(MyTrainerBaseClass):
                 self.qf2, self.target_qf2, self.soft_target_tau
             )
 
+        self._n_train_steps_total += 1
+
     @property
     def networks(self) -> Dict[str, nn.Module]:
         return dict(

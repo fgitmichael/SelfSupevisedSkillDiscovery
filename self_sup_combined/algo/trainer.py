@@ -123,6 +123,8 @@ class SelfSupCombSACTrainer(MyTrainerBaseClass):
             intrinsic_rewards=stacked_rewards
         )
 
+        self._n_train_steps_total += 1
+
     def _train_sac(self,
                    batch: td.TransitionModeMappingTorch,
                    intrinsic_rewards: torch.Tensor):
