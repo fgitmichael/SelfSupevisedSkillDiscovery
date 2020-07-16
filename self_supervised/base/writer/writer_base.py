@@ -9,7 +9,7 @@ from datetime import datetime
 from self_supervised.base.writer.plt_creator_base import PltCreator
 
 
-class WriterScalarMapping(Prodict):
+class WriterDataMapping(Prodict):
     value: torch.Tensor
     global_step: int
 
@@ -44,7 +44,7 @@ class WriterBase(object):
 
     def add_scalar(self,
                    tag: str,
-                   scalar_mapping: WriterScalarMapping):
+                   scalar_mapping: WriterDataMapping):
         self.writer.add_scalar(
             tag=tag,
             **scalar_mapping

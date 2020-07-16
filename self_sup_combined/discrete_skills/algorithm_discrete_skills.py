@@ -22,7 +22,6 @@ from rlkit.core import logger, eval_util
 from rlkit.core.rl_algorithm import _get_epoch_timings
 
 
-
 class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
 
     def __init__(self,

@@ -2,13 +2,15 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from itertools import chain
-from typing import Dict
+from typing import Dict, Tuple
 
-from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
 import self_sup_combined.utils.typed_dicts as tdssc
+from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
+from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 import self_supervised.utils.typed_dicts as td
 from self_supervised.base.trainer.trainer_base import MyTrainerBaseClass
+from self_supervised.base.writer.writer_base import WriterDataMapping
 
 from code_slac.utils import calc_kl_divergence, update_params
 
@@ -39,7 +41,7 @@ class ModeTrainer(MyTrainerBaseClass):
     def loss(self,
              obs_seq: torch.Tensor,
              skill_per_seq: torch.Tensor
-             ) -> torch.Tensor:
+             ) -> Tuple[torch.Tensor, Dict]:
         """
         obs_seq             : (N, S, feature_dim) tensor
         skills_gt           : (N, skill_dim) skill per sequence
@@ -69,7 +71,14 @@ class ModeTrainer(MyTrainerBaseClass):
         mmd_info = (alpha + lamda - 1) * mmd
         info_loss = mse + kld_info + mmd_info
 
-        return info_loss
+        return info_loss, {
+            'kld': kld,
+            'kld_info_weighted': kld_info,
+            'mmd': mmd,
+            'mmd_info_weighted': mmd_info,
+            'mse': mse,
+            'info_loss': info_loss
+        }
 
     def train(self,
               data: tdssc.ModeTrainerDataMapping,
@@ -98,7 +107,7 @@ class ModeTrainer(MyTrainerBaseClass):
 
         skills_per_seq = skills_gt[:, :, 0]
 
-        loss = self.loss(
+        loss, _ = self.loss(
             obs_seq=obs_seq.transpose(seq_dim, data_dim),
             skill_per_seq=skills_per_seq
         )
@@ -131,11 +140,34 @@ class ModeTrainer(MyTrainerBaseClass):
         )
 
 
+class ModeTrainerWithDiagnostics(
+    ModeTrainer,
+    DiagnosticsWriter):
 
+    def __init__(self,
+                 *args,
+                 log_interval,
+                 **kwargs
+                 ):
+        super().__init__(*args, **kwargs)
+        super().__init__(log_interval=log_interval)
 
+    def loss(self,
+             *args,
+             **kwargs) -> Tuple[torch.Tensor, Dict]:
+        loss, diagnostics_dict = super().loss(*args, **kwargs)
 
+        if self.learn_steps % self.log_interval == 0:
+            for k, v in diagnostics_dict.items():
+                data = WriterDataMapping(
+                    value=v,
+                    global_step=self.learn_steps
+                )
 
+                self.write_diagnostic(
+                    name=k,
+                    data=data
+                )
 
-
-
+        return loss, {}
 
