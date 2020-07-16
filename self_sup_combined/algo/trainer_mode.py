@@ -118,7 +118,7 @@ class ModeTrainer(MyTrainerBaseClass):
 
         skills_per_seq = skills_gt[:, :, 0]
 
-        loss, _ = self.loss(
+        loss, _, _ = self.loss(
             obs_seq=obs_seq.transpose(seq_dim, data_dim),
             skill_per_seq=skills_per_seq
         )
