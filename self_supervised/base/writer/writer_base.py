@@ -1,26 +1,53 @@
+import torch
+import os
 from typing import Union, List
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
+from prodict import Prodict
+from datetime import datetime
 
 from self_supervised.base.writer.plt_creator_base import PltCreator
+
+
+class WriterScalarMapping(Prodict):
+    value: torch.Tensor
+    global_step: int
+
+    def __init__(self,
+                 value: torch.Tensor,
+                 global_step: int):
+        super().__init__(
+            value=value,
+            global_step=global_step
+        )
 
 
 class WriterBase(object):
 
     def __init__(self,
-                 writer: SummaryWriter,
+                 seed: int,
+                 log_dir: str,
                  plt_creator: PltCreator):
-        self.writer = writer
+        self.log_dir = log_dir
+
+        run_id = f'mode_disent{seed}-{datetime.now().strftime("%Y%m%d-%H%M")}'
+        self.model_dir = os.path.join(self.log_dir, str(run_id), 'model')
+        self.summary_dir = os.path.join(self.log_dir, str(run_id), 'summary')
+
+        if not os.path.exists(self.model_dir):
+            os.makedirs(self.model_dir)
+        if not os.path.exists(self.summary_dir):
+            os.makedirs(self.summary_dir)
+
+        self.writer = SummaryWriter(log_dir=self.summary_dir)
         self.plt_creator = plt_creator
 
     def add_scalar(self,
-                   str: str,
-                   value,
-                   step: int):
+                   tag: str,
+                   scalar_mapping: WriterScalarMapping):
         self.writer.add_scalar(
-            scalar_value=value,
-            tag=str,
-            global_step=step,
+            tag=tag,
+            **scalar_mapping
         )
 
     def plot_lines(self,
@@ -39,7 +66,8 @@ class WriterBase(object):
             global_step=step
         )
 
-
-
-
-
+    def save_models(self,
+                    models: dict):
+        for k, v in models.items():
+            path_name = os.path.join(self.model_dir, k + '.pkl')
+            torch.save(v, path_name)

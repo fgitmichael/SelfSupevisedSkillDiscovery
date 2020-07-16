@@ -10,6 +10,7 @@ from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.base.algo.algo_base import BaseRLAlgorithmSelfSup
+from self_supervised.base.writer.writer_base import WriterBase
 
 from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
 from self_sup_combined.algo.trainer_mode import ModeTrainer
