@@ -64,6 +64,7 @@ class ReconstructionLikelyhoodBasedRewards():
             reparameterize=False
         )
         action_recon = action_recon_mapping.action
+        action_recon = action_recon.view(batch_size, seq_len, action_seq.size(data_dim))
         assert action_recon.shape == action_seq.shape
 
         recon_error = torch.sum((action_seq - action_seq)**2,
