@@ -66,6 +66,8 @@ def run(variant: VariantMapping):
     feature_dim = variant.mode_encoder_kwargs.feature_dim
     if obs_dim == feature_dim or feature_dim is None:
         obs_encoder = Empty()
+        variant.mode_encoder_kwargs.feature_dim = obs_dim
+
     else:
         obs_encoder = MyMlp(
             input_size=obs_dim,
