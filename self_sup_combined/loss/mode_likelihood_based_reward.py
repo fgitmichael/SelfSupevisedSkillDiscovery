@@ -52,8 +52,11 @@ class ReconstructionLikelyhoodBasedRewards():
         )
 
         mode_enc = self.mode_encoder(obs_seq=obs_seq.detach())
-        mode_post = mode_enc['post'].loc
-        assert mode_post.shape == skill_gt.shape
+        mode_post = mode_enc['post']['dist'].loc
+        assert mode_post.shape == skill_gt[:, 0, :].shape
+        mode_post_repeated = torch.cat([mode_post] * seq_len, dim=0)
+        assert obs_seq.view(batch_size * seq_len, obs_seq.size(data_dim)).size(batch_dim) \
+            == mode_post_repeated.size(batch_dim)
 
         action_recon_mapping = self.policy(
             obs=obs_seq.detach(),
