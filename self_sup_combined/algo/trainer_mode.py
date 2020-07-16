@@ -48,7 +48,7 @@ class ModeTrainer(MyTrainerBaseClass):
         assert len(obs_seq.shape) == 3
 
         mode_enc = self.model(obs_seq)
-        assert mode_enc.shape == skill_per_seq.shape
+        assert mode_enc['post']['dist'].loc.shape == skill_per_seq.shape
 
         # KLD
         kld = calc_kl_divergence([mode_enc['post']['dist']],
@@ -60,7 +60,7 @@ class ModeTrainer(MyTrainerBaseClass):
 
         # 'Reconstruction' loss
         ll = mode_enc['post']['dist'].log_prob(skill_per_seq).mean(dim=0).sum()
-        mse = F.mse_loss(mode_enc['post'].loc, skill_per_seq)
+        mse = F.mse_loss(mode_enc['post']['dist'].loc, skill_per_seq)
 
         # Info VAE loss
         alpha = self.info_loss_params.alpha
