@@ -71,7 +71,7 @@ class ReconstructionLikelyhoodBasedRewards():
                                 dim=data_dim,
                                 keepdim=True)
         assert recon_error.shape == torch.Size(
-            (obs_seq.size(batch_dim), obs_seq.size(seq_dim))
+            (obs_seq.size(batch_dim), obs_seq.size(seq_dim), 1)
         )
 
         return -recon_error
