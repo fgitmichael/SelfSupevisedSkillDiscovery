@@ -157,7 +157,7 @@ class SelfSupCombSACTrainer(MyTrainerBaseClass):
             obs=obs,
             skill_vec=mode,
             reparameterize=True,
-            return_lob_prob=True
+            return_log_prob=True
         )
         # just to make auto complete work
         policy_ret_mapping = td.ForwardReturnMapping(**policy_ret_mapping)

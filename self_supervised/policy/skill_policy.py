@@ -23,7 +23,7 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
                  layer_norm=False,
                  **kwargs):
         self.skill_dim = skill_dim
-        self.skill = my_ptu.rand(self.skill_dim)
+        self.skill = None
 
         super().__init__(
             hidden_sizes=hidden_sizes,
