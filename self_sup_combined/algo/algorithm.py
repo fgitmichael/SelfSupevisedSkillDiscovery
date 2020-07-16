@@ -1,6 +1,6 @@
 import numpy as np
 from tqdm import tqdm
-from typing import Dict
+from typing import Dict, Union
 import torch
 import gtimer as gt
 
@@ -12,7 +12,7 @@ from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.base.algo.algo_base import BaseRLAlgorithmSelfSup
 
 from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
-from self_sup_combined.algo.trainer_mode import ModeTrainer
+from self_sup_combined.algo.trainer_mode import ModeTrainer, ModeTrainerWithDiagnostics
 import self_sup_combined.utils.typed_dicts as tdssc
 
 import rlkit.torch.pytorch_util as ptu
@@ -24,7 +24,10 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
 
     def __init__(self,
                  sac_trainer: SelfSupCombSACTrainer,
-                 mode_trainer: ModeTrainer,
+                 mode_trainer: Union[
+                     ModeTrainer,
+                     ModeTrainerWithDiagnostics
+                 ],
 
                  exploration_env: NormalizedBoxEnvWrapper,
                  evaluation_env: NormalizedBoxEnvWrapper,
@@ -146,6 +149,17 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
         return dict(
             **self.trainer.networks,
             **self.mode_trainer.networks
+        )
+
+    @property
+    def objects(self) -> Dict:
+        return dict(
+            sac_trainer=self.trainer,
+            mode_trainer=self.mode_trainer,
+            expl_collector=self.expl_data_collector,
+            eval_collector=self.eval_data_collector,
+            expl_env=self.eval_env,
+            eval_env=self.eval_env,
         )
 
     def training_mode(self, mode):
