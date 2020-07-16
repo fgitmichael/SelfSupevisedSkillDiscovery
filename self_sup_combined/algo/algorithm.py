@@ -151,46 +151,6 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
         for net in self.networks.values():
             net.train(mode)
 
-    def _log_stats(self, epoch):
-        logger.log("Epoch {} finished".format(epoch), with_timestamp=True)
-
-        """
-        Replay Buffer
-        """
-        logger.record_dict(
-            self.replay_buffer.get_diagnostics(),
-            prefix='replay_buffer/'
-        )
-
-        """
-        Trainer
-        """
-        logger.record_dict(self.trainer.get_diagnostics(), prefix='trainer/')
-
-        """
-        Exploration
-        """
-        logger.record_dict(
-            self.expl_data_collector.get_diagnostics(),
-            prefix='exploration/'
-        )
-
-        """
-        Evaluation
-        """
-        logger.record_dict(
-            self.eval_data_collector.get_diagnostics(),
-            prefix='evaluation/',
-        )
-
-        """
-        Misc
-        """
-        gt.stamp('logging')
-        logger.record_dict(_get_epoch_timings())
-        logger.record_tabular('Epoch', epoch)
-        logger.dump_tabular(with_prefix=False, with_timestamp=False)
-
     def to(self, device):
         for net in self.networks.values():
             net.to(device)
