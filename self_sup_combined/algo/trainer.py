@@ -100,8 +100,8 @@ class SelfSupCombSACTrainer(MyTrainerBaseClass):
         data_dim = -2
         batch_dim = 0
 
-        batch_size = data.obs.size(batch_dim)
-        seq_len = data.obs.size(seq_dim)
+        batch_size = data.obs.shape[batch_dim]
+        seq_len = data.obs.shape[seq_dim]
 
         data = data.transpose(batch_dim, seq_dim, data_dim)
         data = td.TransitionModeMappingTorch(**self_sup_conversion.from_numpy(data))
