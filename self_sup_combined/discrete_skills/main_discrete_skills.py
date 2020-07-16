@@ -13,7 +13,8 @@ from self_sup_combined.utils.get_variant import parse_variant
 from self_sup_combined.utils.typed_dicts import VariantMapping
 from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
 from self_sup_combined.algo.trainer_mode import ModeTrainer
-from self_sup_combined.algo.algorithm import SelfSupCombAlgo
+from self_sup_combined.discrete_skills.algorithm_discrete_skills import \
+    SelfSupCombAlgoDiscrete
 from self_sup_combined.loss.mode_likelihood_based_reward import \
     ReconstructionLikelyhoodBasedRewards
 from self_sup_combined.utils.set_seed import set_seeds, set_env_seed
@@ -129,7 +130,7 @@ def run(variant: VariantMapping):
         **variant.trainer_kwargs
     )
 
-    algorithm = SelfSupCombAlgo(
+    algorithm = SelfSupCombAlgoDiscrete(
         sac_trainer=sac_trainer,
         mode_trainer=mode_trainer,
 

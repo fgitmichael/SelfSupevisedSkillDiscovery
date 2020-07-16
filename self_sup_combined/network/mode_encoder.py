@@ -24,16 +24,18 @@ class ModeEncoderSelfSupComb(BaseNetwork):
 
         super().__init__()
 
+        self.mode_dim = mode_dim
+
         self.mode_encoder = ModeEncoderFeaturesOnly(
             feature_dim=feature_dim,
-            mode_dim=mode_dim,
+            mode_dim=self.mode_dim,
             hidden_rnn_dim=rnn_dim,
             hidden_units=hidden_units,
             rnn_dropout=rnn_dropout,
             num_rnn_layers=num_rnn_layers
         )
 
-        self.mode_prior = ConstantGaussian(mode_dim)
+        self.mode_prior = ConstantGaussian(self.mode_dim)
 
         self.obs_encoder = obs_encoder
 
