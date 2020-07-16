@@ -32,10 +32,9 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
 
         self.mode_dim = self.mode_trainer.model.mode_dim
 
-    def set_next_skill(self):
+    def set_next_skill(self,
+                       path_collector: PathCollectorSelfSupervised):
         new_skill = np.random.randint(self.mode_dim - 1)
         skill_vec = ptu.zeros(self.mode_dim)
         skill_vec[new_skill] += 1
-        self.policy.set_skill(skill_vec)
-
-
+        path_collector.policy.set_skill(skill_vec)

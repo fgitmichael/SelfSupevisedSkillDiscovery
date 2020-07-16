@@ -27,9 +27,10 @@ class PathCollectorSelfSupervised(PathCollector):
         self._render = render
         self._render_kwargs = render_kwargs
 
+        self.policy = policy
         self._rollouter = Rollouter(
             env=env,
-            policy=policy
+            policy=self.policy
         )
 
         self.obs_dim = env.observation_space.shape[0]

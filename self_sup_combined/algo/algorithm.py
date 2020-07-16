@@ -74,7 +74,7 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
             num_seqs = int(np.ceil(self.min_num_steps_before_training / self.seq_len))
             for _ in range(num_seqs):
 
-                self.set_next_skill()
+                self.set_next_skill(self.expl_data_collector)
 
                 self.expl_data_collector.collect_new_paths(
                     seq_len=self.seq_len,
@@ -92,7 +92,7 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
                 Explore
                 """
                 if train_loop % self.seq_len == 0:
-                    self.set_next_skill()
+                    self.set_next_skill(self.expl_data_collector)
                     self.expl_data_collector.collect_new_paths(
                         seq_len=self.seq_len,
                         num_seqs=1,
@@ -126,9 +126,10 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
 
             self._end_epoch(epoch)
 
-    def set_next_skill(self):
+    def set_next_skill(self,
+                       path_collector: PathCollectorSelfSupervised):
         skill_pri = self.mode_encoder.sample_prior(batch_size=1)
-        self.policy.set_skill(skill_pri['sample'][0])
+        path_collector.policy.set_skill(skill_pri['sample'][0])
 
     def _end_epoch(self, epoch):
         self.expl_data_collector.end_epoch(epoch)
