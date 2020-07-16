@@ -34,6 +34,9 @@ class ReconstructionLikelyhoodBasedRewards():
         seq_dim = -2
         data_dim = -1
 
+        batch_size = obs_seq.size(batch_dim)
+        seq_len = obs_seq.size(seq_dim)
+
         assert len(obs_seq.shape) \
                == len(action_seq.shape) \
                == len(skill_gt.shape) == 3
@@ -43,8 +46,10 @@ class ReconstructionLikelyhoodBasedRewards():
         assert skill_gt.size(-1) == self.policy.skill_dim
         assert action_seq.size(data_dim) == self.policy.action_dim
         assert obs_seq.size(data_dim) == self.policy.obs_dim
-        assert torch.stack([skill_gt[:, 0, :] * obs_seq.size(seq_dim)], dim=seq_dim) \
-               == skill_gt
+        assert torch.all(
+            torch.stack([skill_gt[:, 0, :]] * obs_seq.size(seq_dim), dim=seq_dim) \
+            == skill_gt
+        )
 
         mode_enc = self.mode_encoder(obs_seq=obs_seq.detach())
         mode_post = mode_enc['post'].loc
