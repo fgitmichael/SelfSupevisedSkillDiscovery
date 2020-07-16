@@ -93,7 +93,7 @@ class ModeTrainer(MyTrainerBaseClass):
 
         assert len(obs_seq.shape) == len(skills_gt.shape) == 3
         assert obs_seq.size(batch_dim) == skills_gt.size(batch_dim)
-        assert torch.all(skills_gt)
+        assert torch.all(skills_gt == skills_gt[:, :, 0])
         assert torch.stack([skills_gt[:, :, 0]] * seq_len, dim=seq_dim) == skills_gt
 
         skills = skills_gt[:, :, 0]
