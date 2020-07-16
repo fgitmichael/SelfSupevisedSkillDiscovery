@@ -25,17 +25,16 @@ from rlkit.core.rl_algorithm import _get_epoch_timings
 class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
 
     def __init__(self,
-                 num_skills,
                  *args,
                  **kwargs
                  ):
         super().__init__(*args, **kwargs)
 
-        self.num_skills = num_skills
+        self.mode_dim = self.mode_trainer.model.mode_dim
 
     def set_next_skill(self):
-        new_skill = np.random.randint(self.num_skills - 1)
-        skill_vec = ptu.zeros(self.num_skills)
+        new_skill = np.random.randint(self.mode_dim - 1)
+        skill_vec = ptu.zeros(self.mode_dim)
         skill_vec[new_skill] += 1
         self.policy.set_skill(skill_vec)
 
