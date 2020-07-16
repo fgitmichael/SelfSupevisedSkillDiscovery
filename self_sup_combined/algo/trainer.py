@@ -244,3 +244,12 @@ class SelfSupCombSACTrainer(MyTrainerBaseClass):
             target_qf1=self.target_qf1,
             target_qf2=self.target_qf2,
         )
+
+    def end_epoch(self, epoch):
+        pass
+
+    def get_diagnostics(self):
+        pass
+
+    def get_snapshot(self):
+        pass

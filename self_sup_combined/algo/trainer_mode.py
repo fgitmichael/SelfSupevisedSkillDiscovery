@@ -113,8 +113,9 @@ class ModeTrainer(MyTrainerBaseClass):
             grad_clip=False, # Can't do gradient clipping with two networks
         )
 
-    def end_episode(self, epoch):
         self.learn_steps += 1
+
+    def end_epoch(self, epoch):
         self.epoch = epoch
 
     def get_snapshot(self):
