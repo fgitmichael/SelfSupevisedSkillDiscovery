@@ -192,5 +192,5 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
         logger.dump_tabular(with_prefix=False, with_timestamp=False)
 
     def to(self, device):
-        for net in self.trainer.networks.values():
+        for net in self.networks.values():
             net.to(device)
