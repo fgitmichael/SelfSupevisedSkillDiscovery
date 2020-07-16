@@ -46,18 +46,26 @@ class TanhGaussianPolicy(MyMlp, Policy, metaclass=abc.ABCMeta):
             **kwargs
         )
 
-        self.dimensions = dict(
+        self._dimensions = dict(
             obs_dim=obs_dim,
             action_dim=action_dim
         )
 
+    @property
+    def obs_dim(self):
+        return self._dimensions['obs_dim']
+
+    @property
+    def action_dim(self):
+        return self._dimensions['action_dim']
+
     def get_action(self,
                    obs_np: np.ndarray,
                    deterministic: bool = False) -> td.ActionMapping:
-        assert obs_np.shape[-1] == self.dimensions['obs_dim']
+        assert obs_np.shape[-1] == self._dimensions['obs_dim']
 
         actions = self.get_actions(obs_np[None], deterministic=deterministic)
-        assert actions.shape == self.dimensions['action_dim']
+        assert actions.shape == self._dimensions['action_dim']
 
         if len(obs_np.shape) > 1:
             assert obs_np.shape[:-1] == actions.shape[:-1]
@@ -135,7 +143,7 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
         if self.std is None:
             mean_log_std_cat = MyMlp.forward(self, obs_tensor)
 
-            assert mean_log_std_cat.size(-1) == 2 * self.dimensions['action_dim']
+            assert mean_log_std_cat.size(-1) == 2 * self.action_dim
             if len(mean_log_std_cat.size()) > 1 and len(obs_tensor.shape) > 1:
                 assert mean_log_std_cat.shape[:-1] == obs_tensor.shape[:-1]
 

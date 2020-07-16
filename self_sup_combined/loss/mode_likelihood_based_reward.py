@@ -41,8 +41,8 @@ class ReconstructionLikelyhoodBasedRewards():
                == skill_gt.size(batch_dim) \
                == action_seq.size(batch_dim)
         assert skill_gt.size(-1) == self.policy.skill_dim
-        assert action_seq.size(data_dim) == self.policy.dimensions['action_dim']
-        assert obs_seq.size(data_dim) == self.policy.dimensions['obs_dim']
+        assert action_seq.size(data_dim) == self.policy.action_dim
+        assert obs_seq.size(data_dim) == self.policy.obs_dim
         assert torch.stack([skill_gt[:, 0, :] * obs_seq.size(seq_dim)], dim=seq_dim) \
                == skill_gt
 
