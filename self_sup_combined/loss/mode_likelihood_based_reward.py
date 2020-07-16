@@ -59,8 +59,8 @@ class ReconstructionLikelyhoodBasedRewards():
             == mode_post_repeated.size(batch_dim)
 
         action_recon_mapping = self.policy(
-            obs=obs_seq.detach(),
-            skill_vec=mode_post,
+            obs=obs_seq.detach().view(batch_size * seq_len, obs_seq.size(data_dim)),
+            skill_vec=mode_post_repeated,
             reparameterize=False
         )
         action_recon = action_recon_mapping.action
