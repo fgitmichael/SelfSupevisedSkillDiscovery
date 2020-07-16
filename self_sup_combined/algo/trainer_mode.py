@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from itertools import chain
 from typing import Dict, Tuple
+import matplotlib
+from matplotlib import pyplot as plt
 
 import self_sup_combined.utils.typed_dicts as tdssc
 from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
@@ -16,6 +18,7 @@ from code_slac.utils import calc_kl_divergence, update_params
 
 from mode_disent.utils.mmd import compute_mmd_tutorial
 
+matplotlib.use('Agg')
 
 class ModeTrainer(MyTrainerBaseClass):
 
@@ -41,7 +44,7 @@ class ModeTrainer(MyTrainerBaseClass):
     def loss(self,
              obs_seq: torch.Tensor,
              skill_per_seq: torch.Tensor
-             ) -> Tuple[torch.Tensor, Dict]:
+             ) -> Tuple[torch.Tensor, Dict, Dict]:
         """
         obs_seq             : (N, S, feature_dim) tensor
         skills_gt           : (N, skill_dim) skill per sequence
@@ -80,7 +83,13 @@ class ModeTrainer(MyTrainerBaseClass):
             'info_loss': info_loss
         }
 
-        return info_loss, diagnostics_scalar
+        mode_map_data = {
+            'global_step': self.learn_steps,
+            'skill_gt_oh': skill_per_seq,
+            'mode_post_samples': mode_enc['post']['dist'].loc
+        }
+
+        return info_loss, diagnostics_scalar, mode_map_data
 
     def train(self,
               data: tdssc.ModeTrainerDataMapping,
