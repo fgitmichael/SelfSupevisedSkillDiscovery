@@ -3,6 +3,8 @@ from tqdm import tqdm
 from typing import Dict
 import torch
 import gtimer as gt
+import matplotlib
+from matplotlib import pyplot as plt
 
 from self_supervised.base.data_collector.data_collector import \
     PathCollectorSelfSupervised
@@ -21,6 +23,8 @@ from self_sup_combined.algo.algorithm import SelfSupCombAlgo
 import rlkit.torch.pytorch_util as ptu
 from rlkit.core import logger, eval_util
 from rlkit.core.rl_algorithm import _get_epoch_timings
+
+matplotlib.use('Agg')
 
 
 class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):

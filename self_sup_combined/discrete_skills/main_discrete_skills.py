@@ -77,7 +77,7 @@ def run(variant: VariantMapping):
 
     mode_encoder = ModeEncoderSelfSupComb(
         obs_encoder=obs_encoder,
-        mode_dim=variant.skill_dim,
+        mode_dim=2, # Note: Not variant.skill_dim (as skill_dim is i.e. 10 (one hot!))
         **variant.mode_encoder_kwargs
     )
 

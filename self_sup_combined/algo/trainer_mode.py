@@ -167,36 +167,101 @@ class ModeTrainerWithDiagnostics(
 
     def loss(self,
              *args,
-             **kwargs) -> Tuple[torch.Tensor, Dict]:
+             **kwargs) -> Tuple[torch.Tensor, Dict, Dict]:
 
-        loss, diagnostics_scalar_dict = super().loss(*args, **kwargs)
-
-        self.writer_scalar_diagnostic_keys.extend(
-            list(diagnostics_scalar_dict.keys()))
+        loss, diagnostics_scalar_dict, mode_map_data  = super().loss(*args, **kwargs)
 
         if self.learn_steps % self.log_interval == 0:
 
             for k, v in diagnostics_scalar_dict.items():
-                data = WriterDataMapping(
-                    value=v,
-                    global_step=self.learn_steps
-                )
-
-                self.write_diagnostics(
-                    name=k,
-                    data=data
-                )
-
-        return loss, {}
-
-    def end_epoch(self, epoch):
-        super().end_epoch(epoch)
-
-        diagn = self.get_diagnostics()
-
-        for k, v in diagn:
-            if k in self.writer_scalar_diagnostic_keys:
                 self.writer.add_scalar(
                     tag=k,
                     scalar_mapping=v
                 )
+
+        return loss, {}, mode_map_data
+
+
+class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
+
+    def __init__(self,
+                 *args,
+                 **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.mode_map_data = []
+
+
+    def loss(self,
+             *args,
+             **kwargs) -> Tuple[torch.Tensor, Dict, Dict]:
+
+        loss, diagnostics_scalar_dict, mode_map_data  = super().loss(*args, **kwargs)
+
+        if self.learn_steps % self.log_interval == 0:
+
+            self.mode_map_data.append(mode_map_data)
+
+        return loss, {}, {}
+
+    def end_epoch(self, epoch):
+        super().end_epoch(epoch)
+
+        for mode_map in self.mode_map_data:
+            fig_writer_kwargs = self.plot_mode_map(**mode_map)
+            self.writer.writer.add_figure(
+                **fig_writer_kwargs
+            )
+
+    def plot_mode_map(self,
+                      global_step: int,
+                      skills_gt_oh: torch.Tensor,
+                      mode_post_samples: torch.Tensor):
+        """
+        Args:
+            global_step         : int
+            skills_gt_oh        : (N, skill_dim) tensor, one hot
+            mode_post_samples   : (N, 2) tensor
+        """
+        batch_dim = 0
+        data_dim = -1
+        num_skills = skills_gt_oh.size(data_dim)
+
+        assert skills_gt_oh.sum(dim=1) == torch.ones(data_dim)
+        assert len(skills_gt_oh.shape) == len(mode_post_samples.shape) == 2
+        assert skills_gt_oh.size(batch_dim) == mode_post_samples.size(batch_dim)
+        assert mode_post_samples.size(data_dim) == 2
+
+        skills_gt = torch.argmax(skills_gt_oh, dim=data_dim)
+
+        skills_gt = ptu.get_numpy(skills_gt)
+        mode_post_samples = ptu.get_numpy(mode_post_samples)
+
+        colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k',
+                  'darkorange', 'gray', 'lightgreen']
+        assert len(colors) <= num_skills
+
+        plt.interactive(False)
+        _, ax = plt.subplots()
+        lim = [-3., 3.]
+        ax.set_ylim(lim)
+        ax.set_xlim(lim)
+
+        for skill in range(num_skills):
+            bool_idx = skills_gt == skill
+            plt.scatter(
+                mode_post_samples[bool_idx, 0],
+                mode_post_samples[bool_idx, 1],
+                label=str(skill),
+                c=colors[skill]
+            )
+
+        ax.legend()
+        ax.grid(True)
+        fig = plt.gcf()
+
+        return {
+            'tag': "mode_map",
+            'figure': fig,
+            'global_step': global_step
+        }
