@@ -35,6 +35,8 @@ class OrdinaryEnvForPytorch(DmControlEnvForPytorch):
             obs = time_step[0]
         elif self.obs_type == 'pixels':
             raise NotImplementedError
+        else:
+            raise ValueError
 
         return obs
 
