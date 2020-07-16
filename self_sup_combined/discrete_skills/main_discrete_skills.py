@@ -140,6 +140,8 @@ def run(variant: VariantMapping):
         evaluation_data_collector=eval_path_collector,
         replay_buffer=replay_buffer,
 
+        seq_len=variant.seq_len,
+
         **variant.algo_kwargs
     )
     algorithm.to(ptu.device)
