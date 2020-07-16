@@ -37,7 +37,7 @@ class PathCollectorSelfSupervised(PathCollector):
 
         self._num_steps_total = 0
         self._num_paths_total = 0
-        self.seq_len = 0
+        self.seq_len = None
 
     def collect_new_paths(
             self,
