@@ -12,10 +12,11 @@ from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.base.algo.algo_base import BaseRLAlgorithmSelfSup
 from self_supervised.base.writer.writer_base import WriterBase
 
+import self_sup_combined.utils.typed_dicts as tdssc
+from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
 from self_sup_combined.algo.trainer_mode import ModeTrainer
 from self_sup_combined.algo.algorithm import SelfSupCombAlgo
-import self_sup_combined.utils.typed_dicts as tdssc
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.core import logger, eval_util

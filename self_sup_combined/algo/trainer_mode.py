@@ -10,7 +10,7 @@ from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 import self_supervised.utils.typed_dicts as td
 from self_supervised.base.trainer.trainer_base import MyTrainerBaseClass
-from self_supervised.base.writer.writer_base import WriterDataMapping
+from self_supervised.base.writer.writer_base import WriterDataMapping, WriterBase
 
 from code_slac.utils import calc_kl_divergence, update_params
 
@@ -71,7 +71,7 @@ class ModeTrainer(MyTrainerBaseClass):
         mmd_info = (alpha + lamda - 1) * mmd
         info_loss = mse + kld_info + mmd_info
 
-        return info_loss, {
+        diagnostics_scalar = {
             'kld': kld,
             'kld_info_weighted': kld_info,
             'mmd': mmd,
@@ -79,6 +79,8 @@ class ModeTrainer(MyTrainerBaseClass):
             'mse': mse,
             'info_loss': info_loss
         }
+
+        return info_loss, diagnostics_scalar
 
     def train(self,
               data: tdssc.ModeTrainerDataMapping,
@@ -147,27 +149,45 @@ class ModeTrainerWithDiagnostics(
     def __init__(self,
                  *args,
                  log_interval,
+                 writer: WriterBase,
                  **kwargs
                  ):
         super().__init__(*args, **kwargs)
-        super().__init__(log_interval=log_interval)
+        super().__init__(log_interval=log_interval,
+                         writer=writer)
 
     def loss(self,
              *args,
              **kwargs) -> Tuple[torch.Tensor, Dict]:
-        loss, diagnostics_dict = super().loss(*args, **kwargs)
+
+        loss, diagnostics_scalar_dict = super().loss(*args, **kwargs)
+
+        self.writer_scalar_diagnostic_keys.extend(
+            list(diagnostics_scalar_dict.keys()))
 
         if self.learn_steps % self.log_interval == 0:
-            for k, v in diagnostics_dict.items():
+
+            for k, v in diagnostics_scalar_dict.items():
                 data = WriterDataMapping(
                     value=v,
                     global_step=self.learn_steps
                 )
 
-                self.write_diagnostic(
+                self.write_diagnostics(
                     name=k,
                     data=data
                 )
 
         return loss, {}
 
+    def end_epoch(self, epoch):
+        super().end_epoch(epoch)
+
+        diagn = self.get_diagnostics()
+
+        for k, v in diagn:
+            if k in self.writer_scalar_diagnostic_keys:
+                self.writer.add_scalar(
+                    tag=k,
+                    scalar_mapping=v
+                )
