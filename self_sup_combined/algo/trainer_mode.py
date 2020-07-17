@@ -41,13 +41,16 @@ class ModeTrainer(MyTrainerBaseClass):
         self.epoch = 0
 
     def loss(self,
-             obs_seq: torch.Tensor,
-             skill_per_seq: torch.Tensor
+             data: tdssc.ModeTrainerDataMapping
              ) -> Tuple[torch.Tensor, Dict, Dict]:
         """
-        obs_seq             : (N, S, feature_dim) tensor
-        skills_gt           : (N, skill_dim) skill per sequence
+        Args:
+            obs_seq             : (N, S, feature_dim) tensor
+            skills_gt           : (N, skill_dim) skill per sequence
         """
+        skill_per_seq = data.skills_gt
+        obs_seq = data.obs_seq
+
         assert len(skill_per_seq.shape) == 2
         assert len(obs_seq.shape) == 3
 
@@ -118,8 +121,10 @@ class ModeTrainer(MyTrainerBaseClass):
         skills_per_seq = skills_gt[:, :, 0]
 
         loss, _, _ = self.loss(
-            obs_seq=obs_seq.transpose(seq_dim, data_dim),
-            skill_per_seq=skills_per_seq
+            tdssc.ModeTrainerDataMapping(
+                obs_seq=obs_seq.transpose(seq_dim, data_dim),
+                skills_gt=skills_per_seq
+            )
         )
 
         # Note: Network is needed for gradient clipping, but only one model can be
