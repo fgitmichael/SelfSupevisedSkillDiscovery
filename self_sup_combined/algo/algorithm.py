@@ -17,6 +17,9 @@ from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
 from self_sup_combined.algo.trainer_mode import ModeTrainer, ModeTrainerWithDiagnostics
 import self_sup_combined.utils.typed_dicts as tdssc
 
+from self_sup_comb_discrete_skills.algo.mode_trainer_discrete_skill import \
+    ModeTrainerWithDiagnosticsDiscrete
+
 import rlkit.torch.pytorch_util as ptu
 from rlkit.core import logger, eval_util
 from rlkit.core.rl_algorithm import _get_epoch_timings
@@ -28,7 +31,8 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
                  sac_trainer: SelfSupCombSACTrainer,
                  mode_trainer: Union[
                      ModeTrainer,
-                     ModeTrainerWithDiagnostics
+                     ModeTrainerWithDiagnostics,
+                     ModeTrainerWithDiagnosticsDiscrete
                  ],
 
                  exploration_env: NormalizedBoxEnvWrapper,

@@ -1,4 +1,5 @@
 from typing import Tuple, Dict
+import numpy as np
 
 import torch
 from matplotlib import pyplot as plt
@@ -85,3 +86,4 @@ class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
             'figure': fig,
             'global_step': global_step
         }
+

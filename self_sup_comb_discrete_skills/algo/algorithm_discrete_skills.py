@@ -22,6 +22,9 @@ from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
 from self_sup_combined.algo.trainer_mode import ModeTrainer
 from self_sup_combined.algo.algorithm import SelfSupCombAlgo
 
+from self_sup_comb_discrete_skills.algo.mode_trainer_discrete_skill import \
+    ModeTrainerWithDiagnosticsDiscrete
+
 import rlkit.torch.pytorch_util as ptu
 from rlkit.core import logger, eval_util
 from rlkit.core.rl_algorithm import _get_epoch_timings
@@ -33,16 +36,17 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
 
     def __init__(self,
                  *args,
-                 num_skills=10,
                  **kwargs
                  ):
         super().__init__(*args, **kwargs)
 
         self.mode_dim = self.mode_trainer.model.mode_dim
-        self.num_skills = num_skills
+        self.num_skills = self.mode_trainer.num_skills
 
         self.skill_idx_now = 0
-        self.discrete_skills = self.get_grid(self.num_skills)
+
+        assert type(self.mode_trainer) == ModeTrainerWithDiagnosticsDiscrete
+        self.discrete_skills = self.get_grid()
 
     def set_next_skill(self,
                        path_collector: PathCollectorSelfSupervisedDiscreteSkills):
@@ -53,11 +57,11 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
 
         skill_vec = self.discrete_skills[skill_idx]
 
-        path_collector.policy.set_skill(skill_vec)
+        path_collector.set_skill(skill_vec)
 
-    def get_grid(self, num_skills):
-        assert num_skills == 10
-        assert self.mode_dim == 2
+    def get_grid(self):
+        assert self.mode_trainer.model.num_skills == 10
+        assert self.mode_trainer.model.mode_dim == 2
 
         # Hard coded for testing
         radius1 = 0.75
