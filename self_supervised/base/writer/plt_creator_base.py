@@ -9,11 +9,14 @@ matplotlib.use('Agg')
 
 class PltCreator(object, metaclass=abc.ABCMeta):
 
-    @abc.abstractmethod
     def _plot_line(self,
                   legend_str: str,
                   line_to_plot: np.ndarray):
-        pass
+        if len(line_to_plot.shape) == 2 and line_to_plot.shape[0] == 2:
+            plt.plot(line_to_plot[0], line_to_plot[1], label=legend_str)
+
+        else:
+            plt.plot(line_to_plot, label=legend_str)
 
     def _plot_lines(self,
                    legend_str: List[str],
