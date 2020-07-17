@@ -36,17 +36,10 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
             path      : TransitionMapping consisting of (N, dim, S) np.ndarrays
             mode      : (N, mode_dim, S) np.ndarray
         """
-
-
-        self._mode_per_seqs[self._top] = path.mode
-        try:
-            path.pop('mode')
-        except:
-            pass
-
+        self._mode_per_seqs[self._top] = path.pop('mode')
 
         super().add_sample(
-            path=path,
+            path=td.TransitionMapping(**path),
             **kwargs
         )
 
