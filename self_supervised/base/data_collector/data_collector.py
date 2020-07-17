@@ -57,6 +57,19 @@ class PathCollectorSelfSupervised(PathCollector):
         Return:
             paths                      : deque
         """
+        paths = self._collect_new_paths(
+            seq_len=seq_len,
+            num_seqs=num_seqs,
+            discard_incomplete_paths=discard_incomplete_paths
+        )
+
+        self._epoch_paths.extend(paths)
+
+    def _collect_new_paths(self,
+                          seq_len: int,
+                          num_seqs: int,
+                          discard_incomplete_paths: bool
+                          ) -> List[td.TransitionModeMapping]:
         paths = []
         num_steps_collected = 0
         self.seq_len = seq_len
