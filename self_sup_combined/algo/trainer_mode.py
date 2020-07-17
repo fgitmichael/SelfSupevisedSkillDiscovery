@@ -218,31 +218,28 @@ class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
 
     def plot_mode_map(self,
                       global_step: int,
-                      skills_gt_oh: torch.Tensor,
+                      skills_gt: torch.Tensor,
                       mode_post_samples: torch.Tensor):
         """
         Args:
             global_step         : int
-            skills_gt_oh        : (N, skill_dim) tensor, one hot
+            skills_gt           : (N, skill_dim) tensor
             mode_post_samples   : (N, 2) tensor
         """
         batch_dim = 0
         data_dim = -1
-        num_skills = skills_gt_oh.size(data_dim)
-
-        assert skills_gt_oh.sum(dim=1) == torch.ones(data_dim)
-        assert len(skills_gt_oh.shape) == len(mode_post_samples.shape) == 2
-        assert skills_gt_oh.size(batch_dim) == mode_post_samples.size(batch_dim)
-        assert mode_post_samples.size(data_dim) == 2
-
-        skills_gt = torch.argmax(skills_gt_oh, dim=data_dim)
 
         skills_gt = ptu.get_numpy(skills_gt)
         mode_post_samples = ptu.get_numpy(mode_post_samples)
 
+        assert self.model.mode_dim == mode_post_samples.size(data_dim) == 2
+        assert skills_gt.size(data_dim) == self.model.mode_dim
+        assert len(skills_gt.shape) == len(mode_post_samples.shape) == 2
+        assert skills_gt.size(batch_dim) == mode_post_samples.size(batch_dim)
+
         colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k',
                   'darkorange', 'gray', 'lightgreen']
-        assert len(colors) <= num_skills
+        assert len(colors) <= self.num_skills
 
         plt.interactive(False)
         _, ax = plt.subplots()
@@ -250,7 +247,7 @@ class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
         ax.set_ylim(lim)
         ax.set_xlim(lim)
 
-        for skill in range(num_skills):
+        for skill in range(self.num_skills):
             bool_idx = skills_gt == skill
             plt.scatter(
                 mode_post_samples[bool_idx, 0],
