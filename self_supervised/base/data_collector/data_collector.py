@@ -9,6 +9,8 @@ from self_supervised.base.data_collector.rollout import Rollouter
 from self_supervised.policy.skill_policy import MakeDeterministic, SkillTanhGaussianPolicy
 import self_supervised.utils.typed_dicts as td
 
+from self_sup_combined.discrete_skills.replay_buffer_discrete_skills import TransitonModeMappingDiscreteSkills
+
 
 class PathCollectorSelfSupervised(PathCollector):
 
@@ -44,15 +46,12 @@ class PathCollectorSelfSupervised(PathCollector):
             self,
             seq_len: int,
             num_seqs: int,
-            discard_incomplete_paths: bool,
+            discard_incomplete_paths: bool=False,
     ):
         """
         Args:
-            num_steps                  : int i.e. num_eval_steps_per_epoch
-                                         (typically higher
-                                         than max_path_length, typically a multiply of
-                                         max_path_length)
-            max_path_length            : maximal path length
+            seq_len                    : sequence length
+            num_seqs                   : number of sequence to sample
             discard_incomplete_paths   : path
 
         Return:
