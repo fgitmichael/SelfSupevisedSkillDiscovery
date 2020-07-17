@@ -40,9 +40,9 @@ class ModeTrainer(MyTrainerBaseClass):
         self.learn_steps = 0
         self.epoch = 0
 
-    def loss(self,
+    def _calc_loss(self,
              data: tdssc.ModeTrainerDataMapping
-             ) -> Tuple[torch.Tensor, Dict, Dict]:
+             ) -> Dict:
         """
         Args:
             obs_seq             : (N, S, feature_dim) tensor
@@ -76,22 +76,17 @@ class ModeTrainer(MyTrainerBaseClass):
         mmd_info = (alpha + lamda - 1) * mmd
         info_loss = mse + kld_info + mmd_info
 
-        diagnostics_scalar = {
+        info_loss_results = {
             'kld': kld,
             'kld_info_weighted': kld_info,
             'mmd': mmd,
             'mmd_info_weighted': mmd_info,
             'mse': mse,
-            'info_loss': info_loss
-        }
-
-        mode_map_data = {
-            'global_step': self.learn_steps,
-            'skill_gt_oh': skill_per_seq,
+            'info_loss': info_loss,
             'mode_post_samples': mode_enc['post']['dist'].loc
         }
 
-        return info_loss, diagnostics_scalar, mode_map_data
+        return info_loss_results
 
     def train(self,
               data: tdssc.ModeTrainerDataMapping,
@@ -120,12 +115,16 @@ class ModeTrainer(MyTrainerBaseClass):
 
         skills_per_seq = skills_gt[:, :, 0]
 
-        loss, _, _ = self.loss(
+        loss_results  = self._calc_loss(
             tdssc.ModeTrainerDataMapping(
                 obs_seq=obs_seq.transpose(seq_dim, data_dim),
                 skills_gt=skills_per_seq
             )
         )
+
+        self.log_loss_results(data=loss_results)
+
+        loss = loss_results['info_loss']
 
         # Note: Network is needed for gradient clipping, but only one model can be
         #       put in up to now, but with self.optim two networks (feat_enc and model)
@@ -138,6 +137,9 @@ class ModeTrainer(MyTrainerBaseClass):
         )
 
         self.learn_steps += 1
+
+    def log_loss_results(self, data: dict):
+        pass
 
     def end_epoch(self, epoch):
         self.epoch = epoch
@@ -169,18 +171,18 @@ class ModeTrainerWithDiagnostics(
         super().__init__(log_interval=log_interval,
                          writer=writer)
 
-    def loss(self,
-             *args,
-             **kwargs) -> Tuple[torch.Tensor, Dict, Dict]:
+    def log_loss_results(self, data: dict):
+        if self.is_log(self.learn_steps):
+            diagnostic_keys = ['kld',
+                               'kld_info_weighted',
+                               'mmd',
+                               'mmd_info_weighted',
+                               'mse',
+                               'info_loss']
 
-        loss, diagnostics_scalar_dict, mode_map_data  = super().loss(*args, **kwargs)
-
-        if self.learn_steps % self.log_interval == 0:
-
-            for k, v in diagnostics_scalar_dict.items():
-                self.writer.add_scalar(
-                    tag=k,
-                    scalar_mapping=v
+            for key in diagnostic_keys:
+                self.writer.writer.add_scalar(
+                    tag=key,
+                    scalar_value=data[key],
+                    global_step=self.learn_steps
                 )
-
-        return loss, {}, mode_map_data

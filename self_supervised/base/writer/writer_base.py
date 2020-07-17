@@ -42,14 +42,6 @@ class WriterBase(object):
         self.writer = SummaryWriter(log_dir=self.summary_dir)
         self.plt_creator = plt_creator
 
-    def add_scalar(self,
-                   tag: str,
-                   scalar_mapping: WriterDataMapping):
-        self.writer.add_scalar(
-            tag=tag,
-            **scalar_mapping
-        )
-
     def plot_lines(self,
                    legend_str: Union[str, List[str]],
                    tb_str: str,
