@@ -1,12 +1,11 @@
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.policy.skill_policy import \
     SkillTanhGaussianPolicy, MakeDeterministic
-from self_supervised.base.data_collector.data_collector import \
-    PathCollectorSelfSupervised
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 from self_supervised.network.flatten_mlp import FlattenMlp
 from self_supervised.base.network.mlp import MyMlp
+from self_supervised.base.writer.writer_base import WriterBase
 
 from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
 from self_sup_combined.utils.get_variant import parse_variant
@@ -18,6 +17,15 @@ from self_sup_comb_discrete_skills.algo.algorithm_discrete_skills import \
 from self_sup_combined.loss.mode_likelihood_based_reward import \
     ReconstructionLikelyhoodBasedRewards
 from self_sup_combined.utils.set_seed import set_seeds, set_env_seed
+
+from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
+    PathCollectorSelfSupervisedDiscreteSkills
+from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
+    SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
+from self_sup_comb_discrete_skills.algo.mode_trainer_discrete_skill import \
+    ModeTrainerWithDiagnosticsDiscrete
+from self_sup_comb_discrete_skills.algo.mode_trainer_discrete_skill import \
+    ModeTrainerWithDiagnosticsDiscrete
 
 from mode_disent_no_ssm.utils.empty_network import Empty
 
@@ -81,7 +89,14 @@ def run(variant: VariantMapping):
         **variant.mode_encoder_kwargs
     )
 
-    mode_trainer = ModeTrainer(
+    writer = WriterBase(
+        seed=seed,
+        log_dir='logs',
+
+    )
+
+    mode_trainer = ModeTrainerWithDiagnosticsDiscrete(
+        log_interval=10,
         mode_net=mode_encoder,
         info_loss_params=variant.info_loss_kwargs,
     )
@@ -95,16 +110,16 @@ def run(variant: VariantMapping):
     )
     eval_policy = MakeDeterministic(policy)
 
-    eval_path_collector = PathCollectorSelfSupervised(
+    eval_path_collector = PathCollectorSelfSupervisedDiscreteSkills(
         env=eval_env,
         policy=eval_policy
     )
-    expl_step_collector = PathCollectorSelfSupervised(
+    expl_step_collector = PathCollectorSelfSupervisedDiscreteSkills(
         env=expl_env,
         policy=policy
     )
 
-    replay_buffer = SelfSupervisedEnvSequenceReplayBuffer(
+    replay_buffer = SelfSupervisedEnvSequenceReplayBufferDiscreteSkills(
         max_replay_buffer_size=variant.replay_buffer_size,
         seq_len=variant.seq_len,
         mode_dim=variant.skill_dim,
