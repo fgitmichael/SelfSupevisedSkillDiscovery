@@ -2,8 +2,10 @@ from typing import List
 
 import numpy as np
 
-from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import TransitonModeMappingDiscreteSkills
-from self_supervised.base.data_collector.data_collector import PathCollectorSelfSupervised
+from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
+    TransitonModeMappingDiscreteSkills
+from self_supervised.base.data_collector.data_collector import \
+    PathCollectorSelfSupervised
 
 
 class  PathCollectorSelfSupervisedDiscreteSkills(PathCollectorSelfSupervised):

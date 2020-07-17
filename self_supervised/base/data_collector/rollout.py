@@ -1,5 +1,6 @@
 import gym
 import numpy as np
+import torch
 
 from rlkit.samplers.rollout_functions import rollout
 import rlkit.torch.pytorch_util as ptu
@@ -19,9 +20,15 @@ class Rollouter(object):
         self._rlkit_policy = SkillTanhGaussianPolicyRlkitBehaviour(policy)
 
     def do_rollout(self,
-                max_path_length: int=None,
-                render: bool=None,
-                render_kwargs: dict=None) -> td.TransitionModeMapping:
+                   skill: torch.Tensor,
+                   max_path_length: int=None,
+                   render: bool=None,
+                   render_kwargs: dict=None) -> td.TransitionModeMapping:
+        """
+        Args:
+            skill        : (skill_dim) tensor
+        """
+        self._real_policy.set_skill(skill)
 
         path = rollout(
             env=self._env,

@@ -1,3 +1,4 @@
+import torch
 import gym
 from collections import deque
 from typing import List, Union
@@ -5,7 +6,8 @@ from typing import List, Union
 from rlkit.samplers.data_collector.base import PathCollector
 
 from self_supervised.base.data_collector.rollout import Rollouter
-from self_supervised.policy.skill_policy import MakeDeterministic, SkillTanhGaussianPolicy
+from self_supervised.policy.skill_policy import MakeDeterministic, \
+    SkillTanhGaussianPolicy
 import self_supervised.utils.typed_dicts as td
 
 
@@ -27,6 +29,7 @@ class PathCollectorSelfSupervised(PathCollector):
         self._render_kwargs = render_kwargs
 
         self.policy = policy
+        self.skill = None
         self._rollouter = Rollouter(
             env=env,
             policy=self.policy
@@ -38,6 +41,15 @@ class PathCollectorSelfSupervised(PathCollector):
         self._num_steps_total = 0
         self._num_paths_total = 0
         self.seq_len = None
+
+    def set_skill(self, skill: torch.Tensor):
+        """
+        Args:
+            skill        : (skill_dim) tensor
+        """
+        assert len(skill.shape) == 1
+        assert skill.size(0) == self.policy.skill_dim
+        self.skill = skill
 
     def collect_new_paths(
             self,
@@ -74,6 +86,7 @@ class PathCollectorSelfSupervised(PathCollector):
         for _ in range(num_seqs):
 
             path = self._rollouter.do_rollout(
+                skill=self.skill,
                 max_path_length=seq_len,
             )
 

@@ -138,7 +138,7 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
     def set_next_skill(self,
                        path_collector: PathCollectorSelfSupervised):
         skill_pri = self.mode_encoder.sample_prior(batch_size=1)
-        path_collector.policy.set_skill(skill_pri['sample'][0])
+        path_collector.set_skill(skill_pri['sample'][0])
 
     def _end_epoch(self, epoch):
         self.expl_data_collector.end_epoch(epoch)
