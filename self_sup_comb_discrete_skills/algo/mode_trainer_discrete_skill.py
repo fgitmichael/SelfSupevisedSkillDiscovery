@@ -82,7 +82,7 @@ class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
         fig = plt.gcf()
 
         return {
-            'tag': "mode_map",
+            'tag': "mode_map (Note: with own loginterval, not epochwise)",
             'figure': fig,
             'global_step': global_step
         }

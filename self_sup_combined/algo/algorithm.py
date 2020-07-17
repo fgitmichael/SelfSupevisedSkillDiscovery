@@ -88,7 +88,6 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
             for _ in range(num_seqs):
 
                 self.set_next_skill(self.expl_data_collector)
-
                 self.expl_data_collector.collect_new_paths(
                     seq_len=self.seq_len,
                     num_seqs=1,
@@ -105,6 +104,7 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
                 Explore
                 """
                 if train_loop % self.seq_len == 0:
+
                     self.set_next_skill(self.expl_data_collector)
                     self.expl_data_collector.collect_new_paths(
                         seq_len=self.seq_len,
