@@ -138,7 +138,7 @@ class ModeTrainer(MyTrainerBaseClass):
 
         self.learn_steps += 1
 
-    def log_loss_results(self, data: dict):
+    def log_loss_results(self, loss_result: dict, data=None):
         pass
 
     def end_epoch(self, epoch):
@@ -171,7 +171,7 @@ class ModeTrainerWithDiagnostics(
         super().__init__(log_interval=log_interval,
                          writer=writer)
 
-    def log_loss_results(self, data: dict):
+    def log_loss_results(self, data: dict, trainer_data_mapping=None):
         if self.is_log(self.learn_steps):
             diagnostic_keys = ['kld',
                                'kld_info_weighted',

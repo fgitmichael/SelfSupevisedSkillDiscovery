@@ -6,6 +6,10 @@ from rlkit.torch import pytorch_util as ptu
 
 from self_sup_combined.algo.trainer_mode import ModeTrainerWithDiagnostics
 
+import self_sup_combined.utils.typed_dicts as tdssc
+
+import self_sup_comb_discrete_skills.utils.typed_dicts as tdsscds
+
 
 class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
 
@@ -16,49 +20,42 @@ class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
         super().__init__(*args, **kwargs)
 
         self.mode_map_data = []
-        self.num_skills = 10
+        self.num_skills = num_skills
 
-    def loss(self,
-             *args,
-             **kwargs) -> Tuple[torch.Tensor, Dict, Dict]:
+    def log_loss_results(self, data: dict, trainer_data_mapping=None):
+        assert type(trainer_data_mapping) \
+            == tdsscds.ModeTrainerDataMappingDiscreteSkills
 
-        loss, diagnostics_scalar_dict, mode_map_data  = super().loss(*args, **kwargs)
+        super().log_loss_results(data=data)
 
-        if self.learn_steps % self.log_interval == 0:
-
-            self.mode_map_data.append(mode_map_data)
-
-        return loss, {}, {}
-
-    def end_epoch(self, epoch):
-        super().end_epoch(epoch)
-
-        for mode_map in self.mode_map_data:
-            fig_writer_kwargs = self.plot_mode_map(**mode_map)
-            self.writer.writer.add_figure(
-                **fig_writer_kwargs
+        if self.is_log(self.learn_steps):
+            mode_map = self.plot_mode_map(
+                global_step=self.learn_steps,
+                skill_id=trainer_data_mapping.skill_id,
+                mode_post_samples=data['mode_post_samples']
             )
+            self.writer.writer.add_figure(**mode_map)
 
     def plot_mode_map(self,
                       global_step: int,
-                      skills_gt: torch.Tensor,
+                      skill_id: torch.Tensor,
                       mode_post_samples: torch.Tensor):
         """
         Args:
             global_step         : int
-            skills_gt           : (N, skill_dim) tensor
-            mode_post_samples   : (N, 2) tensor
+            skill_id            : (N, skill_dim) tensor
+            mode_post_samples   : (N, 1) tensor
         """
         batch_dim = 0
         data_dim = -1
 
-        skills_gt = ptu.get_numpy(skills_gt)
+        skill_id = ptu.get_numpy(skill_id)
         mode_post_samples = ptu.get_numpy(mode_post_samples)
 
         assert self.model.mode_dim == mode_post_samples.size(data_dim) == 2
-        assert skills_gt.size(data_dim) == self.model.mode_dim
-        assert len(skills_gt.shape) == len(mode_post_samples.shape) == 2
-        assert skills_gt.size(batch_dim) == mode_post_samples.size(batch_dim)
+        assert skill_id.size(data_dim) == 1
+        assert len(skill_id.shape) == len(mode_post_samples.shape) == 2
+        assert skill_id.size(batch_dim) == mode_post_samples.size(batch_dim)
 
         colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k',
                   'darkorange', 'gray', 'lightgreen']
@@ -71,7 +68,7 @@ class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
         ax.set_xlim(lim)
 
         for skill in range(self.num_skills):
-            bool_idx = skills_gt == skill
+            bool_idx = skill_id == skill
             plt.scatter(
                 mode_post_samples[bool_idx, 0],
                 mode_post_samples[bool_idx, 1],
