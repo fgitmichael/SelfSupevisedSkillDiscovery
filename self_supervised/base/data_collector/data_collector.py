@@ -127,3 +127,14 @@ class PathCollectorSelfSupervised(PathCollector):
         # Note: without popping epoch paths now reset is done by default
         if reset:
             self.reset()
+
+
+class  PathCollectorSelfSupervisedDiscreteSkills(PathCollectorSelfSupervised):
+
+    def __init__(self,
+                 *args,
+                 **kwargs
+                 ):
+        super().__init__(*args, **kwargs)
+
+        self.skill_id = None

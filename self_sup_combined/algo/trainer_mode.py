@@ -188,11 +188,12 @@ class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
 
     def __init__(self,
                  *args,
+                 num_skills=10,
                  **kwargs):
         super().__init__(*args, **kwargs)
 
         self.mode_map_data = []
-
+        self.num_skills = 10
 
     def loss(self,
              *args,

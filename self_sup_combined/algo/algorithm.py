@@ -5,7 +5,7 @@ import torch
 import gtimer as gt
 
 from self_supervised.base.data_collector.data_collector import \
-    PathCollectorSelfSupervised
+    PathCollectorSelfSupervised, PathCollectorSelfSupervisedDiscreteSkills
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
@@ -32,8 +32,12 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
                  exploration_env: NormalizedBoxEnvWrapper,
                  evaluation_env: NormalizedBoxEnvWrapper,
 
-                 exploration_data_collector: PathCollectorSelfSupervised,
-                 evaluation_data_collector: PathCollectorSelfSupervised,
+                 exploration_data_collector: Union[
+                     PathCollectorSelfSupervised,
+                     PathCollectorSelfSupervisedDiscreteSkills],
+                 evaluation_data_collector: Union[
+                     PathCollectorSelfSupervised,
+                     PathCollectorSelfSupervisedDiscreteSkills],
 
                  replay_buffer: SelfSupervisedEnvSequenceReplayBuffer,
 

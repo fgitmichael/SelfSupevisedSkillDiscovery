@@ -1,13 +1,13 @@
 import numpy as np
 from tqdm import tqdm
-from typing import Dict
+from typing import Dict, Union
 import torch
 import gtimer as gt
 import matplotlib
 from matplotlib import pyplot as plt
 
 from self_supervised.base.data_collector.data_collector import \
-    PathCollectorSelfSupervised
+    PathCollectorSelfSupervised, PathCollectorSelfSupervisedDiscreteSkills
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
@@ -31,15 +31,49 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
 
     def __init__(self,
                  *args,
+                 num_skills=10,
                  **kwargs
                  ):
         super().__init__(*args, **kwargs)
 
         self.mode_dim = self.mode_trainer.model.mode_dim
+        self.num_skills = num_skills
+
+        self.skill_idx_now = 0
+        self.discrete_skills = self.get_grid(self.num_skills)
 
     def set_next_skill(self,
-                       path_collector: PathCollectorSelfSupervised):
-        new_skill = np.random.randint(self.mode_dim - 1)
-        skill_vec = ptu.zeros(self.mode_dim)
-        skill_vec[new_skill] += 1
+                       path_collector: PathCollectorSelfSupervisedDiscreteSkills):
+        assert type(path_collector) is PathCollectorSelfSupervisedDiscreteSkills
+
+        skill_idx = np.random.randint(self.num_skills - 1)
+        path_collector.skill_id = skill_idx
+
+        skill_vec = self.discrete_skills[skill_idx]
+
         path_collector.policy.set_skill(skill_vec)
+
+    def get_grid(self, num_skills):
+        assert num_skills == 10
+        assert self.mode_dim == 2
+
+        # Hard coded for testing
+        radius1 = 0.75
+        radius2 = 1.
+        radius3 = 1.38
+        grid = np.array([
+            [0., 0.],
+            [radius1, 0.],
+            [0., radius1],
+            [-radius1, 0.],
+            [0, -radius1],
+            [radius2, radius2],
+            [-radius2, radius2],
+            [radius2, -radius2],
+            [-radius2, -radius2],
+            [0, radius3]
+        ], dtype=np.float)
+
+        grid = ptu.from_numpy(grid)
+
+        return grid
