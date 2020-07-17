@@ -26,8 +26,7 @@ class WriterBase(object):
 
     def __init__(self,
                  seed: int,
-                 log_dir: str,
-                 plt_creator: PltCreator):
+                 log_dir: str):
         self.log_dir = log_dir
 
         run_id = f'mode_disent{seed}-{datetime.now().strftime("%Y%m%d-%H%M")}'
@@ -40,7 +39,7 @@ class WriterBase(object):
             os.makedirs(self.summary_dir)
 
         self.writer = SummaryWriter(log_dir=self.summary_dir)
-        self.plt_creator = plt_creator
+        self.plt_creator = PltCreator()
 
     def plot_lines(self,
                    legend_str: Union[str, List[str]],

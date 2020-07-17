@@ -11,9 +11,9 @@ from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
 from self_sup_combined.utils.get_variant import parse_variant
 from self_sup_combined.utils.typed_dicts import VariantMapping
 from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
-from self_sup_combined.algo.trainer_mode import ModeTrainer
 from self_sup_comb_discrete_skills.algo.algorithm_discrete_skills import \
     SelfSupCombAlgoDiscrete
+from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_combined.loss.mode_likelihood_based_reward import \
     ReconstructionLikelyhoodBasedRewards
 from self_sup_combined.utils.set_seed import set_seeds, set_env_seed
@@ -92,11 +92,11 @@ def run(variant: VariantMapping):
     writer = WriterBase(
         seed=seed,
         log_dir='logs',
-
     )
 
     mode_trainer = ModeTrainerWithDiagnosticsDiscrete(
         log_interval=10,
+        writer=writer,
         mode_net=mode_encoder,
         info_loss_params=variant.info_loss_kwargs,
     )
@@ -143,6 +143,11 @@ def run(variant: VariantMapping):
         intrinsic_reward_calculator=reward_calculator,
 
         **variant.trainer_kwargs
+    )
+
+    diagnostic_writer_mode_influence = DiagnosticsWriter(
+        log_interval=0,
+        writer=writer
     )
 
     algorithm = SelfSupCombAlgoDiscrete(

@@ -2,20 +2,20 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from itertools import chain
-from typing import Dict, Tuple
+from typing import Dict
 import matplotlib
 
 import self_sup_combined.utils.typed_dicts as tdssc
-from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
+from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
 
 import self_supervised.utils.typed_dicts as td
 from self_supervised.base.trainer.trainer_base import MyTrainerBaseClass
-from self_supervised.base.writer.writer_base import WriterBase
 
 from code_slac.utils import calc_kl_divergence, update_params
 
 from mode_disent.utils.mmd import compute_mmd_tutorial
+from self_supervised.base.writer.writer_base import WriterBase
 
 matplotlib.use('Agg')
 
