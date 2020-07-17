@@ -13,7 +13,7 @@ from self_sup_combined.utils.get_variant import parse_variant
 from self_sup_combined.utils.typed_dicts import VariantMapping
 from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
 from self_sup_combined.algo.trainer_mode import ModeTrainer
-from self_sup_combined.discrete_skills.algorithm_discrete_skills import \
+from self_sup_comb_discrete_skills.algo.algorithm_discrete_skills import \
     SelfSupCombAlgoDiscrete
 from self_sup_combined.loss.mode_likelihood_based_reward import \
     ReconstructionLikelyhoodBasedRewards

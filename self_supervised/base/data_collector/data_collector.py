@@ -1,5 +1,4 @@
 import gym
-import numpy as np
 from collections import deque
 from typing import List, Union
 
@@ -8,8 +7,6 @@ from rlkit.samplers.data_collector.base import PathCollector
 from self_supervised.base.data_collector.rollout import Rollouter
 from self_supervised.policy.skill_policy import MakeDeterministic, SkillTanhGaussianPolicy
 import self_supervised.utils.typed_dicts as td
-
-from self_sup_combined.discrete_skills.replay_buffer_discrete_skills import TransitonModeMappingDiscreteSkills
 
 
 class PathCollectorSelfSupervised(PathCollector):
@@ -139,51 +136,3 @@ class PathCollectorSelfSupervised(PathCollector):
         # Note: without popping epoch paths now reset is done by default
         if reset:
             self.reset()
-
-
-class  PathCollectorSelfSupervisedDiscreteSkills(PathCollectorSelfSupervised):
-
-    def __init__(self,
-                 *args,
-                 **kwargs
-                 ):
-        super().__init__(*args, **kwargs)
-
-        self.skill_id = None
-
-    def collect_new_paths(
-            self,
-            seq_len: int,
-            num_seqs: int,
-            discard_incomplete_paths: bool = False,
-    ):
-        """
-        Return:
-            List of TransitionModeMappingDiscreteSkills
-        """
-        paths = super()._collect_new_paths(
-            seq_len=seq_len,
-            num_seqs=num_seqs,
-            discard_incomplete_paths=discard_incomplete_paths
-        )
-
-        # Extend TransitonModeMapping to TransitionModeMappingDiscreteSkills
-        skill_id_seq = np.stack([self.skill_id] * seq_len, dim=0)
-        for (idx, path) in enumerate(paths):
-            with_skill_id = TransitonModeMappingDiscreteSkills(
-                **path,
-                skill_id=skill_id_seq
-            )
-            paths[idx] = with_skill_id
-
-        self._epoch_paths.extend(paths)
-
-    def get_epoch_paths(self) -> List[TransitonModeMappingDiscreteSkills]:
-        """
-        Return:
-            list of TransistionMapping consisting of (S, dim) np.ndarrays
-        """
-        epoch_paths = list(self._epoch_paths)
-        self.reset()
-
-        return epoch_paths

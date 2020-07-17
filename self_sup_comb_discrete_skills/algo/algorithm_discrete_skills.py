@@ -7,7 +7,9 @@ import matplotlib
 from matplotlib import pyplot as plt
 
 from self_supervised.base.data_collector.data_collector import \
-    PathCollectorSelfSupervised, PathCollectorSelfSupervisedDiscreteSkills
+    PathCollectorSelfSupervised
+from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
+    PathCollectorSelfSupervisedDiscreteSkills
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
