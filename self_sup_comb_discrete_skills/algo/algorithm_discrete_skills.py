@@ -32,10 +32,11 @@ from rlkit.core.rl_algorithm import _get_epoch_timings
 matplotlib.use('Agg')
 
 
-class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
+class SelfSupCombAlgoDiscrete(SelfSupCombAlgo, DiagnosticsWriter):
 
     def __init__(self,
                  *args,
+                 mode_influence_diangnostic_writer: DiagnosticsWriter,
                  **kwargs
                  ):
         super().__init__(*args, **kwargs)
@@ -47,6 +48,8 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
 
         assert type(self.mode_trainer) == ModeTrainerWithDiagnosticsDiscrete
         self.discrete_skills = self.get_grid()
+
+        self.mode_influence_diagnostic_writer = mode_influence_diangnostic_writer
 
     def set_next_skill(self,
                        path_collector: PathCollectorSelfSupervisedDiscreteSkills):
@@ -83,3 +86,37 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
         grid = ptu.from_numpy(grid)
 
         return grid
+
+    def _get_paths_mode_influence_test(self):
+
+        self.eval_data_collector.reset()
+        for discrete_skill in self.discrete_skills:
+            self.eval_data_collector.set_skill(discrete_skill)
+            self.eval_data_collector.collect_new_paths(
+                seq_len=self.seq_len,
+                num_seqs=1,
+            )
+
+        mode_influence_eval_paths = self.eval_data_collector.get_epoch_paths()
+
+        return mode_influence_eval_paths
+
+    def write_mode_influence(self, epoch):
+        paths = self._get_paths_mode_influence_test()
+
+        obs_dim = self.policy.obs_dim
+        for path in paths:
+            obs = path.obs
+            assert obs.shape == (obs_dim, self.seq_len)
+
+            self.mode_influence_diagnostic_writer.writer.plot_lines(
+                legend_str=['dim' + str(i) for i in range(obs_dim)],
+                tb_str='mode influence test',
+                arrays_to_plot=[dim for dim in obs],
+                step=epoch
+            )
+
+    def _end_epoch(self, epoch):
+        super()._end_epoch(epoch)
+
+        self.write_mode_influence(epoch)
