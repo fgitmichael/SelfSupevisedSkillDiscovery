@@ -18,6 +18,8 @@ from code_slac.utils import calc_kl_divergence, update_params
 
 from mode_disent.utils.mmd import compute_mmd_tutorial
 
+import rlkit.torch.pytorch_util as ptu
+
 matplotlib.use('Agg')
 
 class ModeTrainer(MyTrainerBaseClass):
