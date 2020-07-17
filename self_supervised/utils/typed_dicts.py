@@ -223,13 +223,6 @@ class SlicableProdict(Prodict):
             }
         )
 
-    def shape(self):
-        for k, v in self.items():
-            if self._is_array_type(v):
-                print("%s: %s" % (k, str(v.shape)))
-            else:
-                print("%s: no array type")
-
     def _get_constr(self):
         constr = getattr(sys.modules[__name__], self.__class__.__name__)
         return constr
