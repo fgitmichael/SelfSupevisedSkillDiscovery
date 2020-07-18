@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from itertools import chain
-from typing import Dict
+from typing import Dict, Union, Optional
 import matplotlib
 
 import self_sup_combined.utils.typed_dicts as tdssc

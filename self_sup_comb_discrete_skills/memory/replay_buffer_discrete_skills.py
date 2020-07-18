@@ -1,6 +1,7 @@
 import numpy as np
 from typing import List
 
+from self_supervised.utils.typed_dicts import TransitonModeMappingDiscreteSkills
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 import self_supervised.utils.typed_dicts as td
