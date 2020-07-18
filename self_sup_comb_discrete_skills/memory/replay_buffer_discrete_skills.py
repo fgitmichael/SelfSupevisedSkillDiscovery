@@ -1,39 +1,9 @@
 import numpy as np
 from typing import List
-from prodict import Prodict
-
 
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 import self_supervised.utils.typed_dicts as td
-
-class TransitonModeMappingDiscreteSkills(td.TransitionModeMapping):
-    skill_id: np.ndarray
-
-    def __init__(self,
-                 obs: np.ndarray,
-                 action: np.ndarray,
-                 reward: np.ndarray,
-                 terminal: np.ndarray,
-                 next_obs: np.ndarray,
-                 mode: np.ndarray,
-                 skill_id: np.ndarray,
-                 agent_infos=None,
-                 env_infos=None,
-                 ):
-
-        Prodict.__init__(
-            self,
-            obs=obs,
-            action=action,
-            reward=reward,
-            terminal=terminal,
-            next_obs=next_obs,
-            mode=mode,
-            skill_id=skill_id,
-            agent_infos=agent_infos,
-            env_infos=env_infos
-        )
 
 
 class SelfSupervisedEnvSequenceReplayBufferDiscreteSkills(
