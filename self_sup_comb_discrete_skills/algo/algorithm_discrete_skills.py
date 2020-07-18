@@ -6,6 +6,7 @@ import gtimer as gt
 import matplotlib
 from matplotlib import pyplot as plt
 
+import self_supervised.utils.typed_dicts as td
 from self_supervised.base.data_collector.data_collector import \
     PathCollectorSelfSupervised
 from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
@@ -24,6 +25,7 @@ from self_sup_combined.algo.algorithm import SelfSupCombAlgo
 
 from self_sup_comb_discrete_skills.algo.mode_trainer_discrete_skill import \
     ModeTrainerWithDiagnosticsDiscrete
+import self_sup_comb_discrete_skills.utils.typed_dicts as tdsscds
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.core import logger, eval_util
@@ -50,6 +52,17 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
         self.discrete_skills = self.get_grid()
 
         self.mode_influence_diagnostic_writer = mode_influence_diangnostic_writer
+
+    def _train_mode(self,
+                    train_data: td.TransitonModeMappingDiscreteSkills
+                    ):
+        self.mode_trainer.train(
+            data=tdsscds.ModeTrainerDataMappingDiscreteSkills(
+                skills_gt=ptu.from_numpy(train_data.mode),
+                obs_seq=ptu.from_numpy(train_data.obs),
+                skill_id=ptu.from_numpy(train_data.skill_id)
+            )
+        )
 
     def set_next_skill(self,
                        path_collector: PathCollectorSelfSupervisedDiscreteSkills):

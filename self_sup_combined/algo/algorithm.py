@@ -123,12 +123,7 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
                     train_data = self.replay_buffer.random_batch(self.batch_size)
 
                     # Train Latent
-                    self.mode_trainer.train(
-                        data=tdssc.ModeTrainerDataMapping(
-                            skills_gt=ptu.from_numpy(train_data.mode),
-                            obs_seq=ptu.from_numpy(train_data.obs)
-                        )
-                    )
+                    self._train_mode(train_data)
 
                     # Train SAC
                     self.trainer.train(train_data)
@@ -139,6 +134,16 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
             self.replay_buffer.add_self_sup_paths(new_expl_paths)
 
             self._end_epoch(epoch)
+
+    def _train_mode(self,
+                   train_data: td.TransitionModeMapping,
+                   ):
+        self.mode_trainer.train(
+            data=tdssc.ModeTrainerDataMapping(
+                skills_gt=ptu.from_numpy(train_data.mode),
+                obs_seq=ptu.from_numpy(train_data.obs)
+            )
+        )
 
     def set_next_skill(self,
                        path_collector: PathCollectorSelfSupervised):
