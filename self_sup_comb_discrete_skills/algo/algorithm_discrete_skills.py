@@ -63,7 +63,8 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
         path_collector.set_skill(skill_vec)
 
     def get_grid(self):
-        assert self.mode_trainer.model.num_skills == 10
+        assert type(self.mode_trainer) == ModeTrainerWithDiagnosticsDiscrete
+        assert self.mode_trainer.num_skills == 10
         assert self.mode_trainer.model.mode_dim == 2
 
         # Hard coded for testing
