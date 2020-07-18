@@ -13,7 +13,7 @@ from self_supervised.memory.self_sup_replay_buffer import \
 from self_supervised.base.trainer.trainer_base import Trainer
 from self_supervised.algo.trainer import SelfSupTrainer
 
-from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
+from self_sup_combined.algo.trainer_sac import SelfSupCombSACTrainer
 
 
 class BaseRLAlgorithmSelfSup(BaseRLAlgorithm, metaclass=abc.ABCMeta):

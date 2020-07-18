@@ -11,7 +11,7 @@ from self_supervised.base.network.mlp import MyMlp
 from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
 from self_sup_combined.utils.get_variant import parse_variant
 from self_sup_combined.utils.typed_dicts import VariantMapping
-from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
+from self_sup_combined.algo.trainer_sac import SelfSupCombSACTrainer
 from self_sup_combined.algo.trainer_mode import ModeTrainer
 from self_sup_combined.algo.algorithm import SelfSupCombAlgo
 from self_sup_combined.loss.mode_likelihood_based_reward import \

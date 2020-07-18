@@ -18,7 +18,7 @@ from self_supervised.base.writer.writer_base import WriterBase
 
 import self_sup_combined.utils.typed_dicts as tdssc
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
-from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
+from self_sup_combined.algo.trainer_sac import SelfSupCombSACTrainer
 from self_sup_combined.algo.trainer_mode import ModeTrainer
 from self_sup_combined.algo.algorithm import SelfSupCombAlgo
 

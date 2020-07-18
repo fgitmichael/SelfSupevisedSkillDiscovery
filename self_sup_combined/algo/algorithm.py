@@ -13,7 +13,7 @@ from self_supervised.memory.self_sup_replay_buffer import \
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.base.algo.algo_base import BaseRLAlgorithmSelfSup
 
-from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
+from self_sup_combined.algo.trainer_sac import SelfSupCombSACTrainer
 from self_sup_combined.algo.trainer_mode import ModeTrainer, ModeTrainerWithDiagnostics
 import self_sup_combined.utils.typed_dicts as tdssc
 

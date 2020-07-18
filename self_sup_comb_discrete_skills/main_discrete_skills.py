@@ -10,7 +10,7 @@ from self_supervised.base.writer.writer_base import WriterBase
 from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
 from self_sup_combined.utils.get_variant import parse_variant
 from self_sup_combined.utils.typed_dicts import VariantMapping
-from self_sup_combined.algo.trainer import SelfSupCombSACTrainer
+from self_sup_combined.algo.trainer_sac import SelfSupCombSACTrainer
 from self_sup_comb_discrete_skills.algo.algorithm_discrete_skills import \
     SelfSupCombAlgoDiscrete
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
