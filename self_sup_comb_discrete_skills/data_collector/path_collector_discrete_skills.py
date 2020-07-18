@@ -2,7 +2,7 @@ from typing import List
 
 import numpy as np
 
-from self_sup_comb_discrete_skills.utils.typed_dicts import TransitonModeMappingDiscreteSkills
+from self_supervised.utils.typed_dicts import TransitonModeMappingDiscreteSkills
 from self_supervised.base.data_collector.data_collector import \
     PathCollectorSelfSupervised
 

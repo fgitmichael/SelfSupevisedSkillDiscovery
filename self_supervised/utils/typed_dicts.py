@@ -409,3 +409,32 @@ class ForwardReturnMapping(Prodict):
         self.std = std
         self.mean_action_log_prob = mean_action_log_prob
         self.pre_tanh_value = pre_tanh_value
+
+
+class TransitonModeMappingDiscreteSkills(td.TransitionModeMapping):
+    skill_id: np.ndarray
+
+    def __init__(self,
+                 obs: np.ndarray,
+                 action: np.ndarray,
+                 reward: np.ndarray,
+                 terminal: np.ndarray,
+                 next_obs: np.ndarray,
+                 mode: np.ndarray,
+                 skill_id: np.ndarray,
+                 agent_infos=None,
+                 env_infos=None,
+                 ):
+
+        Prodict.__init__(
+            self,
+            obs=obs,
+            action=action,
+            reward=reward,
+            terminal=terminal,
+            next_obs=next_obs,
+            mode=mode,
+            skill_id=skill_id,
+            agent_infos=agent_infos,
+            env_infos=env_infos
+        )
