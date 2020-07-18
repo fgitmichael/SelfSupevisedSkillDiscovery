@@ -32,7 +32,7 @@ from rlkit.core.rl_algorithm import _get_epoch_timings
 matplotlib.use('Agg')
 
 
-class SelfSupCombAlgoDiscrete(SelfSupCombAlgo, DiagnosticsWriter):
+class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
 
     def __init__(self,
                  *args,
