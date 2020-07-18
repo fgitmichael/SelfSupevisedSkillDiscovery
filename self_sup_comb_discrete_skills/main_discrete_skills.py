@@ -162,6 +162,8 @@ def run(variant: VariantMapping):
 
         seq_len=variant.seq_len,
 
+        mode_influence_diangnostic_writer=diagnostic_writer_mode_influence,
+
         **variant.algo_kwargs
     )
     algorithm.to(ptu.device)
