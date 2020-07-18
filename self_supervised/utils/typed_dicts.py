@@ -411,7 +411,7 @@ class ForwardReturnMapping(Prodict):
         self.pre_tanh_value = pre_tanh_value
 
 
-class TransitonModeMappingDiscreteSkills(td.TransitionModeMapping):
+class TransitonModeMappingDiscreteSkills(TransitionModeMapping):
     skill_id: np.ndarray
 
     def __init__(self,
