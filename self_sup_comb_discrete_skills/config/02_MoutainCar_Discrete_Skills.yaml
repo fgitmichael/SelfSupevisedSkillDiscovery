@@ -38,6 +38,6 @@ Other:
   version: 0.0.1
   hidden_layer: [256, 256]
   replay_buffer_size: 1000000
-  skill_dim: 10
+  skill_dim: 2
   layer_norm: True
   seq_len: 100
