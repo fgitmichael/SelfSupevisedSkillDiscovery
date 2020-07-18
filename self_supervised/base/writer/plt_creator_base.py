@@ -34,7 +34,7 @@ class PltCreator(object, metaclass=abc.ABCMeta):
                    legend_str: Union[List[str], str],
                    arrays_to_plot: Union[List[np.ndarray], np.ndarray]) -> plt.Figure:
         if isinstance(arrays_to_plot, list):
-            np.stack(arrays_to_plot, dim=0)
+            np.stack(arrays_to_plot, axis=0)
             legend_str = list(legend_str)
 
         self._plot_lines(legend_str=legend_str,
