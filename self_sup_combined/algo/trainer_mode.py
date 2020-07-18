@@ -90,7 +90,8 @@ class ModeTrainer(MyTrainerBaseClass):
 
     def train(self,
               data: tdssc.ModeTrainerDataMapping,
-              ) -> None:
+              return_post_samples=False
+              ) -> Optional[torch.Tensor]:
         """
         Args:
             obs_seq      : (N, obs_dim, S) tensor
@@ -121,8 +122,9 @@ class ModeTrainer(MyTrainerBaseClass):
                 skills_gt=skills_per_seq
             )
         )
+        mode_post_samples = loss_results.pop('mode_post_samples')
 
-        self.log_loss_results(data=loss_results)
+        self.log_loss_results(loss_result=loss_results)
 
         loss = loss_results['info_loss']
 
@@ -138,7 +140,10 @@ class ModeTrainer(MyTrainerBaseClass):
 
         self.learn_steps += 1
 
-    def log_loss_results(self, loss_result: dict, data=None):
+        if return_post_samples:
+            return mode_post_samples
+
+    def log_loss_results(self, loss_result: dict):
         pass
 
     def end_epoch(self, epoch):
@@ -174,18 +179,12 @@ class ModeTrainerWithDiagnostics(
                                    log_interval=log_interval,
                                    writer=writer)
 
-    def log_loss_results(self, data: dict, trainer_data_mapping=None):
-        if self.is_log(self.learn_steps):
-            diagnostic_keys = ['kld',
-                               'kld_info_weighted',
-                               'mmd',
-                               'mmd_info_weighted',
-                               'mse',
-                               'info_loss']
+    def log_loss_results(self, loss_result: dict):
 
-            for key in diagnostic_keys:
+        if self.is_log(self.learn_steps):
+            for k, v in loss_result.items():
                 self.writer.writer.add_scalar(
-                    tag=key,
-                    scalar_value=data[key],
+                    tag=k,
+                    scalar_value=v,
                     global_step=self.learn_steps
                 )
