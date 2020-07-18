@@ -82,19 +82,20 @@ class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
         """
         Args:
             global_step         : int
-            skill_id            : (N, skill_dim) tensor
-            mode_post_samples   : (N, 1) tensor
+            skill_id            : (N, 1, S) tensor
+            mode_post_samples   : (N, skill_dim ) tensor
         """
         batch_dim = 0
-        data_dim = -1
+        data_dim = 1
 
-        skill_id = ptu.get_numpy(skill_id)
-        mode_post_samples = ptu.get_numpy(mode_post_samples)
-
+        assert len(skill_id.shape) == 3
         assert self.model.mode_dim == mode_post_samples.size(data_dim) == 2
         assert skill_id.size(data_dim) == 1
-        assert len(skill_id.shape) == len(mode_post_samples.shape) == 2
+        assert len(mode_post_samples.shape) == 2
         assert skill_id.size(batch_dim) == mode_post_samples.size(batch_dim)
+
+        skill_id = ptu.get_numpy(skill_id[:, :, 0])
+        mode_post_samples = ptu.get_numpy(mode_post_samples)
 
         colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k',
                   'darkorange', 'gray', 'lightgreen']
@@ -109,8 +110,8 @@ class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
         for skill in range(self.num_skills):
             bool_idx = skill_id == skill
             plt.scatter(
-                mode_post_samples[bool_idx, 0],
-                mode_post_samples[bool_idx, 1],
+                mode_post_samples[bool_idx.squeeze(), 0],
+                mode_post_samples[bool_idx.squeeze(), 1],
                 label=str(skill),
                 c=colors[skill]
             )
