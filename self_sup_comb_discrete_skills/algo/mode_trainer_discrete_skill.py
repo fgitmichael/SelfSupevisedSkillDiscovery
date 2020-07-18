@@ -24,6 +24,14 @@ class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
         self.num_skills = num_skills
 
     def log_loss_results(self, data: dict, trainer_data_mapping=None):
+        """
+        Logs mode map to tensorboard
+
+        Args:
+            data                   : dict consisting of the info_loss stuff
+            trainer_data_mapping   : data mapping with skill_id of type
+                                     ModeTrainerDataMappingDiscreteSkills
+        """
         assert type(trainer_data_mapping) \
             == tdsscds.ModeTrainerDataMappingDiscreteSkills
 
