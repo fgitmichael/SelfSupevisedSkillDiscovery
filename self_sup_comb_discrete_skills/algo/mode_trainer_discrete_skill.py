@@ -6,7 +6,6 @@ from matplotlib import pyplot as plt
 from rlkit.torch import pytorch_util as ptu
 
 from self_sup_combined.algo.trainer_mode import ModeTrainerWithDiagnostics
-
 import self_sup_combined.utils.typed_dicts as tdssc
 
 import self_sup_comb_discrete_skills.utils.typed_dicts as tdsscds
@@ -23,25 +22,56 @@ class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
         self.mode_map_data = []
         self.num_skills = num_skills
 
-    def log_loss_results(self, data: dict, trainer_data_mapping=None):
+    def train(self,
+              data: tdsscds.ModeTrainerDataMappingDiscreteSkills,
+              return_post_samples: bool = False
+              ) -> None:
         """
-        Logs mode map to tensorboard
+        Args:
+            data:
+                skills_gt           : (N, skill, S)
+                obs_seq             : (N, obs_dim, S)
+                skill_id            : (N, 1, S)
+            return_post_samples     : not used in this method. Placeholder
+                                      to avoid signature change
+        """
+        # Call base method
+        mode_post_samples = super().train(
+            tdssc.ModeTrainerDataMapping(
+                obs_seq=data.obs_seq,
+                skills_gt=data.skills_gt
+            ),
+            return_post_samples=True
+        )
+
+        self.log_mode_map(
+            mode_post_samples=mode_post_samples,
+            trainer_data_mapping=data
+        )
+
+    def log_mode_map(self,
+                     mode_post_samples: torch.Tensor,
+                     trainer_data_mapping: tdsscds.ModeTrainerDataMappingDiscreteSkills):
+        """
+        Logs mode_map figure to tensorboard
 
         Args:
-            data                   : dict consisting of the info_loss stuff
-            trainer_data_mapping   : data mapping with skill_id of type
-                                     ModeTrainerDataMappingDiscreteSkills
+            mode_post_samples      : (N, mode_dim)
         """
-        assert type(trainer_data_mapping) \
-            == tdsscds.ModeTrainerDataMappingDiscreteSkills
+        batch_dim = 0
+        data_dim = 1
+        seq_dim = -1
+        batch_size = trainer_data_mapping.obs_seq.size(batch_dim)
 
-        super().log_loss_results(data=data)
+        assert mode_post_samples.size(batch_dim) == batch_size
+        assert mode_post_samples.size(data_dim) == self.model.mode_dim
 
         if self.is_log(self.learn_steps):
+
             mode_map = self.plot_mode_map(
                 global_step=self.learn_steps,
                 skill_id=trainer_data_mapping.skill_id,
-                mode_post_samples=data['mode_post_samples']
+                mode_post_samples=mode_post_samples
             )
             self.writer.writer.add_figure(**mode_map)
 
@@ -94,4 +124,3 @@ class ModeTrainerWithDiagnosticsDiscrete(ModeTrainerWithDiagnostics):
             'figure': fig,
             'global_step': global_step
         }
-
