@@ -58,5 +58,3 @@ class SelfSupervisedEnvSequenceReplayBufferDiscreteSkills(
         )
 
         return batch
-
-
