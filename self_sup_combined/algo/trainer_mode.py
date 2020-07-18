@@ -167,9 +167,12 @@ class ModeTrainerWithDiagnostics(
                  writer: WriterBase,
                  **kwargs
                  ):
-        super().__init__(*args, **kwargs)
-        super().__init__(log_interval=log_interval,
-                         writer=writer)
+        ModeTrainer.__init__(self,
+                             *args,
+                             **kwargs)
+        DiagnosticsWriter.__init__(self,
+                                   log_interval=log_interval,
+                                   writer=writer)
 
     def log_loss_results(self, data: dict, trainer_data_mapping=None):
         if self.is_log(self.learn_steps):
