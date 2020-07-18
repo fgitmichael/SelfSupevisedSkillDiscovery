@@ -148,6 +148,26 @@ class MakeDeterministic(Policy):
                  stochastic_policy: SkillTanhGaussianPolicy):
         self.stochastic_policy = stochastic_policy
 
-    def get_action(self, observation):
-        return self.stochastic_policy.get_action(observation,
-                                                 deterministic=True)
+    def get_action(self,
+                   obs_np: np.ndarray,
+                   skill: torch.Tensor = None,
+                   deterministic: bool = None):
+        assert deterministic is None
+
+        return self.stochastic_policy.get_action(
+            obs_np,
+            skill=skill,
+            deterministic=True
+        )
+
+    @property
+    def skill_dim(self):
+        return self.stochastic_policy.skill_dim
+
+    @property
+    def skill(self):
+        return self.stochastic_policy.skill
+
+    def set_skill(self, skill):
+        self.stochastic_policy.set_skill(skill)
+
