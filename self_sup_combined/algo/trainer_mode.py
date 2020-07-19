@@ -95,10 +95,10 @@ class ModeTrainer(MyTrainerBaseClass):
         """
         Args:
             obs_seq      : (N, obs_dim, S) tensor
-            skills_gt    : (N, skill_dim, S) tensor of skills that are all the same, since
-                           this method is based on extraction of features out of the
-                           features_seq and this make only sense if on the whole sequence
-                           the same skill was applied
+            skills_gt    : (N, skill_dim, S) tensor of skills that are all the same,
+                           since this method is based on extraction of features out
+                           of the features_seq and this make only sense if on the
+                           whole sequence the same skill was applied
         """
         skills_gt = data.skills_gt
         obs_seq = data.obs_seq
