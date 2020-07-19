@@ -155,7 +155,8 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
 
             self.mode_influence_diagnostic_writer.writer.plot_lines(
                 legend_str=['dim' + str(i) for i in range(obs_dim)],
-                tb_str='mode influence test',
+                tb_str="mode influence test/mode {}".format(
+                    path.skill_id),
                 arrays_to_plot=[dim for dim in obs],
                 step=epoch
             )
