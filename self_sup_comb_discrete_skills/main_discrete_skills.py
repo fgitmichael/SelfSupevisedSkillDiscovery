@@ -148,7 +148,7 @@ def run(variant: VariantMapping):
         **variant.trainer_kwargs
     )
 
-    diagnostic_writer_mode_influence = DiagnosticsWriter(
+    algo_diagnostic_writer = DiagnosticsWriter(
         log_interval=20,
         writer=writer
     )
@@ -165,7 +165,7 @@ def run(variant: VariantMapping):
 
         seq_len=variant.seq_len,
 
-        mode_influence_diangnostic_writer=diagnostic_writer_mode_influence,
+        diangnostic_writer=algo_diagnostic_writer,
 
         **variant.algo_kwargs
     )

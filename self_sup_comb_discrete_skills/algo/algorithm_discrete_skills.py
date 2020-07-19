@@ -203,7 +203,7 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
     def _end_epoch(self, epoch):
         super()._end_epoch(epoch)
 
-        if self.mode_influence_diagnostic_writer.is_log(epoch):
+        if self.diagnostic_writer.is_log(epoch):
             self.write_mode_influence(epoch)
 
         gt.stamp('saving')
