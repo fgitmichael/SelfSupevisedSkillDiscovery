@@ -20,6 +20,8 @@ import self_sup_combined.utils.typed_dicts as tdssc
 
 from self_sup_comb_discrete_skills.algo.mode_trainer_discrete_skill import \
     ModeTrainerWithDiagnosticsDiscrete
+from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
+    SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.core import logger, eval_util
@@ -46,7 +48,9 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
                      PathCollectorSelfSupervised,
                      PathCollectorSelfSupervisedDiscreteSkills],
 
-                 replay_buffer: SelfSupervisedEnvSequenceReplayBuffer,
+                 replay_buffer: Union[
+                     SelfSupervisedEnvSequenceReplayBuffer,
+                     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills],
 
                  batch_size: int,
                  seq_len: int,
