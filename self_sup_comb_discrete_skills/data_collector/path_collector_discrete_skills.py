@@ -17,6 +17,17 @@ class  PathCollectorSelfSupervisedDiscreteSkills(PathCollectorSelfSupervised):
 
         self.skill_id = None
 
+    def set_discrete_skill(self,
+                           skill_vec: torch.Tensor,
+                           skill_id: int):
+            super().set_skill(skill_vec)
+            self.skill_id = skill_id
+
+    def set_skill(self, skill: torch.Tensor):
+        # To avoid signature change
+        raise NotImplementedError('For this class use set discrete skills,'
+                                  ' as skill id also has to be set')
+
     def collect_new_paths(
             self,
             seq_len: int,

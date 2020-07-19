@@ -93,11 +93,13 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
         assert type(path_collector) is PathCollectorSelfSupervisedDiscreteSkills
 
         skill_idx = np.random.randint(self.num_skills - 1)
-        path_collector.skill_id = skill_idx
 
         skill_vec = self.discrete_skills[skill_idx]
 
-        path_collector.set_skill(skill_vec)
+        path_collector.set_discrete_skill(
+            skill_vec=skill_vec,
+            skill_id=skill_idx,
+        )
 
     def get_grid(self):
         assert type(self.mode_trainer) == ModeTrainerWithDiagnosticsDiscrete
@@ -126,10 +128,14 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
         return grid
 
     def _get_paths_mode_influence_test(self):
+        assert type(self.eval_data_collector) is PathCollectorSelfSupervisedDiscreteSkills
 
         self.eval_data_collector.reset()
-        for discrete_skill in self.discrete_skills:
-            self.eval_data_collector.set_skill(discrete_skill)
+        for skill_id, discrete_skill in enumerate(self.discrete_skills):
+            self.eval_data_collector.set_discrete_skill(
+                skill_vec=discrete_skill,
+                skill_id=skill_id
+            )
             self.eval_data_collector.collect_new_paths(
                 seq_len=self.seq_len,
                 num_seqs=1,
