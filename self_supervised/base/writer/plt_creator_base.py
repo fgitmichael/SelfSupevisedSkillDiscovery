@@ -27,8 +27,10 @@ class PltCreator(object, metaclass=abc.ABCMeta):
             assert len(legend_str) == arrays_to_plot.shape[0]
 
         for idx, line in enumerate(arrays_to_plot):
-            self._plot_line(legend_str=legend_str[idx],
-                           line_to_plot=line)
+            self._plot_line(
+                legend_str=legend_str[idx],
+                line_to_plot=line
+            )
 
     def plot_lines(self,
                    legend_str: Union[List[str], str],
@@ -37,6 +39,7 @@ class PltCreator(object, metaclass=abc.ABCMeta):
             np.stack(arrays_to_plot, axis=0)
             legend_str = list(legend_str)
 
+        plt.clf()
         self._plot_lines(legend_str=legend_str,
                          arrays_to_plot=arrays_to_plot)
 
