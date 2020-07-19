@@ -102,7 +102,10 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
             paths = self.expl_data_collector.get_epoch_paths()
             self.replay_buffer.add_self_sup_paths(paths)
 
-        for epoch in tqdm(range(self._start_epoch, self.num_epochs)):
+
+        for epoch in tqdm(
+                gt.timed_for(range(self._start_epoch, self.num_epochs))):
+            gt.stamp('a', unique=False)
 
             for train_loop in range(self.num_train_loops_per_epoch):
                 """
