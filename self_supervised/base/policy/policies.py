@@ -152,6 +152,7 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
                                         dim=-1)
             log_std = torch.clamp(log_std, LOG_SIG_MIN, LOG_SIG_MAX)
             std = torch.exp(log_std)
+
         else:
             mean = MyMlp.forward(self, obs_tensor)
             std = self.std

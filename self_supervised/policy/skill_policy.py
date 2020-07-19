@@ -123,10 +123,10 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
             obs_skill_cat = torch.cat([obs, skill_to_cat], dim=data_dim)
 
         else:
-            assert len(skill_vec.shape) == len(obs.shape) == 2
-            assert skill_vec.size(batch_dim) == obs.size(batch_dim)
-
+            assert skill_vec.shape[:data_dim] == obs.shape[:data_dim]
+            assert skill_vec.size(data_dim) == self.skill_dim
             self._check_skill(skill_vec)
+
             obs_skill_cat = torch.cat([obs, skill_vec], dim=data_dim)
 
         return super().forward(
