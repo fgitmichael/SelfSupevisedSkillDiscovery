@@ -46,7 +46,10 @@ class  PathCollectorSelfSupervisedDiscreteSkills(PathCollectorSelfSupervised):
 
         # Extend TransitonModeMapping to TransitionModeMappingDiscreteSkills
         seq_dim = 1
-        skill_id_seq = np.stack([np.array([self.skill_id])] * seq_len, axis=seq_dim)
+        skill_id_seq = np.stack(
+            [np.array([self.skill_id])] * seq_len,
+            axis=seq_dim
+        )
         assert skill_id_seq.shape[seq_dim] == paths[0].obs.shape[seq_dim]
         for (idx, path) in enumerate(paths):
             with_skill_id = TransitonModeMappingDiscreteSkills(
