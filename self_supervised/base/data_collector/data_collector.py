@@ -29,7 +29,7 @@ class PathCollectorSelfSupervised(PathCollector):
         self._render_kwargs = render_kwargs
 
         self.policy = policy
-        self.skill = None
+        self._skill = None
         self._rollouter = Rollouter(
             env=env,
             policy=self.policy
@@ -49,7 +49,7 @@ class PathCollectorSelfSupervised(PathCollector):
         """
         assert len(skill.shape) == 1
         assert skill.size(0) == self.policy.skill_dim
-        self.skill = skill
+        self._skill = skill
 
     def collect_new_paths(
             self,
@@ -86,7 +86,7 @@ class PathCollectorSelfSupervised(PathCollector):
         for _ in range(num_seqs):
 
             path = self._rollouter.do_rollout(
-                skill=self.skill,
+                skill=self._skill,
                 max_path_length=seq_len,
             )
 

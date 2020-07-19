@@ -826,7 +826,7 @@ class DisentAgent:
         return action
 
     def set_policy_skill(self, skill):
-        self.skill_policy.stochastic_policy.skill = skill
+        self.skill_policy.stochastic_policy._skill = skill
 
     def get_skill_policy_action(self, obs):
         if self.state_rep:

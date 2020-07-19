@@ -14,7 +14,7 @@ class DiaynSkillPolicyWrapper():
                   skill: int
                   ):
         if skill <= self.skill_dim:
-            self.policy.stochastic_policy.skill = skill
+            self.policy.stochastic_policy._skill = skill
         else:
             raise ValueError('skill has to be <' + str(self.skill_dim))
 
