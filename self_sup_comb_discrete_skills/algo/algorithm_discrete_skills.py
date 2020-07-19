@@ -160,7 +160,19 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
                 step=epoch
             )
 
+    def _log_stats(self, epoch):
+        logger.log("Epoch {} finished".format(epoch), with_timestamp=True)
+        gt.stamp('logging')
+        logger.record_dict(_get_epoch_timings())
+        logger.record_tabular('Epoch', epoch)
+        logger.dump_tabular(with_prefix=False, with_timestamp=False)
+        gt.stamp('log outputting')
+
     def _end_epoch(self, epoch):
         super()._end_epoch(epoch)
 
-        self.write_mode_influence(epoch)
+        if self.mode_influence_diagnostic_writer.is_log(epoch):
+            self.write_mode_influence(epoch)
+
+        gt.stamp('saving')
+        self._log_stats(epoch)
