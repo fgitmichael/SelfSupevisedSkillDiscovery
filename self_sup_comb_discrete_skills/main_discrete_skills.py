@@ -175,4 +175,5 @@ def run(variant: VariantMapping):
 
 if __name__ == "__main__":
     variant = parse_variant()
+    setup_logger('Self-Sup-Discrete Skills', variant=variant)
     run(variant)
