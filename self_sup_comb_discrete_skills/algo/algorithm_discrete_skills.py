@@ -25,6 +25,8 @@ from self_sup_combined.algo.algorithm import SelfSupCombAlgo
 
 from self_sup_comb_discrete_skills.algo.mode_trainer_discrete_skill import \
     ModeTrainerWithDiagnosticsDiscrete
+from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
+    SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
 import self_sup_comb_discrete_skills.utils.typed_dicts as tdsscds
 
 import rlkit.torch.pytorch_util as ptu
@@ -37,11 +39,33 @@ matplotlib.use('Agg')
 class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
 
     def __init__(self,
-                 *args,
+                 sac_trainer: SelfSupCombSACTrainer,
+                 mode_trainer: ModeTrainerWithDiagnosticsDiscrete,
+
+                 exploration_env: NormalizedBoxEnvWrapper,
+                 evaluation_env: NormalizedBoxEnvWrapper,
+
+                 exploration_data_collector: PathCollectorSelfSupervisedDiscreteSkills,
+                 evaluation_data_collector: PathCollectorSelfSupervisedDiscreteSkills,
+
+                 replay_buffer: SelfSupervisedEnvSequenceReplayBufferDiscreteSkills,
+
                  mode_influence_diangnostic_writer: DiagnosticsWriter,
                  **kwargs
                  ):
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            sac_trainer=sac_trainer,
+            mode_trainer=mode_trainer,
+
+            exploration_env=exploration_env,
+            evaluation_env=evaluation_env,
+
+            exploration_data_collector=exploration_data_collector,
+            evaluation_data_collector=evaluation_data_collector,
+
+            replay_buffer=replay_buffer,
+            **kwargs
+        )
 
         self.mode_dim = self.mode_trainer.model.mode_dim
         self.num_skills = self.mode_trainer.num_skills
