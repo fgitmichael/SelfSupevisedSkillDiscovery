@@ -149,7 +149,7 @@ def run(variant: VariantMapping):
     )
 
     diagnostic_writer_mode_influence = DiagnosticsWriter(
-        log_interval=0,
+        log_interval=20,
         writer=writer
     )
 
