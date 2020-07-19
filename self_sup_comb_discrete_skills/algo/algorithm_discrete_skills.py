@@ -149,15 +149,25 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
         paths = self._get_paths_mode_influence_test()
 
         obs_dim = self.policy.obs_dim
+        action_dim = self.policy.action_dim
         for path in paths:
-            obs = path.obs
-            assert obs.shape == (obs_dim, self.seq_len)
+            assert path.obs.shape == (obs_dim, self.seq_len)
+            assert path.action.shape == (action_dim, self.seq_len)
 
             self.mode_influence_diagnostic_writer.writer.plot_lines(
                 legend_str=['dim' + str(i) for i in range(obs_dim)],
-                tb_str="mode influence test/mode {}".format(
+                tb_str="mode influence test: observations/mode {}".format(
                     path.skill_id.squeeze()[0]),
-                arrays_to_plot=[dim for dim in obs],
+                #arrays_to_plot=[dim for dim in obs],
+                arrays_to_plot=path.obs,
+                step=epoch
+            )
+
+            self.mode_influence_diagnostic_writer.writer.plot_lines(
+                legend_str=["dim {}".format(dim) for dim in range(action_dim)],
+                tb_str="mode influence test: actions/mode {}".format(
+                    path.skill_id.squeeze()[0]),
+                arrays_to_plot=path.action,
                 step=epoch
             )
 
