@@ -19,12 +19,19 @@ class PltCreator(object, metaclass=abc.ABCMeta):
             plt.plot(line_to_plot, label=legend_str)
 
     def _plot_lines(self,
-                   legend_str: List[str],
+                    legend_str: Union[List[str], str],
                    arrays_to_plot: Union[List[np.ndarray], np.ndarray]):
         if isinstance(arrays_to_plot, list):
             assert len(legend_str) == len(arrays_to_plot)
-        else:
+
+        elif len(arrays_to_plot.shape) > 1:
             assert len(legend_str) == arrays_to_plot.shape[0]
+
+        else:
+            assert type(legend_str) is str
+            legend_str = [legend_str]
+            arrays_to_plot = np.expand_dims(arrays_to_plot, axis=0)
+
 
         for idx, line in enumerate(arrays_to_plot):
             self._plot_line(
@@ -44,12 +51,3 @@ class PltCreator(object, metaclass=abc.ABCMeta):
                          arrays_to_plot=arrays_to_plot)
 
         return plt.gcf()
-
-
-
-
-
-
-
-
-

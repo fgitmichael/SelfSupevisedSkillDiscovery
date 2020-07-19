@@ -50,7 +50,7 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
 
                  replay_buffer: SelfSupervisedEnvSequenceReplayBufferDiscreteSkills,
 
-                 mode_influence_diangnostic_writer: DiagnosticsWriter,
+                 diangnostic_writer: DiagnosticsWriter,
                  **kwargs
                  ):
         super().__init__(
@@ -75,7 +75,7 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
         assert type(self.mode_trainer) == ModeTrainerWithDiagnosticsDiscrete
         self.discrete_skills = self.get_grid()
 
-        self.mode_influence_diagnostic_writer = mode_influence_diangnostic_writer
+        self.diagnostic_writer = diangnostic_writer
 
     def _train_mode(self,
                     train_data: td.TransitonModeMappingDiscreteSkills
@@ -154,20 +154,41 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
             assert path.obs.shape == (obs_dim, self.seq_len)
             assert path.action.shape == (action_dim, self.seq_len)
 
-            self.mode_influence_diagnostic_writer.writer.plot_lines(
+            skill_id = path.skill_id.squeeze()[0]
+
+            self.diagnostic_writer.writer.plot_lines(
                 legend_str=['dim' + str(i) for i in range(obs_dim)],
                 tb_str="mode influence test: observations/mode {}".format(
-                    path.skill_id.squeeze()[0]),
+                    skill_id),
                 #arrays_to_plot=[dim for dim in obs],
                 arrays_to_plot=path.obs,
                 step=epoch
             )
 
-            self.mode_influence_diagnostic_writer.writer.plot_lines(
+            self.diagnostic_writer.writer.plot_lines(
                 legend_str=["dim {}".format(dim) for dim in range(action_dim)],
                 tb_str="mode influence test: actions/mode {}".format(
-                    path.skill_id.squeeze()[0]),
+                    skill_id),
                 arrays_to_plot=path.action,
+                step=epoch
+            )
+
+            seq_dim = -1
+            data_dim = 0
+            path = path.transpose(seq_dim, data_dim)
+            rewards = self.trainer.intrinsic_reward_calculator.mode_likely_based_rewards(
+                obs_seq=ptu.from_numpy(path.obs).unsqueeze(dim=0),
+                action_seq=ptu.from_numpy(path.action).unsqueeze(dim=0),
+                skill_gt=ptu.from_numpy(path.mode).unsqueeze(dim=0)
+            )
+            assert rewards.shape == torch.Size((1, self.seq_len, 1))
+            rewards = rewards.squeeze()
+            assert rewards.shape == torch.Size((self.seq_len,))
+
+            self.diagnostic_writer.writer.plot_lines(
+                legend_str="skill_id {}".format(skill_id),
+                tb_str="mode influence test rewards/skill_id {}".format(skill_id),
+                arrays_to_plot=ptu.get_numpy(rewards),
                 step=epoch
             )
 

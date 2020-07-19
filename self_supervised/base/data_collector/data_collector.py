@@ -131,7 +131,7 @@ class PathCollectorSelfSupervised(PathCollector):
     def get_epoch_paths(self) -> List[td.TransitionModeMapping]:
         """
         Return:
-            list of TransistionMapping consisting of (S, dim) np.ndarrays
+            list of TransistionMapping consisting of (data_dim, S) np.ndarrays
         """
         epoch_paths = list(self._epoch_paths)
         self.reset()
