@@ -50,8 +50,8 @@ class Rollouter(object):
             next_obs=path['next_observations'],
             terminal=path['terminals'],
             mode=mode_np_seq,
-            agent_infos=path['agent_infos'],
-            env_infos=path['env_infos'],
+            #agent_infos=path['agent_infos'],
+            #env_infos=path['env_infos'],
         )
 
     def _reshape(self, path: dict):

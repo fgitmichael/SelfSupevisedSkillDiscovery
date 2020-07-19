@@ -265,8 +265,6 @@ class TransitionMapping(SlicableProdict):
                  reward: np.ndarray,
                  terminal: np.ndarray,
                  next_obs: np.ndarray,
-                 agent_infos=None,
-                 env_infos=None,
                  ):
 
         super(TransitionMapping, self).__init__(
@@ -275,8 +273,6 @@ class TransitionMapping(SlicableProdict):
             reward=reward,
             terminal=terminal,
             next_obs=next_obs,
-            agent_infos=agent_infos,
-            env_infos=env_infos,
         )
 
 
@@ -290,8 +286,6 @@ class TransitionModeMapping(TransitionMapping):
                  terminal: np.ndarray,
                  next_obs: np.ndarray,
                  mode: np.ndarray,
-                 agent_infos=None,
-                 env_infos=None,
                  ):
 
         Prodict.__init__(
@@ -302,8 +296,6 @@ class TransitionModeMapping(TransitionMapping):
             terminal=terminal,
             next_obs=next_obs,
             mode=mode,
-            agent_infos=agent_infos,
-            env_infos=env_infos
            )
 
 
@@ -422,8 +414,6 @@ class TransitonModeMappingDiscreteSkills(TransitionModeMapping):
                  next_obs: np.ndarray,
                  mode: np.ndarray,
                  skill_id: np.ndarray,
-                 agent_infos=None,
-                 env_infos=None,
                  ):
 
         Prodict.__init__(
@@ -435,6 +425,4 @@ class TransitonModeMappingDiscreteSkills(TransitionModeMapping):
             next_obs=next_obs,
             mode=mode,
             skill_id=skill_id,
-            agent_infos=agent_infos,
-            env_infos=env_infos
         )
