@@ -1,3 +1,5 @@
+import gtimer as gt
+
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.policy.skill_policy import \
     SkillTanhGaussianPolicy, MakeDeterministic
@@ -30,6 +32,7 @@ from self_sup_comb_discrete_skills.algo.mode_trainer_discrete_skill import \
 from mode_disent_no_ssm.utils.empty_network import Empty
 
 import rlkit.torch.pytorch_util as ptu
+from rlkit.launchers.launcher_util import setup_logger
 
 
 def run(variant: VariantMapping):
