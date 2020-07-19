@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from typing import Iterable, Dict
+from typing import Iterable, Dict, Union
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.torch.networks import FlattenMlp
@@ -14,7 +14,7 @@ import self_supervised.utils.typed_dicts as td
 
 from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
 from self_sup_combined.loss.mode_likelihood_based_reward import \
-    ReconstructionLikelyhoodBasedRewards
+    ReconstructionLikelyhoodBasedRewards, ActionDiffBasedRewards
 
 
 class SelfSupCombSACTrainer(MyTrainerBaseClass):
@@ -27,7 +27,10 @@ class SelfSupCombSACTrainer(MyTrainerBaseClass):
                  target_qf1: FlattenMlp,
                  target_qf2: FlattenMlp,
 
-                 intrinsic_reward_calculator: ReconstructionLikelyhoodBasedRewards,
+                 intrinsic_reward_calculator: Union[
+                     ReconstructionLikelyhoodBasedRewards,
+                     ActionDiffBasedRewards],
+
                  discount=0.99,
                  reward_scale=1.0,
 
@@ -109,7 +112,7 @@ class SelfSupCombSACTrainer(MyTrainerBaseClass):
         seq_dim = -2
 
         # Reward (Normalize loss values?)
-        intrinsic_rewards = self.intrinsic_reward_calculator.mode_likely_based_rewards(
+        intrinsic_rewards = self.intrinsic_reward_calculator.calc_rewards(
             obs_seq=data.obs,
             action_seq=data.action,
             skill_gt=data.mode

@@ -176,7 +176,7 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
             seq_dim = -1
             data_dim = 0
             path = path.transpose(seq_dim, data_dim)
-            rewards = self.trainer.intrinsic_reward_calculator.mode_likely_based_rewards(
+            rewards = self.trainer.intrinsic_reward_calculator.calc_rewards(
                 obs_seq=ptu.from_numpy(path.obs).unsqueeze(dim=0),
                 action_seq=ptu.from_numpy(path.action).unsqueeze(dim=0),
                 skill_gt=ptu.from_numpy(path.mode).unsqueeze(dim=0)

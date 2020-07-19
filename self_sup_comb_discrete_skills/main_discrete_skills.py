@@ -17,7 +17,7 @@ from self_sup_comb_discrete_skills.algo.algorithm_discrete_skills import \
     SelfSupCombAlgoDiscrete
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_combined.loss.mode_likelihood_based_reward import \
-    ReconstructionLikelyhoodBasedRewards
+    ReconstructionLikelyhoodBasedRewards, ActionDiffBasedRewards
 from self_sup_combined.utils.set_seed import set_seeds, set_env_seed
 
 from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
@@ -129,7 +129,12 @@ def run(variant: VariantMapping):
         env=expl_env
     )
 
-    reward_calculator = ReconstructionLikelyhoodBasedRewards(
+    reward_calculator_ll = ReconstructionLikelyhoodBasedRewards(
+        skill_policy=policy,
+        mode_encoder=mode_encoder
+    )
+
+    reward_calculator_action_diff = ActionDiffBasedRewards(
         skill_policy=policy,
         mode_encoder=mode_encoder
     )
@@ -143,7 +148,7 @@ def run(variant: VariantMapping):
         target_qf1=target_qf1,
         target_qf2=target_qf2,
 
-        intrinsic_reward_calculator=reward_calculator,
+        intrinsic_reward_calculator=reward_calculator_action_diff,
 
         **variant.trainer_kwargs
     )
