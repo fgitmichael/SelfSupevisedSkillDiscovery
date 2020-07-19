@@ -184,7 +184,7 @@ class ModeTrainerWithDiagnostics(
         if self.is_log(self.learn_steps):
             for k, v in loss_result.items():
                 self.writer.writer.add_scalar(
-                    tag=k,
+                    tag="log_loss_results/{}".format(k),
                     scalar_value=v,
                     global_step=self.learn_steps
                 )
