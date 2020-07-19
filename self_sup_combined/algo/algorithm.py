@@ -59,6 +59,8 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
                  num_eval_steps_per_epoch: int,
                  num_trains_per_expl_step: int,
                  num_train_loops_per_epoch: int = 1,
+                 num_mode_trains_per_train_step: int = 1,
+                 num_sac_trains_per_train_step: int = 1,
                  min_num_steps_before_training: int = 0,
                  ):
         super().__init__(
@@ -78,6 +80,8 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
         self.num_eval_steps_per_epoch = num_train_loops_per_epoch
         self.num_train_loops_per_epoch = num_train_loops_per_epoch
         self.min_num_steps_before_training = min_num_steps_before_training
+        self.num_mode_trains_per_train_step = num_mode_trains_per_train_step
+        self.num_sac_trains_per_train_step = num_sac_trains_per_train_step
         self.num_trains_per_expl_seq = num_trains_per_expl_step
 
         self.policy = self.trainer.policy
@@ -130,10 +134,12 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
                     train_data = self.replay_buffer.random_batch(self.batch_size)
 
                     # Train Latent
-                    self._train_mode(train_data)
+                    for _ in range(self.num_mode_trains_per_train_step):
+                        self._train_mode(train_data)
 
                     # Train SAC
-                    self.trainer.train(train_data)
+                    for _ in range(self.num_sac_trains_per_train_step):
+                        self.trainer.train(train_data)
 
                 self.training_mode(False)
 

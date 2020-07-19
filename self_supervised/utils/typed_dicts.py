@@ -9,6 +9,8 @@ class AlgoKwargsMapping(Prodict):
     num_epochs: int
     num_eval_steps_per_epoch: int
     num_trains_per_expl_step: int
+    num_mode_trains_per_train_step: int
+    num_sac_trains_per_train_step: int
     num_train_loops_per_epoch: int
     min_num_steps_before_training: int
     def __init__(self,
@@ -17,6 +19,8 @@ class AlgoKwargsMapping(Prodict):
                  num_eval_steps_per_epoch: int,
                  num_trains_per_expl_step: int,
                  num_train_loops_per_epoch: int,
+                 num_sac_trains_per_train_step: int,
+                 num_mode_trains_per_train_step: int,
                  min_num_steps_before_training: int,
                  ):
         super().__init__(
@@ -25,6 +29,8 @@ class AlgoKwargsMapping(Prodict):
             num_eval_steps_per_epoch=num_eval_steps_per_epoch,
             num_trains_per_expl_step=num_trains_per_expl_step,
             num_train_loops_per_epoch=num_train_loops_per_epoch,
+            num_sac_trains_per_train_step=num_sac_trains_per_train_step,
+            num_mode_trains_per_train_step=num_mode_trains_per_train_step,
             min_num_steps_before_training=min_num_steps_before_training,
         )
 
