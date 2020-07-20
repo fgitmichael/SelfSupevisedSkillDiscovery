@@ -4,6 +4,7 @@ import torch.nn.functional as F
 import numpy as np
 import math
 from collections import OrderedDict
+from typing import Dict
 
 from self_supervised.base.trainer.trainer_base import MyTrainerBaseClass
 
@@ -208,8 +209,6 @@ class DiaynTrainerSeqwise(MyTrainerBaseClass):
                 self.qf2, self.target_qf2, self.soft_target_tau
             )
 
-
-
     def df_loss_rewards(self,
                         skill_id,
                         next_obs
@@ -239,13 +238,6 @@ class DiaynTrainerSeqwise(MyTrainerBaseClass):
 
         return df_loss, rewards
 
-
-
-
-
-
-
-
     def get_grid(self):
         # Hard coded for testing
         radius1 = 0.75
@@ -268,7 +260,22 @@ class DiaynTrainerSeqwise(MyTrainerBaseClass):
 
         return grid
 
+    def end_epoch(self, epoch):
+        pass
 
+    def get_diagnostics(self):
+        pass
 
+    def get_snapshot(self):
+        pass
 
-
+    @property
+    def networks(self) -> Dict[str, nn.Module]:
+        return dict(
+            policy=self.policy,
+            qf1=self.qf1,
+            qf2=self.qf2,
+            target_qf1=self.target_qf1,
+            target_qf2=self.target_qf2,
+            df=self.df
+        )
