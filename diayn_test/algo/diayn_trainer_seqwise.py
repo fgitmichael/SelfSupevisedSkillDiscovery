@@ -220,8 +220,12 @@ class DiaynTrainerSeqwise(MyTrainerBaseClass):
             data       : (N, S, data_dim)
         """
         data_dim = -1
+        seq_dim = -2
+        batch_dim = 0
+        batch_size = next_obs.size(batch_dim)
+        seq_len = next_obs.size(seq_dim)
 
-        z_hat = skill_id
+        z_hat = skill_id.squeeze()
         d_pred = self.df(next_obs)
         assert d_pred.shape[:data_dim] == next_obs.shape[:data_dim]
         assert d_pred.shape[data_dim] == self.skill_grid.size(0)
@@ -232,11 +236,13 @@ class DiaynTrainerSeqwise(MyTrainerBaseClass):
         assert pred_z.shape[:data_dim] == d_pred_log_softmax.shape[:data_dim]
         assert pred_z.size(data_dim) == 1
 
-        rewards = d_pred_log_softmax[:, :, z_hat] - math.log(1/self.policy.skill_dim)
+        b, s = torch.meshgrid([torch.arange(batch_size), torch.arange(seq_len)])
+        rewards = d_pred_log_softmax[b, s, z_hat].unsqueeze(dim=data_dim) -\
+                  math.log(1/self.policy.skill_dim)
         assert rewards.shape[:data_dim] == next_obs.shape[:data_dim]
         assert rewards.size(data_dim) == 1
 
-        df_loss = self.df_criterion(d_pred.reshape(-1, 1), z_hat)
+        df_loss = self.df_criterion(d_pred.reshape(-1, 10), z_hat.reshape(-1))
 
         return df_loss, rewards
 
