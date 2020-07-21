@@ -155,6 +155,11 @@ class ActionDiffBasedRewards(RewardCalculatorBase):
         mode_post = mode_enc['post']['dist'].loc
         assert mode_post.shape == skill_gt[:, 0, :].shape
 
+        real_skill_log_prob = mode_enc['post']['dist'].log_prob(skill_gt[:, 0, :])
+        real_skill_log_prob_repeated = torch.stack(
+            [real_skill_log_prob] * self.seq_len, dim=self.seq_dim)
+        assert real_skill_log_prob.shape == skill_gt[:, 0, :].shape
+
         mode_post_repeated = torch.stack([mode_post] * self.seq_len, dim=self.seq_dim)
         assert mode_post_repeated.shape[:-1] == obs_seq.shape[:-1]
 
@@ -180,4 +185,7 @@ class ActionDiffBasedRewards(RewardCalculatorBase):
             keepdim=True
         )
 
-        return -error
+        #rewards = real_skill_log_prob_repeated.sum(dim=self.data_dim, keepdim=True) - error
+        rewards = real_skill_log_prob_repeated.sum(dim=self.data_dim, keepdim=True)
+
+        return rewards
