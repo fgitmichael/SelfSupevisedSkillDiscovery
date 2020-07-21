@@ -243,7 +243,7 @@ class DiaynAlgoSeqwiseTb(DiaynAlgoSeqwise):
             # Actions
             self.diagnostic_writer.writer.plot_lines(
                 legend_str=["dim {}".format(i) for i in range(action_dim)],
-                tb_str="Mode Influence Test: Atcion/Skill {}".format(skill_id),
+                tb_str="Mode Influence Test: Action/Skill {}".format(skill_id),
                 arrays_to_plot=path.obs,
                 step=epoch,
                 y_lim=[-3, 3]
