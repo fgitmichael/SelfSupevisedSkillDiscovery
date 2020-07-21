@@ -162,7 +162,8 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
                     skill_id),
                 #arrays_to_plot=[dim for dim in obs],
                 arrays_to_plot=path.obs,
-                step=epoch
+                step=epoch,
+                y_lim=[-3, 3]
             )
 
             self.diagnostic_writer.writer.plot_lines(
@@ -170,7 +171,8 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
                 tb_str="mode influence test: actions/mode {}".format(
                     skill_id),
                 arrays_to_plot=path.action,
-                step=epoch
+                step=epoch,
+                y_lim=[-1.2, 1.2]
             )
 
             seq_dim = -1
@@ -189,7 +191,9 @@ class SelfSupCombAlgoDiscrete(SelfSupCombAlgo):
                 legend_str="skill_id {}".format(skill_id),
                 tb_str="mode influence test rewards/skill_id {}".format(skill_id),
                 arrays_to_plot=ptu.get_numpy(rewards),
-                step=epoch
+                step=epoch,
+                y_lim=[-7, 2]
+
             )
 
     def _log_stats(self, epoch):
