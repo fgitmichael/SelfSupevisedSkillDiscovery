@@ -139,7 +139,7 @@ class DiaynTrainerSeqwise(MyTrainerBaseClass):
         policy_ret_mapping = td.ForwardReturnMapping(**policy_ret_mapping)
         log_pi = policy_ret_mapping.log_prob
 
-        obs_skills = torch.cat((obs, mode), dim=1)
+        obs_skills = torch.cat((obs, mode), dim=-1)
 
         if self.use_automatic_entropy_tuning:
             alpha_loss = -(self.log_alpha *
@@ -174,7 +174,7 @@ class DiaynTrainerSeqwise(MyTrainerBaseClass):
         new_policy_ret_mapping = td.ForwardReturnMapping(**new_policy_ret_mapping)
         new_log_pi = new_policy_ret_mapping.log_prob
 
-        next_obs_skills = torch.cat((next_obs, mode), dim=1)
+        next_obs_skills = torch.cat((next_obs, mode), dim=-1)
         target_q_values = torch.min(
             self.target_qf1(next_obs_skills, new_policy_ret_mapping.action),
             self.target_qf2(next_obs_skills, new_policy_ret_mapping.action),

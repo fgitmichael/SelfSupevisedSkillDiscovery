@@ -9,5 +9,5 @@ class FlattenMlp(MyMlp):
     """
 
     def forward(self, *inputs, **kwargs) -> torch.Tensor:
-        flat_inputs = torch.cat(inputs, dim=1)
+        flat_inputs = torch.cat(inputs, dim=-1)
         return super().forward(flat_inputs)
