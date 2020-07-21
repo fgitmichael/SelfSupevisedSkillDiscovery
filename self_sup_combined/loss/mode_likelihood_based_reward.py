@@ -21,9 +21,9 @@ class RewardCalculatorBase(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def _calc_rewards(self,
-                     obs_seq: torch.Tensor,
-                     action_seq: torch.Tensor,
-                     skill_gt: torch.Tensor) -> torch.Tensor:
+                      obs_seq: torch.Tensor,
+                      action_seq: torch.Tensor,
+                      skill_gt: torch.Tensor) -> torch.Tensor:
         """
         Args:
             obs_seq            : (N, S, obs_dim)
@@ -35,9 +35,9 @@ class RewardCalculatorBase(object, metaclass=abc.ABCMeta):
         raise NotImplementedError('To be implemented in subclass')
 
     def calc_rewards(self,
-                      obs_seq: torch.Tensor,
-                      action_seq: torch.Tensor,
-                      skill_gt: torch.Tensor) -> torch.Tensor:
+                     obs_seq: torch.Tensor,
+                     action_seq: torch.Tensor,
+                     skill_gt: torch.Tensor) -> torch.Tensor:
         """
         Args:
             obs_seq            : (N, S, obs_dim)
@@ -93,9 +93,9 @@ class ReconstructionLikelyhoodBasedRewards(RewardCalculatorBase):
 
     @torch.no_grad()
     def _calc_rewards(self,
-                     obs_seq: torch.Tensor,
-                     action_seq: torch.Tensor,
-                     skill_gt: torch.Tensor) -> torch.Tensor:
+                      obs_seq: torch.Tensor,
+                      action_seq: torch.Tensor,
+                      skill_gt: torch.Tensor) -> torch.Tensor:
         """
         Args:
             obs_seq            : (N, S, obs_dim)
@@ -137,9 +137,9 @@ class ActionDiffBasedRewards(RewardCalculatorBase):
 
     @torch.no_grad()
     def _calc_rewards(self,
-                     obs_seq: torch.Tensor,
-                     action_seq: torch.Tensor,
-                     skill_gt: torch.Tensor) -> torch.Tensor:
+                      obs_seq: torch.Tensor,
+                      action_seq: torch.Tensor,
+                      skill_gt: torch.Tensor) -> torch.Tensor:
         """
         Args:
             obs_seq            : (N, S, obs_dim)
