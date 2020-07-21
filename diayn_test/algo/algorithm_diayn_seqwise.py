@@ -1,6 +1,7 @@
 import numpy as np
 from typing import List
 import gtimer as gt
+import torch
 
 from self_supervised.base.algo.algo_base import BaseRLAlgorithmSelfSup
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
@@ -12,11 +13,13 @@ from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills
     PathCollectorSelfSupervisedDiscreteSkills
 from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
+from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 from diayn_test.algo.diayn_trainer_seqwise import DiaynTrainerSeqwise
 
 from rlkit.core import logger, eval_util
 from rlkit.core.rl_algorithm import _get_epoch_timings
+import rlkit.torch.pytorch_util as ptu
 
 class DiaynAlgoSeqwise(BaseRLAlgorithmSelfSup):
 
@@ -193,3 +196,90 @@ class DiaynAlgoSeqwise(BaseRLAlgorithmSelfSup):
         logger.record_dict(_get_epoch_timings())
         logger.record_tabular('Epoch', epoch)
         logger.dump_tabular(with_prefix=False, with_timestamp=False)
+
+
+class DiaynAlgoSeqwiseTb(DiaynAlgoSeqwise):
+    def __init__(self,
+                 *args,
+                 diangnostic_writer: DiagnosticsWriter,
+                 **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.diagnostic_writer = diangnostic_writer
+
+        self.skills = self.trainer.get_grid()
+
+    def _end_epoch(self, epoch):
+        super()._end_epoch(epoch)
+
+        if self.diagnostic_writer.is_log(epoch):
+            self.write_mode_influence(epoch)
+
+    @torch.no_grad()
+    def write_mode_influence(self, epoch):
+        paths = self._get_paths_mode_influence_test()
+        assert len(paths) == self.skills.size(0)
+
+        obs_dim = self.policy.obs_dim
+        action_dim = self.policy.action_dim
+
+        for path in paths:
+            assert path.obs.shape == (obs_dim, self.seq_len)
+            assert path.action.shape == (action_dim, self.seq_len)
+            assert path.skill_id.shape == (1, self.seq_len)
+            assert np.stack([path.skill_id[:, 0]] * self.seq_len, axis=1) == path.skill_id
+
+            skill_id = path.skill_id.squeeze()[0]
+
+            # Observatons
+            self.diagnostic_writer.writer.plot_lines(
+                legend_str=["dim {}".format(i) for i in range(obs_dim)],
+                tb_str="Mode Influence Test: Obs/Skill {}".format(skill_id),
+                arrays_to_plot=path.obs,
+                step=epoch,
+                y_lim=[-3, 3]
+            )
+
+            # Actions
+            self.diagnostic_writer.writer.plot_lines(
+                legend_str=["dim {}".format(i) for i in range(action_dim)],
+                tb_str="Mode Influence Test: Atcion/Skill {}".format(skill_id),
+                arrays_to_plot=path.obs,
+                step=epoch,
+                y_lim=[-3, 3]
+            )
+
+            #Rewards
+            _, rewards = self.trainer.df_loss_rewards(
+                skill_id=ptu.from_numpy(path.skill_id).long().unsqueeze(dim=0),
+                next_obs=ptu.from_numpy(path.next_obs).unsqueeze(dim=0)
+            )
+            assert rewards.shape == torch.Size((1, self.seq_len, 1))
+            rewards = rewards.squeeze()
+            self.diagnostic_writer.writer.plot_lines(
+                legend_str="rewards for skill {}".format(skill_id),
+                tb_str="mode_influence test rewards/skill_id {}".format(skill_id),
+                arrays_to_plot=ptu.get_numpy(rewards),
+                step=epoch,
+            )
+
+    def _get_paths_mode_influence_test(self):
+        self.eval_data_collector.reset()
+        for skill_id, skill in enumerate(self.skills):
+            self.eval_data_collector.set_discrete_skill(
+                skill_vec=skill,
+                skill_id=skill_id
+            )
+            self.eval_data_collector.collect_new_paths(
+                seq_len=self.seq_len,
+                num_seqs=1
+            )
+
+        mode_influence_eval_paths = self.eval_data_collector.get_epoch_paths()
+
+        return mode_influence_eval_paths
+
+
+
+
+
