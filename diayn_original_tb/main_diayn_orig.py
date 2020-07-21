@@ -2,6 +2,7 @@ import gym
 import argparse
 import torch
 import numpy as np
+import copy
 #from gym.envs.mujoco import HalfCheetahEnv
 
 import rlkit.torch.pytorch_util as ptu
@@ -15,9 +16,12 @@ from rlkit.torch.networks import FlattenMlp
 from rlkit.torch.sac.diayn.diayn_torch_online_rl_algorithm import \
     DIAYNTorchOnlineRLAlgorithm
 
-from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_supervised.base.writer.writer_base import WriterBase
+from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
+from self_supervised.network.flatten_mlp import FlattenMlp as \
+    MyFlattenMlp
 from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
+from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
     PathCollectorSelfSupervisedDiscreteSkills
 
@@ -27,10 +31,8 @@ from diayn_original_tb.policies.diayn_policy_extension import \
 
 
 def experiment(variant, args):
-    expl_env = NormalizedBoxEnv(gym.make(str(args.env)))
-    eval_env = NormalizedBoxEnv(gym.make(str(args.env)))
-    # expl_env = NormalizedBoxEnv(HalfCheetahEnv())
-    # eval_env = NormalizedBoxEnv(HalfCheetahEnv())
+    expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
+    eval_env = copy.deepcopy(expl_env)
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
     skill_dim = args.skill_dim
@@ -42,27 +44,27 @@ def experiment(variant, args):
     np.random.seed(seed)
 
     M = variant['layer_size']
-    qf1 = FlattenMlp(
+    qf1 = MyFlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    qf2 = FlattenMlp(
+    qf2 = MyFlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    target_qf1 = FlattenMlp(
+    target_qf1 = MyFlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    target_qf2 = FlattenMlp(
+    target_qf2 = MyFlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = FlattenMlp(
+    df = MyFlattenMlp(
         input_size=obs_dim,
         output_size=skill_dim,
         hidden_sizes=[M, M],
