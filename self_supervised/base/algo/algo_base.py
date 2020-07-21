@@ -2,6 +2,12 @@ import abc
 import gym
 from typing import Union
 
+from diayn_test.algo.diayn_trainer_seqwise import DiaynTrainerSeqwise
+
+from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
+    PathCollectorSelfSupervisedDiscreteSkills
+from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
+    SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
 
 from rlkit.samplers.data_collector import DataCollector
 from rlkit.data_management.replay_buffer import ReplayBuffer
@@ -18,12 +24,22 @@ from self_sup_combined.algo.trainer_sac import SelfSupCombSACTrainer
 
 class BaseRLAlgorithmSelfSup(BaseRLAlgorithm, metaclass=abc.ABCMeta):
     def __init__(self,
-                 trainer: Union[Trainer, SelfSupCombSACTrainer, SelfSupTrainer],
+                 trainer: Union[Trainer,
+                                SelfSupCombSACTrainer,
+                                SelfSupTrainer,
+                                DiaynTrainerSeqwise],
                  exploration_env: gym.Env,
                  evaluation_env: gym.Env,
-                 exploration_data_collector: PathCollectorSelfSupervised,
-                 evaluation_data_collector: PathCollectorSelfSupervised,
-                 replay_buffer: SelfSupervisedEnvSequenceReplayBuffer):
+                 exploration_data_collector: Union[
+                     PathCollectorSelfSupervised,
+                     PathCollectorSelfSupervisedDiscreteSkills],
+                 evaluation_data_collector: Union[
+                     PathCollectorSelfSupervised,
+                     PathCollectorSelfSupervisedDiscreteSkills],
+                 replay_buffer: Union[
+                     SelfSupervisedEnvSequenceReplayBuffer,
+                     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills]
+                 ):
         super().__init__(
             trainer=trainer,
             exploration_env=exploration_env,
