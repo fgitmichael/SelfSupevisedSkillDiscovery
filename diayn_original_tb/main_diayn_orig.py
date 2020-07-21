@@ -162,5 +162,5 @@ if __name__ == "__main__":
         ),
     )
     setup_logger('DIAYN_' + str(args.skill_dim) + '_' + args.env, variant=variant)
-    # ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
+    ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
     experiment(variant, args)

@@ -1,4 +1,7 @@
+import numpy as np
+
 from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy
+from rlkit.policies.base import Policy
 
 
 class SkillTanhGaussianPolicyExtension(SkillTanhGaussianPolicy):
