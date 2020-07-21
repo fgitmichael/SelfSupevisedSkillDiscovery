@@ -5,6 +5,7 @@ import numpy as np
 import math
 from collections import OrderedDict
 from typing import Dict
+import gtimer as gt
 
 from self_supervised.base.trainer.trainer_base import MyTrainerBaseClass
 
@@ -15,6 +16,8 @@ import self_supervised.utils.typed_dicts as td
 
 from rlkit.torch.networks import FlattenMlp
 import rlkit.torch.pytorch_util as ptu
+from rlkit.core import logger, eval_util
+from rlkit.core.rl_algorithm import _get_epoch_timings
 
 class DiaynTrainerSeqwise(MyTrainerBaseClass):
 
