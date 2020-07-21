@@ -111,7 +111,6 @@ class DiaynTrainerSeqwise(MyTrainerBaseClass):
         seq_len = data.obs.shape[seq_dim]
 
         data = data.transpose(batch_dim, seq_dim, data_dim)
-        data = td.TransitonModeMappingDiscreteSkills(**self_sup_conversion.from_numpy(data))
         data_dim = -1
         seq_dim = -2
 
