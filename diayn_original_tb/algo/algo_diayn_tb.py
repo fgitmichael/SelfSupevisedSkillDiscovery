@@ -1,11 +1,14 @@
 import torch
 import torch.nn.functional as F
 from typing import List
+import gtimer as gt
 
 
 from rlkit.torch.sac.diayn.diayn_torch_online_rl_algorithm import \
     DIAYNTorchOnlineRLAlgorithm
 import rlkit.torch.pytorch_util as ptu
+from rlkit.core.rl_algorithm import _get_epoch_timings
+from rlkit.core import logger
 
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
@@ -58,12 +61,12 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
                 tb_str="Mode Influence Test: Action/Skill {}".format(skill_id),
                 arrays_to_plot=path.action,
                 step=epoch,
-                y_lim=[-3, 3]
+                y_lim=[-1.2, 1.2]
             )
 
             # TODO: write rewards
 
-    def _get_paths_mode_influence_test(self, seq_len=100) \
+    def _get_paths_mode_influence_test(self, seq_len=200) \
             -> List[TransitonModeMappingDiscreteSkills]:
 
         for skill in range(self.policy.skill_dim):
@@ -82,3 +85,62 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         mode_influence_eval_paths = self.seq_eval_collector.get_epoch_paths()
 
         return mode_influence_eval_paths
+
+    def _log_stats(self, epoch):
+        logger.log("Epoch {} finished".format(epoch), with_timestamp=True)
+
+        """
+        Replay Buffer
+        """
+        logger.record_dict(
+            self.replay_buffer.get_diagnostics(),
+            prefix='replay_buffer/'
+        )
+
+        """
+        Trainer
+        """
+        logger.record_dict(self.trainer.get_diagnostics(), prefix='trainer/')
+
+        """
+        Exploration
+        """
+        logger.record_dict(
+            self.expl_data_collector.get_diagnostics(),
+            prefix='exploration/'
+        )
+        expl_paths = self.expl_data_collector.get_epoch_paths()
+        #if hasattr(self.expl_env, 'get_diagnostics'):
+        #    logger.record_dict(
+        #        self.expl_env.get_diagnostics(expl_paths),
+        #        prefix='exploration/',
+        #    )
+        #logger.record_dict(
+        #    eval_util.get_generic_path_information(expl_paths),
+        #    prefix="exploration/",
+        #)
+        """
+        Evaluation
+        """
+        logger.record_dict(
+            self.eval_data_collector.get_diagnostics(),
+            prefix='evaluation/',
+        )
+        eval_paths = self.eval_data_collector.get_epoch_paths()
+        #if hasattr(self.eval_env, 'get_diagnostics'):
+        #    logger.record_dict(
+        #        self.eval_env.get_diagnostics(eval_paths),
+        #        prefix='evaluation/',
+        #    )
+        #logger.record_dict(
+        #    eval_util.get_generic_path_information(eval_paths),
+        #    prefix="evaluation/",
+        #)
+
+        """
+        Misc
+        """
+        gt.stamp('logging')
+        logger.record_dict(_get_epoch_timings())
+        logger.record_tabular('Epoch', epoch)
+        logger.dump_tabular(with_prefix=False, with_timestamp=False)
