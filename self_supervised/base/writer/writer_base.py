@@ -45,11 +45,16 @@ class WriterBase(object):
                    legend_str: Union[str, List[str]],
                    tb_str: str,
                    arrays_to_plot: Union[np.ndarray, List[np.ndarray]],
-                   step: int):
+                   step: int,
+                   x_lim = None,
+                   y_lim = None):
 
         fig = self.plt_creator.plot_lines(
             legend_str=legend_str,
-            arrays_to_plot=arrays_to_plot)
+            arrays_to_plot=arrays_to_plot,
+            x_lim=x_lim,
+            y_lim=y_lim
+        )
 
         self.writer.add_figure(
             tag=tb_str,
