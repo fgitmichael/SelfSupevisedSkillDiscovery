@@ -131,14 +131,15 @@ class SelfSupCombAlgo(BaseRLAlgorithmSelfSup):
 
                 for _ in range(self.num_trains_per_expl_seq):
 
-                    train_data = self.replay_buffer.random_batch(self.batch_size)
 
                     # Train Latent
                     for _ in range(self.num_mode_trains_per_train_step):
+                        train_data = self.replay_buffer.random_batch(self.batch_size)
                         self._train_mode(train_data)
 
                     # Train SAC
                     for _ in range(self.num_sac_trains_per_train_step):
+                        train_data = self.replay_buffer.random_batch(self.batch_size)
                         self.trainer.train(train_data)
 
                 self.training_mode(False)
