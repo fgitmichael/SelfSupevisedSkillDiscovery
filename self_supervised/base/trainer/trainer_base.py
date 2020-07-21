@@ -11,7 +11,7 @@ class MyTrainerBaseClass(Trainer, metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def get_snapshot(self):
+    def get_snapshot(self) -> dict:
         return {}
 
     @abc.abstractmethod
@@ -19,7 +19,7 @@ class MyTrainerBaseClass(Trainer, metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def get_diagnostics(self):
+    def get_diagnostics(self) -> dict:
         return {}
 
     @property

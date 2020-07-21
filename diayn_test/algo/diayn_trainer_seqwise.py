@@ -272,10 +272,10 @@ class DiaynTrainerSeqwise(MyTrainerBaseClass):
         pass
 
     def get_diagnostics(self):
-        pass
+        return {}
 
     def get_snapshot(self):
-        pass
+        return {}
 
     @property
     def networks(self) -> Dict[str, nn.Module]:
