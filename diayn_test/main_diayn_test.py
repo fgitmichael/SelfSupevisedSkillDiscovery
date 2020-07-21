@@ -104,7 +104,17 @@ def run(variant: VariantMapping):
         **variant.trainer_kwargs
     )
 
-    algorithm = DiaynAlgoSeqwise(
+    writer = WriterBase(
+        seed=seed,
+        log_dir='logs',
+    )
+
+    diagn_writer = DiagnosticsWriter(
+        writer=writer,
+        log_interval=1
+    )
+
+    algorithm = DiaynAlgoSeqwiseTb(
         trainer=trainer,
 
         exploration_env=expl_env,
@@ -112,6 +122,8 @@ def run(variant: VariantMapping):
         exploration_data_collector=expl_step_collector,
         evaluation_data_collector=eval_path_collector,
         replay_buffer=replay_buffer,
+
+        diagnostic_writer=diagn_writer,
 
         **variant.algo_kwargs
     )

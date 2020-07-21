@@ -201,11 +201,11 @@ class DiaynAlgoSeqwise(BaseRLAlgorithmSelfSup):
 class DiaynAlgoSeqwiseTb(DiaynAlgoSeqwise):
     def __init__(self,
                  *args,
-                 diangnostic_writer: DiagnosticsWriter,
+                 diagnostic_writer: DiagnosticsWriter,
                  **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.diagnostic_writer = diangnostic_writer
+        self.diagnostic_writer = diagnostic_writer
 
         self.skills = self.trainer.get_grid()
 
@@ -227,7 +227,8 @@ class DiaynAlgoSeqwiseTb(DiaynAlgoSeqwise):
             assert path.obs.shape == (obs_dim, self.seq_len)
             assert path.action.shape == (action_dim, self.seq_len)
             assert path.skill_id.shape == (1, self.seq_len)
-            assert np.stack([path.skill_id[:, 0]] * self.seq_len, axis=1) == path.skill_id
+            assert np.all(np.stack([path.skill_id[:, 0]] * self.seq_len, axis=1)\
+                       == path.skill_id)
 
             skill_id = path.skill_id.squeeze()[0]
 
@@ -244,15 +245,17 @@ class DiaynAlgoSeqwiseTb(DiaynAlgoSeqwise):
             self.diagnostic_writer.writer.plot_lines(
                 legend_str=["dim {}".format(i) for i in range(action_dim)],
                 tb_str="Mode Influence Test: Action/Skill {}".format(skill_id),
-                arrays_to_plot=path.obs,
+                arrays_to_plot=path.action,
                 step=epoch,
                 y_lim=[-3, 3]
             )
 
             #Rewards
             _, rewards = self.trainer.df_loss_rewards(
-                skill_id=ptu.from_numpy(path.skill_id).long().unsqueeze(dim=0),
-                next_obs=ptu.from_numpy(path.next_obs).unsqueeze(dim=0)
+                skill_id=ptu.from_numpy(path.skill_id)
+                    .long().transpose(0, 1).unsqueeze(dim=0),
+                next_obs=ptu.from_numpy(path.next_obs)
+                    .transpose(0, 1).unsqueeze(dim=0)
             )
             assert rewards.shape == torch.Size((1, self.seq_len, 1))
             rewards = rewards.squeeze()

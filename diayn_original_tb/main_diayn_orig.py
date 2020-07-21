@@ -27,9 +27,6 @@ from diayn_original_tb.policies.diayn_policy_extension import \
 
 
 def experiment(variant, args):
-
-
-
     expl_env = NormalizedBoxEnv(gym.make(str(args.env)))
     eval_env = NormalizedBoxEnv(gym.make(str(args.env)))
     # expl_env = NormalizedBoxEnv(HalfCheetahEnv())
@@ -129,8 +126,6 @@ def experiment(variant, args):
     )
     algorithm.to(ptu.device)
     algorithm.train()
-
-
 
 
 if __name__ == "__main__":

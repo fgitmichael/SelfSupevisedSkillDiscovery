@@ -10,8 +10,9 @@ import rlkit.torch.pytorch_util as ptu
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
-    PathCollectorSelfSupervisedDiscreteSkills, TransitonModeMappingDiscreteSkills
+    TransitonModeMappingDiscreteSkills
 
+from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
 
 
 class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
@@ -19,13 +20,13 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
     def __init__(self,
                  *args,
                  diagnostic_writer: DiagnosticsWriter,
-                 sequence_eval_collector: PathCollectorSelfSupervisedDiscreteSkills,
+                 seq_eval_collector: SeqCollector,
                  **kwargs
                  ):
         super().__init__(*args, **kwargs)
 
         self.diagnostic_writer = diagnostic_writer
-        self.seq_eval_collector = sequence_eval_collector
+        self.seq_eval_collector = seq_eval_collector
 
     def _end_epoch(self, epoch):
         super()._end_epoch(epoch)
@@ -68,11 +69,9 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         for skill in range(self.policy.skill_dim):
             # Set skill
             skill_oh = F.one_hot(
-                skill, num_classes=self.policy.skill_dim).float().to(ptu.device)
-            self.seq_eval_collector.set_discrete_skill(
-                skill_vec=skill_oh,
-                skill_id=skill
-            )
+                ptu.tensor(skill), num_classes=self.policy.skill_dim)
+            self.seq_eval_collector.set_skill(skill)
+
 
             self.seq_eval_collector.collect_new_paths(
                 seq_len=seq_len,
@@ -80,14 +79,6 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
                 discard_incomplete_paths=False
             )
 
-        mode_influence_eval_paths = self.eval_data_collector.get_epoch_paths()
+        mode_influence_eval_paths = self.seq_eval_collector.get_epoch_paths()
 
         return mode_influence_eval_paths
-
-
-
-
-
-
-
-

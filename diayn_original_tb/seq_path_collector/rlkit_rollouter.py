@@ -1,21 +1,26 @@
 import gym
 import numpy as np
 import torch
+from typing import Union
 
 from rlkit.samplers.rollout_functions import rollout
 import rlkit.torch.pytorch_util as ptu
 
 from diayn_original_tb.policies.diayn_policy_extension import \
-    SkillTanhGaussianPolicyExtension
+    SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
 
 import self_supervised.utils.typed_dicts as td
 
 
+# TODO: create absrtract base class for rollouters
 class Rollouter(object):
 
     def __init__(self,
                  env: gym.Env,
-                 policy: SkillTanhGaussianPolicyExtension):
+                 policy: Union[
+                     SkillTanhGaussianPolicyExtension,
+                     MakeDeterministicExtension]
+                 ):
         self._env = env
         self._policy = policy
 
@@ -41,7 +46,7 @@ class Rollouter(object):
 
         path = self._reshape(path)
 
-        mode_np = ptu.get_numpy(self._policy.skill)
+        mode_np = np.array([self._policy.skill])
         mode_np_seq = np.stack([mode_np] * max_path_length, axis=1)
 
         return td.TransitionModeMapping(

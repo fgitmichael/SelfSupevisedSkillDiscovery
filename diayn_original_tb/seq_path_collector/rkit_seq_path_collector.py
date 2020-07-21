@@ -5,19 +5,22 @@ from collections import deque
 from typing import List, Union
 
 from rlkit.samplers.data_collector.base import PathCollector
+from rlkit.torch.sac.diayn.policies import MakeDeterministic
 
 import self_supervised.utils.typed_dicts as td
 
 from diayn_original_tb.seq_path_collector.rlkit_rollouter import Rollouter
 from diayn_original_tb.policies.diayn_policy_extension import \
-    SkillTanhGaussianPolicyExtension
+    SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
 
 class SeqCollector(PathCollector):
 
     def __init__(self,
                  env: gym.Env,
-                 policy: SkillTanhGaussianPolicyExtension,
-                 max_num_epoch_paths_saved: int=None,
+                 policy: Union[
+                         SkillTanhGaussianPolicyExtension,
+                         MakeDeterministicExtension],
+                 max_num_epoch_paths_saved: int = None,
                  render: bool = False,
                  render_kwargs: bool = None):
         if render_kwargs is None:
@@ -48,11 +51,11 @@ class SeqCollector(PathCollector):
         """
         self._skill = skill
 
-    def _collect_new_paths(self,
-                           seq_len: int,
-                           num_seqs: int,
-                           discard_incomplete_paths: bool
-                           ):
+    def collect_new_paths(self,
+                          seq_len: int,
+                          num_seqs: int,
+                          discard_incomplete_paths: bool
+                          ):
         paths = []
         num_steps_collected = 0
         self.seq_len = seq_len
@@ -79,7 +82,7 @@ class SeqCollector(PathCollector):
             assert path.obs.shape[shape_dim] \
                    == path.next_obs.shape[shape_dim] \
                    == self._rollouter._env.observation_space.shape[0]
-            assert path.mode.shape[shape_dim] == self._rollouter._policy.skill_dim
+            assert path.mode.shape[shape_dim] == 1
             assert path.action.shape[seq_dim] \
                    == path.obs.shape[seq_dim] \
                    == path.reward.shape[seq_dim] \
@@ -138,8 +141,3 @@ class SeqCollector(PathCollector):
         # Note: without popping epoch paths now reset is done by default
         if reset:
             self.reset()
-
-
-
-
-
