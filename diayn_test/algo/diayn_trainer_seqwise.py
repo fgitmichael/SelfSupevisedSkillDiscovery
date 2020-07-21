@@ -119,7 +119,7 @@ class DiaynTrainerSeqwise(MyTrainerBaseClass):
         next_obs = ptu.from_numpy(data.next_obs)
         action = ptu.from_numpy(data.action)
         terminal = ptu.from_numpy(data.terminal)
-        skill_id = ptu.from_numpy(data.skill_id)
+        skill_id = ptu.from_numpy(data.skill_id).long()
 
         df_loss, reward = self.df_loss_rewards(
             next_obs=next_obs,
