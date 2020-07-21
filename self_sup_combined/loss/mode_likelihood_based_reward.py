@@ -19,6 +19,9 @@ class RewardCalculatorBase(object, metaclass=abc.ABCMeta):
         self.seq_dim = -2
         self.data_dim = -1
 
+        self.batch_size = None
+        self.seq_len = None
+
     @abc.abstractmethod
     def _calc_rewards(self,
                       obs_seq: torch.Tensor,
