@@ -24,10 +24,13 @@ from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
     PathCollectorSelfSupervisedDiscreteSkills
+from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
+    SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
 
 from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
 from diayn_original_tb.policies.diayn_policy_extension import \
     SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
+from diayn_original_tb.algo.algo_diayn_tb_own_fun import DIAYNTorchOnlineRLAlgorithmOwnFun
 
 
 def experiment(variant, args):
@@ -36,6 +39,8 @@ def experiment(variant, args):
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
     skill_dim = args.skill_dim
+
+    seq_len = 100
 
     seed = 0
     torch.manual_seed = seed
@@ -76,11 +81,11 @@ def experiment(variant, args):
         skill_dim=skill_dim
     )
     eval_policy = MakeDeterministicExtension(policy)
-    eval_path_collector = DIAYNMdpPathCollector(
+    eval_path_collector = SeqCollector(
         eval_env,
         eval_policy,
     )
-    expl_step_collector = MdpStepCollector(
+    expl_step_collector = SeqCollector(
         expl_env,
         policy,
     )
@@ -88,10 +93,11 @@ def experiment(variant, args):
         env=eval_env,
         policy=eval_policy
     )
-    replay_buffer = DIAYNEnvReplayBuffer(
-        variant['replay_buffer_size'],
-        expl_env,
-        skill_dim,
+    replay_buffer = SelfSupervisedEnvSequenceReplayBufferDiscreteSkills(
+        max_replay_buffer_size=variant['replay_buffer_size'],
+        seq_len=seq_len,
+        mode_dim=skill_dim,
+        env=expl_env,
     )
     trainer = DIAYNTrainer(
         env=eval_env,
@@ -113,13 +119,15 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = DIAYNTorchOnlineRLAlgorithmTb(
+    algorithm = DIAYNTorchOnlineRLAlgorithmOwnFun(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
         exploration_data_collector=expl_step_collector,
         evaluation_data_collector=eval_path_collector,
         replay_buffer=replay_buffer,
+
+        seq_len=seq_len,
 
         diagnostic_writer=diagno_writer,
         seq_eval_collector=seq_eval_collector,
