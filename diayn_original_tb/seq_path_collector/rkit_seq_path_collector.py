@@ -82,7 +82,7 @@ class SeqCollector(PathCollector):
             assert path.obs.shape[shape_dim] \
                    == path.next_obs.shape[shape_dim] \
                    == self._rollouter._env.observation_space.shape[0]
-            assert path.mode.shape[shape_dim] == 1
+            assert path.mode.shape[shape_dim] == self._rollouter._policy.skill_dim
             assert path.action.shape[seq_dim] \
                    == path.obs.shape[seq_dim] \
                    == path.reward.shape[seq_dim] \

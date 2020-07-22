@@ -46,8 +46,13 @@ class Rollouter(object):
 
         path = self._reshape(path)
 
-        mode_np = np.array([self._policy.skill])
-        mode_np_seq = np.stack([mode_np] * max_path_length, axis=1)
+        # self._policy.skill is integer (id of skill), but here we want one hot
+        data_dim = -2
+        seq_dim = -1
+        num_classes = self._policy.skill_dim
+        skill = self._policy.skill
+        mode_np_oh = np.eye(num_classes)[skill]
+        mode_np_seq = np.stack([mode_np_oh] * max_path_length, axis=seq_dim)
 
         return td.TransitionModeMapping(
             obs=path['observations'],
