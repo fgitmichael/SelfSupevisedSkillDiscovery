@@ -121,12 +121,28 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                             train_data = self.replay_buffer.random_batch(
                                 self.batch_size
                             )
-                            self.trainer.train(train_data)
+                            batch_dim = 0
+                            data_dim = 1
+                            seq_dim = 2
+                            obs_dim = train_data.obs.shape[data_dim]
+                            action_dim = train_data.action.shape[data_dim]
+                            mode_dim = train_data.mode.shape[data_dim]
+                            train_data = train_data.transpose(batch_dim, seq_dim, data_dim)
+                            self.trainer.train(
+                                dict(
+                                    rewards=train_data.reward.reshape(-1, 1),
+                                    terminals=train_data.terminal.reshape(-1, 1),
+                                    observations=train_data.obs.reshape(-1, obs_dim),
+                                    actions=train_data.action.reshape(-1, action_dim),
+                                    next_observations=train_data.next_obs.reshape(-1, obs_dim),
+                                    skills=train_data.mode.reshape(-1, mode_dim)
+                                )
+                            )
                         gt.stamp('training', unique=False)
                         self.training_mode(False)
 
                 new_expl_paths = self.expl_data_collector.get_epoch_paths()
-                self.replay_buffer.add_paths(new_expl_paths)
+                self.replay_buffer.add_self_sup_paths(new_expl_paths)
                 gt.stamp('data storing', unique=False)
 
                 self._end_epoch(epoch)
