@@ -96,11 +96,21 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
             self.replay_buffer.get_diagnostics(),
             prefix='replay_buffer/'
         )
+        self.diagnostic_writer.writer.log_dict_scalars(
+            dict_to_log=self.replay_buffer.get_diagnostics(),
+            step=epoch,
+            base_tag='Replay-Buffer Eval Stats'
+        )
 
         """
         Trainer
         """
         logger.record_dict(self.trainer.get_diagnostics(), prefix='trainer/')
+        self.diagnostic_writer.writer.log_dict_scalars(
+            dict_to_log=self.trainer.get_diagnostics(),
+            step=epoch,
+            base_tag='Trainer Eval Stats'
+        )
 
         """
         Exploration
