@@ -1,5 +1,6 @@
 import torch
 import gtimer as gt
+import random
 
 
 import rlkit.torch.pytorch_util as ptu
@@ -81,9 +82,13 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
         for net in self.trainer.networks:
             net.to(device)
 
+    def set_next_skill(self, data_collector: SeqCollector):
+        data_collector.set_skill(random.randint(0, self.policy.skill_dim - 1))
+
     def _train(self):
         self.training_mode(False)
         if self.min_num_steps_before_training > 0:
+            self.set_next_skill(self.expl_data_collector)
             self.expl_data_collector.collect_new_paths(
                 seq_len=self.seq_len,
                 num_seqs=1,
@@ -96,8 +101,8 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
             for epoch in gt.timed_for(range(self._start_epoch, self.num_epochs)):
                 # set policy for one epoch
-                self.policy.skill_reset()
 
+                self.set_next_skill(self.expl_data_collector)
                 num_trains_per_expl_step = self.num_train_loops_per_epoch // \
                     (self.num_expl_steps_per_train_loop * self.seq_len)
                 num_trains_per_expl_step = min(num_trains_per_expl_step, 1)
