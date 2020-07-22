@@ -30,7 +30,7 @@ from diayn_original_tb.policies.diayn_policy_extension import \
     SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
 
 
-class DIAYNTorchOnlineRLAlgorithmOwnFun(BaseRLAlgorithm):
+class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
     def __init__(self,
                  trainer: DIAYNTrainer,
@@ -41,6 +41,8 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(BaseRLAlgorithm):
                  replay_buffer: SelfSupervisedEnvSequenceReplayBufferDiscreteSkills,
 
                  seq_len,
+                 diagnostic_writer: DiagnosticsWriter,
+                 seq_eval_collector: SeqCollector,
 
                  batch_size,
                  max_path_length,
@@ -57,24 +59,19 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(BaseRLAlgorithm):
             exploration_data_collector,
             evaluation_data_collector,
             replay_buffer,
+            diagnostic_writer=diagnostic_writer,
+            seq_eval_collector=seq_eval_collector,
+            batch_size=batch_size,
+            max_path_length=max_path_length,
+            num_epochs=num_epochs,
+            num_eval_steps_per_epoch=num_eval_steps_per_epoch,
+            num_expl_steps_per_train_loop=num_expl_steps_per_train_loop,
+            num_trains_per_train_loop=num_trains_per_train_loop,
+            num_train_loops_per_epoch=num_train_loops_per_epoch,
+            min_num_steps_before_training=min_num_steps_before_training,
         )
+
         self.seq_len = seq_len
-
-        self.batch_size = batch_size
-        self.max_path_length = max_path_length
-        self.num_epochs = num_epochs
-        self.num_eval_steps_per_epoch = num_eval_steps_per_epoch
-        self.num_trains_per_train_loop = num_trains_per_train_loop
-        self.num_train_loops_per_epoch = num_train_loops_per_epoch
-        self.num_expl_steps_per_train_loop = num_expl_steps_per_train_loop
-        self.min_num_steps_before_training = min_num_steps_before_training
-
-        assert self.num_trains_per_train_loop >= self.num_expl_steps_per_train_loop, \
-            'Online training presumes ' \
-            'num_trains_per_train_loop >= num_expl_steps_per_train_loop'
-
-        # get policy object for assigning skill
-        self.policy = trainer.policy
 
     def training_mode(self, mode):
         for net in self.trainer.networks:
