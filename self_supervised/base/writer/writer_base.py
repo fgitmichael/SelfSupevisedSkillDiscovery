@@ -67,3 +67,17 @@ class WriterBase(object):
         for k, v in models.items():
             path_name = os.path.join(self.model_dir, k + '.pkl')
             torch.save(v, path_name)
+
+    def log_dict_scalars(self,
+                         dict_to_log: dict,
+                         step: int,
+                         base_tag: str = None):
+        if base_tag is None:
+            base_tag = ''
+
+        for k, v in dict_to_log.items():
+            self.writer.add_scalar(
+                tag="{}/{}".format(base_tag, k),
+                scalar_value=v,
+                global_step=step
+            )
