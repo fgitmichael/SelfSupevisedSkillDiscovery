@@ -95,7 +95,7 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                 discard_incomplete_paths=False
             )
             init_expl_paths = self.expl_data_collector.get_epoch_paths()
-            self.replay_buffer.add_paths(init_expl_paths)
+            self.replay_buffer.add_self_sup_paths(init_expl_paths)
             self.expl_data_collector.end_epoch(-1)
             gt.stamp('initial exploration', unique=True)
 
@@ -105,10 +105,10 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                 self.set_next_skill(self.expl_data_collector)
                 num_trains_per_expl_step = self.num_train_loops_per_epoch // \
                     (self.num_expl_steps_per_train_loop * self.seq_len)
-                num_trains_per_expl_step = min(num_trains_per_expl_step, 1)
+                num_trains_per_expl_step = max(num_trains_per_expl_step, 1)
                 for _ in range(self.num_train_loops_per_epoch):
-                    for _ in range(self.num_expl_steps_per_train_loop):
-                        self.expl_data_collector.collect_new_steps(
+                    for _ in range(self.num_expl_steps_per_train_loop//self.seq_len):
+                        self.expl_data_collector.collect_new_paths(
                             seq_len=self.seq_len,
                             num_seqs=1,
                             discard_incomplete_paths=False
