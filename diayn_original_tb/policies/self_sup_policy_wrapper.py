@@ -29,7 +29,8 @@ class RlkitWrapperForMySkillPolicy(SkillTanhGaussianPolicy):
 
         action_mapping = super().get_action(
             obs_np=obs_np,
-            skill=skill_vec
+            skill=skill_vec,
+            deterministic=deterministic,
         )
 
         # Rlkit wants oh
@@ -40,6 +41,11 @@ class RlkitWrapperForMySkillPolicy(SkillTanhGaussianPolicy):
 
     def skill_reset(self):
         self.skill = random.randint(0, self.skill_dim - 1)
+
+    def set_skill(self,
+                  skill: int):
+        assert skill < self.skill_dim
+        self.skill = skill
 
     def forward(self,
                 obs: torch.Tensor,
