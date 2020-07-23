@@ -159,7 +159,7 @@ if __name__ == "__main__":
             num_expl_steps_per_train_loop=1000,
             min_num_steps_before_training=1000,
             max_path_length=1000,
-            batch_size=256,
+            batch_size=8,
         ),
         trainer_kwargs=dict(
             discount=0.99,

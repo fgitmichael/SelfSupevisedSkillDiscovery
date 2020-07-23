@@ -91,7 +91,7 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
             self.set_next_skill(self.expl_data_collector)
             self.expl_data_collector.collect_new_paths(
                 seq_len=self.seq_len,
-                num_seqs=1,
+                num_seqs=max(self.min_num_steps_before_training//self.seq_len, 1),
                 discard_incomplete_paths=False
             )
             init_expl_paths = self.expl_data_collector.get_epoch_paths()
@@ -99,25 +99,28 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
             self.expl_data_collector.end_epoch(-1)
             gt.stamp('initial exploration', unique=True)
 
-            for epoch in gt.timed_for(range(self._start_epoch, self.num_epochs)):
-                # set policy for one epoch
+            for epoch in gt.timed_for(range(
+                self._start_epoch, self.num_epochs),
+                save_itrs=True):
 
-                self.set_next_skill(self.expl_data_collector)
-                num_trains_per_expl_step = self.num_train_loops_per_epoch // \
-                    (self.num_expl_steps_per_train_loop * self.seq_len)
-                num_trains_per_expl_step = max(num_trains_per_expl_step, 1)
+                #num_trains_per_expl_step = self.num_trains_per_train_loop // \
+                #    (self.num_expl_steps_per_train_loop * self.seq_len)
+                #num_trains_per_expl_step = max(num_trains_per_expl_step, 1)
                 for _ in range(self.num_train_loops_per_epoch):
+
                     for _ in range(self.num_expl_steps_per_train_loop//self.seq_len):
-                        self.expl_data_collector.collect_new_paths(
-                            seq_len=self.seq_len,
-                            num_seqs=1,
-                            discard_incomplete_paths=False
-                        )
-                        gt.stamp('exploration sampling', unique=False)
+
+                        for _ in range(self.policy.skill_dim):
+                            self.set_next_skill(self.expl_data_collector)
+                            self.expl_data_collector.collect_new_paths(
+                                seq_len=self.seq_len,
+                                num_seqs=1,
+                                discard_incomplete_paths=False
+                            )
+                            gt.stamp('exploration sampling', unique=False)
 
                         self.training_mode(True)
-
-                        for _ in range(num_trains_per_expl_step):
+                        for _ in range(self.policy.skill_dim):
                             train_data = self.replay_buffer.random_batch(
                                 self.batch_size
                             )
