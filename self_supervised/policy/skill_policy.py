@@ -47,13 +47,27 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
 
         if skill is not None:
             self._check_skill(skill)
-            self.skill = skill
 
-            assert len(self.skill.shape) == len(obs_tensor)
+            assert len(skill.shape) == len(obs_tensor.shape)
             if len(obs_tensor) > 1:
-                assert self.skill.shape[:-1] == obs_tensor.shape[:-1]
+                assert skill.shape[:-1] == obs_tensor.shape[:-1]
 
-        obs_skill_cat = torch.cat([obs_tensor, self.skill], dim=-1)
+            obs_skill_cat = torch.cat([obs_tensor, skill], dim=-1)
+
+        else:
+            assert len(self.skill.shape) == 1
+            if len(obs_tensor.shape) > 1:
+                skill_repi = torch.stack([self.skill] * obs_tensor.size(0), dim=0)
+
+            elif len(obs_tensor.shape) > 2:
+                skill_repi = self.skill.detach().copy()
+                for idx, dim in enumerate(obs_tensor.shape[:-1]):
+                    skill_repi = torch.stack([skill_repi] * dim, dim=idx)
+
+            else:
+                skill_repi = self.skill
+
+            obs_skill_cat = torch.cat([obs_tensor, skill_repi], dim=-1)
 
         action = self.get_skill_actions(obs_skill_cat,
                                         deterministic=deterministic)
