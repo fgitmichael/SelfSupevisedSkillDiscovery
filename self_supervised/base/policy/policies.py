@@ -8,11 +8,12 @@ import numpy as np
 from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy
 from rlkit.torch.core import eval_np, torch_ify
 from rlkit.policies.base import Policy
+from rlkit.torch.distributions import TanhNormal
 import rlkit.torch.pytorch_util as ptu
 
 import self_supervised.utils.typed_dicts as td
 from self_supervised.base.network.mlp import MyMlp
-from self_supervised.base.distribution.tanh_normal import TanhNormal
+from rlkit.torch.networks import Mlp, identity
 
 from code_slac.network.base import weights_init_xavier
 

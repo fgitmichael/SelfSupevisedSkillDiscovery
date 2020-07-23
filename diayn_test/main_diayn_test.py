@@ -4,6 +4,8 @@ from self_supervised.policy.skill_policy import \
 from self_supervised.network.flatten_mlp import FlattenMlp
 
 from self_sup_combined.utils.set_seed import set_seeds, set_env_seed
+from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
+from self_supervised.base.writer.writer_base import WriterBase
 
 from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
     PathCollectorSelfSupervisedDiscreteSkills
@@ -11,7 +13,7 @@ from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
 
 from diayn_test.algo.diayn_trainer_seqwise import DiaynTrainerSeqwise
-from diayn_test.algo.algorithm_diayn_seqwise import DiaynAlgoSeqwise
+from diayn_test.algo.algorithm_diayn_seqwise import DiaynAlgoSeqwise, DiaynAlgoSeqwiseTb
 from diayn_test.utils.typed_dicts import VariantMapping
 from diayn_test.utils.get_variant import parse_variant
 

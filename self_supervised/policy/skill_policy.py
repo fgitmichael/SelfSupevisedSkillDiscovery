@@ -20,7 +20,7 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
                  std=None,
                  initializer=weights_init_xavier,
                  skill_dim=2,
-                 layer_norm=False,
+                 layer_norm=True,
                  **kwargs):
         self.skill_dim = skill_dim
         self.skill = None
@@ -37,7 +37,7 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
 
     @property
     def obs_dim(self):
-        return super().obs_dim - self.skill_dim
+        return self.obs_dim - self.skill_dim
 
     def get_action(self,
                    obs_np: np.ndarray,
@@ -139,7 +139,7 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
     def _check_skill(self,
                      skill: torch.Tensor):
         assert isinstance(skill, torch.Tensor)
-        assert skill.size(-1) == self.skill_dim
+        assert skill.shape[-1] == self.skill_dim
 
 
 class MakeDeterministic(Policy):

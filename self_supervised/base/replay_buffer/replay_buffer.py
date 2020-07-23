@@ -94,6 +94,9 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
         if self._size < self._max_replay_buffer_size:
             self._size += 1
 
+    def __len__(self):
+        return self._size
+
     def terminate_episode(self):
         pass
 
