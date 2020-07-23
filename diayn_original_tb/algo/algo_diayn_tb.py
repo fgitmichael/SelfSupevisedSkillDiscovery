@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 from typing import List
 import gtimer as gt
+import numpy as np
 
 
 from rlkit.torch.sac.diayn.diayn_torch_online_rl_algorithm import \
@@ -36,6 +37,7 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
 
         if self.diagnostic_writer.is_log(epoch):
             self.write_mode_influence(epoch)
+            self.write_skill_hist(epoch)
 
     def write_mode_influence(self, epoch):
         paths = self._get_paths_mode_influence_test()
@@ -154,3 +156,14 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         logger.record_dict(_get_epoch_timings())
         logger.record_tabular('Epoch', epoch)
         logger.dump_tabular(with_prefix=False, with_timestamp=False)
+
+    def write_skill_hist(self, epoch):
+        buffer_size = self.replay_buffer._size
+        buffer_skills = np.argmax(self.replay_buffer._skill[:buffer_size], axis=-1)
+
+        self.diagnostic_writer.writer.writer.add_histogram(
+            tag="Buffer Skill Distribution",
+            values=buffer_skills,
+            global_step=epoch,
+            bins=self.policy.skill_dim-1,
+        )
