@@ -80,6 +80,7 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
             action=action,
             agent_info={
                 'skill': ptu.get_numpy(self.skill)
+                if isinstance(self.skill, torch.Tensor) else self.skill
             }
         )
 
