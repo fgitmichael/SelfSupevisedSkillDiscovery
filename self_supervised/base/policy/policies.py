@@ -153,7 +153,6 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
                                         dim=-1)
             log_std = torch.clamp(log_std, LOG_SIG_MIN, LOG_SIG_MAX)
             std = torch.exp(log_std)
-
         else:
             mean = MyMlp.forward(self, obs_tensor)
             std = self.std
@@ -168,26 +167,27 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
             action = torch.tanh(mean)
 
         else:
-            tanh_normal = TanhNormal(
-                loc=mean,
-                scale=std
-            )
+            tanh_normal = TanhNormal(mean, std)
 
             if return_log_prob:
                 if reparameterize is True:
-                    action, pre_tanh_value = tanh_normal.rsample_with_pre_tanh()
-
+                    action, pre_tanh_value = tanh_normal.rsample(
+                        return_pretanh_value=True
+                    )
                 else:
-                    action, pre_tanh_value = tanh_normal.sample_with_pre_tanh()
-
-                log_prob, _ = tanh_normal.log_prob_with_pre_tanh(action, pre_tanh_value)
+                    action, pre_tanh_value = tanh_normal.rsample(
+                        return_pretanh_value=True
+                    )
+                log_prob = tanh_normal.log_prob(
+                    action,
+                    pre_tanh_value=pre_tanh_value
+                )
 
             else:
                 if reparameterize is True:
                     action = tanh_normal.rsample()
-
                 else:
-                    action = tanh_normal.rsample()
+                    action = tanh_normal.sample()
 
         return td.ForwardReturnMapping(
             action=action,
