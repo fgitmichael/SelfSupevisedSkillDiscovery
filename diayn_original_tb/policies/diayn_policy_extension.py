@@ -34,6 +34,16 @@ class SkillTanhGaussianPolicyExtension(SkillTanhGaussianPolicy):
 
         return policy_return_tuple
 
+    @property
+    def skill(self):
+        return self.__skill
+
+    @skill.setter
+    def skill(self, skill):
+        assert skill < self.skill_dim
+        assert isinstance(skill, int)
+        self.__skill = skill
+
 
 class MakeDeterministicExtension(Policy):
 
