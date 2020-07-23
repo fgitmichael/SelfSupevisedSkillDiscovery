@@ -12,7 +12,7 @@ class RlkitWrapperForMySkillPolicy(SkillTanhGaussianPolicy):
 
     def __init__(self, *args, **kwargs):
 
-        super().__init__(*args, *kwargs)
+        super().__init__(*args, **kwargs)
         self.skill = 0
 
     def get_action(self,
@@ -32,7 +32,11 @@ class RlkitWrapperForMySkillPolicy(SkillTanhGaussianPolicy):
             skill=skill_vec
         )
 
-        return action_mapping.action, {"skill", action_mapping.agent_info}
+        # Rlkit wants oh
+        skill_oh = np.zeros((self.skill_dim))
+        skill_oh[action_mapping.agent_info['skill']] += 1
+
+        return action_mapping.action, {"skill": skill_oh}
 
     def skill_reset(self):
         self.skill = random.randint(0, self.skill_dim - 1)
