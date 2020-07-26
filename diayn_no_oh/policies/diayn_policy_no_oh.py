@@ -83,3 +83,28 @@ class SkillTanhGaussianPolicyNoOHTwoDim(TanhGaussianPolicy):
         )
 
         return policy_return_tuple
+
+class MakeDeterministicExtensionNoOH(Policy):
+
+    def __init__(self,
+                 stochastic_policy: SkillTanhGaussianPolicyNoOHTwoDim):
+        self.stochastic_policy = stochastic_policy
+
+    def get_action(self, observation: np.ndarray):
+        return self.stochastic_policy.get_action(observation,
+                                                 deterministic=True)
+
+    def set_skill(self, skill: int):
+        self.stochastic_policy.set_skill(skill)
+
+    @property
+    def skill_dim(self):
+        return self.stochastic_policy.skill_dim
+
+    @property
+    def skill(self):
+        return self.stochastic_policy.skill
+
+    @property
+    def skill_id(self):
+        return self.stochastic_policy.skill_id
