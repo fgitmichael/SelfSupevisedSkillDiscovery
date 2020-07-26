@@ -5,6 +5,7 @@ import random
 
 from rlkit.torch.sac.policies import TanhGaussianPolicy
 from rlkit.torch.core import eval_np
+from rlkit.policies.base import Policy
 
 from diayn_no_oh.utils.hardcoded_grid_two_dim import get_grid
 
@@ -13,11 +14,16 @@ class SkillTanhGaussianPolicyNoOHTwoDim(TanhGaussianPolicy):
 
     def __init__(self,
                  *args,
+                 skill_dim,
                  **kwargs):
         super().__init__(*args, **kwargs)
+        assert skill_dim == 2
+        self.skill_dim = skill_dim
         self.skills = get_grid()
         self.num_skills = self.skills.shape[0]
-        self.skill = self.skills[random.randint(0, self.num_skills - 1)]
+
+        self.skill_id = random.randint(0, self.num_skills - 1)
+        self.skill = self.skills[self.skill_id]
 
     @property
     def skill(self):
@@ -27,16 +33,24 @@ class SkillTanhGaussianPolicyNoOHTwoDim(TanhGaussianPolicy):
     def skill(self, skill):
         assert isinstance(skill, np.ndarray)
         assert skill.shape == (2,)
+        assert skill in self.skills
 
+        self.skill_id = np.where(self.skills == skill)[0][0]
         self.__skill = skill
+
+    def set_skill(self, skill_id):
+        self.skill = self.skills[skill_id]
 
     def get_action(self, obs_np, deterministic=False):
         assert len(obs_np.shape) == 1
         obs_skill_cat = np.concatenate((obs_np, self.skill), axis=0)
         obs_skill_cat = np.expand_dims(obs_skill_cat, axis=0)
-        actions = self.get_action(obs_skill_cat, deterministic=deterministic)
+        actions = self.get_actions(obs_skill_cat, deterministic=deterministic)
 
         return actions[0, :], {"skill": self.skill}
+
+    def skill_reset(self):
+        self.skill = self.skills[random.randint(0, self.num_skills - 1)]
 
     def forward(
             self,
