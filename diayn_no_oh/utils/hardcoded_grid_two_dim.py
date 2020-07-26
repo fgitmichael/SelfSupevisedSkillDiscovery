@@ -1,5 +1,7 @@
 import numpy as np
 
+import rlkit.torch.pytorch_util as ptu
+
 
 def get_grid():
     # Hard coded for testing
@@ -18,7 +20,5 @@ def get_grid():
         [-radius2, -radius2],
         [0, radius3]
     ], dtype=np.float)
-
-    grid = ptu.from_numpy(grid)
 
     return grid
