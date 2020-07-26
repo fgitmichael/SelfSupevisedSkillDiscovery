@@ -32,7 +32,10 @@ from diayn_original_tb.policies.diayn_policy_extension import \
     SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
 from diayn_original_tb.algo.algo_diayn_tb_own_fun import DIAYNTorchOnlineRLAlgorithmOwnFun
 
-from diayn_no_oh.policies.diayn_policy_no_oh import SkillTanhGaussianPolicyNoOHTwoDim
+from diayn_no_oh.policies.diayn_policy_no_oh import \
+    SkillTanhGaussianPolicyNoOHTwoDim, MakeDeterministicExtensionNoOH
+from diayn_no_oh.algo.diayn_trainer_no_oh import DIAYNTrainerNoOH
+from diayn_no_oh.data_collector.rlkit_seq_path_collector_no_oh import SeqCollectorNoOH
 
 
 def experiment(variant, args):
@@ -42,6 +45,7 @@ def experiment(variant, args):
     action_dim = eval_env.action_space.low.size
     #skill_dim = args.skill_dim
     skill_dim = 2
+    num_skills = 10
 
     seq_len = 1
 
@@ -74,7 +78,7 @@ def experiment(variant, args):
     )
     df = MyFlattenMlp(
         input_size=obs_dim,
-        output_size=skill_dim,
+        output_size=num_skills,
         hidden_sizes=[M, M],
     )
     policy = SkillTanhGaussianPolicyNoOHTwoDim(
@@ -83,7 +87,7 @@ def experiment(variant, args):
         hidden_sizes=[M, M],
         skill_dim=skill_dim
     )
-    eval_policy = MakeDeterministicExtension(policy)
+    eval_policy = MakeDeterministicExtensionNoOH(policy)
     eval_path_collector = DIAYNMdpPathCollector(
         eval_env,
         eval_policy,
@@ -92,7 +96,7 @@ def experiment(variant, args):
         expl_env,
         policy,
     )
-    seq_eval_collector = SeqCollector(
+    seq_eval_collector = SeqCollectorNoOH(
         env=eval_env,
         policy=eval_policy
     )
@@ -101,7 +105,7 @@ def experiment(variant, args):
         expl_env,
         skill_dim
     )
-    trainer = DIAYNTrainer(
+    trainer = DIAYNTrainerNoOH(
         env=eval_env,
         policy=policy,
         qf1=qf1,
