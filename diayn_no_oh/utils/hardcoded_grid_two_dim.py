@@ -3,7 +3,7 @@ import numpy as np
 import rlkit.torch.pytorch_util as ptu
 
 
-def get_grid():
+def get_no_oh_grid():
     # Hard coded for testing
     radius1 = 0.75
     radius2 = 1.
@@ -20,5 +20,10 @@ def get_grid():
         [-radius2, -radius2],
         [0, radius3]
     ], dtype=np.float)
+
+    return grid
+
+def get_oh_grid():
+    grid = np.eye(10)
 
     return grid

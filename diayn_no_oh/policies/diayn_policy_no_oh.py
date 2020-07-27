@@ -7,19 +7,18 @@ from rlkit.torch.sac.policies import TanhGaussianPolicy
 from rlkit.torch.core import eval_np
 from rlkit.policies.base import Policy
 
-from diayn_no_oh.utils.hardcoded_grid_two_dim import get_grid
-
 
 class SkillTanhGaussianPolicyNoOHTwoDim(TanhGaussianPolicy):
 
     def __init__(self,
                  *args,
                  skill_dim,
+                 get_skills,
                  **kwargs):
         super().__init__(*args, **kwargs)
-        assert skill_dim == 2
+#        assert skill_dim == 2
         self.skill_dim = skill_dim
-        self.skills = get_grid()
+        self.skills = get_skills()
         self.num_skills = self.skills.shape[0]
 
         self.skill_id = random.randint(0, self.num_skills - 1)
@@ -32,7 +31,7 @@ class SkillTanhGaussianPolicyNoOHTwoDim(TanhGaussianPolicy):
     @skill.setter
     def skill(self, skill):
         assert isinstance(skill, np.ndarray)
-        assert skill.shape == (2,)
+        assert skill.shape == (self.skill_dim,)
         assert skill in self.skills
 
         self.skill_id = self.get_skill_id_from_skill(skill)[0]

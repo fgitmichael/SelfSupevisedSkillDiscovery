@@ -37,6 +37,7 @@ from diayn_no_oh.policies.diayn_policy_no_oh import \
 from diayn_no_oh.algo.diayn_trainer_no_oh import DIAYNTrainerNoOH
 from diayn_no_oh.data_collector.rlkit_seq_path_collector_no_oh import SeqCollectorNoOH
 from diayn_no_oh.algo.algo_diayn_tb_no_oh import DIAYNTorchOnlineRLAlgorithmTbNoOH
+from diayn_no_oh.utils.hardcoded_grid_two_dim import get_oh_grid, get_no_oh_grid
 
 
 def experiment(variant, args):
@@ -44,8 +45,16 @@ def experiment(variant, args):
     eval_env = copy.deepcopy(expl_env)
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
-    #skill_dim = args.skill_dim
-    skill_dim = 2
+
+    one_hot = True
+    if one_hot:
+        skill_dim = 10
+        get_skills = get_oh_grid
+
+    else:
+        skill_dim = 2
+        get_skills = get_no_oh_grid()
+
     num_skills = 10
 
     seq_len = 1
@@ -85,6 +94,7 @@ def experiment(variant, args):
     policy = SkillTanhGaussianPolicyNoOHTwoDim(
         obs_dim=obs_dim + skill_dim,
         action_dim=action_dim,
+        get_skills=get_skills,
         hidden_sizes=[M, M],
         skill_dim=skill_dim
     )
@@ -147,8 +157,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('env', type=str,
                         help='environment')
-    parser.add_argument('--skill_dim', type=int, default=10,
-                        help='skill dimension')
     args = parser.parse_args()
 
     # noinspection PyTypeChecker
@@ -176,6 +184,6 @@ if __name__ == "__main__":
             use_automatic_entropy_tuning=True,
         ),
     )
-    setup_logger('DIAYN_' + str(args.skill_dim) + '_' + args.env, variant=variant)
+    setup_logger('DIAYN_' + '_' + args.env, variant=variant)
     ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
     experiment(variant, args)
