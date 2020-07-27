@@ -31,6 +31,8 @@ class WriterBase(object):
         self.log_dir = log_dir
 
         run_id = f'mode_disent{seed}-{datetime.now().strftime("%Y%m%d-%H%M")}'
+        run_id += run_comment if type(run_comment) is str else ""
+
         self.model_dir = os.path.join(self.log_dir, str(run_id), 'model')
         self.summary_dir = os.path.join(self.log_dir, str(run_id), 'summary')
 
@@ -41,7 +43,6 @@ class WriterBase(object):
 
         self.writer = SummaryWriter(
             log_dir=self.summary_dir,
-            comment=run_comment
         )
         self.plt_creator = PltCreator()
 
