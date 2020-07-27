@@ -102,7 +102,7 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
-    trainer = DIAYNTrainer(
+    trainer = DIAYNTrainerExtension(
         env=eval_env,
         policy=policy,
         qf1=qf1,
