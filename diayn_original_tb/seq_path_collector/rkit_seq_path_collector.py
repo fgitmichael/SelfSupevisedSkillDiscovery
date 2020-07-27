@@ -13,16 +13,21 @@ from diayn_original_tb.seq_path_collector.rlkit_rollouter import Rollouter
 from diayn_original_tb.policies.diayn_policy_extension import \
     SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
 
+from diayn_no_oh.policies.diayn_policy_no_oh import SkillTanhGaussianPolicyNoOHTwoDim
+
+
 class SeqCollector(PathCollector):
 
     def __init__(self,
                  env: gym.Env,
                  policy: Union[
                          SkillTanhGaussianPolicyExtension,
+                         SkillTanhGaussianPolicyNoOHTwoDim,
                          MakeDeterministicExtension],
                  max_num_epoch_paths_saved: int = None,
                  render: bool = False,
-                 render_kwargs: bool = None):
+                 render_kwargs: bool = None
+                 ):
         if render_kwargs is None:
             render_kwargs = {}
 
