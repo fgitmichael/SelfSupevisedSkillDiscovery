@@ -31,6 +31,7 @@ from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqColl
 from diayn_original_tb.policies.diayn_policy_extension import \
     SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
 from diayn_original_tb.algo.algo_diayn_tb_own_fun import DIAYNTorchOnlineRLAlgorithmOwnFun
+from diayn_original_tb.algo.diayn_trainer_orig_extension import DIAYNTrainerExtension
 
 
 def experiment(variant, args):
@@ -40,7 +41,8 @@ def experiment(variant, args):
     action_dim = eval_env.action_space.low.size
     skill_dim = args.skill_dim
 
-    seq_len = 100
+    seq_len = 70
+    variant['algorithm_kwargs']['batch_size'] //= seq_len
     run_comment = "seq_len: {}".format(seq_len)
 
     seed = 0
@@ -157,11 +159,11 @@ if __name__ == "__main__":
         algorithm_kwargs=dict(
             num_epochs=1000,
             num_eval_steps_per_epoch=5000,
-            num_trains_per_train_loop=1000,
-            num_expl_steps_per_train_loop=1000,
+            num_trains_per_train_loop=10,
+            num_expl_steps_per_train_loop=10,
             min_num_steps_before_training=1000,
             max_path_length=1000,
-            batch_size=8,
+            batch_size=1024,
         ),
         trainer_kwargs=dict(
             discount=0.99,
