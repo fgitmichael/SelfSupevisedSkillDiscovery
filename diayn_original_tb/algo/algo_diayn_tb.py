@@ -89,7 +89,6 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
                 ptu.tensor(skill), num_classes=self.policy.skill_dim)
             self.seq_eval_collector.set_skill(skill)
 
-
             self.seq_eval_collector.collect_new_paths(
                 seq_len=seq_len,
                 num_seqs=1,

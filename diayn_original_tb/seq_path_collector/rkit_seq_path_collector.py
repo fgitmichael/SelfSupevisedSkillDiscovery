@@ -56,11 +56,11 @@ class SeqCollector(PathCollector):
         """
         self._skill = skill
 
-    def collect_new_paths(self,
-                          seq_len: int,
-                          num_seqs: int,
-                          discard_incomplete_paths: bool
-                          ):
+    def _collect_new_paths(self,
+                           seq_len: int,
+                           num_seqs: int,
+                           discard_incomplete_paths: bool,
+                           ) -> List[td.TransitionModeMapping]:
         paths = []
         num_steps_collected = 0
         self.seq_len = seq_len
@@ -72,42 +72,26 @@ class SeqCollector(PathCollector):
                 max_path_length=seq_len,
             )
 
-            assert len(path.obs.shape) \
-                   == len(path.next_obs.shape) \
-                   == len(path.action.shape) \
-                   == len(path.terminal.shape) \
-                   == len(path.reward.shape) \
-                   == len(path.mode.shape)
-
-            batch_dim = 0
-            shape_dim = -2
-            seq_dim = -1
-            assert path.action.shape[shape_dim] \
-                   == self._rollouter._env.action_space.shape[0]
-            assert path.obs.shape[shape_dim] \
-                   == path.next_obs.shape[shape_dim] \
-                   == self._rollouter._env.observation_space.shape[0]
-            assert path.mode.shape[shape_dim] == self._rollouter._policy.skill_dim
-            assert path.action.shape[seq_dim] \
-                   == path.obs.shape[seq_dim] \
-                   == path.reward.shape[seq_dim] \
-                   == path.terminal.shape[seq_dim] \
-                   == path.next_obs.shape[seq_dim] \
-                   == path.mode.shape[seq_dim] \
-                   == seq_len
-            if len(path.obs.shape) > 2:
-                assert path.action.shape[batch_dim] \
-                       == path.obs.shape[batch_dim] \
-                       == path.reward.shape[batch_dim] \
-                       == path.terminal.shape[batch_dim] \
-                       == path.next_obs.shape[batch_dim] \
-                       == path.mode.shape[batch_dim]
+            self._check_paths(path)
 
             num_steps_collected += seq_len
             paths.append(path)
 
         self._num_paths_total += len(paths)
         self._num_steps_total += num_steps_collected
+
+        return paths
+
+    def collect_new_paths(self,
+                          seq_len: int,
+                          num_seqs: int,
+                          discard_incomplete_paths: bool
+                          ):
+        paths = self._collect_new_paths(
+            seq_len=seq_len,
+            num_seqs=num_seqs,
+            discard_incomplete_paths=discard_incomplete_paths
+        )
 
         # Extend TransitonModeMapping to TransitionModeMappingDiscreteSkills
         seq_dim = 1
@@ -124,6 +108,38 @@ class SeqCollector(PathCollector):
             paths[idx] = with_skill_id
 
         self._epoch_paths.extend(paths)
+
+    def _check_paths(self, path: td.TransitionModeMapping):
+        assert len(path.obs.shape) \
+               == len(path.next_obs.shape) \
+               == len(path.action.shape) \
+               == len(path.terminal.shape) \
+               == len(path.reward.shape) \
+               == len(path.mode.shape)
+
+        batch_dim = 0
+        shape_dim = -2
+        seq_dim = -1
+        assert path.action.shape[shape_dim] \
+               == self._rollouter._env.action_space.shape[0]
+        assert path.obs.shape[shape_dim] \
+               == path.next_obs.shape[shape_dim] \
+               == self._rollouter._env.observation_space.shape[0]
+        assert path.mode.shape[shape_dim] == self._rollouter._policy.skill_dim
+        assert path.action.shape[seq_dim] \
+               == path.obs.shape[seq_dim] \
+               == path.reward.shape[seq_dim] \
+               == path.terminal.shape[seq_dim] \
+               == path.next_obs.shape[seq_dim] \
+               == path.mode.shape[seq_dim] \
+               == self.seq_len
+        if len(path.obs.shape) > 2:
+            assert path.action.shape[batch_dim] \
+                   == path.obs.shape[batch_dim] \
+                   == path.reward.shape[batch_dim] \
+                   == path.terminal.shape[batch_dim] \
+                   == path.next_obs.shape[batch_dim] \
+                   == path.mode.shape[batch_dim]
 
     def get_epoch_paths(self) -> List[td.TransitonModeMappingDiscreteSkills]:
         """
