@@ -35,11 +35,17 @@ class SkillTanhGaussianPolicyNoOHTwoDim(TanhGaussianPolicy):
         assert skill.shape == (2,)
         assert skill in self.skills
 
-        self.skill_id = np.where(self.skills == skill)[0][0]
+        self.skill_id = self.get_skill_id_from_skill(skill)[0]
         self.__skill = skill
 
-    def set_skill(self, skill_id):
+    def set_skill(self, skill_id: int):
+        assert isinstance(skill_id, int)
         self.skill = self.skills[skill_id]
+
+    def get_skill_id_from_skill(self, skill: np.ndarray) -> np.ndarray:
+        dist = np.linalg.norm(self.skills - skill, axis=1)
+        idx = np.nonzero(dist < 0.0001)[0]
+        return idx
 
     def get_action(self, obs_np, deterministic=False):
         assert len(obs_np.shape) == 1
@@ -108,3 +114,10 @@ class MakeDeterministicExtensionNoOH(Policy):
     @property
     def skill_id(self):
         return self.stochastic_policy.skill_id
+
+    @property
+    def num_skills(self):
+        return self.stochastic_policy.num_skills
+
+    def get_skill_id_from_skill(self, skill: np.ndarray) -> np.ndarray:
+        return self.stochastic_policy.get_skill_id_from_skill(skill)

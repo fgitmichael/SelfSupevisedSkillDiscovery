@@ -36,6 +36,7 @@ from diayn_no_oh.policies.diayn_policy_no_oh import \
     SkillTanhGaussianPolicyNoOHTwoDim, MakeDeterministicExtensionNoOH
 from diayn_no_oh.algo.diayn_trainer_no_oh import DIAYNTrainerNoOH
 from diayn_no_oh.data_collector.rlkit_seq_path_collector_no_oh import SeqCollectorNoOH
+from diayn_no_oh.algo.algo_diayn_tb_no_oh import DIAYNTorchOnlineRLAlgorithmTbNoOH
 
 
 def experiment(variant, args):
@@ -125,7 +126,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = DIAYNTorchOnlineRLAlgorithmTb(
+    algorithm = DIAYNTorchOnlineRLAlgorithmTbNoOH(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
