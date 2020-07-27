@@ -31,15 +31,21 @@ class DIAYNTrainerNoOH(DIAYNTrainer):
         for skill in skills:
             skill = ptu.get_numpy(skill)
             assert skill in self.policy.skills
-            idx = np.nonzero(np.all(skill == self.policy.skills, axis=1))[0]
+            idx = self.policy.get_skill_id_from_skill(skill)
             z_hats.append(ptu.from_numpy(idx).long())
         z_hat = torch.cat(z_hats)
-        assert z_hat.shape == torch.Size((skills.size(0),))
+        try:
+            assert z_hat.shape == torch.Size((skills.size(0),))
+        except:
+            pass
 
         d_pred = self.df(next_obs)
         d_pred_log_softmax = F.log_softmax(d_pred, 1)
         _, pred_z = torch.max(d_pred_log_softmax, dim=1, keepdim=True)
-        rewards = d_pred_log_softmax[torch.arange(d_pred.shape[0]), z_hat] - math.log(1 / self.policy.skill_dim)
+        try:
+            rewards = d_pred_log_softmax[torch.arange(d_pred.shape[0]), z_hat] - math.log(1 / self.policy.skill_dim)
+        except:
+            pass
         rewards = rewards.reshape(-1, 1)
         df_loss = self.df_criterion(d_pred, z_hat)
 
