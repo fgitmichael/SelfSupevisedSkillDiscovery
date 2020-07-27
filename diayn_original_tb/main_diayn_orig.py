@@ -41,6 +41,7 @@ def experiment(variant, args):
     skill_dim = args.skill_dim
 
     seq_len = 100
+    run_comment = "seq_len: {}".format(seq_len)
 
     seed = 0
     torch.manual_seed = seed
@@ -112,7 +113,8 @@ def experiment(variant, args):
 
     writer = WriterBase(
         seed=seed,
-        log_dir='logs'
+        log_dir='logs',
+        run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
         writer=writer,
