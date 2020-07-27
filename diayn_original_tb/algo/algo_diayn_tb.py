@@ -45,28 +45,40 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         obs_dim = paths[0].obs.shape[0]
         action_dim = paths[0].action.shape[0]
         for path in paths:
-
-            skill_id = path.skill_id.squeeze()[0]
-
-            # Observations
-            self.diagnostic_writer.writer.plot_lines(
-                legend_str=["dim {}".format(i) for i in range(obs_dim)],
-                tb_str="Mode Influence Test: Obs/Skill {}".format(skill_id),
-                arrays_to_plot=path.obs,
-                step=epoch,
-                y_lim=[-3, 3]
+            self._write_mode_influence(
+                path,
+                obs_dim=obs_dim,
+                action_dim=action_dim,
+                epoch=epoch
             )
 
-            # Actions
-            self.diagnostic_writer.writer.plot_lines(
-                legend_str=["dim {}".format(i) for i in range(action_dim)],
-                tb_str="Mode Influence Test: Action/Skill {}".format(skill_id),
-                arrays_to_plot=path.action,
-                step=epoch,
-                y_lim=[-1.2, 1.2]
-            )
+    def _write_mode_influence(self,
+                              path,
+                              obs_dim,
+                              action_dim,
+                              epoch
+                              ):
+        skill_id = path.skill_id.squeeze()[0]
 
-            # TODO: write rewards
+        # Observations
+        self.diagnostic_writer.writer.plot_lines(
+            legend_str=["dim {}".format(i) for i in range(obs_dim)],
+            tb_str="Mode Influence Test: Obs/Skill {}".format(skill_id),
+            arrays_to_plot=path.obs,
+            step=epoch,
+            y_lim=[-3, 3]
+        )
+
+        # Actions
+        self.diagnostic_writer.writer.plot_lines(
+            legend_str=["dim {}".format(i) for i in range(action_dim)],
+            tb_str="Mode Influence Test: Action/Skill {}".format(skill_id),
+            arrays_to_plot=path.action,
+            step=epoch,
+            y_lim=[-1.2, 1.2]
+        )
+
+        # TODO: write rewards
 
     def _get_paths_mode_influence_test(self, seq_len=200) \
             -> List[TransitonModeMappingDiscreteSkills]:
