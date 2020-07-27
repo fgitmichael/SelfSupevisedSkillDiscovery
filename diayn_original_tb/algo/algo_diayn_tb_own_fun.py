@@ -99,53 +99,64 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
             self.expl_data_collector.end_epoch(-1)
             gt.stamp('initial exploration', unique=True)
 
-            for epoch in gt.timed_for(range(
-                self._start_epoch, self.num_epochs),
-                save_itrs=True):
+        num_trains_per_expl_step = self.num_trains_per_train_loop \
+            // self.num_expl_steps_per_train_loop
+        for epoch in gt.timed_for(range(
+            self._start_epoch, self.num_epochs),
+            save_itrs=True):
 
-                #num_trains_per_expl_step = self.num_trains_per_train_loop // \
-                #    (self.num_expl_steps_per_train_loop * self.seq_len)
-                #num_trains_per_expl_step = max(num_trains_per_expl_step, 1)
-                for _ in range(self.num_train_loops_per_epoch):
+            self.set_next_skill(self.expl_data_collector)
+            for train_loop in range(self.num_train_loops_per_epoch):
+                for expl_step in range(self.num_expl_steps_per_train_loop):
+                    self._explore()
+                    for train in range(num_trains_per_expl_step * self.seq_len):
+                        self._train_sac()
 
-                    for _ in range(self.num_expl_steps_per_train_loop//self.seq_len):
+            self._store_expl_data()
+            self._end_epoch(epoch)
 
-                        for _ in range(self.policy.skill_dim):
-                            self.set_next_skill(self.expl_data_collector)
-                            self.expl_data_collector.collect_new_paths(
-                                seq_len=self.seq_len,
-                                num_seqs=1,
-                                discard_incomplete_paths=False
-                            )
-                            gt.stamp('exploration sampling', unique=False)
+    def _explore(self):
+        self.set_next_skill(self.expl_data_collector)
+        self.expl_data_collector.collect_new_paths(
+            seq_len=self.seq_len,
+            num_seqs=1,
+            discard_incomplete_paths=False
+        )
+        gt.stamp('exploration sampling', unique=False)
 
-                        self.training_mode(True)
-                        for _ in range(self.policy.skill_dim):
-                            train_data = self.replay_buffer.random_batch(
-                                self.batch_size
-                            )
-                            batch_dim = 0
-                            data_dim = 1
-                            seq_dim = 2
-                            obs_dim = train_data.obs.shape[data_dim]
-                            action_dim = train_data.action.shape[data_dim]
-                            mode_dim = train_data.mode.shape[data_dim]
-                            train_data = train_data.transpose(batch_dim, seq_dim, data_dim)
-                            self.trainer.train(
-                                dict(
-                                    rewards=train_data.reward.reshape(-1, 1),
-                                    terminals=train_data.terminal.reshape(-1, 1),
-                                    observations=train_data.obs.reshape(-1, obs_dim),
-                                    actions=train_data.action.reshape(-1, action_dim),
-                                    next_observations=train_data.next_obs.reshape(-1, obs_dim),
-                                    skills=train_data.mode.reshape(-1, mode_dim)
-                                )
-                            )
-                        gt.stamp('training', unique=False)
-                        self.training_mode(False)
+    def _train_sac(self):
+        self.training_mode(True)
 
-                new_expl_paths = self.expl_data_collector.get_epoch_paths()
-                self.replay_buffer.add_self_sup_paths(new_expl_paths)
-                gt.stamp('data storing', unique=False)
+        train_data = self.replay_buffer.random_batch(
+            self.batch_size
+        )
 
-                self._end_epoch(epoch)
+        batch_dim = 0
+        data_dim = 1
+        seq_dim = 2
+
+        obs_dim = train_data.obs.shape[data_dim]
+        action_dim = train_data.action.shape[data_dim]
+        mode_dim = train_data.mode.shape[data_dim]
+
+        train_data = train_data.transpose(batch_dim, seq_dim, data_dim)
+
+        self.trainer.train(
+            dict(
+                rewards=train_data.reward.reshape(-1, 1),
+                terminals=train_data.terminal.reshape(-1, 1),
+                observations=train_data.obs.reshape(-1, obs_dim),
+                actions=train_data.action.reshape(-1, action_dim),
+                next_observations=train_data.next_obs.reshape(-1, obs_dim),
+                skills=train_data.mode.reshape(-1, mode_dim)
+            )
+        )
+
+        gt.stamp('training', unique=False)
+        self.training_mode(False)
+
+    def _store_expl_data(self):
+        new_expl_paths = self.expl_data_collector.get_epoch_paths()
+        self.replay_buffer.add_self_sup_paths(new_expl_paths)
+        gt.stamp('data storing', unique=False)
+
