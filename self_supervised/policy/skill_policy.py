@@ -20,7 +20,7 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
                  std=None,
                  initializer=weights_init_xavier,
                  skill_dim=2,
-                 layer_norm=True,
+                 layer_norm=False,
                  **kwargs):
         self.skill_dim = skill_dim
         self.skill = None
