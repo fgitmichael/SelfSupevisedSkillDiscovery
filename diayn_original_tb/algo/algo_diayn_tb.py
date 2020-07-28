@@ -59,12 +59,21 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
             obs = np.stack([path.obs for path in paths], axis=2)
             self.diagnostic_writer.writer.plot(
                 obs[0], obs[1],
-                tb_str="ModeInfluence All Skills in One Plot",
+                tb_str="ModeInfluence All Skills in One Plot/With Limits",
                 step=epoch,
                 labels=["skill {}".format(path.skill_id.squeeze()[0]) for path in paths],
                 x_lim=[-2, 2],
                 y_lim=[-2, 2]
             )
+
+            obs = np.stack([path.obs for path in paths], axis=2)
+            self.diagnostic_writer.writer.plot(
+                obs[0], obs[1],
+                tb_str="ModeInfluence All Skills in One Plot/Without Limits",
+                step=epoch,
+                labels=["skill {}".format(path.skill_id.squeeze()[0]) for path in paths],
+            )
+
 
     def _write_mode_influence(self,
                               path,
