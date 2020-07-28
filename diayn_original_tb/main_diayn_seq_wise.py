@@ -43,7 +43,10 @@ def experiment(variant, args):
 
     seq_len = 100
     variant['algorithm_kwargs']['batch_size'] //= seq_len
-    run_comment = "seq_len: {}".format(seq_len)
+
+    run_comment = ""
+    run_comment += "seq_len: {} ".format(seq_len)
+    run_comment += "own functions"
 
     seed = 0
     torch.manual_seed = seed

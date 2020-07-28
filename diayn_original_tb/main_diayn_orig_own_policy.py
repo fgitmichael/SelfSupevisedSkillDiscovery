@@ -41,7 +41,10 @@ def experiment(variant, args):
     action_dim = eval_env.action_space.low.size
     skill_dim = args.skill_dim
 
-    seq_len = 1
+    run_comment = ""
+    run_comment += "own policy "
+    run_comment += "own mlp"
+    run_comment += "own env"
 
     seed = 0
     torch.manual_seed = seed
@@ -119,7 +122,8 @@ def experiment(variant, args):
 
     writer = WriterBase(
         seed=seed,
-        log_dir='logs'
+        log_dir='logs',
+        run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
         writer=writer,
