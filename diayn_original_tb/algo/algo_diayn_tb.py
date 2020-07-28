@@ -37,19 +37,33 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
 
         if self.diagnostic_writer.is_log(epoch):
             self.write_mode_influence(epoch)
-            self.write_skill_hist(epoch)
+            #self.write_skill_hist(epoch)
 
     def write_mode_influence(self, epoch):
         paths = self._get_paths_mode_influence_test()
 
         obs_dim = paths[0].obs.shape[0]
         action_dim = paths[0].action.shape[0]
+
+        # Plot influence in different plot
         for path in paths:
             self._write_mode_influence(
                 path,
                 obs_dim=obs_dim,
                 action_dim=action_dim,
                 epoch=epoch
+            )
+
+        # Plot influence in one plot
+        if obs_dim == 2:
+            obs = np.stack([path.obs for path in paths], axis=2)
+            self.diagnostic_writer.writer.plot(
+                obs[0], obs[1],
+                tb_str="ModeInfluence All Skills in One Plot",
+                step=epoch,
+                labels=["skill {}".format(path.skill_id.squeeze()[0]) for path in paths],
+                x_lim=[-2, 2],
+                y_lim=[-2, 2]
             )
 
     def _write_mode_influence(self,
@@ -68,6 +82,16 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
             step=epoch,
             y_lim=[-3, 3]
         )
+
+        if obs_dim == 2:
+            # State Space
+            self.diagnostic_writer.writer.plot(
+                *[obs_dim_array for obs_dim_array in path.obs],
+                tb_str="State Space Behaviour/Skill {}".format(skill_id),
+                step=epoch,
+                x_lim=[-2.2, 2.2],
+                y_lim=[-2.2, 2.2]
+            )
 
         # Actions
         self.diagnostic_writer.writer.plot_lines(

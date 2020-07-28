@@ -63,3 +63,22 @@ class PltCreator(object, metaclass=abc.ABCMeta):
 
 
         return plt.gcf()
+
+    def plot(self,
+             *args,
+             labels,
+             x_lim=None,
+             y_lim=None,
+             **kwargs):
+        lineobjects = plt.plot(*args, **kwargs)
+
+        if labels is not None:
+            plt.legend(lineobjects, labels)
+
+        if x_lim is not None:
+            plt.xlim(*x_lim)
+        if y_lim is not None:
+            plt.ylim(*y_lim)
+
+        return plt.gcf()
+
