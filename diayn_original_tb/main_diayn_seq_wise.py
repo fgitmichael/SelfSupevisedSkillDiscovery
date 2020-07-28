@@ -41,7 +41,7 @@ def experiment(variant, args):
     action_dim = eval_env.action_space.low.size
     skill_dim = args.skill_dim
 
-    seq_len = 70
+    seq_len = 100
     variant['algorithm_kwargs']['batch_size'] //= seq_len
     run_comment = "seq_len: {}".format(seq_len)
 
