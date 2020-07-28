@@ -32,7 +32,7 @@ from diayn_original_tb.policies.diayn_policy_extension import \
     SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
 from diayn_original_tb.algo.algo_diayn_tb_own_fun import DIAYNTorchOnlineRLAlgorithmOwnFun
 from diayn_original_tb.algo.diayn_trainer_orig_extension import DIAYNTrainerExtension
-
+from diayn_original_tb.policies.self_sup_policy_wrapper import RlkitWrapperForMySkillPolicy
 
 def experiment(variant, args):
     expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
@@ -80,11 +80,17 @@ def experiment(variant, args):
         output_size=skill_dim,
         hidden_sizes=[M, M],
     )
-    policy = SkillTanhGaussianPolicyExtension(
-        obs_dim=obs_dim + skill_dim,
+    #policy = SkillTanhGaussianPolicyExtension(
+    #    obs_dim=obs_dim + skill_dim,
+    #    action_dim=action_dim,
+    #    hidden_sizes=[M, M],
+    #    skill_dim=skill_dim
+    #)
+    policy = RlkitWrapperForMySkillPolicy(
+        obs_dim=obs_dim,
         action_dim=action_dim,
+        skill_dim=skill_dim,
         hidden_sizes=[M, M],
-        skill_dim=skill_dim
     )
     eval_policy = MakeDeterministicExtension(policy)
     eval_path_collector = SeqCollector(
