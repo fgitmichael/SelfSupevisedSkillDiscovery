@@ -106,7 +106,8 @@ class ReconstructionLikelyhoodBasedRewards(RewardCalculatorBase):
             skill_gt           : (N, S, mode_dim) tensor
         Return:
             rewards            : (N, S, 1) tensor
-        Reward agent for finding discriminable skills. Reward is based on how likely is it,
+        Reward agent for finding discriminable skills.
+        Reward is based on how likely is it,
         that the agent was actually command to execute the skill. In the easiest form
         this would be p(post_skill | skill_gt). To get a measure for every transition
         """
@@ -114,7 +115,8 @@ class ReconstructionLikelyhoodBasedRewards(RewardCalculatorBase):
         mode_post = mode_enc['post']['dist'].loc
         assert mode_post.shape == skill_gt[:, 0, :].shape
         mode_post_repeated = torch.cat([mode_post] * self.seq_len, dim=0)
-        assert obs_seq.view(self.batch_size * self.seq_len, obs_seq.size(self.data_dim))\
+        assert obs_seq.view(self.batch_size * self.seq_len,
+                            obs_seq.size(self.data_dim))\
                    .size(self.batch_dim) \
             == mode_post_repeated.size(self.batch_dim)
 
@@ -185,7 +187,6 @@ class ActionDiffBasedRewards(RewardCalculatorBase):
             keepdim=True
         )
 
-        #rewards = real_skill_log_prob_repeated.sum(dim=self.data_dim, keepdim=True) - error
         rewards = real_skill_log_prob_repeated.sum(dim=self.data_dim, keepdim=True)
 
         return rewards
