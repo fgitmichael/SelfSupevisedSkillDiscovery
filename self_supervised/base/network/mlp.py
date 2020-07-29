@@ -1,10 +1,8 @@
 import torch
 from torch import nn
 from typing import Union
+
 from code_slac.network.base import BaseNetwork
-
-
-
 
 from code_slac.network.base import weights_init_xavier
 

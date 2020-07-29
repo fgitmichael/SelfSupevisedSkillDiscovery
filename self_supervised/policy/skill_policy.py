@@ -185,4 +185,3 @@ class MakeDeterministic(Policy):
 
     def set_skill(self, skill):
         self.stochastic_policy.set_skill(skill)
-
