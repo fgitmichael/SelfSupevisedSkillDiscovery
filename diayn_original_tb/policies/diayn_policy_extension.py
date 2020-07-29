@@ -65,3 +65,10 @@ class MakeDeterministicExtension(Policy):
     @property
     def skill(self):
         return self.stochastic_policy.skill
+
+    def __call__(self, *args, **kwargs):
+        kwargs['deterministic'] = True
+        return self.stochastic_policy(*args, **kwargs)
+
+    def forward(self, *args, **kwargs):
+        return self(*args, **kwargs)
