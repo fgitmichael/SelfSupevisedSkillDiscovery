@@ -61,7 +61,7 @@ class SeqClassifierModule(object):
         self.encoder = encoder
         self.criterion = nn.CrossEntropyLoss()
 
-    def loss(self, seq: torch.Tensor, labels: torch.Tensor):
+    def loss_predictions(self, seq: torch.Tensor, labels: torch.Tensor):
         """
         Args:
             seq              : (S, N, data_dim) tensor
