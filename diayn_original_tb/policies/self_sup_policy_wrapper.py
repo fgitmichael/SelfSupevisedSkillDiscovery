@@ -8,6 +8,8 @@ import self_supervised.utils.typed_dicts as td
 
 import rlkit.torch.pytorch_util as ptu
 
+from diayn_original_tb.policies.diayn_policy_extension import MakeDeterministicExtension
+
 class RlkitWrapperForMySkillPolicy(SkillTanhGaussianPolicy):
 
     def __init__(self, *args, **kwargs):
@@ -84,3 +86,10 @@ class RlkitWrapperForMySkillPolicy(SkillTanhGaussianPolicy):
             for_ret_mapping.mean_action_log_prob,
             for_ret_mapping.pre_tanh_value
         )
+
+
+class MakeDeterministicMyPolicyWrapper(MakeDeterministicExtension):
+
+    def __init__(self,
+                 stochastic_policy: RlkitWrapperForMySkillPolicy):
+        super().__init__(stochastic_policy)
