@@ -24,8 +24,3 @@ class DIAYNTrainerExtension(DIAYNTrainer):
             'Number of Samples used for Training',
             self.num_samples_trained
         ))
-
-
-
-
-

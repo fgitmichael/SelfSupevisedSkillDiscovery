@@ -5,6 +5,8 @@ from typing import Union
 
 from diayn_original_tb.policies.self_sup_policy_wrapper import \
     MakeDeterministicExtension, MakeDeterministicMyPolicyWrapper
+
+
 class RewardPolicyDiff():
 
     def __init__(self,
