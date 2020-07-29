@@ -34,6 +34,8 @@ from diayn_original_tb.algo.algo_diayn_tb_own_fun import DIAYNTorchOnlineRLAlgor
 from diayn_original_tb.algo.diayn_trainer_orig_extension import DIAYNTrainerExtension
 from diayn_original_tb.policies.self_sup_policy_wrapper import RlkitWrapperForMySkillPolicy
 
+from diayn_with_rnn_classifier.reward_calculation.reward_calculator import RewardPolicyDiff
+
 def experiment(variant, args):
     expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
     eval_env = copy.deepcopy(expl_env)
