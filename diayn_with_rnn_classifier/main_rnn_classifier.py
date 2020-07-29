@@ -35,6 +35,10 @@ from diayn_original_tb.algo.diayn_trainer_orig_extension import DIAYNTrainerExte
 from diayn_original_tb.policies.self_sup_policy_wrapper import RlkitWrapperForMySkillPolicy
 
 from diayn_with_rnn_classifier.reward_calculation.reward_calculator import RewardPolicyDiff
+from diayn_with_rnn_classifier.networks.rnn_classifier import SeqClassifierModule, SeqEncoder
+from diayn_with_rnn_classifier.algo.diayn_trainer_with_rnn_classifier import \
+    DIAYNTrainerRnnClassifierExtension
+
 
 def experiment(variant, args):
     expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
@@ -77,10 +81,16 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = MyFlattenMlp(
-        input_size=obs_dim,
-        output_size=skill_dim,
-        hidden_sizes=[M, M],
+    seq_encoder = SeqEncoder(
+        skill_dim=skill_dim,
+        state_rep_dim=obs_dim,
+        hidden_rnn_dim=128,
+        rnn_dropout=0.,
+        num_rnn_layers=2,
+        hidden_units=[M, M]
+    )
+    seq_classifier_mod = SeqClassifierModule(
+        encoder=seq_encoder
     )
     #policy = SkillTanhGaussianPolicyExtension(
     #    obs_dim=obs_dim + skill_dim,
@@ -95,6 +105,9 @@ def experiment(variant, args):
         hidden_sizes=[M, M],
     )
     eval_policy = MakeDeterministicExtension(policy)
+    reward_calculator = RewardPolicyDiff(
+        eval_policy=eval_policy
+    )
     eval_path_collector = SeqCollector(
         eval_env,
         eval_policy,
@@ -113,12 +126,13 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
-    trainer = DIAYNTrainerExtension(
+    trainer = DIAYNTrainerRnnClassifierExtension(
         env=eval_env,
         policy=policy,
         qf1=qf1,
         qf2=qf2,
-        df=df,
+        seq_classifier_mod=seq_classifier_mod,
+        reward_calculator=reward_calculator,
         target_qf1=target_qf1,
         target_qf2=target_qf2,
         **variant['trainer_kwargs']

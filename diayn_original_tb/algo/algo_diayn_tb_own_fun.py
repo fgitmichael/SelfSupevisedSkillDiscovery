@@ -1,6 +1,7 @@
 import torch
 import gtimer as gt
 import random
+from typing import Union
 
 
 import rlkit.torch.pytorch_util as ptu
@@ -30,11 +31,17 @@ from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqColl
 from diayn_original_tb.policies.diayn_policy_extension import \
     SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
 
+from diayn_with_rnn_classifier.algo.diayn_trainer_with_rnn_classifier import \
+    DIAYNTrainerRnnClassifierExtension
+
 
 class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
     def __init__(self,
-                 trainer: DIAYNTrainer,
+                 trainer: Union[
+                          DIAYNTrainer,
+                          DIAYNTrainerRnnClassifierExtension],
+
                  exploration_env: NormalizedBoxEnvWrapper,
                  evaluation_env: NormalizedBoxEnvWrapper,
                  exploration_data_collector: SeqCollector,
