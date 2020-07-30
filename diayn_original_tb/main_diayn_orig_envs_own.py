@@ -41,9 +41,9 @@ def experiment(variant, args):
     skill_dim = args.skill_dim
 
     run_comment = ""
-    run_comment += "DIAYN policy "
-    run_comment += "own mlp"
-    run_comment += "own env"
+    run_comment += "DIAYN_policy | "
+    run_comment += "DIAYN_mlp | "
+    run_comment += "own_env"
 
     seed = 0
     torch.manual_seed = seed
@@ -57,22 +57,22 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    qf2 = MyFlattenMlp(
+    qf2 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    target_qf1 = MyFlattenMlp(
+    target_qf1 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    target_qf2 = MyFlattenMlp(
+    target_qf2 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = MyFlattenMlp(
+    df = FlattenMlp(
         input_size=obs_dim,
         output_size=skill_dim,
         hidden_sizes=[M, M],
