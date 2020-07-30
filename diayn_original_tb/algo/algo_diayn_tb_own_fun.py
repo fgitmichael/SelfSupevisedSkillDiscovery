@@ -148,16 +148,28 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
         train_data = train_data.transpose(batch_dim, seq_dim, data_dim)
 
-        self.trainer.train(
-            dict(
-                rewards=train_data.reward,
-                terminals=train_data.terminal,
-                observations=train_data.obs,
-                actions=train_data.action,
-                next_observations=train_data.next_obs,
-                skills=train_data.mode,
+        if type(self.trainer) is DIAYNTrainerRnnClassifierExtension:
+            self.trainer.train(
+                dict(
+                    rewards=train_data.reward,
+                    terminals=train_data.terminal,
+                    observations=train_data.obs,
+                    actions=train_data.action,
+                    next_observations=train_data.next_obs,
+                    skills=train_data.mode,
+                )
             )
-        )
+        else:
+            self.trainer.train(
+                dict(
+                    rewards=train_data.reward.reshape(-1, 1),
+                    terminals=train_data.terminal.reshape(-1, 1),
+                    observations=train_data.obs.reshape(-1, obs_dim),
+                    actions=train_data.action.reshape(-1, action_dim),
+                    next_observations=train_data.next_obs.reshape(-1, obs_dim),
+                    skills=train_data.mode.reshape(-1, mode_dim),
+                )
+            )
 
         gt.stamp('training', unique=False)
         self.training_mode(False)
