@@ -144,3 +144,8 @@ class NormalSequenceReplayBuffer(SequenceReplayBufferSampleWithoutReplace):
 
         assert terminal.dtype == np.bool
 
+    def random_batch_bsd_format(self, batch_size):
+        batch_dim = 0
+        seq_dim = -1
+        data_dim = 1
+        return self.random_batch(batch_size).transpose(batch_dim, seq_dim, data_dim)
