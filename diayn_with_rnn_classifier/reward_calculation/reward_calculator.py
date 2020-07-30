@@ -6,6 +6,9 @@ from typing import Union
 from diayn_original_tb.policies.self_sup_policy_wrapper import \
     MakeDeterministicExtension, MakeDeterministicMyPolicyWrapper
 
+import rlkit.torch.pytorch_util as ptu
+import self_supervised.utils.my_pytorch_util as my_ptu
+
 
 class RewardPolicyDiff():
 
@@ -103,7 +106,7 @@ class RewardPolicyDiff():
          _,
          _) = self.eval_policy.forward(
             obs=obs_stacked,
-            skill_vec=skill_gt_id_stacked,
+            skill_vec=self._get_skill_from_id(skill_gt_id_stacked, skill_dim),
             reparameterize=False,
             return_log_prob=True
         )
@@ -114,9 +117,10 @@ class RewardPolicyDiff():
          log_prob_pred,
          _,
          _,
+         _,
          _) = self.eval_policy.forward(
             obs=obs_stacked,
-            skill_vec=pred_skill_id_stacked,
+            skill_vec=self._get_skill_from_id(pred_skill_id_stacked, skill_dim),
             reparameterize=False,
             return_log_prob=True
         )
@@ -131,6 +135,15 @@ class RewardPolicyDiff():
         assert log_prob_pred[:seq_len, :] == log_prob_pred_unstacked[0, :, :]
 
         return (log_prob_gt_unstacked - log_prob_pred_unstacked)**2
+
+    def _get_skill_from_id(self, skill_id, skill_dim):
+        """
+        Args:
+            skill_id            : (N, 1) tensor
+        """
+        # skill_dim is needed cause it is same as number of classes here
+        num_classes = skill_dim
+        return my_ptu.eye(num_classes)[skill_id.squeeze()]
 
     def _get_pred_skill(self, pred_log_softmax: torch.Tensor) -> torch.Tensor:
         pred_skill_id = torch.argmax(pred_log_softmax, dim=-1, keepdim=True)
