@@ -7,7 +7,11 @@ from diayn_original_tb.policies.self_sup_policy_wrapper import \
     MakeDeterministicExtension, MakeDeterministicMyPolicyWrapper
 
 import rlkit.torch.pytorch_util as ptu
+
 import self_supervised.utils.my_pytorch_util as my_ptu
+
+from diayn_with_rnn_classifier.policies.action_log_prob_calculator import \
+    ActionLogpropCalculator
 
 
 class RewardPolicyDiff():
@@ -15,9 +19,11 @@ class RewardPolicyDiff():
     def __init__(self,
                  eval_policy: Union[
                      MakeDeterministicExtension,
-                     MakeDeterministicMyPolicyWrapper]
+                     MakeDeterministicMyPolicyWrapper],
+                 action_log_prob_calculator: ActionLogpropCalculator
                  ):
         self.eval_policy = eval_policy
+        self.action_log_prob_calculator = action_log_prob_calculator
 
     @torch.no_grad()
     def calc_rewards(self,
@@ -93,42 +99,33 @@ class RewardPolicyDiff():
         obs_stacked = obs_seq.view(-1, obs_seq.size(data_dim))
         skill_gt_id_stacked = skill_gt_id_seq.view(-1, 1)
         pred_skill_id_stacked = pred_skill_id_seq.view(-1, 1)
+        action_stacked = action_seq.view(-1, 1)
         assert obs_stacked.size(batch_dim) \
-               == skill_gt_id_stacked.size(batch_dim) \
-               == pred_skill_id_stacked.size(batch_dim) \
-               == batch_size * seq_len
-
-        (_,
-         _,
-         _,
-         log_prob_gt,
-         _,
-         _,
-         _,
-         _) = self.eval_policy(
-            obs=obs_stacked,
-            skill_vec=self._get_skill_from_id(skill_gt_id_stacked, skill_dim),
-            reparameterize=False,
-            return_log_prob=True
+            == skill_gt_id_stacked.size(batch_dim) \
+            == pred_skill_id_stacked.size(batch_dim) \
+            == action_stacked.size(batch_dim) \
+            == batch_size * seq_len
+        assert torch.all(
+            obs_stacked[0, :] == obs_seq[0, 0, :]
+        )
+        assert torch.all(
+            action_stacked[0, :] == action_seq[0, 0, :]
         )
 
-        (_,
-         _,
-         _,
-         log_prob_pred,
-         _,
-         _,
-         _,
-         _) = self.eval_policy(
+        log_prob_gt = self.action_log_prob_calculator(
+            action=action_stacked,
             obs=obs_stacked,
-            skill_vec=self._get_skill_from_id(pred_skill_id_stacked, skill_dim),
-            reparameterize=False,
-            return_log_prob=True
+            skill_vec=self._get_skill_from_id(skill_gt_id_stacked, skill_dim)
+        )
+        log_prob_pred = self.action_log_prob_calculator(
+            action=action_stacked,
+            obs=obs_stacked,
+            skill_vec=self._get_skill_from_id(pred_skill_id_stacked, skill_dim)
         )
 
         assert log_prob_gt.shape \
-               == log_prob_pred.shape \
-               == torch.Size((batch_size, action_seq.size(data_dim)))
+            == log_prob_pred.shape \
+            == action_stacked.shape
 
         log_prob_gt_unstacked = log_prob_gt.view(batch_size, seq_len, 1)
         log_prob_pred_unstacked = log_prob_pred.view(batch_size, seq_len, 1)
