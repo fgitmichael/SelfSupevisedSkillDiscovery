@@ -175,7 +175,10 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         predicted_labels = torch.argmax(prediction_log_softmax,
                                         dim=data_dim,
                                         keepdim=True)
-        pred_z = predicted_labels
+        pred_z = predicted_labels.view(-1, 1)
+        assert torch.all(
+            pred_z[:seq_len, :] == predicted_labels[0, :, :]
+        )
 
         """
         Policy and Alpha Loss
@@ -254,7 +257,13 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         """
         Save some statistics for eval
         """
-        df_accuracy = torch.sum(torch.eq(labels, pred_z.reshape(1, list(pred_z.size())[0])[0])).float()/list(pred_z.size())[0]
+        # Change from original
+        #df_accuracy = torch.sum(torch.eq(labels, pred_z.reshape(1, list(pred_z.size())[0])[0])).float()/list(pred_z.size())[0]
+        df_accuracy = torch.sum(
+            torch.eq(
+                labels,
+                pred_z
+            )).float()/pred_z.size(0)
 
         if self._need_to_update_eval_statistics:
             self._need_to_update_eval_statistics = False
