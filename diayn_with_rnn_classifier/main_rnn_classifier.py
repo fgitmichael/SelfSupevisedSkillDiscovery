@@ -91,9 +91,6 @@ def experiment(variant, args):
         num_rnn_layers=2,
         hidden_units=[M, M]
     )
-    seq_classifier_mod = SeqClassifierModule(
-        encoder=seq_encoder
-    )
     #policy = SkillTanhGaussianPolicyExtension(
     #    obs_dim=obs_dim + skill_dim,
     #    action_dim=action_dim,
@@ -137,7 +134,7 @@ def experiment(variant, args):
         policy=policy,
         qf1=qf1,
         qf2=qf2,
-        seq_classifier_mod=seq_classifier_mod,
+        df=seq_encoder,
         reward_calculator=reward_calculator,
         target_qf1=target_qf1,
         target_qf2=target_qf2,

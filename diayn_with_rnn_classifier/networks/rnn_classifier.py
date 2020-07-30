@@ -54,33 +54,3 @@ class SeqEncoder(BaseNetwork):
         return out
 
 
-class SeqClassifierModule(object):
-
-    def __init__(self,
-                 encoder: SeqEncoder):
-        self.encoder = encoder
-        self.criterion = nn.CrossEntropyLoss()
-
-    def loss_predictions(self, seq: torch.Tensor, labels: torch.Tensor):
-        """
-        Args:
-            seq              : (N, S, data_dim) tensor
-            labels           : (N, 1) tensor
-        Return:
-            loss                    : scalar tensor
-            prediction              : (N, skill_dim) tensor
-            pediction_log_soft_max  : (N, skill_dim) tensor
-        """
-        batch_size = seq.size(0)
-        assert labels.size() == torch.Size((batch_size, 1))
-
-        pred = self.encoder(seq)
-        pred_log_softmax = F.log_softmax(pred, dim=1)
-
-        loss = self.criterion(pred, labels.squeeze())
-
-        return dict(
-            loss=loss,
-            prediction=pred,
-            prediction_log_softmax=pred_log_softmax
-        )

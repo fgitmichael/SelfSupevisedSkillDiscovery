@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
+from torch.nn import functional as F
 import math
 
 from code_slac.utils import update_params as backprop
@@ -27,7 +28,7 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
             qf2,
             target_qf1,
             target_qf2,
-            seq_classifier_mod: SeqClassifierModule,
+            df,
             reward_calculator: RewardPolicyDiff,
 
             discount=0.99,
@@ -35,7 +36,7 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
 
             policy_lr=1e-3,
             qf_lr=1e-3,
-            classifier_lr=1e-3,
+            df_lr=1e-3,
             optimizer_class=optim.Adam,
 
             soft_target_tau=1e-2,
@@ -53,7 +54,7 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         self.qf2 = qf2
         self.target_qf1 = target_qf1
         self.target_qf2 = target_qf2
-        self.seq_classifier_mod = seq_classifier_mod
+        self.df = df
         self.reward_calculator = reward_calculator
         self.soft_target_tau = soft_target_tau
         self.target_update_period = target_update_period
@@ -90,9 +91,9 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
             self.qf2.parameters(),
             lr=qf_lr,
         )
-        self.seq_classifier_optimizer = optimizer_class(
-            self.seq_classifier_mod.encoder.parameters(),
-            lr=classifier_lr
+        self.df_optimizer = optimizer_class(
+            self.df.parameters(),
+            lr=df_lr
         )
 
         self.discount = discount
@@ -132,22 +133,20 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         DF Loss and Intrinsic Reward
         """
         assert skills.shape[:-1] == torch.Size((batch_size, seq_len))
-        labels = torch.argmax(skills, dim=data_dim, keepdim=True)
+        z_hat = torch.argmax(skills, dim=data_dim)
         assert torch.all(
-            torch.stack([labels[:, 0, :]] * labels.size(seq_dim), dim=seq_dim) \
-                == labels)
-        seq_classifier_return_dict = self.seq_classifier_mod.loss_predictions(
-            seq=obs,
-            labels=labels[:, 0, :],
-        )
-        seq_classification_loss = seq_classifier_return_dict['loss']
-        prediction_log_softmax = seq_classifier_return_dict['prediction_log_softmax']
+            torch.stack([z_hat[:, 0, :]] * z_hat.size(seq_dim), dim=seq_dim) \
+                == z_hat)
+        d_pred = self.df(next_obs)
+        d_pred_log_softmax = F.log_softmax(d_pred, dim=-1)
+        pred_z = torch.argmax(d_pred_log_softmax, dim=-1, keepdim=True)
+        df_loss = self.df_criterion(d_pred, z_hat)
 
         rewards = self.reward_calculator.calc_rewards(
             obs_seq=obs,
             action_seq=actions,
-            skill_gt_id=labels[:, 0, :],
-            pred_log_softmax=prediction_log_softmax
+            skill_gt_id=z_hat[:, 0, :],
+            pred_log_softmax=d_pred_log_softmax
         )
 
         """
@@ -163,9 +162,9 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         terminals = terminals.view(batch_size_stacked, terminals.size(data_dim))
         skills = skills.view(batch_size_stacked, skills.size(data_dim))
         rewards = rewards.view(batch_size_stacked, rewards.size(data_dim))
-        labels = labels.view(batch_size_stacked, labels.size(data_dim))
-        assert prediction_log_softmax.shape == torch.Size((batch_size, skills.size(data_dim)))
-        prediction_log_softmax = torch.stack([prediction_log_softmax] * seq_len, dim=seq_dim)
+        z_hat = z_hat.view(batch_size_stacked, z_hat.size(data_dim))
+        assert d_pred_log_softmax.shape == torch.Size((batch_size, skills.size(data_dim)))
+        prediction_log_softmax = torch.stack([d_pred_log_softmax] * seq_len, dim=seq_dim)
         prediction_log_softmax_stacked = prediction_log_softmax.view(
             batch_size_stacked,
             prediction_log_softmax.size(data_dim)
@@ -226,11 +225,9 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         """
         Update networks
         """
-        self.seq_classifier_optimizer.zero_grad()
-        seq_classification_loss.backward()
-        self.seq_classifier_optimizer.step()
-
-
+        self.df_optimizer.zero_grad()
+        df_loss.backward()
+        self.df_optimizer.step()
 
         self.qf1_optimizer.zero_grad()
         qf1_loss.backward()
@@ -262,8 +259,8 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         #df_accuracy = torch.sum(torch.eq(labels, pred_z.reshape(1, list(pred_z.size())[0])[0])).float()/list(pred_z.size())[0]
         df_accuracy = torch.sum(
             torch.eq(
-                labels,
-                pred_z
+                z_hat,
+                pred_z.squeeze()
             )).float()/pred_z.size(0)
 
         if self._need_to_update_eval_statistics:
@@ -275,7 +272,7 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
             policy_loss = (log_pi - q_new_actions).mean()
 
             self.eval_statistics['Intrinsic Rewards'] = np.mean(ptu.get_numpy(rewards))
-            self.eval_statistics['Classfier loss'] = np.mean(ptu.get_numpy(seq_classification_loss))
+            self.eval_statistics['Classfier loss'] = np.mean(ptu.get_numpy(df_loss))
             self.eval_statistics['DF Accuracy'] = np.mean(ptu.get_numpy(df_accuracy))
             self.eval_statistics['QF1 Loss'] = np.mean(ptu.get_numpy(qf1_loss))
             self.eval_statistics['QF2 Loss'] = np.mean(ptu.get_numpy(qf2_loss))
