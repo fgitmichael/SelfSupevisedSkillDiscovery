@@ -10,3 +10,11 @@ def eye(*args, torch_device=None, **kwargs):
     if torch_device is None:
         torch_device = ptu.device
     return torch.eye(*args, **kwargs, device=torch_device)
+
+def get_oh_float(num_classes: int, labels):
+    """
+    Args:
+        num_classes             : number of classes
+        labels                  : list or 1dim array or 1dim tensor
+    """
+    return eye(num_classes)[labels]
