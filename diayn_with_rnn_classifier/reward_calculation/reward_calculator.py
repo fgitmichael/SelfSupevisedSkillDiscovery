@@ -19,6 +19,7 @@ class RewardPolicyDiff():
                  ):
         self.eval_policy = eval_policy
 
+    @torch.no_grad()
     def calc_rewards(self,
                      obs_seq: torch.Tensor,
                      action_seq: torch.Tensor,
