@@ -1,11 +1,11 @@
 import numpy as np
 from collections import OrderedDict
 
-from self_supervised.base.replay_buffer.replay_buffer_base import SequenceReplayBuffer
+from self_supervised.base.replay_buffer.replay_buffer_base import SequenceReplayBufferSampleWithoutReplace
 from self_supervised.utils.typed_dicts import TransitionMapping
 
 
-class NormalSequenceReplayBuffer(SequenceReplayBuffer):
+class NormalSequenceReplayBuffer(SequenceReplayBufferSampleWithoutReplace):
 
     def __init__(self,
                  max_replay_buffer_size,
@@ -13,6 +13,9 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
                  action_dim,
                  seq_len,
                  env_info_sizes=None):
+        super().__init__(
+            max_replay_buffer_size=max_replay_buffer_size
+        )
 
         if env_info_sizes is None:
             env_info_sizes = dict()
@@ -20,7 +23,6 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
         self._observation_dim = observation_dim
         self._action_dim = action_dim
 
-        self._max_replay_buffer_size = max_replay_buffer_size
         self._seq_len = seq_len
 
         self._obs_seqs = np.zeros(
@@ -63,9 +65,6 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
             )
         self._env_info_keys = env_info_sizes.keys()
 
-        self._top = 0
-        self._size = 0
-
     def add_sample(self,
                    path: TransitionMapping,
                    **kwargs):
@@ -87,15 +86,6 @@ class NormalSequenceReplayBuffer(SequenceReplayBuffer):
         self._terminal_seqs[self._top] = path.terminal
 
         self._advance()
-
-    def _advance(self):
-        self._top = (self._top + 1) % self._max_replay_buffer_size
-
-        if self._size < self._max_replay_buffer_size:
-            self._size += 1
-
-    def __len__(self):
-        return self._size
 
     def terminate_episode(self):
         pass

@@ -1,10 +1,10 @@
 import abc
 from typing import List
+import numpy as np
 
 from rlkit.data_management.replay_buffer import ReplayBuffer
 
 import self_supervised.utils.typed_dicts as td
-
 
 # Adding skills
 class SequenceReplayBuffer(ReplayBuffer, metaclass=abc.ABCMeta):
@@ -101,3 +101,41 @@ class SequenceReplayBuffer(ReplayBuffer, metaclass=abc.ABCMeta):
     def end_epoch(self, epoch):
         return
 
+
+class SequenceReplayBufferSampleWithoutReplace(SequenceReplayBuffer):
+
+    def __init__(self,
+                 max_replay_buffer_size):
+        self._max_replay_buffer_size = max_replay_buffer_size
+        self._size = 0
+        self._top = 0
+
+    def _advance(self):
+        self._top = (self._top + 1) % self._max_replay_buffer_size
+
+        if self._size < self._max_replay_buffer_size:
+            self._size += 1
+
+    def __len__(self):
+        return self._size
+
+    def _get_sample_idx(self, batch_size):
+        if self._size < batch_size:
+            idx_present = np.arange(self._size)
+            idx_rest = np.random.randint(
+                low=0,
+                high=self._size,
+                size=batch_size-self._size
+            )
+            idx = np.concatenate(
+                [idx_present, idx_rest]
+            )
+
+        else:
+            idx = np.random.choice(
+                np.arange(self._size),
+                size=batch_size,
+                replace=False
+            )
+
+        return idx

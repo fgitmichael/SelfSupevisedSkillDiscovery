@@ -3,7 +3,7 @@ from gym.spaces import Discrete
 import numpy as np
 
 from self_supervised.base.replay_buffer.replay_buffer \
-    import SequenceReplayBuffer, NormalSequenceReplayBuffer
+    import NormalSequenceReplayBuffer
 from self_supervised.utils.typed_dicts import TransitionMapping
 from rlkit.envs.env_utils import get_dim
 
