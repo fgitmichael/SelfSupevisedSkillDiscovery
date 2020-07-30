@@ -105,7 +105,7 @@ class RewardPolicyDiff():
          _,
          _,
          _,
-         _) = self.eval_policy.forward(
+         _) = self.eval_policy(
             obs=obs_stacked,
             skill_vec=self._get_skill_from_id(skill_gt_id_stacked, skill_dim),
             reparameterize=False,
@@ -119,7 +119,7 @@ class RewardPolicyDiff():
          _,
          _,
          _,
-         _) = self.eval_policy.forward(
+         _) = self.eval_policy(
             obs=obs_stacked,
             skill_vec=self._get_skill_from_id(pred_skill_id_stacked, skill_dim),
             reparameterize=False,
