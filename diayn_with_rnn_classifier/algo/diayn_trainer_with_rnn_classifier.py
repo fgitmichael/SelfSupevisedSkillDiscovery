@@ -131,6 +131,7 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         """
         DF Loss and Intrinsic Reward
         """
+        assert skills.shape[:-1] == torch.Size((batch_size, seq_len))
         labels = torch.argmax(skills, dim=data_dim, keepdim=True)
         assert torch.all(
             torch.stack([labels[:, 0, :]] * labels.size(seq_dim), dim=seq_dim) \
