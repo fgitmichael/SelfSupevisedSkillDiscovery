@@ -38,6 +38,8 @@ from diayn_with_rnn_classifier.reward_calculation.reward_calculator import Rewar
 from diayn_with_rnn_classifier.networks.rnn_classifier import SeqClassifierModule, SeqEncoder
 from diayn_with_rnn_classifier.algo.diayn_trainer_with_rnn_classifier import \
     DIAYNTrainerRnnClassifierExtension
+from diayn_with_rnn_classifier.policies.action_log_prob_calculator import \
+    ActionLogpropCalculator
 
 
 def experiment(variant, args):
@@ -105,8 +107,12 @@ def experiment(variant, args):
         hidden_sizes=[M, M],
     )
     eval_policy = MakeDeterministicExtension(policy)
+    action_logprob_calculator = ActionLogpropCalculator(
+        policy=eval_policy
+    )
     reward_calculator = RewardPolicyDiff(
-        eval_policy=eval_policy
+        eval_policy=eval_policy,
+        action_log_prob_calculator=action_logprob_calculator
     )
     eval_path_collector = SeqCollector(
         eval_env,
