@@ -132,8 +132,12 @@ class RewardPolicyDiff():
 
         log_prob_gt_unstacked = log_prob_gt.view(batch_size, seq_len, 1)
         log_prob_pred_unstacked = log_prob_pred.view(batch_size, seq_len, 1)
-        assert log_prob_gt[:seq_len, :] == log_prob_gt_unstacked[0, :, :]
-        assert log_prob_pred[:seq_len, :] == log_prob_pred_unstacked[0, :, :]
+        assert torch.all(
+            torch.eq(log_prob_gt[:seq_len, :], log_prob_gt_unstacked[0, :, :])
+        )
+        assert torch.all(
+            torch.eq(log_prob_pred[:seq_len, :], log_prob_pred_unstacked[0, :, :])
+        )
 
         return (log_prob_gt_unstacked - log_prob_pred_unstacked)**2
 

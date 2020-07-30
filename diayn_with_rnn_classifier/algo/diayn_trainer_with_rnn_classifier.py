@@ -153,7 +153,9 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         Stack data for rest of method
         """
         batch_size_stacked = batch_size * seq_len
-        assert obs.view(batch_size_stacked, obs.size(data_dim))[0, :] == obs[0, 0, :]
+        assert torch.all(
+            torch.eq(obs.view(batch_size_stacked, obs.size(data_dim))[0, :], obs[0, 0, :])
+        )
         obs = obs.view(batch_size_stacked, obs.size(data_dim))
         actions = actions.view(batch_size_stacked, actions.size(data_dim))
         next_obs = next_obs.view(batch_size_stacked, next_obs.size(data_dim))
@@ -167,7 +169,9 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
             batch_size_stacked,
             prediction_log_softmax.size(data_dim)
         )
-        assert prediction_log_softmax[0, 0, :] == prediction_log_softmax_stacked[0, :]
+        assert torch.all(
+            prediction_log_softmax[0, 0, :] == prediction_log_softmax_stacked[0, :]
+        )
         predicted_labels = torch.argmax(prediction_log_softmax,
                                         dim=data_dim,
                                         keepdim=True)
