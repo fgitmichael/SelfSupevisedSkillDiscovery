@@ -113,20 +113,21 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
 
         # TODO: write rewards
 
-    def _get_paths_mode_influence_test(self, seq_len=200) \
+    def _get_paths_mode_influence_test(self, num_paths=1, seq_len=200) \
             -> List[TransitonModeMappingDiscreteSkills]:
 
-        for skill in range(self.policy.skill_dim):
-            # Set skill
-            skill_oh = F.one_hot(
-                ptu.tensor(skill), num_classes=self.policy.skill_dim)
-            self.seq_eval_collector.set_skill(skill)
+        for _ in range(num_paths):
+            for skill in range(self.policy.skill_dim):
+                # Set skill
+                skill_oh = F.one_hot(
+                    ptu.tensor(skill), num_classes=self.policy.skill_dim)
+                self.seq_eval_collector.set_skill(skill)
 
-            self.seq_eval_collector.collect_new_paths(
-                seq_len=seq_len,
-                num_seqs=1,
-                discard_incomplete_paths=False
-            )
+                self.seq_eval_collector.collect_new_paths(
+                    seq_len=seq_len,
+                    num_seqs=1,
+                    discard_incomplete_paths=False
+                )
 
         mode_influence_eval_paths = self.seq_eval_collector.get_epoch_paths()
 
