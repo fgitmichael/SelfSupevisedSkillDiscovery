@@ -25,11 +25,11 @@ class ActionLogpropCalculator(object):
         self.policy = policy
 
     @torch.no_grad()
-    def action_log_prob(self,
-                        action: torch.Tensor,
-                        obs: torch.Tensor,
-                        skill_vec: torch.Tensor,
-                        ):
+    def __call__(self,
+                 action: torch.Tensor,
+                 obs: torch.Tensor,
+                 skill_vec: torch.Tensor,
+                 ):
         """
         Args
             action        : (N, action_dim)
