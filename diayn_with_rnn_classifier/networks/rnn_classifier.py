@@ -64,20 +64,20 @@ class SeqClassifierModule(object):
     def loss_predictions(self, seq: torch.Tensor, labels: torch.Tensor):
         """
         Args:
-            seq              : (S, N, data_dim) tensor
+            seq              : (N, S, data_dim) tensor
             labels           : (N, 1) tensor
         Return:
             loss                    : scalar tensor
             prediction              : (N, skill_dim) tensor
             pediction_log_soft_max  : (N, skill_dim) tensor
         """
-        batch_size = seq.size(1)
-        assert labels.size(0) == torch.Size((batch_size, 1))
+        batch_size = seq.size(0)
+        assert labels.size() == torch.Size((batch_size, 1))
 
-        pred = self.encoder(seq)
+        pred = self.encoder(seq.transpose(0, 1))
         pred_log_softmax = F.log_softmax(pred, dim=1)
 
-        loss = self.criterion(pred, labels)
+        loss = self.criterion(pred, labels.squeeze())
 
         return dict(
             loss=loss,
