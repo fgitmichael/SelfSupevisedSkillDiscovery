@@ -175,9 +175,10 @@ class TanhGaussianPolicyLogStd(TanhGaussianPolicy):
                         return_pretanh_value=True
                     )
                 else:
-                    action, pre_tanh_value = tanh_normal.rsample(
+                    action, pre_tanh_value = tanh_normal.sample(
                         return_pretanh_value=True
                     )
+
                 log_prob = tanh_normal.log_prob(
                     action,
                     pre_tanh_value=pre_tanh_value
