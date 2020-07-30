@@ -132,8 +132,9 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         DF Loss and Intrinsic Reward
         """
         labels = torch.argmax(skills, dim=data_dim, keepdim=True)
-        assert torch.stack([labels[:, 0, :]] * labels.size(seq_dim), dim=seq_dim) \
-               == labels
+        assert torch.all(
+            torch.stack([labels[:, 0, :]] * labels.size(seq_dim), dim=seq_dim) \
+                == labels)
         seq_classifier_return_dict = self.seq_classifier_mod.loss_predictions(
             seq=obs,
             labels=labels[:, 0, :],
