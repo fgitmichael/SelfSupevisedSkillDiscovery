@@ -144,7 +144,10 @@ class RewardPolicyDiff():
         """
         # skill_dim is needed cause it is same as number of classes here
         num_classes = skill_dim
-        return my_ptu.eye(num_classes)[skill_id.squeeze()]
+        return my_ptu.get_oh_float(
+            num_classes=num_classes,
+            labels=skill_id.squeeze()
+        )
 
     def _get_pred_skill(self, pred_log_softmax: torch.Tensor) -> torch.Tensor:
         pred_skill_id = torch.argmax(pred_log_softmax, dim=-1, keepdim=True)
