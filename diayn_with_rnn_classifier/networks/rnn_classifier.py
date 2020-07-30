@@ -41,13 +41,13 @@ class SeqEncoder(BaseNetwork):
                 state_rep_seq):
         """
         Args:
-            state_rep_seq        : (S, N, state_rep_dim)
+            state_rep_seq        : (N, S, state_rep_dim)
         Return:
             vector               : (N, skill_dim)
         """
         assert state_rep_seq.size(-1) == self.rnn.input_dim
 
-        rnn_out = self.rnn(state_rep_seq)
+        rnn_out = self.rnn(state_rep_seq.transpose(0, 1))
         out = self.net(rnn_out)
 
         assert out.size(0) == state_rep_seq.size(1)
@@ -74,7 +74,7 @@ class SeqClassifierModule(object):
         batch_size = seq.size(0)
         assert labels.size() == torch.Size((batch_size, 1))
 
-        pred = self.encoder(seq.transpose(0, 1))
+        pred = self.encoder(seq)
         pred_log_softmax = F.log_softmax(pred, dim=1)
 
         loss = self.criterion(pred, labels.squeeze())
