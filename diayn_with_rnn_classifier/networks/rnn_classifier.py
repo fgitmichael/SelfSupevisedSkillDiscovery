@@ -82,5 +82,5 @@ class SeqClassifierModule(object):
         return dict(
             loss=loss,
             prediction=pred,
-            prediction_log_soft_max=pred_log_softmax
+            prediction_log_softmax=pred_log_softmax
         )
