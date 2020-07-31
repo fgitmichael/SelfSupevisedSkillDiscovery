@@ -13,7 +13,6 @@ import rlkit.torch.pytorch_util as ptu
 
 from diayn_with_rnn_classifier.reward_calculation.reward_calculator \
     import RewardPolicyDiff
-from diayn_with_rnn_classifier.networks.rnn_classifier import SeqClassifierModule
 from rlkit.core.eval_util import create_stats_ordered_dict
 from rlkit.torch.torch_rl_algorithm import TorchTrainer
 

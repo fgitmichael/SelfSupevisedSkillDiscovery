@@ -35,11 +35,14 @@ from diayn_original_tb.algo.diayn_trainer_orig_extension import DIAYNTrainerExte
 from diayn_original_tb.policies.self_sup_policy_wrapper import RlkitWrapperForMySkillPolicy
 
 from diayn_with_rnn_classifier.reward_calculation.reward_calculator import RewardPolicyDiff
-from diayn_with_rnn_classifier.networks.rnn_classifier import SeqClassifierModule, SeqEncoder
+from diayn_with_rnn_classifier.networks.rnn_classifier import SeqEncoder
 from diayn_with_rnn_classifier.algo.diayn_trainer_with_rnn_classifier import \
     DIAYNTrainerRnnClassifierExtension
+from diayn_with_rnn_classifier.algo.seq_wise_algo_classfier_perf_logging import \
+    SeqWiseAlgoClassfierPerfLogging
 from diayn_with_rnn_classifier.policies.action_log_prob_calculator import \
     ActionLogpropCalculator
+
 
 
 def experiment(variant, args):
@@ -151,7 +154,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = DIAYNTorchOnlineRLAlgorithmOwnFun(
+    algorithm = SeqWiseAlgoClassfierPerfLogging(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
