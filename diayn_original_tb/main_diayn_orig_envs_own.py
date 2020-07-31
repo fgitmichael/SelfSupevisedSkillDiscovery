@@ -31,6 +31,8 @@ from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqColl
 from diayn_original_tb.policies.diayn_policy_extension import \
     SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
 from diayn_original_tb.algo.algo_diayn_tb_own_fun import DIAYNTorchOnlineRLAlgorithmOwnFun
+from diayn_original_tb.algo.algo_diayn_tb_perf_logging import \
+    DIAYNTorchOnlineRLAlgorithmTbPerfLogging
 
 
 def experiment(variant, args):
@@ -43,7 +45,8 @@ def experiment(variant, args):
     run_comment = ""
     run_comment += "DIAYN_policy | "
     run_comment += "DIAYN_mlp | "
-    run_comment += "own_env"
+    run_comment += "own_env | "
+    run_comment += "perf_loggin | "
 
     seed = 0
     torch.manual_seed = seed
@@ -122,7 +125,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = DIAYNTorchOnlineRLAlgorithmTb(
+    algorithm = DIAYNTorchOnlineRLAlgorithmTbPerfLogging(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
