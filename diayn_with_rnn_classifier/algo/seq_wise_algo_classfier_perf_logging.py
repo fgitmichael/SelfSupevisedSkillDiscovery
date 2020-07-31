@@ -42,25 +42,24 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
         action_dim = eval_paths[0].action.shape[0]
 
         next_obs = []
-        mode = []
+        z_hat = []
         for path in eval_paths:
             next_obs.append(path.next_obs)
-            mode.append(path.mode)
+            z_hat.append(path.skill_id)
         next_obs = np.stack(next_obs, dim=0)
-        mode = np.stack(mode, dim=0)
+        z_hat = ptu.from_numpy(z_hat, dim=0)
         assert next_obs.shape == (num_paths * self.policy.skill_dim, self.seq_len, obs_dim)
 
-        pred = self.trainer.seq_classifier_mod.encoder(
+        d_pred = self.trainer.seq_classifier_mod.encoder(
             state_rep_seq=next_obs,
         )
-        pred_log_softmax = F.log_softmax(pred, dim=1)
+        d_pred_log_softmax = F.log_softmax(d_pred, dim=1)
 
-        labels = torch.argmax(ptu.from_numpy(mode), dim=-1, keepdim=True)[:, 0, :]
-        pred_z = torch.argmax(pred_log_softmax, dim=-1, keepdim=True)
-        assert labels.shape == pred_z.shape
+        pred_z = torch.argmax(d_pred_log_softmax, dim=-1, keepdim=True)
+        assert z_hat.shape == pred_z.shape
         df_accuracy = torch.sum(
             torch.eq(
-                labels,
+                z_hat,
                 pred_z
             )).float()/pred_z.size(0)
 
@@ -74,16 +73,17 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
         batch = self.replay_buffer.random_batch_bsd_format(
             batch_size=batch_size)
 
+        z_hat = batch.skill_id
+
         pred = self.trainer.seq_classifier_mod.encoder(
             state_rep_seq=batch.next_obs)
         pred_log_softmax = F.log_softmax(pred, dim=1)
-
-        labels = torch.argmax(batch.mode, dim=-1, keepdim=True)[:, 0, :]
         pred_z = torch.argmax(pred_log_softmax, dim=-1, keepdim=True)
-        assert labels.shape == pred_z.shape
+        assert z_hat.shape == pred_z.shape
+
         df_accuracy = torch.sum(
             torch.eq(
-                labels,
+                z_hat,
                 pred_z
             )).float()/pred_z.size(0)
 

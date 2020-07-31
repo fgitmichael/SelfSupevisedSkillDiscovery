@@ -325,7 +325,7 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
             self.qf2,
             self.target_qf1,
             self.target_qf2,
-            self.seq_classifier_mod.encoder
+            self.df
         ]
 
     def get_snapshot(self):
@@ -335,7 +335,7 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
             qf2=self.qf2,
             target_qf1=self.qf1,
             target_qf2=self.qf2,
-            df=self.seq_classifier_mod.encoder
+            df=self.df
         )
 
 
