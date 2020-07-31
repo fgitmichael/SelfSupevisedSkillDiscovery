@@ -50,7 +50,7 @@ class SeqEncoder(BaseNetwork):
         rnn_out = self.rnn(state_rep_seq.transpose(0, 1))
         out = self.net(rnn_out)
 
-        assert out.size(0) == state_rep_seq.size(1)
+        assert out.size(0) == state_rep_seq.size(0)
         return out
 
 
