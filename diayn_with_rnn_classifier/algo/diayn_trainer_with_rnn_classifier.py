@@ -132,10 +132,7 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         DF Loss and Intrinsic Reward
         """
         assert skills.shape[:-1] == torch.Size((batch_size, seq_len))
-        z_hat = torch.argmax(skills, dim=data_dim)
-        assert torch.all(
-            torch.stack([z_hat[:, 0]] * z_hat.size(seq_dim), dim=seq_dim) \
-                == z_hat)
+        z_hat = torch.argmax(skills, dim=data_dim)[:, 0]
         d_pred = self.df(next_obs)
         d_pred_log_softmax = F.log_softmax(d_pred, dim=-1)
         pred_z = torch.argmax(d_pred_log_softmax, dim=-1, keepdim=True)
@@ -144,7 +141,7 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         rewards = self.reward_calculator.calc_rewards(
             obs_seq=obs,
             action_seq=actions,
-            skill_gt_id=z_hat[:, 0, :],
+            skill_gt_id=z_hat.unsqueeze(dim=1),
             pred_log_softmax=d_pred_log_softmax
         )
 
@@ -161,23 +158,7 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         terminals = terminals.view(batch_size_stacked, terminals.size(data_dim))
         skills = skills.view(batch_size_stacked, skills.size(data_dim))
         rewards = rewards.view(batch_size_stacked, rewards.size(data_dim))
-        z_hat = z_hat.view(batch_size_stacked, z_hat.size(data_dim))
         assert d_pred_log_softmax.shape == torch.Size((batch_size, skills.size(data_dim)))
-        prediction_log_softmax = torch.stack([d_pred_log_softmax] * seq_len, dim=seq_dim)
-        prediction_log_softmax_stacked = prediction_log_softmax.view(
-            batch_size_stacked,
-            prediction_log_softmax.size(data_dim)
-        )
-        assert torch.all(
-            prediction_log_softmax[0, 0, :] == prediction_log_softmax_stacked[0, :]
-        )
-        predicted_labels = torch.argmax(prediction_log_softmax,
-                                        dim=data_dim,
-                                        keepdim=True)
-        pred_z = predicted_labels.view(-1, 1)
-        assert torch.all(
-            pred_z[:seq_len, :] == predicted_labels[0, :, :]
-        )
 
         """
         Policy and Alpha Loss
