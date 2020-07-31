@@ -1,6 +1,7 @@
 import torch
 from torch.nn import functional as F
 import numpy as np
+import gtimer as gt
 
 import rlkit.torch.pytorch_util as ptu
 
@@ -25,6 +26,8 @@ class DIAYNTorchOnlineRLAlgorithmTbPerfLogging(DIAYNTorchOnlineRLAlgorithmTb):
             scalar_value=classfier_accuracy_eval,
             global_step=epoch
         )
+
+        gt.stamp('own logging')
 
     def _classfier_perf_eval(self):
         num_paths = 2

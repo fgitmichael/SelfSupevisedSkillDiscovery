@@ -1,6 +1,7 @@
 import torch
 from torch.nn import functional as F
 import numpy as np
+import gtimer as gt
 
 
 from diayn_original_tb.algo.algo_diayn_tb_own_fun import \
@@ -28,6 +29,8 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
             scalar_value=classfier_accuracy_eval,
             global_step=epoch
         )
+
+        gt.stamp('own classfier perf logging')
 
     @torch.no_grad()
     def _classfier_perf_eval(self):

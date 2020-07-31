@@ -3,6 +3,7 @@ import torch.nn.functional as F
 from typing import List
 import gtimer as gt
 import numpy as np
+import gtimer as gt
 
 
 from rlkit.torch.sac.diayn.diayn_torch_online_rl_algorithm import \
@@ -38,6 +39,8 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         if self.diagnostic_writer.is_log(epoch):
             self.write_mode_influence(epoch)
             #self.write_skill_hist(epoch)
+
+            gt.stamp('mode influence logging')
 
     def write_mode_influence(self, epoch):
         paths = self._get_paths_mode_influence_test()
