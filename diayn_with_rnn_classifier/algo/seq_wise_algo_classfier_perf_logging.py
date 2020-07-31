@@ -35,7 +35,7 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
     @torch.no_grad()
     def _classfier_perf_eval(self):
 
-        num_paths = 3
+        num_paths = 2
         eval_paths = self._get_paths_mode_influence_test(
             num_paths=num_paths,
             seq_len=self.seq_len,
@@ -62,7 +62,7 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
         d_pred = self.trainer.df(
             state_rep_seq=next_obs,
         )
-        d_pred_log_softmax = F.log_softmax(d_pred, dim=1)
+        d_pred_log_softmax = F.log_softmax(d_pred, dim=-1)
 
         pred_z = torch.argmax(d_pred_log_softmax, dim=-1, keepdim=True)
         assert z_hat.shape == pred_z.shape
@@ -76,7 +76,7 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
 
     @torch.no_grad()
     def _classfier_perf_on_memory(self):
-        len_memory = len(self.replay_buffer)
+        len_memory = self.batch_size
 
         batch_size = len_memory
         batch = self.replay_buffer.random_batch_bsd_format(
@@ -86,7 +86,7 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
         d_pred = self.trainer.df(
             state_rep_seq=ptu.from_numpy(batch.next_obs))
         pred_log_softmax = F.log_softmax(d_pred, dim=-1)
-        pred_z = torch.argmax(pred_log_softmax, dim=--1, keepdim=True)
+        pred_z = torch.argmax(pred_log_softmax, dim=-1, keepdim=True)
         assert z_hat.shape == pred_z.shape
 
         df_accuracy = torch.sum(
