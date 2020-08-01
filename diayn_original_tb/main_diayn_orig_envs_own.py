@@ -26,7 +26,7 @@ from diayn_original_tb.algo.algo_diayn_tb_perf_logging import \
     DIAYNTorchOnlineRLAlgorithmTbPerfLogging
 
 from diayn_with_rnn_classifier.trainer.diayn_trainer_modularized import \
-    DIAYNTrainerModularzided
+    DIAYNTrainerModularized
 
 
 def experiment(variant, args):
@@ -98,7 +98,7 @@ def experiment(variant, args):
         expl_env,
         skill_dim
     )
-    trainer = DIAYNTrainerModularzided(
+    trainer = DIAYNTrainerModularized(
         env=eval_env,
         policy=policy,
         qf1=qf1,

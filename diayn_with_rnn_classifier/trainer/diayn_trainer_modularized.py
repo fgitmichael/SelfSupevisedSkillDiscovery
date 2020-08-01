@@ -13,7 +13,7 @@ from rlkit.core.eval_util import create_stats_ordered_dict
 from rlkit.torch.torch_rl_algorithm import TorchTrainer
 
 
-class DIAYNTrainerModularzided(DIAYNTrainer):
+class DIAYNTrainerModularized(DIAYNTrainer):
 
     def train_from_torch(self, batch):
         terminals = batch['terminals']
