@@ -64,6 +64,7 @@ class DIAYNTrainerModularzided(DIAYNTrainer):
             'q_new_actions',
             'policy_mean',
             'policy_log_std',
+            'log_pi',
             'obs_skills'
         )(policy_ret_dict)
 
@@ -124,6 +125,7 @@ class DIAYNTrainerModularzided(DIAYNTrainer):
             qf1_loss=qf1_loss,
             qf2_loss=qf2_loss,
             q1_pred=q1_pred,
+            q2_pred=q2_pred,
             q_target=q_target,
             policy_mean=policy_mean,
             policy_log_std=policy_log_std,
