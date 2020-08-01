@@ -30,7 +30,6 @@ from diayn_with_rnn_classifier.policies.action_log_prob_calculator import \
     ActionLogpropCalculator
 
 
-
 def experiment(variant, args):
     expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
     eval_env = copy.deepcopy(expl_env)
