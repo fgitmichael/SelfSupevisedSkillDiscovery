@@ -25,6 +25,9 @@ from diayn_original_tb.policies.diayn_policy_extension import \
 from diayn_original_tb.algo.algo_diayn_tb_perf_logging import \
     DIAYNTorchOnlineRLAlgorithmTbPerfLogging
 
+from diayn_with_rnn_classifier.trainer.diayn_trainer_modularized import \
+    DIAYNTrainerModularzided
+
 
 def experiment(variant, args):
     expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
@@ -95,7 +98,7 @@ def experiment(variant, args):
         expl_env,
         skill_dim
     )
-    trainer = DIAYNTrainer(
+    trainer = DIAYNTrainerModularzided(
         env=eval_env,
         policy=policy,
         qf1=qf1,
