@@ -1,37 +1,18 @@
-import torch
 import gtimer as gt
 import random
 from typing import Union
 
-
-import rlkit.torch.pytorch_util as ptu
-from rlkit.torch.sac.diayn.diayn_env_replay_buffer import DIAYNEnvReplayBuffer
-from rlkit.envs.wrappers import NormalizedBoxEnv
-from rlkit.launchers.launcher_util import setup_logger
-from rlkit.torch.sac.diayn.diayn_path_collector import DIAYNMdpPathCollector
-from rlkit.samplers.data_collector.step_collector import MdpStepCollector
 from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
-from rlkit.torch.networks import FlattenMlp
-from rlkit.torch.sac.diayn.diayn_torch_online_rl_algorithm import \
-    DIAYNTorchOnlineRLAlgorithm
-from rlkit.core.rl_algorithm import BaseRLAlgorithm
 
-from self_supervised.base.writer.writer_base import WriterBase
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
-from self_supervised.network.flatten_mlp import FlattenMlp as \
-    MyFlattenMlp
 from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
-from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
-    PathCollectorSelfSupervisedDiscreteSkills
 from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
 
 from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
-from diayn_original_tb.policies.diayn_policy_extension import \
-    SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
 
-from diayn_with_rnn_classifier.algo.diayn_trainer_with_rnn_classifier import \
+from diayn_with_rnn_classifier.trainer.diayn_trainer_with_rnn_classifier import \
     DIAYNTrainerRnnClassifierExtension
 
 
