@@ -42,7 +42,8 @@ def experiment(variant, args):
 
     run_comment = ""
     run_comment += "seq_len: {} ".format(seq_len)
-    run_comment += "own functions"
+    run_comment += "own functions | "
+    run_comment += "rnn classfier | "
 
     seed = 0
     torch.manual_seed = seed
