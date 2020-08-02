@@ -43,8 +43,9 @@ def experiment(variant, args):
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     run_comment = ""
-    run_comment += "seq_len: {} ".format(seq_len)
-    run_comment += "own functions"
+    run_comment += "seq_len: {} |  ".format(seq_len)
+    run_comment += "own functions | "
+    run_comment += "majority vote | "
 
     seed = 0
     torch.manual_seed = seed
