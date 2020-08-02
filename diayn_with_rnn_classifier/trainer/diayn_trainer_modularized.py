@@ -269,7 +269,10 @@ class DIAYNTrainerModularized(DIAYNTrainer):
         """
         Save some statistics for eval
         """
-        df_accuracy = torch.sum(torch.eq(z_hat, pred_z.reshape(1, list(pred_z.size())[0])[0])).float()/list(pred_z.size())[0]
+        df_accuracy = torch.sum(torch.eq(
+            z_hat,
+            pred_z.reshape(1, list(pred_z.size())[0])[0])).float()\
+                      /list(pred_z.size())[0]
 
         if self._need_to_update_eval_statistics:
             self._need_to_update_eval_statistics = False
