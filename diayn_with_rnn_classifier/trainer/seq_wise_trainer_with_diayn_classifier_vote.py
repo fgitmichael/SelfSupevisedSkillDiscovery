@@ -73,13 +73,10 @@ class DIAYNTrainerMajorityVoteSeqClassifier(DIAYNTrainerModularized):
                 rewards.view(num_transitions, 1)[0, :])
         )
         rewards = rewards.view(num_transitions, 1)
-        try:
-            assert torch.all(
-                torch.eq(pred_z[0, :],
-                         pred_z.view(num_transitions, 1)[:seq_len, :].squeeze())
-            )
-        except:
-            pass
+        assert torch.all(
+            torch.eq(pred_z[0, :],
+                     pred_z.view(num_transitions, 1)[:seq_len, :].squeeze())
+        )
         pred_z = pred_z.view(num_transitions, 1)
         z_hat = torch.stack([z_hat] * seq_len, dim=seq_dim).view(num_transitions, 1)
 
