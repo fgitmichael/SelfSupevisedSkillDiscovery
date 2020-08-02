@@ -14,6 +14,8 @@ from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqColl
 
 from diayn_with_rnn_classifier.trainer.diayn_trainer_with_rnn_classifier import \
     DIAYNTrainerRnnClassifierExtension
+from diayn_with_rnn_classifier.trainer.seq_wise_trainer_with_diayn_classifier_vote import \
+    DIAYNTrainerMajorityVoteSeqClassifier
 
 
 class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
@@ -21,7 +23,8 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
     def __init__(self,
                  trainer: Union[
                           DIAYNTrainer,
-                          DIAYNTrainerRnnClassifierExtension],
+                          DIAYNTrainerRnnClassifierExtension,
+                          DIAYNTrainerMajorityVoteSeqClassifier],
 
                  exploration_env: NormalizedBoxEnvWrapper,
                  evaluation_env: NormalizedBoxEnvWrapper,
@@ -130,7 +133,8 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
         train_data = train_data.transpose(batch_dim, seq_dim, data_dim)
 
-        if type(self.trainer) is DIAYNTrainerRnnClassifierExtension:
+        if type(self.trainer) in [DIAYNTrainerRnnClassifierExtension,
+                                  DIAYNTrainerMajorityVoteSeqClassifier]:
             self.trainer.train(
                 dict(
                     rewards=train_data.reward,
