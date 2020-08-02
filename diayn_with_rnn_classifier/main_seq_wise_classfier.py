@@ -92,13 +92,6 @@ def experiment(variant, args):
         hidden_sizes=[M, M],
     )
     eval_policy = MakeDeterministicExtension(policy)
-    action_logprob_calculator = ActionLogpropCalculator(
-        policy=eval_policy
-    )
-    reward_calculator = RewardPolicyDiff(
-        eval_policy=eval_policy,
-        action_log_prob_calculator=action_logprob_calculator
-    )
     eval_path_collector = SeqCollector(
         eval_env,
         eval_policy,
