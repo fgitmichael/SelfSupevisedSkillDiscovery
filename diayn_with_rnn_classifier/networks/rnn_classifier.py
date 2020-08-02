@@ -43,14 +43,20 @@ class SeqEncoder(BaseNetwork):
         Args:
             state_rep_seq        : (N, S, state_rep_dim)
         Return:
-            vector               : (N, skill_dim)
+            vector               : (N, S, num_skills)
         """
+        assert len(state_rep_seq.shape) == 3
         assert state_rep_seq.size(-1) == self.rnn.input_dim
+        seq_len = state_rep_seq.size(1)
 
         rnn_out = self.rnn(state_rep_seq.transpose(0, 1))
         out = self.net(rnn_out)
 
         assert out.size(0) == state_rep_seq.size(0)
+        out = torch.stack([out] * seq_len, dim=1)
+        assert out.shape[:-1] == state_rep_seq.shape[:-1]
+        assert out.size(-1) == self.net.output_size
+
         return out
 
 

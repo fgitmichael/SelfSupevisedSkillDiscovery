@@ -134,6 +134,7 @@ class DIAYNTrainerRnnClassifier(TorchTrainer):
         assert skills.shape[:-1] == torch.Size((batch_size, seq_len))
         z_hat = torch.argmax(skills, dim=data_dim)[:, 0]
         d_pred = self.df(next_obs)
+        d_pred = d_pred[:, 0, :]
         d_pred_log_softmax = F.log_softmax(d_pred, dim=-1)
         pred_z = torch.argmax(d_pred_log_softmax, dim=-1, keepdim=True)
         df_loss = self.df_criterion(d_pred, z_hat)
