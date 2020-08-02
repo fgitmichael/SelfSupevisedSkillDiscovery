@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+import numpy as np
 from torch.nn import functional as F
 import math
 from operator import itemgetter
@@ -9,7 +10,17 @@ from diayn_with_rnn_classifier.trainer.diayn_trainer_modularized import \
 
 import self_supervised.utils.my_pytorch_util as my_ptu
 
+from rlkit.core.eval_util import create_stats_ordered_dict
+import rlkit.torch.pytorch_util as ptu
+
 class DIAYNTrainerMajorityVoteSeqClassifier(DIAYNTrainerModularized):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Overwrite df loss
+        self.df_criterion == nn.NLLLoss()
+
 
     def train_from_torch(self, batch):
         """
@@ -197,10 +208,12 @@ class DIAYNTrainerMajorityVoteSeqClassifier(DIAYNTrainerModularized):
         next_obs_stacked = next_obs.view(batch_size * seq_len, obs_dim)
 
         z_hat = torch.argmax(skills_per_seq, dim=-1, keepdim=True)
+        z_hat_oh = skills_per_seq
         d_pred = self.df(next_obs)
         d_pred_log_softmax = F.log_softmax(d_pred, dim=data_dim)
-        pred_z = torch.argmax(d_pred_log_softmax, dim=data_dim)
-        pred = torch.exp(torch.sum(d_pred_log_softmax, dim=seq_dim))
+        assert d_pred_log_softmax.shape == torch.Size((batch_size, seq_len, d_pred.size(-1)))
+        pred = torch.sum(d_pred_log_softmax, dim=seq_dim)
+        pred_z = torch.argmax(torch.stack([pred] * seq_len, dim=seq_dim), dim=data_dim)
 
         df_loss = self.df_criterion(pred, z_hat.squeeze())
 
