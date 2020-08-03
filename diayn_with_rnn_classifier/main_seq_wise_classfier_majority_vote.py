@@ -7,7 +7,7 @@ import copy
 import rlkit.torch.pytorch_util as ptu
 from rlkit.launchers.launcher_util import setup_logger
 
-from self_supervised.base.writer.writer_base import MyWriter
+from self_supervised.utils.writer import MyWriter
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp

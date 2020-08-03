@@ -1,6 +1,5 @@
-from self_supervised.base.writer.writer_base import WriterDataMapping
+from self_supervised.utils.writer import WriterDataMapping, MyWriter
 
-from self_supervised.base.writer.writer_base import MyWriter
 
 class DiagnosticsWriter:
 
