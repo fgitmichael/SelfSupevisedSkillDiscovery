@@ -30,6 +30,7 @@ from diayn_with_rnn_classifier.policies.action_log_prob_calculator import \
     ActionLogpropCalculator
 from diayn_with_rnn_classifier.trainer.seq_wise_trainer_with_diayn_classifier_vote import \
     DIAYNTrainerMajorityVoteSeqClassifier
+from diayn_with_rnn_classifier.trainer.seq_wise_trainer import DIAYNTrainerSeqWise
 
 
 def experiment(variant, args):
@@ -110,7 +111,7 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
-    trainer = DIAYNTrainerMajorityVoteSeqClassifier(
+    trainer = DIAYNTrainerSeqWise(
         env=eval_env,
         policy=policy,
         qf1=qf1,
