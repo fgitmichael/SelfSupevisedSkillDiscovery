@@ -245,7 +245,7 @@ class DIAYNTrainerMajorityVoteSeqClassifier(DIAYNTrainerModularized):
         """
         Save some statistics for eval
         """
-        df_accuracy = torch.sum(torch.eq(z_hat, pred_z))/pred_z.size(0)
+        df_accuracy = torch.sum(torch.eq(z_hat, pred_z)).float()/pred_z.size(0)
 
         if self._need_to_update_eval_statistics:
             self._need_to_update_eval_statistics = False
