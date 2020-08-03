@@ -118,8 +118,10 @@ class MyWriterWithActivation(MyWriter):
                  *args,
                  activate=True,
                  **kwargs):
-        super().__init__(*args, **kwargs)
-        self.activate = True
+        self.activate = activate
+
+        if self.activate:
+            super().__init__(*args, **kwargs)
 
     def plot(self,
              *args,
