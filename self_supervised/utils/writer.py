@@ -112,6 +112,18 @@ class MyWriter(WriterBase):
             )
 
 
+class EmptyWriter(SummaryWriter):
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def add_scalar(self, *args, **kwargs):
+        pass
+
+    def add_figure(self, *args, **kwargs):
+        pass
+
+
 class MyWriterWithActivation(MyWriter):
 
     def __init__(self,
@@ -122,6 +134,9 @@ class MyWriterWithActivation(MyWriter):
 
         if self.activate:
             super().__init__(*args, **kwargs)
+
+        else:
+            self.writer = EmptyWriter()
 
     def plot(self,
              *args,
