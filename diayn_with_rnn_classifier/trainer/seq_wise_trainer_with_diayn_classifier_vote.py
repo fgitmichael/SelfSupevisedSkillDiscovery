@@ -18,9 +18,7 @@ class DIAYNTrainerMajorityVoteSeqClassifier(DIAYNTrainerModularized):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Overwrite df loss
-        self.df_criterion == nn.NLLLoss()
-
+        self.df_criterion = nn.NLLLoss()
 
     def train_from_torch(self, batch):
         """
@@ -84,13 +82,6 @@ class DIAYNTrainerMajorityVoteSeqClassifier(DIAYNTrainerModularized):
                 rewards.view(num_transitions, 1)[0, :])
         )
         rewards = rewards.view(num_transitions, 1)
-        assert torch.all(
-            torch.eq(pred_z[0, :],
-                     pred_z.view(num_transitions, 1)[:seq_len, :].squeeze())
-        )
-        pred_z = pred_z.view(num_transitions, 1)
-        z_hat = torch.stack([z_hat] * seq_len, dim=seq_dim).view(num_transitions, 1)
-
 
         # No changes from here on
         """
@@ -207,25 +198,26 @@ class DIAYNTrainerMajorityVoteSeqClassifier(DIAYNTrainerModularized):
         skills_per_seq = skills[:, 0, :]
         next_obs_stacked = next_obs.view(batch_size * seq_len, obs_dim)
 
-        z_hat = torch.argmax(skills_per_seq, dim=-1, keepdim=True)
-        z_hat_oh = skills_per_seq
+        z_hat = torch.argmax(skills_per_seq, dim=data_dim, keepdim=True)
+        z_hat_full = torch.argmax(skills, dim=data_dim)
         d_pred = self.df(next_obs)
         d_pred_log_softmax = F.log_softmax(d_pred, dim=data_dim)
-        assert d_pred_log_softmax.shape == torch.Size((batch_size, seq_len, d_pred.size(-1)))
-        pred = torch.sum(d_pred_log_softmax, dim=seq_dim)
-        pred_z = torch.argmax(torch.stack([pred] * seq_len, dim=seq_dim), dim=data_dim)
+        d_pred_log_softmax_seqwise = torch.sum(d_pred_log_softmax, dim=seq_dim)
+        assert d_pred_log_softmax.shape == torch.Size((batch_size, seq_len, self.num_skills))
+        pred_z = torch.argmax(d_pred_log_softmax_seqwise, dim=data_dim, keepdim=True)
 
-        df_loss = self.df_criterion(pred, z_hat.squeeze())
+        assert d_pred_log_softmax_seqwise.shape == torch.Size((batch_size, self.num_skills))
+        assert z_hat.squeeze().shape == torch.Size((batch_size,))
+        df_loss = self.df_criterion(d_pred_log_softmax_seqwise, z_hat.squeeze())
 
         b, s = torch.meshgrid([torch.arange(batch_size), torch.arange(seq_len)])
-        rewards = d_pred_log_softmax[b, s, z_hat].unsqueeze(dim=data_dim) - \
+        rewards = d_pred_log_softmax[b, s, z_hat_full].unsqueeze(dim=data_dim) - \
             math.log(1/self.policy.skill_dim)
 
         assert rewards.shape[:data_dim] == next_obs.shape[:data_dim]
         assert rewards.size(data_dim) == 1
         assert df_loss.shape == torch.Size(())
-        assert pred_z.shape == torch.Size((batch_size, seq_len))
-        assert z_hat.shape == torch.Size((batch_size, 1))
+        assert z_hat.shape == pred_z.shape == torch.Size((batch_size, 1))
 
         return dict(
             df_loss=df_loss,
