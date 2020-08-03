@@ -15,7 +15,7 @@ from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.base.algo.algo_base import BaseRLAlgorithmSelfSup
-from self_supervised.utils.writer import MyWriter
+from self_supervised.utils.writer import MyWriterWithActivation
 
 import self_sup_combined.utils.typed_dicts as tdssc
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter

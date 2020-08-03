@@ -1,10 +1,10 @@
-from self_supervised.utils.writer import WriterDataMapping, MyWriter
+from self_supervised.utils.writer import WriterDataMapping, MyWriterWithActivation
 
 
 class DiagnosticsWriter:
 
     def __init__(self,
-                 writer: MyWriter,
+                 writer: MyWriterWithActivation,
                  log_interval=None
                  ):
         self.log_interval = log_interval

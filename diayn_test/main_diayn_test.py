@@ -5,7 +5,7 @@ from self_supervised.network.flatten_mlp import FlattenMlp
 
 from self_sup_combined.utils.set_seed import set_seeds, set_env_seed
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
-from self_supervised.utils.writer import MyWriter
+from self_supervised.utils.writer import MyWriterWithActivation
 
 from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
     PathCollectorSelfSupervisedDiscreteSkills
@@ -106,7 +106,7 @@ def run(variant: VariantMapping):
         **variant.trainer_kwargs
     )
 
-    writer = MyWriter(
+    writer = MyWriterWithActivation(
         seed=seed,
         log_dir='logs',
     )
