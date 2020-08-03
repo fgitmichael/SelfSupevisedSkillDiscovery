@@ -8,6 +8,7 @@ from prodict import Prodict
 from torch.utils.tensorboard import SummaryWriter
 
 from self_supervised.base.writer.plt_creator_base import PltCreator
+from self_supervised.base.writer.writer_base import WriterBase
 
 
 class WriterDataMapping(Prodict):
@@ -23,7 +24,7 @@ class WriterDataMapping(Prodict):
         )
 
 
-class MyWriter(object):
+class MyWriter(WriterBase):
 
     def __init__(self,
                  seed: int,
@@ -108,4 +109,67 @@ class MyWriter(object):
                 tag="{}/{}".format(base_tag, k),
                 scalar_value=v,
                 global_step=step
+            )
+
+
+class MyWriterWithActivation(MyWriter):
+
+    def __init__(self,
+                 *args,
+                 activate=True,
+                 **kwargs):
+        super().__init__(*args, **kwargs)
+        self.activate = True
+
+    def plot(self,
+             *args,
+             tb_str: str,
+             step: int,
+             labels: Union[List[str], str] = None,
+             x_lim = None,
+             y_lim = None,
+             **kwargs
+             ):
+        if self.activate:
+            super().plot(*args,
+                         tb_str=tb_str,
+                         step=step,
+                         labels=labels,
+                         x_lim=x_lim,
+                         y_lim=y_lim,
+                         **kwargs)
+
+    def plot_lines(self,
+                   legend_str: Union[str, List[str]],
+                   tb_str: str,
+                   arrays_to_plot: Union[np.ndarray, List[np.ndarray]],
+                   step: int,
+                   x_lim = None,
+                   y_lim = None):
+        if self.activate:
+            super().plot_lines(
+                legend_str=legend_str,
+                tb_str=tb_str,
+                arrays_to_plot=arrays_to_plot,
+                step=step,
+                x_lim=x_lim,
+                y_lim=y_lim
+            )
+
+    def save_models(self,
+                    models: dict):
+        if self.activate:
+            super().save_models(
+                models=models
+            )
+
+    def log_dict_scalars(self,
+                         dict_to_log: dict,
+                         step: int,
+                         base_tag: str = None):
+        if self.activate:
+            super().log_dict_scalars(
+                dict_to_log=dict_to_log,
+                step=step,
+                base_tag=base_tag
             )
