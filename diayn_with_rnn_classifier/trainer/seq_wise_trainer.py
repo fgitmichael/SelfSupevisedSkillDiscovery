@@ -13,14 +13,10 @@ import self_supervised.utils.my_pytorch_util as my_ptu
 from rlkit.core.eval_util import create_stats_ordered_dict
 import rlkit.torch.pytorch_util as ptu
 
-class DIAYNTrainerMajorityVoteSeqClassifier(DIAYNTrainerModularized):
+class DIAYNTrainerSeqWise(DIAYNTrainerModularized):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Overwrite df loss
-        self.df_criterion == nn.NLLLoss()
-
 
     def train_from_torch(self, batch):
         """
