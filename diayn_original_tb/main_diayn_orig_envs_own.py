@@ -13,7 +13,7 @@ from rlkit.samplers.data_collector.step_collector import MdpStepCollector
 from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
 from rlkit.torch.networks import FlattenMlp
 
-from self_supervised.base.writer.writer_base import WriterBase
+from self_supervised.base.writer.writer_base import MyWriter
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
@@ -109,7 +109,7 @@ def experiment(variant, args):
         **variant['trainer_kwargs']
     )
 
-    writer = WriterBase(
+    writer = MyWriter(
         seed=seed,
         log_dir='logs',
         run_comment=run_comment

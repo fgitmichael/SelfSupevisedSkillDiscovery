@@ -7,7 +7,7 @@ from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 from self_supervised.network.flatten_mlp import FlattenMlp
 from self_supervised.base.network.mlp import MyMlp
-from self_supervised.base.writer.writer_base import WriterBase
+from self_supervised.base.writer.writer_base import MyWriter
 
 from self_sup_combined.network.mode_encoder import ModeEncoderSelfSupComb
 from self_sup_combined.utils.get_variant import parse_variant
@@ -92,7 +92,7 @@ def run(variant: VariantMapping):
         **variant.mode_encoder_kwargs
     )
 
-    writer = WriterBase(
+    writer = MyWriter(
         seed=seed,
         log_dir='logs',
     )

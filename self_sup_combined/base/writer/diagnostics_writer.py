@@ -1,11 +1,11 @@
 from self_supervised.base.writer.writer_base import WriterDataMapping
 
-from self_supervised.base.writer.writer_base import WriterBase
+from self_supervised.base.writer.writer_base import MyWriter
 
 class DiagnosticsWriter:
 
     def __init__(self,
-                 writer: WriterBase,
+                 writer: MyWriter,
                  log_interval=None
                  ):
         self.log_interval = log_interval

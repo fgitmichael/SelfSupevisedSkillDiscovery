@@ -16,7 +16,7 @@ from rlkit.torch.networks import FlattenMlp
 from rlkit.torch.sac.diayn.diayn_torch_online_rl_algorithm import \
     DIAYNTorchOnlineRLAlgorithm
 
-from self_supervised.base.writer.writer_base import WriterBase
+from self_supervised.base.writer.writer_base import MyWriter
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
@@ -127,7 +127,7 @@ def experiment(variant, args):
         **variant['trainer_kwargs']
     )
 
-    writer = WriterBase(
+    writer = MyWriter(
         seed=seed,
         log_dir='logs'
     )

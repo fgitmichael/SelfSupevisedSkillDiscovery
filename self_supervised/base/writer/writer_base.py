@@ -22,7 +22,7 @@ class WriterDataMapping(Prodict):
         )
 
 
-class WriterBase(object):
+class MyWriter(object):
 
     def __init__(self,
                  seed: int,

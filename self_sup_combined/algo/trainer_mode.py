@@ -15,7 +15,7 @@ from self_supervised.base.trainer.trainer_base import MyTrainerBaseClass
 from code_slac.utils import calc_kl_divergence, update_params
 
 from mode_disent.utils.mmd import compute_mmd_tutorial
-from self_supervised.base.writer.writer_base import WriterBase
+from self_supervised.base.writer.writer_base import MyWriter
 
 matplotlib.use('Agg')
 
@@ -169,7 +169,7 @@ class ModeTrainerWithDiagnostics(
     def __init__(self,
                  *args,
                  log_interval,
-                 writer: WriterBase,
+                 writer: MyWriter,
                  **kwargs
                  ):
         ModeTrainer.__init__(self,
