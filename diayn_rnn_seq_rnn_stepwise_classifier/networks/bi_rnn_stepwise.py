@@ -46,7 +46,6 @@ class BiRnnStepwiseClassifier(BaseNetwork):
             input_size=self.num_directions * hidden_size_rnn,
             output_size=output_size,
             hidden_sizes=hidden_sizes,
-            output_activation=nn.ReLU()
         )
 
     def forward(self, seq_batch):
