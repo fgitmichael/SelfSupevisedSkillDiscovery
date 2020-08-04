@@ -20,17 +20,15 @@ from diayn_original_tb.policies.diayn_policy_extension import \
     MakeDeterministicExtension
 from diayn_original_tb.policies.self_sup_policy_wrapper import RlkitWrapperForMySkillPolicy
 
-from diayn_with_rnn_classifier.reward_calculation.reward_calculator import RewardPolicyDiff
-from diayn_with_rnn_classifier.networks.rnn_classifier import SeqEncoder
-from diayn_with_rnn_classifier.trainer.diayn_trainer_with_rnn_classifier import \
-    DIAYNTrainerRnnClassifierExtension
 from diayn_with_rnn_classifier.algo.seq_wise_algo_classfier_perf_logging import \
     SeqWiseAlgoClassfierPerfLogging
-from diayn_with_rnn_classifier.policies.action_log_prob_calculator import \
-    ActionLogpropCalculator
-from diayn_with_rnn_classifier.trainer.seq_wise_trainer_with_diayn_classifier_vote import \
-    DIAYNTrainerMajorityVoteSeqClassifier
-from diayn_with_rnn_classifier.trainer.seq_wise_trainer import DIAYNTrainerSeqWise
+
+from diayn_rnn_seq_rnn_stepwise_classifier.trainer.diayn_step_wise_rnn_trainer import \
+    DIAYNStepWiseRnnTrainer
+from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise import \
+    BiRnnStepwiseClassifier
+from diayn_rnn_seq_rnn_stepwise_classifier.networks.positional_encoder import \
+    PositionalEncoding
 
 
 def experiment(variant, args):
@@ -41,6 +39,7 @@ def experiment(variant, args):
     skill_dim = args.skill_dim
 
     seq_len = 100
+    hidden_size_rnn = 20
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     run_comment = ""
@@ -75,10 +74,16 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = MyFlattenMlp(
+    pos_encoder = PositionalEncoding(
+        d_model=hidden_size_rnn,
+        max_len=seq_len
+    )
+    df = BiRnnStepwiseClassifier(
         input_size=obs_dim,
         output_size=skill_dim,
+        hidden_size_rnn=hidden_size_rnn,
         hidden_sizes=[M, M],
+        position_encoder=pos_encoder
     )
     policy = RlkitWrapperForMySkillPolicy(
         obs_dim=obs_dim,
@@ -105,7 +110,7 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
-    trainer = DIAYNTrainerSeqWise(
+    trainer = DIAYNStepWiseRnnTrainer(
         env=eval_env,
         policy=policy,
         qf1=qf1,
