@@ -42,7 +42,7 @@ class BiRnnStepwiseClassifier(BaseNetwork):
             max_len=max_seq_len
         )
 
-        self.classfier = FlattenMlp(
+        self.classifier = FlattenMlp(
             input_size=self.num_directions * hidden_size_rnn,
             output_size=output_size,
             hidden_sizes=hidden_sizes,
@@ -78,11 +78,11 @@ class BiRnnStepwiseClassifier(BaseNetwork):
              self.num_directions * self.rnn.hidden_size)
         )
 
-        classified = self.classfier(hidden_seq_pos_encoded)
+        classified = self.classifier(hidden_seq_pos_encoded)
         assert classified.shape == torch.Size(
             (batch_size,
              seq_len,
-             self.classfier.output_size)
+             self.classifier.output_size)
         )
 
         return classified
