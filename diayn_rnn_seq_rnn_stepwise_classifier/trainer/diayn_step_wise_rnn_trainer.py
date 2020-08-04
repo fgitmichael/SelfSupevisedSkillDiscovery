@@ -1,5 +1,6 @@
 import torch
 import math
+from torch import nn
 from torch.nn import functional as F
 
 from diayn_with_rnn_classifier.trainer.seq_wise_trainer_with_diayn_classifier_vote import \
@@ -13,6 +14,11 @@ import self_supervised.utils.my_pytorch_util as my_ptu
 
 
 class DIAYNStepWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.df_criterion = nn.CrossEntropyLoss()
 
     def _df_loss_intrinsic_reward(self,
                                   skills,
