@@ -85,7 +85,4 @@ class BiRnnStepwiseClassifier(BaseNetwork):
              self.classfier.output_size)
         )
 
-        classified_out = classified.view(batch_size * seq_len, classified.size(data_dim))
-        assert classified_out[:seq_len] == classified[0, :]
-
-        return classified_out
+        return classified
