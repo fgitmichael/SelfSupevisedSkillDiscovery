@@ -203,10 +203,12 @@ class DIAYNTrainerMajorityVoteSeqClassifier(DIAYNTrainerModularized):
         d_pred = self.df(next_obs)
         d_pred_log_softmax = F.log_softmax(d_pred, dim=data_dim)
         d_pred_log_softmax_seqwise = torch.sum(d_pred_log_softmax, dim=seq_dim)
-        assert d_pred_log_softmax.shape == torch.Size((batch_size, seq_len, self.num_skills))
+        assert d_pred_log_softmax.shape \
+            == torch.Size((batch_size, seq_len, self.num_skills))
         pred_z = torch.argmax(d_pred_log_softmax_seqwise, dim=data_dim, keepdim=True)
 
-        assert d_pred_log_softmax_seqwise.shape == torch.Size((batch_size, self.num_skills))
+        assert d_pred_log_softmax_seqwise.shape \
+            == torch.Size((batch_size, self.num_skills))
         assert z_hat.squeeze().shape == torch.Size((batch_size,))
         df_loss = self.df_criterion(d_pred_log_softmax_seqwise, z_hat.squeeze())
 
