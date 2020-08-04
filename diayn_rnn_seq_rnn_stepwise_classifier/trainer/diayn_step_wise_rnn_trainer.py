@@ -9,6 +9,8 @@ from diayn_with_rnn_classifier.trainer.diayn_trainer_modularized import \
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise import \
     BiRnnStepwiseClassifier
 
+import self_supervised.utils.my_pytorch_util as my_ptu
+
 
 class DIAYNStepWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
 
@@ -44,18 +46,21 @@ class DIAYNStepWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
              torch.arange(seq_len)]
         )
         assert b.shape == s.shape == z_hat.shape == torch.Size((batch_size, seq_len))
-        assert b.is_contiguous() == s.iscontiguous() == z_hat.is_contiguous()
-        #idx = torch.cat([b.view(-1), s.view(-1), z_hat.view(-1)], dim=data_dim)
-        #assert idx.shape == torch.Size((batch_size * seq_len, 3))
-        #rewards = d_pred_log_softmax[idx] - math.log(1/self.policy.skill_dim)
         rewards = d_pred_log_softmax[b, s, z_hat] - math.log(1/self.policy.skill_dim)
         assert rewards.shape == b.shape
+        rewards = rewards.unsqueeze(dim=data_dim)
 
-        assert d_pred.view(batch_size * seq_len, self.num_skills)[:seq_len] == d_pred[0]
-        assert z_hat.view(batch_size * seq_len, 1)[:seq_len] == z_hat[0]
+        assert my_ptu.tensor_equality(
+            d_pred.view(batch_size * seq_len, self.num_skills)[:seq_len],
+            d_pred[0]
+        )
+        assert my_ptu.tensor_equality(
+            z_hat.view(batch_size * seq_len)[:seq_len],
+            z_hat[0].squeeze()
+        )
         df_loss = self.df_criterion(
             d_pred.view(batch_size * seq_len, self.num_skills),
-            z_hat.view(batch_size * seq_len, 1)
+            z_hat.view(batch_size * seq_len)
         )
 
         assert z_hat.shape == pred_z.shape == torch.Size((batch_size, seq_len,))
