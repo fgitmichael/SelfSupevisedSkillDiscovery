@@ -4,6 +4,12 @@ from torch import nn
 from code_slac.network.base import BaseNetwork
 from self_supervised.network.flatten_mlp import FlattenMlp
 
+from diayn_rnn_seq_rnn_stepwise_classifier.networks.positional_encoder import \
+    PositionalEncoding
+
+import self_supervised.utils.my_pytorch_util as my_ptu
+
+
 
 class BiRnnStepwiseClassifier(BaseNetwork):
 
@@ -12,7 +18,8 @@ class BiRnnStepwiseClassifier(BaseNetwork):
                  hidden_size_rnn,
                  output_size,
                  hidden_sizes: list,
-                 position_encoder: BaseNetwork
+                 position_encoder_class=PositionalEncoding,
+                 max_seq_len=200,
                  ):
         """
         Args:
@@ -30,7 +37,10 @@ class BiRnnStepwiseClassifier(BaseNetwork):
         )
         self.num_directions = 2 if self.rnn.bidirectional else 1
 
-        self.pos_encoder = position_encoder
+        self.pos_encoder = position_encoder_class(
+            d_model=self.num_directions * hidden_size_rnn,
+            max_len=max_seq_len
+        )
 
         self.classfier = FlattenMlp(
             input_size=self.num_directions * hidden_size_rnn,

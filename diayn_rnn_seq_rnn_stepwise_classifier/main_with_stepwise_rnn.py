@@ -74,16 +74,12 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    pos_encoder = PositionalEncoding(
-        d_model=hidden_size_rnn,
-        max_len=seq_len
-    )
     df = BiRnnStepwiseClassifier(
         input_size=obs_dim,
         output_size=skill_dim,
         hidden_size_rnn=hidden_size_rnn,
         hidden_sizes=[M, M],
-        position_encoder=pos_encoder
+        max_seq_len=seq_len
     )
     policy = RlkitWrapperForMySkillPolicy(
         obs_dim=obs_dim,
