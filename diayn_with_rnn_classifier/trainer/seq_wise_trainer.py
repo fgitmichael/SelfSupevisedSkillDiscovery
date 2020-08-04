@@ -191,7 +191,7 @@ class DIAYNTrainerSeqWise(DIAYNTrainerModularized):
             df_loss           : (N, 1)
             rewards           : (N, S, 1)
             pred_z            : (N, S) skill predicted skill ID's
-            z_hat             : (N, 1) skill ground truth skill ID's
+            z_hat             : (N, S) skill ground truth skill ID's
         """
         batch_dim = 0
         seq_dim = 1
