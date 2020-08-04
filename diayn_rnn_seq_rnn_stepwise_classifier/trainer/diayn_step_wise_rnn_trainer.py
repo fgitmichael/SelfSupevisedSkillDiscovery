@@ -67,11 +67,3 @@ class DIAYNStepWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
             pred_z=pred_z,
             z_hat=z_hat
         )
-
-    @property
-    def num_skills(self):
-        """
-        Add property cause number of skills can change with different
-        implementations (i.e. with skills not encoded as one-hot vectors)
-        """
-        return self.policy.skill_dim
