@@ -80,12 +80,6 @@ def experiment(variant, args):
         output_size=skill_dim,
         hidden_sizes=[M, M],
     )
-    #policy = SkillTanhGaussianPolicyExtension(
-    #    obs_dim=obs_dim + skill_dim,
-    #    action_dim=action_dim,
-    #    hidden_sizes=[M, M],
-    #    skill_dim=skill_dim
-    #)
     policy = RlkitWrapperForMySkillPolicy(
         obs_dim=obs_dim,
         action_dim=action_dim,
