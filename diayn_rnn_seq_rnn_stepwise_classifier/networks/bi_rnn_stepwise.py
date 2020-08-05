@@ -61,29 +61,29 @@ class BiRnnStepwiseClassifier(BaseNetwork):
             hidden_sizes=hidden_sizes,
         )
 
-    def forward(self,
-                seq_batch,
-                return_rnn_outputs=False):
-        """
-        Args:
-            seq_batch        : (N, S, data_dim)
-        Return:
-            d_pred           : (N * S, output_size)
-        """
+    def _precess_seq(self, seq_batch):
         batch_dim = 0
         seq_dim = 1
         data_dim = -1
         batch_size = seq_batch.size(batch_dim)
         seq_len = seq_batch.size(seq_dim)
-        data_dim = seq_batch.size(data_dim)
-        assert len(seq_batch.shape) == 3
-
         hidden_seq, h_n = self.rnn(seq_batch)
+
         assert hidden_seq.shape == torch.Size(
             (batch_size,
              seq_len,
              self.rnn_params['num_directions'] * self.rnn.hidden_size)
         )
+
+        return hidden_seq, h_n
+
+    def _classify_seq_stepwise(self, hidden_seq):
+        batch_dim = 0
+        seq_dim = 1
+        data_dim = -1
+        batch_size = hidden_seq.size(batch_dim)
+        seq_len = hidden_seq.size(seq_dim)
+        data_dim = hidden_seq.size(data_dim)
 
         hidden_seq_pos_encoded = self.pos_encoder(hidden_seq)
         assert hidden_seq.shape == torch.Size(
@@ -98,6 +98,23 @@ class BiRnnStepwiseClassifier(BaseNetwork):
              seq_len,
              self.classifier.output_size)
         )
+
+        return classified
+
+    def forward(self,
+                seq_batch,
+                return_rnn_outputs=False):
+        """
+        Args:
+            seq_batch        : (N, S, data_dim)
+        Return:
+            d_pred           : (N * S, output_size)
+        """
+        assert len(seq_batch.shape) == 3
+
+        hidden_seq, h_n = self._precess_seq(seq_batch)
+
+        classified = self._classify_seq_stepwise(hidden_seq)
 
         if return_rnn_outputs:
             return classified, hidden_seq, h_n
