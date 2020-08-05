@@ -1,5 +1,6 @@
 import torch
 import math
+import numpy as np
 from torch import nn
 from torch.nn import functional as F
 from operator import itemgetter
@@ -13,6 +14,9 @@ from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise import \
     BiRnnStepwiseClassifier
 
 import self_supervised.utils.my_pytorch_util as my_ptu
+
+import rlkit.torch.pytorch_util as ptu
+from rlkit.core.eval_util import create_stats_ordered_dict
 
 
 class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
@@ -88,9 +92,6 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
             'pred_z',
             'z_hat',
         )(df_ret_dict)
-
-        pred_z = pred_z['step']
-        z_hat = z_hat['step']
 
         num_transitions = batch_size * seq_len
         assert torch.all(
@@ -393,3 +394,88 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
         self.policy_optimizer.zero_grad()
         policy_loss.backward()
         self.policy_optimizer.step()
+
+    def _save_stats(self,
+                    z_hat,
+                    pred_z,
+                    log_pi,
+                    q_new_actions,
+                    rewards,
+                    df_loss,
+                    qf1_loss,
+                    qf2_loss,
+                    q1_pred,
+                    q2_pred,
+                    q_target,
+                    policy_mean,
+                    policy_log_std,
+                    alpha,
+                    alpha_loss
+                    ):
+        """
+        Save some statistics for eval
+        """
+        df_accuracy_step = torch.sum(
+            torch.eq(
+                z_hat['step'],
+                pred_z['step'])).float()/pred_z['step'].size(0)
+
+        df_accuracy_seq = torch.sum(
+            torch.eq(
+                z_hat['seq'],
+                pred_z['seq'])).float()/pred_z['seq'].size(0)
+
+        if self._need_to_update_eval_statistics:
+            self._need_to_update_eval_statistics = False
+            """
+            Eval should set this to None.
+            This way, these statistics are only computed for one batch.
+            """
+            policy_loss = (log_pi - q_new_actions).mean()
+
+            self.eval_statistics['Intrinsic Rewards'] = np.mean(ptu.get_numpy(rewards))
+            self.eval_statistics['DF Loss Seq'] = np.mean(ptu.get_numpy(df_loss['seq']))
+            self.eval_statistics['DF Loss Step'] = np.mean(ptu.get_numpy(df_loss['step']))
+            self.eval_statistics['DF Accuracy Seq'] = np.mean(ptu.get_numpy(df_accuracy_seq))
+            self.eval_statistics['DF Accuracy Step'] = np.mean(ptu.get_numpy(df_accuracy_step))
+            self.eval_statistics['QF1 Loss'] = np.mean(ptu.get_numpy(qf1_loss))
+            self.eval_statistics['QF2 Loss'] = np.mean(ptu.get_numpy(qf2_loss))
+            self.eval_statistics['Policy Loss'] = np.mean(ptu.get_numpy(
+                policy_loss
+            ))
+            self.eval_statistics.update(create_stats_ordered_dict(
+                'Q1 Predictions',
+                ptu.get_numpy(q1_pred),
+            ))
+            self.eval_statistics.update(create_stats_ordered_dict(
+                'Q2 Predictions',
+                ptu.get_numpy(q2_pred),
+            ))
+            self.eval_statistics.update(create_stats_ordered_dict(
+                'D Predictions Step',
+                ptu.get_numpy(pred_z['step']),
+            ))
+            self.eval_statistics.update(create_stats_ordered_dict(
+                'D Predictions Seq',
+                ptu.get_numpy(pred_z['seq']),
+            ))
+            self.eval_statistics.update(create_stats_ordered_dict(
+                'Q Targets',
+                ptu.get_numpy(q_target),
+            ))
+            self.eval_statistics.update(create_stats_ordered_dict(
+                'Log Pis',
+                ptu.get_numpy(log_pi),
+            ))
+            self.eval_statistics.update(create_stats_ordered_dict(
+                'Policy mu',
+                ptu.get_numpy(policy_mean),
+            ))
+            self.eval_statistics.update(create_stats_ordered_dict(
+                'Policy log std',
+                ptu.get_numpy(policy_log_std),
+            ))
+            if self.use_automatic_entropy_tuning:
+                self.eval_statistics['Alpha'] = alpha.item()
+                self.eval_statistics['Alpha Loss'] = alpha_loss.item()
+        self._n_train_steps_total += 1
