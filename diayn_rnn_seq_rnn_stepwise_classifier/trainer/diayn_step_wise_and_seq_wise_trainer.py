@@ -3,6 +3,7 @@ import math
 from torch import nn
 from torch.nn import functional as F
 from operator import itemgetter
+from itertools import chain
 
 from diayn_with_rnn_classifier.trainer.seq_wise_trainer_with_diayn_classifier_vote import \
     DIAYNTrainerMajorityVoteSeqClassifier
