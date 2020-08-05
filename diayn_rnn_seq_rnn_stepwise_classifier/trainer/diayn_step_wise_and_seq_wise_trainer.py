@@ -273,7 +273,7 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
         seq_len = skills.size(seq_dim)
         skill_dim = skills.size(data_dim)
 
-        z_hat_seq = torch.argmax(skills[:, 0, :])
+        z_hat_seq = torch.argmax(skills[:, 0, :], dim=data_dim)
         assert z_hat_seq.shape == torch.Size((batch_size,))
         assert d_pred_seq.shape == torch.Size(
             (batch_size,
