@@ -23,14 +23,10 @@ from diayn_original_tb.policies.self_sup_policy_wrapper import RlkitWrapperForMy
 from diayn_with_rnn_classifier.algo.seq_wise_algo_classfier_perf_logging import \
     SeqWiseAlgoClassfierPerfLogging
 
-from diayn_rnn_seq_rnn_stepwise_classifier.trainer.diayn_step_wise_rnn_trainer import \
-    DIAYNStepWiseRnnTrainer
-from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise import \
-    BiRnnStepwiseClassifier
-from diayn_rnn_seq_rnn_stepwise_classifier.networks.positional_encoder import \
-    PositionalEncoding
-from diayn_rnn_seq_rnn_stepwise_classifier.networks.pos_encoder_oh import \
-    PositionalEncodingOh
+from diayn_rnn_seq_rnn_stepwise_classifier.trainer.diayn_step_wise_and_seq_wise_trainer \
+    import DIAYNStepWiseSeqWiseRnnTrainer
+from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
+    BiRnnStepwiseSeqWiseClassifier
 
 
 def experiment(variant, args):
@@ -40,16 +36,13 @@ def experiment(variant, args):
     action_dim = eval_env.action_space.low.size
     skill_dim = args.skill_dim
 
-    seq_len = 200
+    seq_len = 100
     hidden_size_rnn = 100
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     run_comment = ""
     run_comment += "seq_len: {} |  ".format(seq_len)
-    run_comment += "own functions | "
-    run_comment += "stepwise rnn | "
-    run_comment += "with dropout | "
-    run_comment += "with pos encoding | "
+    run_comment += "seq wise step wise"
 
     seed = 0
     torch.manual_seed = seed
@@ -78,7 +71,7 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = BiRnnStepwiseClassifier(
+    df = BiRnnStepwiseSeqWiseClassifier(
         input_size=obs_dim,
         output_size=skill_dim,
         hidden_size_rnn=hidden_size_rnn,
@@ -110,7 +103,7 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
-    trainer = DIAYNStepWiseRnnTrainer(
+    trainer = DIAYNStepWiseSeqWiseRnnTrainer(
         env=eval_env,
         policy=policy,
         qf1=qf1,
