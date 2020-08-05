@@ -6,9 +6,10 @@ from self_supervised.network.flatten_mlp import FlattenMlp
 
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.positional_encoder import \
     PositionalEncoding
+from diayn_rnn_seq_rnn_stepwise_classifier.networks.pos_encoder_oh import \
+    PositionalEncodingOh
 
 import self_supervised.utils.my_pytorch_util as my_ptu
-
 
 
 class BiRnnStepwiseClassifier(BaseNetwork):
@@ -18,8 +19,8 @@ class BiRnnStepwiseClassifier(BaseNetwork):
                  hidden_size_rnn,
                  output_size,
                  hidden_sizes: list,
-                 position_encoder_class=PositionalEncoding,
-                 max_seq_len=200,
+                 seq_len,
+                 pos_encoder_variant='transformer',
                  ):
         """
         Args:
@@ -37,13 +38,21 @@ class BiRnnStepwiseClassifier(BaseNetwork):
         )
         self.num_directions = 2 if self.rnn.bidirectional else 1
 
-        self.pos_encoder = position_encoder_class(
-            d_model=self.num_directions * hidden_size_rnn,
-            max_len=max_seq_len
-        )
+        minimal_input_size_classifier = self.num_directions * hidden_size_rnn
+        if pos_encoder_variant=='transformer':
+            self.pos_encoder = PositionalEncoding(
+                d_model=self.num_directions * hidden_size_rnn,
+                max_len=seq_len,
+                dropout=0.1
+            )
+            input_size_classifier = minimal_input_size_classifier
+
+        else:
+            self.pos_encoder = PositionalEncodingOh()
+            input_size_classifier = minimal_input_size_classifier + seq_len
 
         self.classifier = FlattenMlp(
-            input_size=self.num_directions * hidden_size_rnn,
+            input_size=input_size_classifier,
             output_size=output_size,
             hidden_sizes=hidden_sizes,
         )

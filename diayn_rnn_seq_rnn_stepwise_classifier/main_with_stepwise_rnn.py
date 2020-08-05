@@ -29,6 +29,8 @@ from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise import \
     BiRnnStepwiseClassifier
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.positional_encoder import \
     PositionalEncoding
+from diayn_rnn_seq_rnn_stepwise_classifier.networks.pos_encoder_oh import \
+    PositionalEncodingOh
 
 
 def experiment(variant, args):
@@ -45,7 +47,9 @@ def experiment(variant, args):
     run_comment = ""
     run_comment += "seq_len: {} |  ".format(seq_len)
     run_comment += "own functions | "
-    run_comment += "no majority vote | "
+    run_comment += "stepwise rnn | "
+    run_comment += "with dropout | "
+    run_comment += "with pos encoding | "
 
     seed = 0
     torch.manual_seed = seed
@@ -79,7 +83,7 @@ def experiment(variant, args):
         output_size=skill_dim,
         hidden_size_rnn=hidden_size_rnn,
         hidden_sizes=[M, M],
-        max_seq_len=seq_len
+        seq_len=seq_len
     )
     policy = RlkitWrapperForMySkillPolicy(
         obs_dim=obs_dim,
