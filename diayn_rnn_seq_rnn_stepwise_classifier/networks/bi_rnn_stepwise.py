@@ -42,7 +42,6 @@ class BiRnnStepwiseClassifier(BaseNetwork):
         self.rnn_params['num_features'] = \
             self.rnn_params['num_channels'] * self.rnn.hidden_size
 
-
         minimal_input_size_classifier = self.rnn_params['num_features']
         if pos_encoder_variant=='transformer':
             self.pos_encoder = PositionalEncoding(
