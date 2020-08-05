@@ -37,26 +37,24 @@ test_seq = torch.rand(batch_size,
                       seq_len,
                       feature_size)
 
-out_tuple = mygru(test_seq)
-out_1 = out_tuple[0]
-out_2 = out_tuple[1]
+out_tuple_bi = mygru(test_seq)
+output_bi = out_tuple_bi[0]
+h_n_bi = out_tuple_bi[1]
 
-last_out_1 = out_1[:, -1, :]
-out_2_chunks = torch.chunk(out_2, chunks=2, dim=0)
-last_hidden_out2 = torch.cat(out_2_chunks, dim=-1)
+h_n_bi_chunks = torch.chunk(h_n_bi, chunks=2, dim=0)
 
-chunks_start = torch.chunk(out_1[:, 0, :], chunks=2, dim=-1)
-chunks_end = torch.chunk(out_1[:, -1, :], chunks=2, dim=-1)
+output_bi_start_chunks = torch.chunk(output_bi[:, 0, :], chunks=2, dim=-1)
+output_bi_chunks_end = torch.chunk(output_bi[:, -1, :], chunks=2, dim=-1)
 
-assert torch.all(out_2_chunks[0] == chunks_end[0])
-assert torch.all(out_2_chunks[-1] == chunks_start[-1])
+assert torch.all(h_n_bi_chunks[0] == output_bi_chunks_end[0])
+assert torch.all(h_n_bi_chunks[-1] == output_bi_start_chunks[-1])
 
 reverse_idx = torch.arange(seq_len-1, -1, -1)
 out_backward = mygru_backward(test_seq[:, reverse_idx, :])[0]
 out_forward = mygru_forward(test_seq)[0]
 
-out_forward_bi = torch.chunk(out_tuple[0], chunks=2, dim=-1)[0]
-out_backward_bi = torch.chunk(out_tuple[0], chunks=2, dim=-1)[-1]
+out_forward_bi = torch.chunk(out_tuple_bi[0], chunks=2, dim=-1)[0]
+out_backward_bi = torch.chunk(out_tuple_bi[0], chunks=2, dim=-1)[-1]
 
 assert torch.all(out_forward_bi == out_forward)
 assert torch.all(out_backward_bi[:, reverse_idx, :] == out_backward)
