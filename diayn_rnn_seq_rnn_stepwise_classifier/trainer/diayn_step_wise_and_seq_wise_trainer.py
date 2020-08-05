@@ -18,6 +18,8 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
 
     def __init__(self,
                  *args,
+                 optimizer_class=torch.optim.Adam,
+                 df_lr=1e-3,
                  **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -28,8 +30,6 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
         self.df_optimizer = None
 
         # Add new df optimizerS
-        optimizer_class = kwargs['optimizer_class']
-        df_lr = kwargs['df_lr']
         self.df_optimizer_seq = optimizer_class(
             self.df.rnn.parameters(),
             lr=df_lr
