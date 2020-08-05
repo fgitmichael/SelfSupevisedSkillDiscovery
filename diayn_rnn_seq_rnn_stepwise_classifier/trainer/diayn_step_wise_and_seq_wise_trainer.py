@@ -209,7 +209,8 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
             pred_z              : (N, S) skill predicted skill ID's
             z_hat               : (N, S) skill ground truth skill ID's
         """
-        classified_steps, classified_seqs = self.df(next_obs)
+        classified_steps, classified_seqs = self.df(next_obs,
+                                                    train=True)
 
         ret_dict_seq = self._df_loss_seq(
             d_pred_seq=classified_seqs,
