@@ -28,29 +28,20 @@ class BiRnnStepwiseSeqWiseClassifier(BiRnnStepwiseClassifier):
             hidden_sizes=hidden_sizes
         )
 
-    def forward(self,
-                seq_batch,
-                train=False):
+    def _classify_seq_stepwise(self, hidden_seq):
         """
-        Args:
-            seq_batch           : (N, S, data_dim)
-        Return:
-            classified_steps    : (N, S, num_skills)
-            classified_seqs     : (N, num_skills)
-
+        This method classifies STEP(!)-wise
+        Detach stepwise classification from the rnn calculation as rnn should only
+        be optimized based on the seq classification
         """
-        classified_steps, _, h_n = super().forward(
-            seq_batch=seq_batch,
-            return_rnn_outputs=True
-        )
+        out = super()._classify_seq_stepwise(hidden_seq.detach())
+        return out
 
-        batch_dim = 0
-        seq_dim = 1
-        data_dim = -1
-        batch_size = seq_batch.size(batch_dim)
-        seq_len = seq_batch.size(seq_dim)
-        data_dim = seq_batch.size(data_dim)
-        assert len(seq_batch.shape) == 3
+    def _classify_seq_seqwise(self, h_n):
+        """
+        This method classfies SEQ(!)-wise
+        """
+        batch_size = h_n.size(1)
 
         assert h_n.shape == torch.Size(
             (self.rnn_params['num_channels'],
@@ -72,6 +63,28 @@ class BiRnnStepwiseSeqWiseClassifier(BiRnnStepwiseClassifier):
             (batch_size,
              self.classifier_seq.output_size)
         )
+
+        return classified_seqs
+
+    def forward(self,
+                seq_batch,
+                train=False):
+        """
+        Args:
+            seq_batch           : (N, S, data_dim)
+        Return:
+            classified_steps    : (N, S, num_skills)
+            classified_seqs     : (N, num_skills)
+
+        """
+        assert len(seq_batch.shape) == 3
+
+        classified_steps, _, h_n = super().forward(
+            seq_batch=seq_batch,
+            return_rnn_outputs=True
+        )
+
+        classified_seqs = self._classify_seq_seqwise(h_n)
 
         if train:
             return classified_steps, classified_seqs
