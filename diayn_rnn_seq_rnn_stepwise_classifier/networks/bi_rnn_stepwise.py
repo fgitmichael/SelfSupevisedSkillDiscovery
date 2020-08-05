@@ -55,7 +55,9 @@ class BiRnnStepwiseClassifier(BaseNetwork):
             hidden_sizes=hidden_sizes,
         )
 
-    def forward(self, seq_batch):
+    def forward(self,
+                seq_batch,
+                return_rnn_outputs=False):
         """
         Args:
             seq_batch        : (N, S, data_dim)
@@ -70,7 +72,7 @@ class BiRnnStepwiseClassifier(BaseNetwork):
         data_dim = seq_batch.size(data_dim)
         assert len(seq_batch.shape) == 3
 
-        hidden_seq, _ = self.rnn(seq_batch)
+        hidden_seq, h_n = self.rnn(seq_batch)
         assert hidden_seq.shape == torch.Size(
             (batch_size,
              seq_len,
@@ -91,4 +93,8 @@ class BiRnnStepwiseClassifier(BaseNetwork):
              self.classifier.output_size)
         )
 
-        return classified
+        if return_rnn_outputs:
+            return classified, hidden_seq, h_n
+
+        else:
+            return classified
