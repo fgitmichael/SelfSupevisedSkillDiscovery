@@ -140,7 +140,8 @@ class DIAYNTrainerModularized(DIAYNTrainer):
         d_pred = self.df(next_obs)
         d_pred_log_softmax = F.log_softmax(d_pred, 1)
         _, pred_z = torch.max(d_pred_log_softmax, dim=1, keepdim=True)
-        rewards = d_pred_log_softmax[torch.arange(d_pred.shape[0]), z_hat] - math.log(1/self.policy.skill_dim)
+        rewards = d_pred_log_softmax[torch.arange(d_pred.shape[0]), z_hat] \
+                  - math.log(1/self.policy.skill_dim)
         rewards = rewards.reshape(-1, 1)
         df_loss = self.df_criterion(d_pred, z_hat)
 
@@ -160,7 +161,8 @@ class DIAYNTrainerModularized(DIAYNTrainer):
         )
         obs_skills = torch.cat((obs, skills), dim=1)
         if self.use_automatic_entropy_tuning:
-            alpha_loss = -(self.log_alpha * (log_pi + self.target_entropy).detach()).mean()
+            alpha_loss = -(self.log_alpha *
+                           (log_pi + self.target_entropy).detach()).mean()
             self.alpha_optimizer.zero_grad()
             alpha_loss.backward()
             self.alpha_optimizer.step()
@@ -207,7 +209,8 @@ class DIAYNTrainerModularized(DIAYNTrainer):
             self.target_qf2(next_obs_skills, new_next_actions),
         ) - alpha * new_log_pi
 
-        q_target = self.reward_scale * rewards + (1. - terminals) * self.discount * target_q_values
+        q_target = self.reward_scale * rewards \
+                   + (1. - terminals) * self.discount * target_q_values
         qf1_loss = self.qf_criterion(q1_pred, q_target.detach())
         qf2_loss = self.qf_criterion(q2_pred, q_target.detach())
 
