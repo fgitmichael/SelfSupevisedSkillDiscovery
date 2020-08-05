@@ -20,6 +20,8 @@ from diayn_with_rnn_classifier.trainer.seq_wise_trainer import DIAYNTrainerSeqWi
 
 from diayn_rnn_seq_rnn_stepwise_classifier.trainer.diayn_step_wise_rnn_trainer import \
     DIAYNStepWiseRnnTrainer
+from diayn_rnn_seq_rnn_stepwise_classifier.trainer.diayn_step_wise_and_seq_wise_trainer \
+    import DIAYNStepWiseSeqWiseRnnTrainer
 
 
 class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
@@ -139,6 +141,7 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
         if type(self.trainer) in [DIAYNTrainerRnnClassifierExtension,
                                   DIAYNTrainerMajorityVoteSeqClassifier,
+                                  DIAYNStepWiseSeqWiseRnnTrainer,
                                   DIAYNTrainerSeqWise,
                                   DIAYNStepWiseRnnTrainer]:
             self.trainer.train(
