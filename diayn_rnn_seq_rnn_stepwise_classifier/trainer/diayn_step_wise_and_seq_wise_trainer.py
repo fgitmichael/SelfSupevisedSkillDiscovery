@@ -103,6 +103,7 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
                 rewards[0, 0, :],
                 rewards.view(num_transitions, 1)[0, :])
         )
+        rewards = rewards.view(num_transitions, 1)
 
         """
         Policy and Alpha Loss
