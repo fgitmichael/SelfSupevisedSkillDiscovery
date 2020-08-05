@@ -138,10 +138,16 @@ def experiment(variant, args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('env', type=str,
-                        help='environment')
-    parser.add_argument('--skill_dim', type=int, default=10,
-                        help='skill dimension')
+    parser.add_argument('--env',
+                        type=str,
+                        default="MountainCarContinuous-v0",
+                        help='environment'
+                        )
+    parser.add_argument('--skill_dim',
+                        type=int,
+                        default=10,
+                        help='skill dimension'
+                        )
     args = parser.parse_args()
 
     # noinspection PyTypeChecker
