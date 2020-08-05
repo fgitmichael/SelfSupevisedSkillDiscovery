@@ -9,8 +9,6 @@ from diayn_rnn_seq_rnn_stepwise_classifier.networks.positional_encoder import \
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.pos_encoder_oh import \
     PositionalEncodingOh
 
-import self_supervised.utils.my_pytorch_util as my_ptu
-
 
 class BiRnnStepwiseClassifier(BaseNetwork):
 

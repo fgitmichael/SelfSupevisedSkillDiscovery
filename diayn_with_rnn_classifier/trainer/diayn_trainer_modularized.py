@@ -10,7 +10,6 @@ from operator import itemgetter
 import rlkit.torch.pytorch_util as ptu
 from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
 from rlkit.core.eval_util import create_stats_ordered_dict
-from rlkit.torch.torch_rl_algorithm import TorchTrainer
 
 
 class DIAYNTrainerModularized(DIAYNTrainer):
