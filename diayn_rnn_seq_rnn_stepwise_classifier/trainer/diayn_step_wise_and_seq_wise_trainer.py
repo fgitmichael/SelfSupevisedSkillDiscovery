@@ -31,7 +31,10 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
 
         # Add new df optimizerS
         self.df_optimizer_seq = optimizer_class(
-            self.df.rnn.parameters(),
+            chain(
+                self.df.rnn.parameters(),
+                self.df.classifier_seq.parameters()
+            ),
             lr=df_lr
         )
         self.df_optimizer_step = optimizer_class(
