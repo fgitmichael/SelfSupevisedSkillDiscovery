@@ -30,7 +30,10 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
             global_step=epoch
         )
 
-        gt.stamp('own classfier perf logging')
+        gt.stamp("own classfier perf logging")
+
+        self._log_net_param_hist(epoch)
+        gt.stamp("net parameter histogram logging")
 
     @torch.no_grad()
     def _classfier_perf_eval(self):
@@ -99,7 +102,12 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
 
         return df_accuracy
 
-
-
-
+    def _log_net_param_hist(self, epoch):
+        for k, net in self.trainer.network_dict.items():
+            for name, weight in net.named_parameters():
+                self.diagnostic_writer.writer.writer.\
+                    add_histogram(k + name, weight, epoch)
+                if weight.grad is not None:
+                    self.diagnostic_writer.writer.writer.\
+                        add_histogram(f'{k + name}.grad', weight.grad, epoch)
 

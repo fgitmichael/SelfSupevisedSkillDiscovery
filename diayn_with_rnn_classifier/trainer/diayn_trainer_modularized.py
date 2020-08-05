@@ -323,4 +323,15 @@ class DIAYNTrainerModularized(DIAYNTrainer):
                 self.eval_statistics['Alpha Loss'] = alpha_loss.item()
         self._n_train_steps_total += 1
 
+    @property
+    def network_dict(self):
+        network = self.networks
+        snapshot = self.get_snapshot()
 
+        assert len(network) == len(snapshot.keys())
+
+        ret_dict = {}
+        for idx, k in enumerate(snapshot):
+            ret_dict[k] = network[idx]
+
+        return ret_dict
