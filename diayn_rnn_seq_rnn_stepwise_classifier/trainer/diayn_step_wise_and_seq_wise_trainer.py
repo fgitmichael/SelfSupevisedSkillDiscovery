@@ -436,8 +436,10 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
             self.eval_statistics['Intrinsic Rewards'] = np.mean(ptu.get_numpy(rewards))
             self.eval_statistics['DF Loss Seq'] = np.mean(ptu.get_numpy(df_loss['seq']))
             self.eval_statistics['DF Loss Step'] = np.mean(ptu.get_numpy(df_loss['step']))
-            self.eval_statistics['DF Accuracy Seq'] = np.mean(ptu.get_numpy(df_accuracy_seq))
-            self.eval_statistics['DF Accuracy Step'] = np.mean(ptu.get_numpy(df_accuracy_step))
+            self.eval_statistics['DF Accuracy Seq'] \
+                = np.mean(ptu.get_numpy(df_accuracy_seq))
+            self.eval_statistics['DF Accuracy Step'] \
+                = np.mean(ptu.get_numpy(df_accuracy_step))
             self.eval_statistics['QF1 Loss'] = np.mean(ptu.get_numpy(qf1_loss))
             self.eval_statistics['QF2 Loss'] = np.mean(ptu.get_numpy(qf2_loss))
             self.eval_statistics['Policy Loss'] = np.mean(ptu.get_numpy(
