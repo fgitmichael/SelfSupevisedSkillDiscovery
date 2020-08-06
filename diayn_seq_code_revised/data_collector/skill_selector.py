@@ -46,3 +46,7 @@ class SkillSelectorDiscrete(SkillSelectorBase):
     @property
     def skill_dim(self):
         return self.skills.shape[-1]
+
+    @property
+    def num_skills(self):
+        return self.skills.shape[0]
