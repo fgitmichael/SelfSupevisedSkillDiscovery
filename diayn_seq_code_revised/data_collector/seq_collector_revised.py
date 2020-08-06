@@ -12,6 +12,7 @@ from diayn_seq_code_revised.base.data_collector_base import PathCollectorRevised
 from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
 from diayn_seq_code_revised.data_collector.rollouter_revised import RollouterRevised
+from diayn_seq_code_revised.base.skill_selector_base import SkillSelectorBase
 from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDiscrete
 
 import rlkit.torch.pytorch_util as ptu
@@ -25,7 +26,8 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
                      MakeDeterministicRevised
                  ],
                  skill_selector: Union[
-                     SkillSelectorDiscrete],
+                    SkillSelectorBase,
+                    SkillSelectorDiscrete],
                  max_seqs: int
                  ):
         self.policy = policy
@@ -46,7 +48,6 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
 
     @skill.setter
     def skill(self, skill: torch.Tensor):
-        assert self.skill_selector.contains(skill)
         self.policy.skill = skill
 
     def skill_reset(self):
