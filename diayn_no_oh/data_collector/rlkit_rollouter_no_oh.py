@@ -25,7 +25,7 @@ class RollouterNoOH(Rollouter):
         Args:
             skill        : skill id integer (< skill_dim, will be transfered to one-hot)
         """
-        assert skill < self._policy.skill_dim
+        assert skill < self._policy.num_skills
         self._policy.set_skill(skill)
 
         path = rollout(

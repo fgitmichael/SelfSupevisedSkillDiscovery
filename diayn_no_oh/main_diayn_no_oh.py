@@ -155,8 +155,11 @@ def experiment(variant, args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('env', type=str,
-                        help='environment')
+    parser.add_argument('--env',
+                        type=str,
+                        default="MountainCarContinuous-v0",
+                        help='environment'
+                        )
     args = parser.parse_args()
 
     # noinspection PyTypeChecker
