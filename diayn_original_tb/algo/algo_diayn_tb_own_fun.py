@@ -23,19 +23,24 @@ from diayn_rnn_seq_rnn_stepwise_classifier.trainer.diayn_step_wise_rnn_trainer i
 from diayn_rnn_seq_rnn_stepwise_classifier.trainer.diayn_step_wise_and_seq_wise_trainer \
     import DIAYNStepWiseSeqWiseRnnTrainer
 
+from diayn_seq_code_revised.data_collector.seq_collector_revised import SeqCollectorRevised
 
 class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
     def __init__(self,
                  trainer: Union[
-                          DIAYNTrainer,
-                          DIAYNTrainerRnnClassifierExtension,
-                          DIAYNTrainerMajorityVoteSeqClassifier],
+                     DIAYNTrainer,
+                     DIAYNTrainerRnnClassifierExtension,
+                     DIAYNTrainerMajorityVoteSeqClassifier],
 
                  exploration_env: NormalizedBoxEnvWrapper,
                  evaluation_env: NormalizedBoxEnvWrapper,
-                 exploration_data_collector: SeqCollector,
-                 evaluation_data_collector: SeqCollector,
+                 exploration_data_collector: Union[
+                     SeqCollector,
+                     SeqCollectorRevised],
+                 evaluation_data_collector: Union[
+                     SeqCollector,
+                     SeqCollectorRevised],
                  replay_buffer: SelfSupervisedEnvSequenceReplayBufferDiscreteSkills,
 
                  seq_len,
