@@ -27,10 +27,6 @@ from diayn_rnn_seq_rnn_stepwise_classifier.trainer.diayn_step_wise_rnn_trainer i
     DIAYNStepWiseRnnTrainer
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise import \
     BiRnnStepwiseClassifier
-from diayn_rnn_seq_rnn_stepwise_classifier.networks.positional_encoder import \
-    PositionalEncoding
-from diayn_rnn_seq_rnn_stepwise_classifier.networks.pos_encoder_oh import \
-    PositionalEncodingOh
 
 
 def experiment(variant, args):
