@@ -3,7 +3,7 @@ import abc
 import self_supervised.utils.typed_dicts as td
 
 
-class RollouterBase(object):
+class RollouterBase(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def do_rollout(

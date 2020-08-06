@@ -3,7 +3,7 @@ import abc
 
 from rlkit.samplers.data_collector.base import PathCollector
 
-class PathCollectorRevisedBase(PathCollector):
+class PathCollectorRevisedBase(PathCollector, metaclass=abc.ABCMeta):
 
     def end_epoch(self, epoch):
         super().end_epoch(epoch)
