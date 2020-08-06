@@ -34,10 +34,7 @@ class DIAYNTrainerNoOH(DIAYNTrainer):
             idx = self.policy.get_skill_id_from_skill(skill)
             z_hats.append(ptu.from_numpy(idx).long())
         z_hat = torch.cat(z_hats)
-        try:
-            assert z_hat.shape == torch.Size((skills.size(0),))
-        except:
-            pass
+        assert z_hat.shape == torch.Size((skills.size(0),))
 
         d_pred = self.df(next_obs)
         d_pred_log_softmax = F.log_softmax(d_pred, 1)
