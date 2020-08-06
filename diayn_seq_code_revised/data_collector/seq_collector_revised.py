@@ -157,3 +157,4 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
         self.reset()
 
         return epoch_paths
+
