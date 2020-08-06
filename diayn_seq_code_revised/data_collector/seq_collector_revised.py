@@ -98,13 +98,15 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
         )
         assert skill_seq.shape == (seq_len, self.skill_selector.skill_dim)
 
+        paths_with_skills = []
         for (idx, path) in enumerate(paths):
-            with_skill_id = td.TransitionModeMapping(
+            with_skill = td.TransitionModeMapping(
                 **path,
                 mode=skill_seq
             )
+            paths_with_skills.append(with_skill)
 
-        self._epoch_paths.extend(paths)
+        self._epoch_paths.extend(paths_with_skills)
 
     def _check_paths(self,
                      seq_len,
