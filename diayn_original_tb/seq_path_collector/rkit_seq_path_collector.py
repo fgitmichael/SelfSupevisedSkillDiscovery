@@ -85,7 +85,7 @@ class SeqCollector(PathCollector):
     def collect_new_paths(self,
                           seq_len: int,
                           num_seqs: int,
-                          discard_incomplete_paths: bool
+                          discard_incomplete_paths: bool=False
                           ):
         paths = self._collect_new_paths(
             seq_len=seq_len,

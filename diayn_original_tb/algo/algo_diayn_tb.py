@@ -129,7 +129,6 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
                 self.seq_eval_collector.collect_new_paths(
                     seq_len=seq_len,
                     num_seqs=1,
-                    discard_incomplete_paths=False
                 )
 
         mode_influence_eval_paths = self.seq_eval_collector.get_epoch_paths()
