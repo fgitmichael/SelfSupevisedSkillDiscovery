@@ -6,8 +6,9 @@ from torch.nn import functional as F
 from operator import itemgetter
 from itertools import chain
 
-from diayn_with_rnn_classifier.trainer.seq_wise_trainer_with_diayn_classifier_vote import \
-    DIAYNTrainerMajorityVoteSeqClassifier
+from diayn_with_rnn_classifier.trainer.\
+    seq_wise_trainer_with_diayn_classifier_vote \
+    import DIAYNTrainerMajorityVoteSeqClassifier
 from diayn_with_rnn_classifier.trainer.diayn_trainer_modularized import \
     DIAYNTrainerModularized
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise import \
@@ -433,18 +434,22 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
             """
             policy_loss = (log_pi - q_new_actions).mean()
 
-            self.eval_statistics['Intrinsic Rewards'] = np.mean(ptu.get_numpy(rewards))
-            self.eval_statistics['DF Loss Seq'] = np.mean(ptu.get_numpy(df_loss['seq']))
-            self.eval_statistics['DF Loss Step'] = np.mean(ptu.get_numpy(df_loss['step']))
-            self.eval_statistics['DF Accuracy Seq'] \
-                = np.mean(ptu.get_numpy(df_accuracy_seq))
-            self.eval_statistics['DF Accuracy Step'] \
-                = np.mean(ptu.get_numpy(df_accuracy_step))
-            self.eval_statistics['QF1 Loss'] = np.mean(ptu.get_numpy(qf1_loss))
-            self.eval_statistics['QF2 Loss'] = np.mean(ptu.get_numpy(qf2_loss))
-            self.eval_statistics['Policy Loss'] = np.mean(ptu.get_numpy(
-                policy_loss
-            ))
+            self.eval_statistics['Intrinsic Rewards'] = \
+                np.mean(ptu.get_numpy(rewards))
+            self.eval_statistics['DF Loss Seq'] = \
+                np.mean(ptu.get_numpy(df_loss['seq']))
+            self.eval_statistics['DF Loss Step'] = \
+                np.mean(ptu.get_numpy(df_loss['step']))
+            self.eval_statistics['DF Accuracy Seq'] = \
+                np.mean(ptu.get_numpy(df_accuracy_seq))
+            self.eval_statistics['DF Accuracy Step'] = \
+                np.mean(ptu.get_numpy(df_accuracy_step))
+            self.eval_statistics['QF1 Loss'] = \
+                np.mean(ptu.get_numpy(qf1_loss))
+            self.eval_statistics['QF2 Loss'] = \
+                np.mean(ptu.get_numpy(qf2_loss))
+            self.eval_statistics['Policy Loss'] = \
+                np.mean(ptu.get_numpy(policy_loss))
             self.eval_statistics.update(create_stats_ordered_dict(
                 'Q1 Predictions',
                 ptu.get_numpy(q1_pred),
