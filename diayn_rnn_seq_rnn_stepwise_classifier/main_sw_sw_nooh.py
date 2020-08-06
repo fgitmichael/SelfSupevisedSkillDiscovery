@@ -46,14 +46,14 @@ def experiment(variant, args):
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-    one_hot = False
+    one_hot = True
     if one_hot:
         skill_dim = 10
         get_skills = get_oh_grid
 
     else:
         skill_dim = 2
-        get_skills = get_no_oh_grid
+        get_skills = get_no_oh_grid()
 
     num_skills = 10
 
