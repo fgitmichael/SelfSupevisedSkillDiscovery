@@ -57,7 +57,7 @@ class SkillTanhGaussianPolicyRevised(SkillTanhGaussianPolicy):
 class MakeDeterministicRevised(MakeDeterministic):
 
     def __int__(self,
-                stochastic_policy: SkillTanhGaussianPolicyOverwrought
+                stochastic_policy: SkillTanhGaussianPolicyRevised
                 ):
         self.stochastic_policy = stochastic_policy
 
