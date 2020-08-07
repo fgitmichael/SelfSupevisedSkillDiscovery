@@ -37,7 +37,7 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
 
     @property
     def obs_dim(self):
-        return self.obs_dim - self.skill_dim
+        return self._dimensions['obs'] - self.skill_dim
 
     def get_action(self,
                    obs_np: np.ndarray,
@@ -72,7 +72,7 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
         action = self.get_skill_actions(obs_skill_cat,
                                         deterministic=deterministic)
 
-        assert action.shape[-1] == self._dimensions['action_dim']
+        assert action.shape[-1] == self._dimensions['action']
         if len(obs_tensor.shape) > 1:
             assert obs_tensor.shape[:-1] == action[:-1]
 

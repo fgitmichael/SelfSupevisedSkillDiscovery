@@ -45,17 +45,17 @@ class TanhGaussianPolicy(MyMlp, Policy, metaclass=abc.ABCMeta):
         )
 
         self._dimensions = dict(
-            obs_dim=obs_dim,
-            action_dim=action_dim
+            obs=obs_dim,
+            action=action_dim
         )
 
     @property
     def obs_dim(self):
-        return self._dimensions['obs_dim']
+        return self._dimensions['obs']
 
     @property
     def action_dim(self):
-        return self._dimensions['action_dim']
+        return self._dimensions['action']
 
     def get_action(self,
                    obs_np: np.ndarray,
