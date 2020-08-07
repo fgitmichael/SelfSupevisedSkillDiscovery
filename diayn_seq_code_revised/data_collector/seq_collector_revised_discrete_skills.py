@@ -27,6 +27,16 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
         self._skill_id = None
 
     @property
+    def skill(self):
+        return self.policy.skill
+
+    @skill.setter
+    def skill(self, skill_with_id_dict):
+        assert isinstance(skill_with_id_dict, dict)
+        self.policy.skill = skill_with_id_dict['skill']
+        self.skill_id = skill_with_id_dict['id']
+
+    @property
     def skill_id(self):
         return self._skill_id
 
