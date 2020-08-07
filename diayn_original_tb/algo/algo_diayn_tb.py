@@ -115,7 +115,6 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         )
 
         # TODO: write rewards
-
     def _get_paths_mode_influence_test(self, num_paths=1, seq_len=200) \
             -> List[TransitonModeMappingDiscreteSkills]:
 
