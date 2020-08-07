@@ -151,6 +151,11 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
         assert len(self._epoch_paths) > 0
 
         epoch_paths = list(self._epoch_paths)
+
+        for idx, path in enumerate(epoch_paths):
+            assert len(path.obs.shape) == 2
+            epoch_paths[idx] = path.transpose(1, 0)
+
         self.reset()
 
         return epoch_paths
