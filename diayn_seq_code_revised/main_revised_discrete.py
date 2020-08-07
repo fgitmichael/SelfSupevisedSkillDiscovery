@@ -27,6 +27,8 @@ from diayn_seq_code_revised.policies.skill_policy import \
 from diayn_seq_code_revised.algo.seqwise_algo_revised import \
     SeqwiseAlgoRevisedDiscreteSkills
 from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDiscrete
+from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
+    DIAYNAlgoStepwiseSeqwiseRevisedTrainer
 
 from diayn_no_oh.utils.hardcoded_grid_two_dim import get_no_oh_grid, get_oh_grid
 
@@ -115,7 +117,7 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
-    trainer = DIAYNStepWiseSeqWiseRnnTrainer(
+    trainer = DIAYNAlgoStepwiseSeqwiseRevisedTrainer(
         env=eval_env,
         policy=policy,
         qf1=qf1,
