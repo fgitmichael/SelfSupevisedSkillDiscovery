@@ -56,7 +56,7 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
             self,
             seq_len,
             num_seqs,
-            discard_incomplete_paths,
+            **kwargs
     ):
         paths = self._collect_new_paths(
             seq_len=seq_len,
