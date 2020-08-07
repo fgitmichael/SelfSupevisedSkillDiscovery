@@ -124,19 +124,16 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
                == len(path.action.shape) \
                == len(path.terminal.shape) \
                == len(path.reward.shape) \
-               == len(path.mode.shape)
 
         assert path.action.shape[shape_dim] == action_dim
         assert path.obs.shape[shape_dim] \
                == path.next_obs.shape[shape_dim] \
                == obs_dim
-        assert path.mode.shape[shape_dim] == skill_dim
         assert path.action.shape[seq_dim] \
                == path.obs.shape[seq_dim] \
                == path.reward.shape[seq_dim] \
                == path.terminal.shape[seq_dim] \
                == path.next_obs.shape[seq_dim] \
-               == path.mode.shape[seq_dim] \
                == seq_len
         if len(path.obs.shape) > 2:
             assert path.action.shape[batch_dim] \
