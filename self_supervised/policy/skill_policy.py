@@ -59,7 +59,7 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicyLogStd):
                 skill_repi = torch.stack([self.skill] * obs_tensor.size(0), dim=0)
 
             elif len(obs_tensor.shape) > 2:
-                skill_repi = self.skill.detach().copy()
+                skill_repi = self.skill.detach().clone()
                 for idx, dim in enumerate(obs_tensor.shape[:-1]):
                     skill_repi = torch.stack([skill_repi] * dim, dim=idx)
 
