@@ -5,12 +5,14 @@ from typing import Union
 from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
-from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
+import self_supervised.utils.typed_dicts as td
+
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
 
 from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
+from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 
 from diayn_with_rnn_classifier.trainer.diayn_trainer_with_rnn_classifier import \
     DIAYNTrainerRnnClassifierExtension
@@ -24,6 +26,8 @@ from diayn_rnn_seq_rnn_stepwise_classifier.trainer.diayn_step_wise_and_seq_wise_
     import DIAYNStepWiseSeqWiseRnnTrainer
 
 from diayn_seq_code_revised.data_collector.seq_collector_revised import SeqCollectorRevised
+from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills import \
+    SeqCollectorRevisedDiscreteSkills
 
 class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
@@ -37,15 +41,23 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                  evaluation_env: NormalizedBoxEnvWrapper,
                  exploration_data_collector: Union[
                      SeqCollector,
-                     SeqCollectorRevised],
+                     SeqCollectorRevised,
+                     SeqCollectorRevisedDiscreteSkills
+                 ],
                  evaluation_data_collector: Union[
                      SeqCollector,
-                     SeqCollectorRevised],
+                     SeqCollectorRevised,
+                     SeqCollectorRevisedDiscreteSkills
+                 ],
                  replay_buffer: SelfSupervisedEnvSequenceReplayBufferDiscreteSkills,
 
                  seq_len,
                  diagnostic_writer: DiagnosticsWriter,
-                 seq_eval_collector: SeqCollector,
+                 seq_eval_collector: Union[
+                     SeqCollector,
+                     SeqCollectorRevised,
+                     SeqCollectorRevisedDiscreteSkills],
+
 
                  batch_size,
                  max_path_length,
