@@ -168,7 +168,7 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
             self.expl_data_collector.get_diagnostics(),
             prefix='exploration/'
         )
-        expl_paths = self.expl_data_collector.get_epoch_paths()
+        #expl_paths = self.expl_data_collector.get_epoch_paths()
         #if hasattr(self.expl_env, 'get_diagnostics'):
         #    logger.record_dict(
         #        self.expl_env.get_diagnostics(expl_paths),
@@ -185,7 +185,7 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
             self.eval_data_collector.get_diagnostics(),
             prefix='evaluation/',
         )
-        eval_paths = self.eval_data_collector.get_epoch_paths()
+        #eval_paths = self.eval_data_collector.get_epoch_paths()
         #if hasattr(self.eval_env, 'get_diagnostics'):
         #    logger.record_dict(
         #        self.eval_env.get_diagnostics(eval_paths),
