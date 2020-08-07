@@ -419,7 +419,7 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
         df_accuracy_step = torch.sum(
             torch.eq(
                 z_hat['step'],
-                pred_z['step'])).float()/pred_z['step'].size(0)
+                pred_z['step'])).float()/pred_z['step'].view(-1, 1).size(0)
 
         df_accuracy_seq = torch.sum(
             torch.eq(
