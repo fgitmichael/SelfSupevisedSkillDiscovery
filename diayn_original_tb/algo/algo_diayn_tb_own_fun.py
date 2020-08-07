@@ -138,9 +138,7 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
         )
         gt.stamp('exploration sampling', unique=False)
 
-    def _train_sac(self):
-        self.training_mode(True)
-
+    def _sample_batch_from_buffer(self) -> td.TransitonModeMappingDiscreteSkills:
         train_data = self.replay_buffer.random_batch(
             self.batch_size
         )
@@ -149,11 +147,14 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
         data_dim = 1
         seq_dim = 2
 
-        obs_dim = train_data.obs.shape[data_dim]
-        action_dim = train_data.action.shape[data_dim]
-        mode_dim = train_data.mode.shape[data_dim]
-
         train_data = train_data.transpose(batch_dim, seq_dim, data_dim)
+
+        return train_data
+
+    def _train_sac(self):
+        self.training_mode(True)
+
+        train_data = self._sample_batch_from_buffer()
 
         if type(self.trainer) in [DIAYNTrainerRnnClassifierExtension,
                                   DIAYNTrainerMajorityVoteSeqClassifier,
@@ -170,7 +171,13 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                     skills=train_data.mode,
                 )
             )
+
         else:
+            data_dim = -1
+            obs_dim = train_data.obs.shape[data_dim]
+            action_dim = train_data.action.shape[data_dim]
+            mode_dim = train_data.mode.shape[data_dim]
+
             self.trainer.train(
                 dict(
                     rewards=train_data.reward.reshape(-1, 1),
