@@ -19,12 +19,12 @@ class BiRnnStepwiseSeqWiseClassifier(BiRnnStepwiseClassifier):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         hidden_size_rnn = kwargs['hidden_size_rnn']
-        output_size = kwargs['output_size']
+        self.output_size = kwargs['output_size']
         hidden_sizes = kwargs['hidden_sizes']
 
         self.classifier_seq = FlattenMlp(
             input_size=self.rnn_params['num_features'],
-            output_size=output_size,
+            output_size=self.output_size,
             hidden_sizes=hidden_sizes
         )
 
