@@ -47,8 +47,10 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
 
     def skill_reset(self):
         random_skill, skill_id = self.skill_selector.get_random_skill(return_id=True)
-        self.skill = random_skill
-        self.skill_id = skill_id
+        self.skill = dict(
+            skill=random_skill,
+            id=skill_id
+        )
 
     def collect_new_paths(
             self,
