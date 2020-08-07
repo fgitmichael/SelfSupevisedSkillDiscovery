@@ -20,12 +20,11 @@ class SkillSelectorDiscrete(SkillSelectorBase):
     def get_random_skill(
             self,
             return_id=False) -> Union[torch.Tensor, Tuple[torch.Tensor, int]]:
-        randint = random.randint(0, self.skills.size(0) - 1)
+        randint = random.randint(0, self.skills.shape[0] - 1)
         rand_skill = ptu.from_numpy(self.skills[randint])
 
         if return_id:
             return rand_skill, randint
-
         else:
             return rand_skill
 
@@ -50,3 +49,9 @@ class SkillSelectorDiscrete(SkillSelectorBase):
     @property
     def num_skills(self):
         return self.skills.shape[0]
+
+    def get_skill_grid(self) -> torch.Tensor:
+        """
+        In the discrete cas simple return the skill matrix
+        """
+        return ptu.from_numpy(self.skills)

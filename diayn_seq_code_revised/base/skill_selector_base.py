@@ -9,6 +9,10 @@ class SkillSelectorBase(object, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_skill_grid(self) -> torch.Tensor:
+        raise NotImplementedError
+
     @property
+    @abc.abstractmethod
     def skill_dim(self):
         raise NotImplementedError
