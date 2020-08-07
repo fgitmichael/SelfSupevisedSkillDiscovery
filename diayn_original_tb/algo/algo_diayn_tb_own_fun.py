@@ -172,6 +172,7 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                     actions=train_data.action,
                     next_observations=train_data.next_obs,
                     skills=train_data.mode,
+                    skills_id=train_data.skill_id,
                 )
             )
 
