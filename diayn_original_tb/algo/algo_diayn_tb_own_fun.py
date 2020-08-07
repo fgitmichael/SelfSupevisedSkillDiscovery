@@ -164,17 +164,17 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                                   DIAYNTrainerSeqWise,
                                   DIAYNAlgoStepwiseSeqwiseRevisedTrainer,
                                   DIAYNStepWiseRnnTrainer]:
-            self.trainer.train(
-                dict(
-                    rewards=train_data.reward,
-                    terminals=train_data.terminal,
-                    observations=train_data.obs,
-                    actions=train_data.action,
-                    next_observations=train_data.next_obs,
-                    skills=train_data.mode,
-                    skills_id=train_data.skill_id,
-                )
+            train_dict = dict(
+                rewards=train_data.reward,
+                terminals=train_data.terminal,
+                observations=train_data.obs,
+                actions=train_data.action,
+                next_observations=train_data.next_obs,
+                skills=train_data.mode,
             )
+            if isinstance(self.replay_buffer,
+                          SelfSupervisedEnvSequenceReplayBufferDiscreteSkills):
+                train_dict['skills_id'] = train_data.skill_id
 
         else:
             data_dim = -1
@@ -182,16 +182,16 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
             action_dim = train_data.action.shape[data_dim]
             mode_dim = train_data.mode.shape[data_dim]
 
-            self.trainer.train(
-                dict(
-                    rewards=train_data.reward.reshape(-1, 1),
-                    terminals=train_data.terminal.reshape(-1, 1),
-                    observations=train_data.obs.reshape(-1, obs_dim),
-                    actions=train_data.action.reshape(-1, action_dim),
-                    next_observations=train_data.next_obs.reshape(-1, obs_dim),
-                    skills=train_data.mode.reshape(-1, mode_dim),
-                )
+            train_dict = dict(
+                rewards=train_data.reward.reshape(-1, 1),
+                terminals=train_data.terminal.reshape(-1, 1),
+                observations=train_data.obs.reshape(-1, obs_dim),
+                actions=train_data.action.reshape(-1, action_dim),
+                next_observations=train_data.next_obs.reshape(-1, obs_dim),
+                skills=train_data.mode.reshape(-1, mode_dim),
             )
+
+        self.trainer.train(train_dict)
 
         gt.stamp('training', unique=False)
         self.training_mode(False)
