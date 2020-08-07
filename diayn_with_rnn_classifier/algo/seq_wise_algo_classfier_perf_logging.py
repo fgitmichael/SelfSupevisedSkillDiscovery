@@ -58,8 +58,10 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
         z_hat = ptu.from_numpy(
             np.stack(z_hat, axis=0)
         ).transpose(-1, -2)
+        #assert next_obs.shape \
+        #    == torch.Size((num_paths * self.policy.skill_dim, self.seq_len, obs_dim))
         assert next_obs.shape \
-            == torch.Size((num_paths * self.policy.skill_dim, self.seq_len, obs_dim))
+            == torch.Size((len(eval_paths), self.seq_len, obs_dim))
 
         d_pred = self.trainer.df(
             next_obs,
