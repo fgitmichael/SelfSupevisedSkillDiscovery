@@ -15,8 +15,6 @@ from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
 
-from diayn_rnn_seq_rnn_stepwise_classifier.trainer.diayn_step_wise_and_seq_wise_trainer \
-    import DIAYNStepWiseSeqWiseRnnTrainer
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
     BiRnnStepwiseSeqWiseClassifier
 
@@ -41,13 +39,16 @@ def experiment(variant, args):
 
     seq_len = 100
     one_hot_skill_encoding = True
-    skill_dim = args.skill_dim if one_hot_skill_encoding else 2
+    skill_dim = args.skill_dim \
+        if one_hot_skill_encoding \
+        else get_no_oh_grid().shape[-1]
+    num_skills = args.skill_dim
     hidden_size_rnn = 100
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
-    run_comment = ""
-    run_comment += "seq_len: {} |  ".format(seq_len)
-    run_comment += "seq wise step wise"
+    run_comment = "one hot {} | ".format(one_hot_skill_encoding)
+    run_comment += "seq_len: {} | ".format(seq_len)
+    run_comment += "seq wise step wise revised"
 
     seed = 0
     torch.manual_seed = seed
