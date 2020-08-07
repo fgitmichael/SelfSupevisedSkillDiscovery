@@ -71,7 +71,7 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
         )
         assert skill_seq.shape == (seq_len, self.skill_selector.skill_dim)
         skill_id = np.array([self.skill_id])
-        skill_id_seq = np.stack([skill_id] * seq_len, dim=seq_dim)
+        skill_id_seq = np.stack([skill_id] * seq_len, axis=seq_dim)
         assert skill_id_seq.shape == (seq_len, 1)
 
         paths_with_skill_id = []
