@@ -160,3 +160,5 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
 
         return epoch_paths
 
+    def set_skill(self, skill):
+        self.skill = skill
