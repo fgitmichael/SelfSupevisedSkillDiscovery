@@ -83,4 +83,4 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
             )
             paths_with_skill_id.append(with_skill_id)
 
-        self._epoch_paths.append(paths_with_skill_id)
+        self._epoch_paths.extend(paths_with_skill_id)
