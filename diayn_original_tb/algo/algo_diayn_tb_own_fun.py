@@ -28,6 +28,8 @@ from diayn_rnn_seq_rnn_stepwise_classifier.trainer.diayn_step_wise_and_seq_wise_
 from diayn_seq_code_revised.data_collector.seq_collector_revised import SeqCollectorRevised
 from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills import \
     SeqCollectorRevisedDiscreteSkills
+from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
+    DIAYNAlgoStepwiseSeqwiseRevisedTrainer
 
 class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
@@ -160,6 +162,7 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                                   DIAYNTrainerMajorityVoteSeqClassifier,
                                   DIAYNStepWiseSeqWiseRnnTrainer,
                                   DIAYNTrainerSeqWise,
+                                  DIAYNAlgoStepwiseSeqwiseRevisedTrainer,
                                   DIAYNStepWiseRnnTrainer]:
             self.trainer.train(
                 dict(
