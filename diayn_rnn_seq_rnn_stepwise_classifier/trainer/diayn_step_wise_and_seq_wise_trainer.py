@@ -333,7 +333,7 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
             (batch_size,
              seq_len))
 
-        d_pred_log_softmax_step = F.log_softmax(d_pred_step, data_dim)
+        d_pred_log_softmax_step = F.log_softmax(d_pred_step, dim=data_dim)
         pred_z_step = torch.argmax(d_pred_log_softmax_step, dim=data_dim)
 
         # Rewards
