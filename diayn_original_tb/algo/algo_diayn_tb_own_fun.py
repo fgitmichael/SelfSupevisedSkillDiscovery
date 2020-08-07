@@ -107,7 +107,6 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                 self.expl_data_collector.collect_new_paths(
                     seq_len=self.seq_len,
                     num_seqs=1,
-                    discard_incomplete_paths=False,
                 )
         init_expl_paths = self.expl_data_collector.get_epoch_paths()
         self.replay_buffer.add_self_sup_paths(init_expl_paths)
