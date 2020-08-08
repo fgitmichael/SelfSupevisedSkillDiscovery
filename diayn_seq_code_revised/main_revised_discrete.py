@@ -28,7 +28,7 @@ from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDi
 from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
     DIAYNAlgoStepwiseSeqwiseRevisedTrainer
 
-from diayn_no_oh.utils.hardcoded_grid_two_dim import get_no_oh_grid, get_oh_grid
+from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCreator
 
 
 def experiment(variant, args):
@@ -36,6 +36,16 @@ def experiment(variant, args):
     eval_env = copy.deepcopy(expl_env)
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
+
+    # Skill Grids
+    nooh_grid_creator = NoohGridCreator(
+        repeat=10,
+        radius_factor=1
+    )
+    get_no_oh_grid = nooh_grid_creator.get_grid
+
+    oh_grid_creator = OhGridCreator()
+    get_oh_grid = oh_grid_creator.get_grid
 
     seq_len = 100
     one_hot_skill_encoding = True
