@@ -47,7 +47,7 @@ class SkillTanhGaussianPolicyRevised(SkillTanhGaussianPolicy):
 
     def set_skill(self,
                   skill: torch.Tensor):
-        raise NotImplementedError('Use the property skill instead!')
+        self.skill = skill
 
     def forward(self,
                 obs: torch.Tensor,
@@ -108,7 +108,7 @@ class MakeDeterministicRevised(MakeDeterministic):
         self.stochastic_policy.skill = skill
 
     def set_skill(self, skill):
-        raise NotImplementedError('Use the property skill instead!')
+        self.skill = skill
 
     @property
     def obs_dim(self):
