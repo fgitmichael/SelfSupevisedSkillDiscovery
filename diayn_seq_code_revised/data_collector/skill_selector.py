@@ -6,15 +6,12 @@ from typing import Union, Tuple
 from diayn_seq_code_revised.base.skill_selector_base import \
     SkillSelectorBase
 
-from diayn_no_oh.utils.hardcoded_grid_two_dim import get_oh_grid, get_no_oh_grid
-
 import rlkit.torch.pytorch_util as ptu
 
 
 class SkillSelectorDiscrete(SkillSelectorBase):
 
-    def __init__(self, get_skill_grid_fun: [get_no_oh_grid,
-                                            get_oh_grid]):
+    def __init__(self, get_skill_grid_fun):
         self.skills = get_skill_grid_fun()
 
     def get_random_skill(
