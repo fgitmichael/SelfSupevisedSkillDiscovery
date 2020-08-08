@@ -56,9 +56,14 @@ def experiment(variant, args):
     hidden_size_rnn = 100
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
-    run_comment = "one hot {} | ".format(one_hot_skill_encoding)
-    run_comment += "seq_len: {} | ".format(seq_len)
-    run_comment += "seq wise step wise revised"
+    sep_str = " | "
+    run_comment = sep_str
+    run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
+    run_comment += "seq_len: {}".format(seq_len) + sep_str
+    run_comment += "seq wise step wise revised" + sep_str
+    run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
+    if not one_hot_skill_encoding:
+        run_comment += "skill repeat: {}".format(skill_repeat) + sep_str
 
     seed = 0
     torch.manual_seed = seed
