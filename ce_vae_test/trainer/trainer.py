@@ -41,14 +41,9 @@ class CeVaeTrainer(object):
             lr=0.0001
         )
 
-    def loss(self, step, data, label):
-        self.vae.train()
-        forward_return_dict = self.vae(data)
+    def loss_latent(self, step, forward_return_dict):
         latent_post = forward_return_dict['latent_post']
         latent_pri = forward_return_dict['latent_pri']
-        score = forward_return_dict['recon']
-
-        assert score.shape == torch.Size((data.size(0), self.vae.output_size))
 
         # KLD
         kld = calc_kl_divergence([latent_post['dist']],
@@ -58,19 +53,12 @@ class CeVaeTrainer(object):
         mmd = compute_mmd_tutorial(latent_post['sample'],
                                    latent_pri['sample'])
 
-        # CE loss
-        ce_loss = self.ce_criterion(score, label)
-
-        # Info-VAE loss
         alpha = self.alpha
         lamda = self.lamda
         kld_info = (1 - alpha) * kld
         mmd_info = (alpha + lamda - 1) * mmd
-        info_loss = ce_loss + kld_info + mmd_info
 
         loss_on_latent = kld_info + mmd_info
-        loss_on_data  = ce_loss
-        loss_latent_minus_data = loss_on_latent - data
 
         info_loss_prestring = 'info_loss'
         self.log(
@@ -78,14 +66,61 @@ class CeVaeTrainer(object):
             {
                 'hp/alpha': alpha,
                 'hp/lamda': lamda,
-                'ce_loss': ce_loss,
                 '{}/kld'.format(info_loss_prestring): kld,
                 '{}/mmd'.format(info_loss_prestring): mmd,
                 '{}/mmd_info_weighted'.format(info_loss_prestring): mmd_info,
                 '{}/kld_info_weighted'.format(info_loss_prestring): kld_info,
-                '{}/info_loss'.format(info_loss_prestring): info_loss,
                 '{}/loss_on_latent'.format(info_loss_prestring): loss_on_latent,
+            }
+        )
+
+
+        return loss_on_latent
+
+    def loss_data(self, step, forward_return_dict, label):
+        score = forward_return_dict['recon']
+
+        # CE loss
+        ce_loss = self.ce_criterion(score, label)
+        loss_on_data  = ce_loss
+
+        info_loss_prestring = 'info_loss'
+        self.log(
+            step,
+            {
+                'ce_loss': ce_loss,
                 '{}/loss_on_data'.format(info_loss_prestring): loss_on_data
+            }
+        )
+
+        return loss_on_data
+
+    def loss(self, step, data, label):
+        forward_return_dict = self.vae(data)
+        score = forward_return_dict['recon']
+        assert score.shape == torch.Size((data.size(0), self.vae.output_size))
+
+        latent_loss = self.loss_latent(
+            step=step,
+            forward_return_dict=forward_return_dict,
+        )
+
+        data_loss = self.loss_data(
+            step=step,
+            forward_return_dict=forward_return_dict,
+            label=label
+        )
+
+        info_loss = data_loss + latent_loss
+        loss_latent_minus_data = latent_loss - data_loss
+
+        info_loss_prestring = 'info_loss'
+        self.log(
+            step,
+            {
+                '{}/info_loss'.format(info_loss_prestring): info_loss,
+                '{}/latent_loss_minus_data'.format(info_loss_prestring):
+                    loss_latent_minus_data,
             }
         )
 
