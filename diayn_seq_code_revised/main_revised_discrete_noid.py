@@ -95,7 +95,8 @@ def experiment(variant, args):
     )
     df = BiRnnStepwiseSeqWiseClassifier(
         input_size=obs_dim,
-        output_size=num_skills,
+        output_size=skill_dim,
+        num_skills=num_skills,
         hidden_size_rnn=hidden_size_rnn,
         hidden_sizes=[M, M],
         seq_len=seq_len
