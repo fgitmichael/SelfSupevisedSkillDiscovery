@@ -1,6 +1,7 @@
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from torch.nn import functional as F
+from tqdm import tqdm
 
 from ce_vae_test.networks.ce_vae import MinVae
 
@@ -67,6 +68,10 @@ class CeVaeTrainer(object):
         mmd_info = (alpha + lamda - 1) * mmd
         info_loss = ce_loss + kld_info + mmd_info
 
+        loss_on_latent = kld_info + mmd_info
+        loss_on_data  = ce_loss
+        loss_latent_minus_data = loss_on_latent - data
+
         info_loss_prestring = 'info_loss'
         self.log(
             step,
@@ -79,6 +84,8 @@ class CeVaeTrainer(object):
                 '{}/mmd_info_weighted'.format(info_loss_prestring): mmd_info,
                 '{}/kld_info_weighted'.format(info_loss_prestring): kld_info,
                 '{}/info_loss'.format(info_loss_prestring): info_loss,
+                '{}/loss_on_latent'.format(info_loss_prestring): loss_on_latent,
+                '{}/loss_on_data'.format(info_loss_prestring): loss_on_data
             }
         )
 
@@ -93,14 +100,15 @@ class CeVaeTrainer(object):
             )
 
     def train(self, step, data, label):
+        self.vae.train(True)
         loss = self.loss(step, data, label)
         update_params(self.optimizer, self.vae, loss)
 
+    @torch.no_grad()
     def test(self, epoch, step, axes, fig, data, label):
         self.vae.train(False)
         forward_return_dict = self.vae(data)
         latent_post = forward_return_dict['latent_post']
-        latent_pri = forward_return_dict['latent_pri']
         score = forward_return_dict['recon']
 
         self.write_mode_map(epoch, step, axes, fig, latent_post, label)
@@ -147,20 +155,30 @@ class CeVaeTrainer(object):
         )
 
     def run(self):
+        num_episodes = 10
         fig, axes = plt.subplots()
-        train_step = 0
-        for epoch in range(self.num_epochs):
-            print("epoch: " + str(epoch))
-            for batch_idx, (data, label) in enumerate(self.train_loader):
-                data = data.to(self.vae.device).view(-1, 28 * 28)
-                label = label.to(self.vae.device)
-                self.train(train_step, data, label)
-                train_step += 1
+        step = 0
+        for epoch in tqdm(range(self.num_epochs)):
+            train_iter = iter(self.train_loader)
+            test_iter = iter(self.test_loader)
+            for episode in range(num_episodes):
 
-            plt.clf()
-            test_step = 0
-            for batch_idx, (data, label) in enumerate(self.test_loader):
-                data = data.to(self.vae.device).view(-1, 28 * 28)
-                label = label.to(self.vae.device)
-                self.test(epoch, test_step, axes, fig, data, label)
-                test_step += 1
+                train_data, train_label = train_iter.__next__()
+                self.train(
+                    step=step,
+                    data=train_data.to(self.vae.device).reshape(-1, 28 * 28),
+                    label=train_label.to(self.vae.device),
+                )
+
+                test_data, test_label = test_iter.__next__()
+                plt.clf()
+                self.test(
+                    epoch=epoch,
+                    step=step,
+                    data=test_data.to(self.vae.device).reshape(-1, 28 * 28),
+                    label=test_label.to(self.vae.device),
+                    fig=fig,
+                    axes=axes,
+                )
+
+                step += 1

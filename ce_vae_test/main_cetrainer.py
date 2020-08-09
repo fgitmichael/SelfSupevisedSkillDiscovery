@@ -40,24 +40,24 @@ train_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
 test_loader = torch.utils.data.DataLoader(
     datasets.MNIST('../data', train=False, transform=transforms.ToTensor()),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
+    batch_size=args.batch_size * 3, shuffle=True, **kwargs)
 
 cevae = MinVae(
     input_size=28 * 28,
     output_size=10,
     latent_dim=2,
-    hidden_sizes_dec=[],
+    hidden_sizes_dec=[5],
     device=device
 ).to(device)
 
 trainer = CeVaeTrainer(
     vae=cevae,
-    num_epochs=30,
+    num_epochs=300,
     train_loader=train_loader,
     test_loader=test_loader,
     writer=writer,
-    alpha=0.5,
-    lamda=0.5
+    alpha=0.95,
+    lamda=0.2
 )
 
 trainer.run()
