@@ -21,6 +21,7 @@ class CeVaeTrainer(object):
                  num_epochs,
                  train_loader,
                  test_loader,
+                 device,
                  writer: SummaryWriter,
                  alpha,
                  lamda):
@@ -35,6 +36,7 @@ class CeVaeTrainer(object):
         self.lamda  =lamda
 
         self.writer = writer
+        self.device = device
 
         self.optimizer = torch.optim.Adam(
             vae.parameters(),

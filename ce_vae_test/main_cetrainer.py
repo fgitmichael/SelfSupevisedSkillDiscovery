@@ -56,6 +56,7 @@ trainer = CeVaeTrainer(
     train_loader=train_loader,
     test_loader=test_loader,
     writer=writer,
+    device=device,
     alpha=0.95,
     lamda=0.2
 )
