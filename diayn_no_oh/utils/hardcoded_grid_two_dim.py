@@ -1,7 +1,5 @@
 import numpy as np
 
-import rlkit.torch.pytorch_util as ptu
-
 class NoohGridCreator(object):
     def __init__(self,
                  radius_factor=1,
