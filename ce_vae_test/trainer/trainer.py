@@ -25,16 +25,15 @@ class CeVaeTrainer(object):
                  writer: SummaryWriter,
                  alpha,
                  lamda):
-        self.vae = vae
         self.num_epochs = num_epochs
-        self.train_loader = train_loader
-        self.test_loader = test_loader
 
         self.ce_criterion = torch.nn.CrossEntropyLoss()
 
+        self.vae = vae
+        self.train_loader = train_loader
+        self.test_loader = test_loader
         self.alpha = alpha
         self.lamda  =lamda
-
         self.writer = writer
         self.device = device
 
