@@ -297,7 +297,6 @@ class DIAYNAlgoStepwiseSeqwiseRevisedTrainer(DIAYNStepWiseSeqWiseRnnTrainer):
             'obs_skills'
         )(policy_ret_dict)
 
-
         """
         QF Loss
         """
@@ -323,7 +322,6 @@ class DIAYNAlgoStepwiseSeqwiseRevisedTrainer(DIAYNStepWiseSeqWiseRnnTrainer):
             'q_target'
         )(qf_ret_dict)
 
-
         """
         Update networks
         """
@@ -339,7 +337,6 @@ class DIAYNAlgoStepwiseSeqwiseRevisedTrainer(DIAYNStepWiseSeqWiseRnnTrainer):
         Soft Updates
         """
         self._soft_updates()
-
 
         """
         Save some statistics for eval
