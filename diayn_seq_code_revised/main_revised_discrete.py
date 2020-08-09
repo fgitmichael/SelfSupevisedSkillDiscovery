@@ -38,8 +38,9 @@ def experiment(variant, args):
     action_dim = eval_env.action_space.low.size
 
     # Skill Grids
+    skill_repeat = 10
     nooh_grid_creator = NoohGridCreator(
-        repeat=10,
+        repeat=skill_repeat,
         radius_factor=1
     )
     get_no_oh_grid = nooh_grid_creator.get_grid
