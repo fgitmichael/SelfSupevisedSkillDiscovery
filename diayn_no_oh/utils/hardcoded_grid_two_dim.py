@@ -9,8 +9,8 @@ class NoohGridCreator(object):
 
     def get_grid(self) -> np.ndarray:
         # Hard coded for testing
-        radius_factor = 1
-        repeat = 10
+        radius_factor = self.radius_factor
+        repeat = self.repeat
 
         radius1 = 0.75 * radius_factor
         radius2 = 1. * radius_factor
