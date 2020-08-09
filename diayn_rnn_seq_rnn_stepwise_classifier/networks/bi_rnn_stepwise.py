@@ -55,20 +55,30 @@ class BiRnnStepwiseClassifier(BaseNetwork):
             self.pos_encoder = PositionalEncodingOh()
             input_size_classifier = minimal_input_size_classifier + seq_len
 
-        self.classifier = FlattenMlp(
+        self.classifier = self.create_classifier(
             input_size=input_size_classifier,
             output_size=output_size,
-            hidden_sizes=hidden_sizes,
+            hidden_sizes=hidden_sizes
         )
 
-    def _precess_seq(self, seq_batch):
+    def create_classifier(self,
+                          input_size,
+                          output_size,
+                          hidden_sizes):
+        return FlattenMlp(
+            input_size=input_size,
+            output_size=output_size,
+            hidden_sizes=hidden_sizes
+        )
+
+    def _process_seq(self, seq_batch):
         batch_dim = 0
         seq_dim = 1
         data_dim = -1
         batch_size = seq_batch.size(batch_dim)
         seq_len = seq_batch.size(seq_dim)
-        hidden_seq, h_n = self.rnn(seq_batch)
 
+        hidden_seq, h_n = self.rnn(seq_batch)
         assert hidden_seq.shape == torch.Size(
             (batch_size,
              seq_len,
@@ -112,7 +122,7 @@ class BiRnnStepwiseClassifier(BaseNetwork):
         """
         assert len(seq_batch.shape) == 3
 
-        hidden_seq, h_n = self._precess_seq(seq_batch)
+        hidden_seq, h_n = self._process_seq(seq_batch)
 
         classified = self._classify_seq_stepwise(hidden_seq)
 

@@ -396,6 +396,38 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
         policy_loss.backward()
         self.policy_optimizer.step()
 
+    def _calc_df_accuracy(self, z_hat, pred_z):
+        """
+        Args:
+            z_hat
+                step                : (N, S,)
+                seq                 : (N,)
+            pred_z
+                step                : (N, S,)
+                seq                 : (N,)
+        Return:
+            df_accuracy
+                step                : scalar
+                seq                 : scalar
+        """
+        assert z_hat['step'].shape == pred_z['step'].shape
+        assert z_hat['seq'].shape == pred_z['seq'].shape
+
+        df_accuracy_step = torch.sum(
+            torch.eq(
+                z_hat['step'],
+                pred_z['step'])).float()/pred_z['step'].view(-1, 1).size(0)
+
+        df_accuracy_seq = torch.sum(
+            torch.eq(
+                z_hat['seq'],
+                pred_z['seq'])).float()/pred_z['seq'].size(0)
+
+        return dict(
+            step=df_accuracy_step,
+            seq=df_accuracy_seq
+        )
+
     def _save_stats(self,
                     z_hat,
                     pred_z,
@@ -416,15 +448,12 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
         """
         Save some statistics for eval
         """
-        df_accuracy_step = torch.sum(
-            torch.eq(
-                z_hat['step'],
-                pred_z['step'])).float()/pred_z['step'].view(-1, 1).size(0)
-
-        df_accuracy_seq = torch.sum(
-            torch.eq(
-                z_hat['seq'],
-                pred_z['seq'])).float()/pred_z['seq'].size(0)
+        df_accuracy = self._calc_df_accuracy(
+            z_hat=z_hat,
+            pred_z=pred_z
+        )
+        df_accuracy_step = df_accuracy['step']
+        df_accuracy_seq = df_accuracy['seq']
 
         if self._need_to_update_eval_statistics:
             self._need_to_update_eval_statistics = False
