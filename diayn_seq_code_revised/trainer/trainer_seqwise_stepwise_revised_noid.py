@@ -158,7 +158,7 @@ class DIAYNAlgoStepwiseSeqwiseRevisedNoidTrainer(DIAYNAlgoStepwiseSeqwiseRevised
                 step=df_loss_step
             ),
             rewards=rewards,
-            pred_z=dict(
+            pred_skill=dict(
                 seq=pred_skill_seq,
                 step=pred_skill_step
             ),
