@@ -15,9 +15,6 @@ from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
 
-from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
-    BiRnnStepwiseSeqWiseClassifier
-
 from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills import \
     SeqCollectorRevisedDiscreteSkills
 from diayn_seq_code_revised.policies.skill_policy import \
@@ -25,8 +22,10 @@ from diayn_seq_code_revised.policies.skill_policy import \
 from diayn_seq_code_revised.algo.seqwise_algo_revised import \
     SeqwiseAlgoRevisedDiscreteSkills
 from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDiscrete
-from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
-    DIAYNAlgoStepwiseSeqwiseRevisedTrainer
+from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised_noid import \
+    DIAYNAlgoStepwiseSeqwiseRevisedNoidTrainer
+from diayn_seq_code_revised.networks.bi_rnn_stepwise_seqwise_noid import \
+    BiRnnStepwiseSeqwiseNoidClassifier
 
 from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCreator
 
@@ -38,7 +37,7 @@ def experiment(variant, args):
     action_dim = eval_env.action_space.low.size
 
     # Skill Grids
-    skill_repeat = 10
+    skill_repeat = 1
     nooh_grid_creator = NoohGridCreator(
         repeat=skill_repeat,
         radius_factor=1
@@ -49,7 +48,7 @@ def experiment(variant, args):
     get_oh_grid = oh_grid_creator.get_grid
 
     seq_len = 100
-    one_hot_skill_encoding = True
+    one_hot_skill_encoding = False
     skill_dim = args.skill_dim \
         if one_hot_skill_encoding \
         else get_no_oh_grid().shape[-1]
@@ -93,10 +92,9 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = BiRnnStepwiseSeqWiseClassifier(
+    df = BiRnnStepwiseSeqwiseNoidClassifier(
         input_size=obs_dim,
         output_size=skill_dim,
-        num_skills=num_skills,
         hidden_size_rnn=hidden_size_rnn,
         hidden_sizes=[M, M],
         seq_len=seq_len
@@ -135,7 +133,8 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
-    trainer = DIAYNAlgoStepwiseSeqwiseRevisedTrainer(
+    trainer = DIAYNAlgoStepwiseSeqwiseRevisedNoidTrainer(
+        num_skills=num_skills,
         env=eval_env,
         policy=policy,
         qf1=qf1,
