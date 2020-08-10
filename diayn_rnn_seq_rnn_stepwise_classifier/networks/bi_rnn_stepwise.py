@@ -87,7 +87,7 @@ class BiRnnStepwiseClassifier(BaseNetwork):
 
         return hidden_seq, h_n
 
-    def _classify_seq_stepwise(self, hidden_seq):
+    def _classify_stepwise(self, hidden_seq):
         batch_dim = 0
         seq_dim = 1
         data_dim = -1
@@ -124,7 +124,7 @@ class BiRnnStepwiseClassifier(BaseNetwork):
 
         hidden_seq, h_n = self._process_seq(seq_batch)
 
-        classified = self._classify_seq_stepwise(hidden_seq)
+        classified = self._classify_stepwise(hidden_seq)
 
         if return_rnn_outputs:
             return classified, hidden_seq, h_n

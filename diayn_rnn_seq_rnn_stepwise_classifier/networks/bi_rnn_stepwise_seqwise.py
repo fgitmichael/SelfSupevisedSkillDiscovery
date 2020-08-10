@@ -38,13 +38,13 @@ class BiRnnStepwiseSeqWiseClassifier(BiRnnStepwiseClassifier):
             hidden_sizes=hidden_sizes
         )
 
-    def _classify_seq_stepwise(self, hidden_seq):
+    def _classify_stepwise(self, hidden_seq):
         """
         This method classifies STEP(!)-wise
         Detach stepwise classification from the rnn calculation as rnn should only
         be optimized based on the seq classification
         """
-        out = super()._classify_seq_stepwise(hidden_seq.detach())
+        out = super()._classify_stepwise(hidden_seq.detach())
         return out
 
     def _classify_seq_seqwise(self, h_n):
