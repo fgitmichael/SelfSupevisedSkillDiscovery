@@ -95,6 +95,7 @@ class DIAYNAlgoStepwiseSeqwiseRevisedNoidTrainer(DIAYNAlgoStepwiseSeqwiseRevised
 
         # Rewards
         rewards = d_pred_step_dist.log_prob(skills)
+        rewards = torch.sum(rewards, dim=data_dim, keepdim=True)
         assert rewards.shape == torch.Size((batch_size, seq_len, 1))
 
         # Loss
