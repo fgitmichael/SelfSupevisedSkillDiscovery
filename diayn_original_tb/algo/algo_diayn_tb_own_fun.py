@@ -30,6 +30,8 @@ from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills
     SeqCollectorRevisedDiscreteSkills
 from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
     DIAYNAlgoStepwiseSeqwiseRevisedTrainer
+from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised_noid import \
+    DIAYNAlgoStepwiseSeqwiseRevisedNoidTrainer
 
 class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
@@ -163,6 +165,7 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                                   DIAYNStepWiseSeqWiseRnnTrainer,
                                   DIAYNTrainerSeqWise,
                                   DIAYNAlgoStepwiseSeqwiseRevisedTrainer,
+                                  DIAYNAlgoStepwiseSeqwiseRevisedNoidTrainer,
                                   DIAYNStepWiseRnnTrainer]:
             train_dict = dict(
                 rewards=train_data.reward,
