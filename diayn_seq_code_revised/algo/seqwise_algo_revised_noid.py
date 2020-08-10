@@ -17,10 +17,10 @@ class SeqwiseAlgoRevisedDiscreteSkillsNoid(SeqwiseAlgoRevisedDiscreteSkills):
             batch_size=batch_size
         )
 
-        skill_gt = ptu.from_numpy(batch.skill)
+        skill_gt = ptu.from_numpy(batch.mode)
         pred_skill_dist = self.trainer.df(ptu.from_numpy(batch.next_obs))
         assert pred_skill_dist.batch_shape[:-1] == torch.Size(
-            (batch_size, batch.next_obs.size(1))
+            (batch_size, batch.next_obs.shape[1])
         )
         assert pred_skill_dist.batch_shape[-1] == self.trainer.df.classifier.output_size
         assert pred_skill_dist.batch_shape == skill_gt.shape
