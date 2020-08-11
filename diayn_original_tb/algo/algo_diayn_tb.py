@@ -1,7 +1,6 @@
 import torch
 import torch.nn.functional as F
 from typing import List
-import gtimer as gt
 import numpy as np
 import gtimer as gt
 
