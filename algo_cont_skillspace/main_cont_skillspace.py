@@ -79,13 +79,7 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = BiRnnStepwiseSeqWiseClassifier(
-        input_size=obs_dim,
-        output_size=num_skills,
-        hidden_size_rnn=hidden_size_rnn,
-        hidden_sizes=[M, M],
-        seq_len=seq_len
-    )
+    # ------------> Put Classifier here!
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
         action_dim=action_dim,
@@ -93,28 +87,26 @@ def experiment(variant, args):
         hidden_sizes=[M, M],
     )
     eval_policy = MakeDeterministicRevised(policy)
-    skill_selector = SkillSelectorDiscrete(
-        get_skill_grid_fun=get_oh_grid if one_hot_skill_encoding else get_no_oh_grid
-    )
-    eval_path_collector = SeqCollectorRevisedDiscreteSkills(
+    # -------------> New skill selctor here
+    eval_path_collector = SeqCollectorRevised(
         eval_env,
         eval_policy,
         max_seqs=50,
         skill_selector=skill_selector
     )
-    expl_step_collector = SeqCollectorRevisedDiscreteSkills(
+    expl_step_collector = SeqCollectorRevised(
         expl_env,
         policy,
         max_seqs=50,
         skill_selector=skill_selector
     )
-    seq_eval_collector = SeqCollectorRevisedDiscreteSkills(
+    seq_eval_collector = SeqCollectorRevised(
         env=eval_env,
         policy=eval_policy,
         max_seqs = 50,
         skill_selector = skill_selector
     )
-    replay_buffer = SelfSupervisedEnvSequenceReplayBufferDiscreteSkills(
+    replay_buffer = SelfSupervisedEnvSequenceReplayBuffer(
         max_replay_buffer_size=variant['replay_buffer_size'],
         seq_len=seq_len,
         mode_dim=skill_dim,
@@ -141,7 +133,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = SeqwiseAlgoRevisedDiscreteSkills(
+    algorithm = SeqwiseAlgoRevised(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
