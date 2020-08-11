@@ -12,23 +12,24 @@ from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
-from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
-    SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
+
+from self_supervised.memory.self_sup_replay_buffer import \
+    SelfSupervisedEnvSequenceReplayBuffer
 
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
     BiRnnStepwiseSeqWiseClassifier
 
-from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills import \
-    SeqCollectorRevisedDiscreteSkills
 from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
 from diayn_seq_code_revised.algo.seqwise_algo_revised import \
-    SeqwiseAlgoRevisedDiscreteSkills
+    SeqwiseAlgoRevised
 from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDiscrete
-from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
-    DIAYNAlgoStepwiseSeqwiseRevisedTrainer
+from diayn_seq_code_revised.data_collector.seq_collector_revised import SeqCollectorRevised
+from diayn_seq_code_revised.networks.my_gaussian import ConstantGaussianMultiDim
 
-from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCreator
+from algo_cont_skillspace.trainer.cont_skill_trainer import ContSkillTrainer
+from algo_cont_skillspace.networks.rnn_vae_classifier import RnnVaeClassifierContSkills
+from algo_cont_skillspace.utils.info_loss import InfoLoss
 
 
 def experiment(variant, args):
