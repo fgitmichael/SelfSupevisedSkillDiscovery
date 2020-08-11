@@ -1,11 +1,20 @@
 from diayn_seq_code_revised.networks.bi_rnn_stepwise_seqwise_noid import \
     BiRnnStepwiseSeqwiseNoidClassifier
+from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise import \
     BiRnnStepwiseClassifier
 
 
 class RnnVaeClassifierContSkills(BiRnnStepwiseSeqwiseNoidClassifier):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.feature_decoder = Gaussian(
+            input_dim=self.classifier.output_size,
+            output_dim=2 * self.rnn.hidden_size,
+        )
 
     def forward(self,
                 seq_batch,
