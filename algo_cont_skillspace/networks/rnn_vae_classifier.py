@@ -24,6 +24,7 @@ class RnnVaeClassifierContSkills(BiRnnStepwiseSeqwiseNoidClassifier):
             seq_batch           : (N, S, data_dim)
         Return:
             classified_steps    : (N, S, num_skills)
+            feature_recon_dist  : (N, S, hidden_size_rnn)
             classified_seqs     : (N, num_skills)
             hidden_features_seq : (N, S, hidden_size_rnn)
 
@@ -39,25 +40,18 @@ class RnnVaeClassifierContSkills(BiRnnStepwiseSeqwiseNoidClassifier):
             return_rnn_outputs=True
         )
 
+        # Decode skill to feature (:= classified steps)
+        feature_recon_dist = self.feature_decoder(classified_steps)
+
         classified_seqs = self._classify_seq_seqwise(h_n)
 
         if train:
             return dict(
                 classified_steps=classified_steps,
+                feature_recon_dist=feature_recon_dist,
                 classified_seqs=classified_seqs,
                 hidden_features_seq=hidden_features_seq
             )
 
         else:
             return classified_steps
-
-
-
-
-
-
-
-
-
-
-
