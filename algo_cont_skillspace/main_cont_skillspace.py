@@ -38,23 +38,10 @@ def experiment(variant, args):
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-    # Skill Grids
-    skill_repeat = 10
-    nooh_grid_creator = NoohGridCreator(
-        repeat=skill_repeat,
-        radius_factor=1
-    )
-    get_no_oh_grid = nooh_grid_creator.get_grid
-
-    oh_grid_creator = OhGridCreator()
-    get_oh_grid = oh_grid_creator.get_grid
 
     seq_len = 100
     one_hot_skill_encoding = True
-    skill_dim = args.skill_dim \
-        if one_hot_skill_encoding \
-        else get_no_oh_grid().shape[-1]
-    num_skills = args.skill_dim
+    skill_dim = args.skill_dim
     hidden_size_rnn = 100
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
@@ -64,8 +51,6 @@ def experiment(variant, args):
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "seq wise step wise revised" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
-    if not one_hot_skill_encoding:
-        run_comment += "skill repeat: {}".format(skill_repeat) + sep_str
 
     seed = 0
     torch.manual_seed = seed
