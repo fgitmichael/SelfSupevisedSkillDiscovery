@@ -1,6 +1,8 @@
+import torch
 import torch.nn as nn
+from torch.distributions import Normal
 
-from code_slac.network.latent import Gaussian
+from code_slac.network.latent import Gaussian, ConstantGaussian
 from self_supervised.base.network.mlp import MyMlp
 
 
@@ -39,3 +41,13 @@ class MyGaussian(Gaussian):
         return _output_size
 
 
+class ConstantGaussianMultiDim(ConstantGaussian):
+
+    def forward(self, x):
+        mean = torch.zeros((*[x.shape[:-1]], self.output_dim)).to(x)
+        std = torch.ones((*[x.shape[:-1]], self.output_dim)).to(x) * self.std
+        return Normal(loc=mean, scale=std)
+
+    @property
+    def output_size(self):
+        return self.output_dim
