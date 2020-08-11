@@ -23,13 +23,15 @@ from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
 from diayn_seq_code_revised.algo.seqwise_algo_revised import \
     SeqwiseAlgoRevised
-from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDiscrete
 from diayn_seq_code_revised.data_collector.seq_collector_revised import SeqCollectorRevised
 from diayn_seq_code_revised.networks.my_gaussian import ConstantGaussianMultiDim
+from diayn_seq_code_revised.algo.seqwise_algo_revised import SeqwiseAlgoRevised
 
 from algo_cont_skillspace.trainer.cont_skill_trainer import ContSkillTrainer
 from algo_cont_skillspace.networks.rnn_vae_classifier import RnnVaeClassifierContSkills
 from algo_cont_skillspace.utils.info_loss import InfoLoss
+from algo_cont_skillspace.data_collector.skill_selector_cont_skills import \
+    SkillSelectorContinous
 
 
 def experiment(variant, args):
@@ -79,7 +81,13 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    # ------------> Put Classifier here!
+    df = RnnVaeClassifierContSkills(
+        input_size=obs_dim,
+        hidden_size_rnn=hidden_size_rnn,
+        output_size=skill_dim,
+        hidden_sizes=[M, M],
+        seq_len=seq_len
+    )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
         action_dim=action_dim,
@@ -87,7 +95,12 @@ def experiment(variant, args):
         hidden_sizes=[M, M],
     )
     eval_policy = MakeDeterministicRevised(policy)
-    # -------------> New skill selctor here
+    skill_prior = ConstantGaussianMultiDim(
+        output_dim=skill_dim
+    )
+    skill_selector = SkillSelectorContinous(
+        prior_skill_dist=skill_prior
+    )
     eval_path_collector = SeqCollectorRevised(
         eval_env,
         eval_policy,
@@ -112,7 +125,7 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
-    trainer = DIAYNAlgoStepwiseSeqwiseRevisedTrainer(
+    trainer = ContSkillTrainer(
         env=eval_env,
         policy=policy,
         qf1=qf1,
