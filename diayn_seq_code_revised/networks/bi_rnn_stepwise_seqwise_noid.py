@@ -1,7 +1,7 @@
 import torch
 
 from diayn_seq_code_revised.networks.my_gaussian \
-    import GaussianWrapper as Gaussian
+    import MyGaussian as Gaussian
 
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
     BiRnnStepwiseSeqWiseClassifier

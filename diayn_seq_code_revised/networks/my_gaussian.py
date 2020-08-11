@@ -3,7 +3,8 @@ import torch.nn as nn
 from code_slac.network.latent import Gaussian
 from self_supervised.base.network.mlp import MyMlp
 
-class GaussianWrapper(Gaussian):
+
+class MyGaussian(Gaussian):
 
     def __init__(self,
                  input_dim,
