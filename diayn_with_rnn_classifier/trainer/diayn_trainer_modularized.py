@@ -21,7 +21,6 @@ class DIAYNTrainerModularized(DIAYNTrainer):
         next_obs = batch['next_observations']
         skills = batch['skills']
 
-
         """
         DF Loss and Intrinsic Reward
         """
@@ -39,7 +38,6 @@ class DIAYNTrainerModularized(DIAYNTrainer):
             'pred_z',
             'z_hat',
         )(df_ret_dict)
-
 
         """
         Policy and Alpha Loss
@@ -66,7 +64,6 @@ class DIAYNTrainerModularized(DIAYNTrainer):
             'log_pi',
             'obs_skills'
         )(policy_ret_dict)
-
 
         """
         QF Loss
@@ -104,12 +101,10 @@ class DIAYNTrainerModularized(DIAYNTrainer):
             policy_loss=policy_loss
         )
 
-
         """
         Soft Updates
         """
         self._soft_updates()
-
 
         """
         Save some statistics for eval

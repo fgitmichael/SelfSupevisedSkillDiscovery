@@ -11,7 +11,7 @@ class MyGaussian(Gaussian):
     def __init__(self,
                  input_dim,
                  output_dim,
-                 hidden_units,
+                 hidden_units=None,
                  std=None,
                  leaky_slope=0.2):
         super().__init__(
