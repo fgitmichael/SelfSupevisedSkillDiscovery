@@ -3,10 +3,10 @@ import numpy as np
 import torch.nn.functional as F
 
 from diayn_seq_code_revised.algo.seqwise_algo_revised import \
-    SeqwiseAlgoRevisedDiscreteSkills
+    SeqwiseAlgoRevised
 import rlkit.torch.pytorch_util as ptu
 
-class SeqwiseAlgoRevisedDiscreteSkillsNoid(SeqwiseAlgoRevisedDiscreteSkills):
+class SeqwiseAlgoRevisedDiscreteSkillsNoid(SeqwiseAlgoRevised):
 
     @torch.no_grad()
     def _classfier_perf_on_memory(self):

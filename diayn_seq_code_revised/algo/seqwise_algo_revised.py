@@ -16,9 +16,6 @@ class SeqwiseAlgoRevised(SeqWiseAlgoClassfierPerfLogging):
     def set_next_skill(self, data_collector: SeqCollectorRevisedDiscreteSkills):
         data_collector.skill_reset()
 
-
-class SeqwiseAlgoRevisedDiscreteSkills(SeqwiseAlgoRevised):
-
     def _get_paths_mode_influence_test(self,
                                        num_paths=1,
                                        seq_len=200) \

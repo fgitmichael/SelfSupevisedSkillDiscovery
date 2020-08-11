@@ -23,7 +23,7 @@ from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills
 from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
 from diayn_seq_code_revised.algo.seqwise_algo_revised import \
-    SeqwiseAlgoRevisedDiscreteSkills
+    SeqwiseAlgoRevised
 from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDiscrete
 from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
     DIAYNAlgoStepwiseSeqwiseRevisedTrainer
@@ -155,7 +155,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = SeqwiseAlgoRevisedDiscreteSkills(
+    algorithm = SeqwiseAlgoRevised(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
