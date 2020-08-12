@@ -150,7 +150,7 @@ class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
         assert hidden_feature_seq.shape == torch.Size(
             (batch_size,
              seq_len,
-             skill_dim))
+             2 * self.df.rnn.hidden_size))
         assert post_skills.batch_shape == skills.shape
         assert hidden_feature_seq.shape == recon_feature_seq.batch_shape
 
