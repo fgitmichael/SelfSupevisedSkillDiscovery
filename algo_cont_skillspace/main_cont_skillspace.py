@@ -104,19 +104,19 @@ def experiment(variant, args):
     skill_selector = SkillSelectorContinous(
         prior_skill_dist=skill_prior
     )
-    eval_path_collector = SeqCollectorRevised(
+    eval_path_collector = SeqCollectorRevisedOptionalSkillId(
         eval_env,
         eval_policy,
         max_seqs=50,
         skill_selector=skill_selector
     )
-    expl_step_collector = SeqCollectorRevised(
+    expl_step_collector = SeqCollectorRevisedOptionalSkillId(
         expl_env,
         policy,
         max_seqs=50,
         skill_selector=skill_selector
     )
-    seq_eval_collector = SeqCollectorRevised(
+    seq_eval_collector = SeqCollectorRevisedOptionalSkillId(
         env=eval_env,
         policy=eval_policy,
         max_seqs = 50,
