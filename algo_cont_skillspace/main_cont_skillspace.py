@@ -128,6 +128,10 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
+    info_loss_fun = InfoLoss(
+        alpha=0.999,
+        lamda=0.22
+    ).loss
     trainer = ContSkillTrainer(
         env=eval_env,
         policy=policy,
