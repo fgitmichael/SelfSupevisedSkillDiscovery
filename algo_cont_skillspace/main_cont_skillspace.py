@@ -44,7 +44,8 @@ def experiment(variant, args):
 
     seq_len = 100
     one_hot_skill_encoding = True
-    skill_dim = args.skill_dim
+    #skill_dim = args.skill_dim
+    skill_dim = 2
     hidden_size_rnn = 100
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
