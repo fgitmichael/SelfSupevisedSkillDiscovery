@@ -70,6 +70,30 @@ class MyWriter(WriterBase):
             global_step=step,
         )
 
+    def scatter(self,
+                *args,
+                tb_str: str,
+                step: int,
+                labels: Union[List[str], str]=None,
+                x_lim=None,
+                y_lim=None,
+                **kwargs
+                ):
+        fig = self.plt_creator.scatter(
+            *args,
+            tb_str=tb_str,
+            labels=labels,
+            x_lim=x_lim,
+            y_lim=y_lim,
+            **kwargs
+        )
+
+        self.writer.add_figure(
+            tag=tb_str,
+            figure=fig,
+            global_step=step,
+        )
+
     def plot_lines(self,
                    legend_str: Union[str, List[str]],
                    tb_str: str,
