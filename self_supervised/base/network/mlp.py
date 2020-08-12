@@ -13,10 +13,13 @@ class MyMlp(BaseNetwork):
                  output_size: int,
                  initializer=weights_init_xavier,
                  hidden_activation=torch.nn.ReLU(),
-                 hidden_sizes: Union[list, tuple] = (256, 256),
+                 hidden_sizes: Union[list, tuple] = None,
                  output_activation=None,
                  layer_norm: bool = False):
         super(MyMlp, self).__init__()
+
+        if hidden_sizes is None:
+            hidden_sizes = (256, 256)
 
         self.input_size = input_size
         self.output_size = output_size
