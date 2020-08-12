@@ -133,6 +133,8 @@ def experiment(variant, args):
         lamda=0.22
     ).loss
     trainer = ContSkillTrainer(
+        skill_prior_dist=skill_prior,
+        loss_fun=info_loss_fun,
         env=eval_env,
         policy=policy,
         qf1=qf1,
