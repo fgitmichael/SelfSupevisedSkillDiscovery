@@ -1,5 +1,7 @@
 import torch
 from torch import nn
+from torch import distributions as torch_dist
+from itertools import chain
 import math
 import numpy as np
 from torch.nn import functional as F
@@ -10,6 +12,7 @@ from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
 from diayn_seq_code_revised.networks.my_gaussian import ConstantGaussianMultiDim
 
 from algo_cont_skillspace.utils.info_loss import InfoLoss
+from algo_cont_skillspace.networks.rnn_vae_classifier import RnnVaeClassifierContSkills
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.core.eval_util import create_stats_ordered_dict
@@ -21,6 +24,8 @@ class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
                  *args,
                  skill_prior_dist: ConstantGaussianMultiDim,
                  loss_fun: InfoLoss.loss,
+                 optimizer_class=torch.optim.Adam,
+                 df_lr=1e-3,
                  **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -29,6 +34,16 @@ class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
 
         # Overwrite Criterion
         self.df_criterion = nn.MSELoss()
+
+        # Overwrite Optimizer
+        assert isinstance(self.df, RnnVaeClassifierContSkills)
+        self.df_optimizer_step = optimizer_class(
+            chain(
+                self.df.classifier.parameters(),
+                self.df.feature_decoder.parameters(),
+            ),
+            lr=df_lr
+        )
 
     @property
     def num_skills(self):
