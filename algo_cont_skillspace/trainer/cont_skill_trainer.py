@@ -193,7 +193,47 @@ class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
         return dict(
             df_loss=info_loss,
             rewards=rewards,
-            df_loss_logging=log_dict
+            log_dict=log_dict
+        )
+
+    def reshape_normal(self, normal: torch_dist.Normal) -> torch_dist.Normal:
+        """
+        Args:
+            normal          : (N, S, data_dim)
+        Return:
+            normal          : (N * S, data_dim)
+        """
+        if not normal.loc.is_contiguous():
+            loc = normal.loc.contiguous()
+        else:
+            loc = normal.loc
+
+        if not normal.scale.is_contiguous():
+            scale = normal.scale.contiguous()
+        else:
+            scale = normal.scale
+
+        batch_dim = 0
+        seq_dim = 1
+        data_dim = -1
+        batch_size = normal.batch_shape[batch_dim]
+        seq_len = normal.batch_shape[seq_dim]
+        data_size = normal.batch_shape[data_dim]
+
+        assert my_ptu.tensor_equality(loc.view(batch_size * seq_len,
+                                               data_size)[:seq_len],
+                                      loc[0, :, :])
+        assert my_ptu.tensor_equality(scale.view(batch_size * seq_len,
+                                                 data_size)[:seq_len],
+                                      scale[0, :, :])
+
+        # Reshape/View
+        loc_reshaped = normal.loc.view(batch_size * seq_len, data_size)
+        scale_reshaped = normal.scale.view(batch_size * seq_len, data_size)
+
+        return torch_dist.Normal(
+            loc=loc_reshaped,
+            scale=scale_reshaped
         )
 
     def _df_loss_seq(self,
