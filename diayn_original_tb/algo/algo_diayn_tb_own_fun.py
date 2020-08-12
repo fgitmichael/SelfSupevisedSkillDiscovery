@@ -5,6 +5,8 @@ from typing import Union
 from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
+from self_supervised.memory.self_sup_replay_buffer import \
+    SelfSupervisedEnvSequenceReplayBuffer
 import self_supervised.utils.typed_dicts as td
 
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
@@ -33,6 +35,8 @@ from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
 from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised_noid import \
     DIAYNAlgoStepwiseSeqwiseRevisedNoidTrainer
 
+from algo_cont_skillspace.trainer.cont_skill_trainer import ContSkillTrainer
+
 class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
     def __init__(self,
@@ -53,7 +57,9 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                      SeqCollectorRevised,
                      SeqCollectorRevisedDiscreteSkills
                  ],
-                 replay_buffer: SelfSupervisedEnvSequenceReplayBufferDiscreteSkills,
+                 replay_buffer: Union[
+                     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills,
+                     SelfSupervisedEnvSequenceReplayBuffer],
 
                  seq_len,
                  diagnostic_writer: DiagnosticsWriter,
@@ -166,6 +172,7 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                                   DIAYNTrainerSeqWise,
                                   DIAYNAlgoStepwiseSeqwiseRevisedTrainer,
                                   DIAYNAlgoStepwiseSeqwiseRevisedNoidTrainer,
+                                  ContSkillTrainer,
                                   DIAYNStepWiseRnnTrainer]:
             train_dict = dict(
                 rewards=train_data.reward,
