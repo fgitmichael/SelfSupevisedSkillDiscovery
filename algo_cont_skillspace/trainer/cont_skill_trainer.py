@@ -159,18 +159,27 @@ class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
         rewards = torch.sum(rewards, dim=data_dim, keepdim=True)
         assert rewards.shape == torch.Size((batch_size, seq_len, 1))
 
-        # Loss
+        # Reshape Dist
+        pri_dist = self.reshape_normal(self.skill_prior(hidden_feature_seq))
+        assert len(pri_dist.batch_shape) == 2
         pri = dict(
-            dist=self.skill_prior(hidden_feature_seq),
-            sample=self.skill_prior.sample(),
+            dist=pri_dist,
+            sample=pri_dist.sample()
         )
+
+        # Reshape Dist
+        post_dist = self.reshape_normal(post_skills)
         post = dict(
-            dist=post_skills,
-            sample=post_skills.rsample()
+            dist=post_dist,
+            sample=post_dist.rsample()
         )
+
+        # Reshape Dist
+        recon_feature_seq_dist = self.reshape_normal(recon_feature_seq)
+        assert len(recon_feature_seq_dist.batch_shape) == 2
         recon = dict(
-            dist=recon_feature_seq,
-            sample=recon_feature_seq.loc,
+            dist=recon_feature_seq_dist,
+            sample=recon_feature_seq_dist.loc,
         )
         info_loss, log_dict = self.loss_fun(
             pri=pri,
