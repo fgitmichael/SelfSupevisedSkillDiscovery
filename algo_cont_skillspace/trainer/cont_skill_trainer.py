@@ -17,6 +17,8 @@ from algo_cont_skillspace.networks.rnn_vae_classifier import RnnVaeClassifierCon
 import rlkit.torch.pytorch_util as ptu
 from rlkit.core.eval_util import create_stats_ordered_dict
 
+import self_supervised.utils.my_pytorch_util as my_ptu
+
 
 class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
 
