@@ -23,15 +23,15 @@ from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
 from diayn_seq_code_revised.networks.my_gaussian import \
     ConstantGaussianMultiDim
-from algo_cont_skillspace.algo.algo_cont_skillspace import SeqwiseAlgoRevisedContSkills
+from cont_skillspace.algo.algo_cont_skillspace import SeqwiseAlgoRevisedContSkills
 
-from algo_cont_skillspace.trainer.cont_skill_trainer import ContSkillTrainer
-from algo_cont_skillspace.networks.rnn_vae_classifier import \
+from cont_skillspace.trainer.cont_skill_trainer import ContSkillTrainer
+from cont_skillspace.networks.rnn_vae_classifier import \
     RnnVaeClassifierContSkills
-from algo_cont_skillspace.utils.info_loss import InfoLoss
-from algo_cont_skillspace.data_collector.skill_selector_cont_skills import \
+from cont_skillspace.utils.info_loss import InfoLoss
+from cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
-from algo_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
+from cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
 
 

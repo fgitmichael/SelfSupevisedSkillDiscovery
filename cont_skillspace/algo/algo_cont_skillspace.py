@@ -8,9 +8,9 @@ from diayn_seq_code_revised.algo.seqwise_algo_revised import SeqwiseAlgoRevised
 from self_supervised.utils import typed_dicts as td
 from self_supervised.base.replay_buffer.env_replay_buffer import NormalSequenceReplayBuffer
 
-from algo_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
+from cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
-from algo_cont_skillspace.networks.rnn_vae_classifier import RnnVaeClassifierContSkills
+from cont_skillspace.networks.rnn_vae_classifier import RnnVaeClassifierContSkills
 
 import rlkit.torch.pytorch_util as ptu
 

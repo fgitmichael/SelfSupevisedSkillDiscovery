@@ -35,7 +35,7 @@ from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
 from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised_noid import \
     DIAYNAlgoStepwiseSeqwiseRevisedNoidTrainer
 
-from algo_cont_skillspace.trainer.cont_skill_trainer import ContSkillTrainer
+from cont_skillspace.trainer.cont_skill_trainer import ContSkillTrainer
 
 class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
