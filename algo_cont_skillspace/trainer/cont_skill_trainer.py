@@ -82,11 +82,11 @@ class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
         )
         df_loss_seq = itemgetter(
             'df_loss',
-        )
+        )(ret_dict_seq)
 
         # Step Loss and rewards
         loss_calc_values = dict(
-            hidden_features_seq=hidden_features_seq,
+            hidden_feature_seq=hidden_features_seq,
             recon_feature_seq=feature_recon_dist,
             post_skills=classified_steps
         )
