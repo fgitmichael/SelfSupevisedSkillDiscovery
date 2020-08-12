@@ -22,14 +22,14 @@ class InfoLoss:
         """
         Args:
             pri
-                dist                : (N, ..., latent_dim) distribution
-                sample              : (N, ..., latent_dim) samples
+                dist                : (N, latent_dim) distribution
+                sample              : (N, latent_dim) samples
             post
-                dist                : (N, ..., latent_dim) distribution
-                sample              : (N, ..., latent_dim) samples
+                dist                : (N, latent_dim) distribution
+                sample              : (N, latent_dim) samples
             recon
-                dist                : (N, ..., data_dim) distribution
-                sample              : (N, ..., data_dim) samples
+                dist                : (N, data_dim) distribution
+                sample              : (N, data_dim) samples
                                       (for gaussians typically loc instead of samples)
             data                    : (N, ..., data_dim) tensor of original data
 
@@ -50,13 +50,22 @@ class InfoLoss:
         if sample_key is None:
             sample_key = 'sample'
 
+        if not data.is_contiguous():
+            data = data.contiguous()
+        data = data.view(-1, data.size(-1))
+        assert data.shape == recon[dist_key].batch_shape
+
         batch_dim = 0
+        assert pri[dist_key].batch_shape \
+               == pri[sample_key].shape \
+               == post[dist_key].batch_shape \
+               == post[sample_key].shape
+        assert len(pri[dist_key].batch_shape) == 2
         batch_size = post[dist_key].batch_shape[batch_dim]
         assert pri[dist_key].batch_shape == post[dist_key].batch_shape
 
         assert recon[dist_key].batch_shape \
                == recon[sample_key].shape \
-               == data.shape
 
         kld = calc_kl_divergence([post[dist_key]],
                                  [pri[dist_key]])
