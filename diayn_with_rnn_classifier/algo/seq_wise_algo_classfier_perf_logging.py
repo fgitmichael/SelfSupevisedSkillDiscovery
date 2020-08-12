@@ -17,13 +17,14 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
     def _end_epoch(self, epoch):
         super()._end_epoch(epoch)
 
-        classfier_accuracy_memory = self._classfier_perf_on_memory()
-        self.diagnostic_writer.writer.writer.add_scalar(
-            tag="Rnn Debug/Classfier accuracy replay buffer",
-            scalar_value=classfier_accuracy_memory,
-            global_step=epoch
-        )
+        self._log_perf_memory(epoch)
+        self._log_perf_eval(epoch)
+        gt.stamp("own classfier perf logging")
 
+        self._log_net_param_hist(epoch)
+        gt.stamp("net parameter histogram logging")
+
+    def _log_perf_eval(self, epoch):
         classfier_accuracy_eval = self._classfier_perf_eval()
         self.diagnostic_writer.writer.writer.add_scalar(
             tag="Rnn Debug/Classfier accuracy eval",
@@ -31,10 +32,13 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
             global_step=epoch
         )
 
-        gt.stamp("own classfier perf logging")
-
-        self._log_net_param_hist(epoch)
-        gt.stamp("net parameter histogram logging")
+    def _log_perf_memory(self, epoch):
+        classfier_accuracy_memory = self._classfier_perf_on_memory()
+        self.diagnostic_writer.writer.writer.add_scalar(
+            tag="Rnn Debug/Classfier accuracy replay buffer",
+            scalar_value=classfier_accuracy_memory,
+            global_step=epoch
+        )
 
     @torch.no_grad()
     def _classfier_perf_eval(self):
