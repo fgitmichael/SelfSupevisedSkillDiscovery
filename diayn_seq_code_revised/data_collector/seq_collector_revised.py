@@ -143,7 +143,10 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
                    == path.next_obs.shape[batch_dim] \
                    == path.mode.shape[batch_dim]
 
-    def get_epoch_paths(self) -> List[td.TransitionModeMapping]:
+    def get_epoch_paths(self) \
+            -> Union[
+                List[td.TransitionModeMapping],
+                List[td.TransitonModeMappingDiscreteSkills]]:
         """
         Return:
             list of TransistionMapping consisting of (S, data_dim) np.ndarrays
