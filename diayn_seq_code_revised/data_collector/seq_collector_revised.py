@@ -82,7 +82,7 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
             self,
             seq_len,
             num_seqs,
-            discard_incomplete_paths,
+            discard_incomplete_paths=None,
     ):
         paths = self._collect_new_paths(
             seq_len=seq_len,
