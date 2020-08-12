@@ -3,6 +3,7 @@ from torch.nn import functional as F
 import numpy as np
 import gtimer as gt
 
+from self_supervised.base.replay_buffer.env_replay_buffer import NormalSequenceReplayBuffer
 
 from diayn_original_tb.algo.algo_diayn_tb_own_fun import \
     DIAYNTorchOnlineRLAlgorithmOwnFun
@@ -87,6 +88,7 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
         len_memory = self.batch_size
 
         batch_size = len_memory
+        assert isinstance(self.replay_buffer, NormalSequenceReplayBuffer)
         batch = self.replay_buffer.random_batch_bsd_format(
             batch_size=batch_size)
 
