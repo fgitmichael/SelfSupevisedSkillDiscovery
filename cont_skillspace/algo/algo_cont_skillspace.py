@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
 from torch.nn import functional as F
 from typing import List
 
@@ -56,9 +57,7 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
 
     @torch.no_grad()
     def _classfier_perf_on_memory(self):
-        len_memory = self.batch_size
-
-        batch_size = len_memory
+        batch_size = self.batch_size
 
         assert isinstance(self.replay_buffer, NormalSequenceReplayBuffer)
         batch = self.replay_buffer.random_batch_bsd_format(
