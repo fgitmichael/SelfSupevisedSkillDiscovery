@@ -8,12 +8,16 @@ from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise import \
 
 class RnnVaeClassifierContSkills(BiRnnStepwiseSeqwiseNoidClassifier):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self,
+                 *args,
+                 feature_decode_hidden_size=(256, 256),
+                 **kwargs):
         super().__init__(*args, **kwargs)
 
         self.feature_decoder = Gaussian(
             input_dim=self.classifier.output_size,
             output_dim=2 * self.rnn.hidden_size,
+            hidden_units=feature_decode_hidden_size
         )
 
     def forward(self,
@@ -32,6 +36,7 @@ class RnnVaeClassifierContSkills(BiRnnStepwiseSeqwiseNoidClassifier):
         """
         assert len(seq_batch.shape) == 3
 
+        # Call higher base method to get hidden features seq
         classified_steps, \
         hidden_features_seq, \
         h_n = BiRnnStepwiseClassifier.forward(
@@ -41,7 +46,7 @@ class RnnVaeClassifierContSkills(BiRnnStepwiseSeqwiseNoidClassifier):
         )
 
         # Decode skill to feature (:= classified steps)
-        feature_recon_dist = self.feature_decoder(classified_steps)
+        feature_recon_dist = self.feature_decoder(classified_steps.rsample())
 
         classified_seqs = self._classify_seq_seqwise(h_n)
 
