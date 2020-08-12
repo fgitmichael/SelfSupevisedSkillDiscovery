@@ -469,14 +469,14 @@ class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
                 'Q2 Predictions',
                 ptu.get_numpy(q2_pred),
             ))
-            self.eval_statistics.update(create_stats_ordered_dict(
-                'D Predictions Step',
-                ptu.get_numpy(pred_z['step']),
-            ))
-            self.eval_statistics.update(create_stats_ordered_dict(
-                'D Predictions Seq',
-                ptu.get_numpy(pred_z['seq']),
-            ))
+            #self.eval_statistics.update(create_stats_ordered_dict(
+            #    'D Predictions Step',
+            #    ptu.get_numpy(pred_z['step']),
+            #))
+            #self.eval_statistics.update(create_stats_ordered_dict(
+            #    'D Predictions Seq',
+            #    ptu.get_numpy(pred_z['seq']),
+            #))
             self.eval_statistics.update(create_stats_ordered_dict(
                 'Q Targets',
                 ptu.get_numpy(q_target),
