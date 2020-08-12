@@ -84,3 +84,23 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
             paths_with_skill_id.append(with_skill_id)
 
         self._epoch_paths.extend(paths_with_skill_id)
+
+    def get_epoch_paths(self) -> List[td.TransitonModeMappingDiscreteSkills]:
+        """
+        Return:
+            list of TransistionMapping consisting of (S, data_dim) np.ndarrays
+
+        Only change to base: return typehint changed to discrete skills
+        """
+        assert len(self._epoch_paths) > 0
+
+        epoch_paths = list(self._epoch_paths)
+
+        for idx, path in enumerate(epoch_paths):
+            assert len(path.obs.shape) == 2
+            epoch_paths[idx] = path.transpose(1, 0)
+
+        self.reset()
+
+        return epoch_paths
+
