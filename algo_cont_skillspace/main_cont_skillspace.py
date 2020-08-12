@@ -155,7 +155,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = SeqwiseAlgoRevised(
+    algorithm = SeqwiseAlgoRevisedContSkills(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
