@@ -77,7 +77,7 @@ class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
 
         # Sequence Classification Loss
         ret_dict_seq = self._df_loss_seq(
-            d_pred_per_seq=classified_seqs,
+            pred_skills_seq=classified_seqs,
             skills=skills
         )
         df_loss_seq = itemgetter(
@@ -237,11 +237,11 @@ class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
         )
 
     def _df_loss_seq(self,
-                     d_pred_per_seq,
+                     pred_skills_seq,
                      skills):
         """
         Args:
-            d_pred_per_seq      : (N, skill_dim) predicted skills per seq
+            pred_skills_seq     : (N, skill_dim) predicted skills per seq
             skills              : (N, S, skill_dim) ground truth skills seq
         Return:
             df_loss_seq         : scalar tensor
@@ -255,18 +255,18 @@ class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
         seq_len = skills.size(seq_dim)
         skill_dim = skills.size(data_dim)
 
-        assert d_pred_per_seq.batch_shape == torch.Size(
+        assert pred_skills_seq.shape == torch.Size(
             (batch_size,
              skill_dim)
         )
 
         skills_per_seq_gt = skills[:, 0, :]
         assert skills_per_seq_gt.shape == torch.Size((batch_size, skill_dim))
-        assert torch.stack([skills_per_seq_gt] * seq_len, dim=seq_dim) == skills
+        assert my_ptu.tensor_equality(torch.stack([skills_per_seq_gt] * seq_len, dim=seq_dim), skills)
 
         # Apply MSE Loss
         df_seq_loss = self.df_criterion(
-            d_pred_per_seq,
+            pred_skills_seq,
             skills_per_seq_gt
         )
 
@@ -284,7 +284,6 @@ class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
         actions = batch['actions']
         next_obs = batch['next_observations']
         skills = batch['skills']
-        skills_id = batch['skills_id'].long()
 
         assert terminals.shape[:-1] \
                == obs.shape[:-1] \
