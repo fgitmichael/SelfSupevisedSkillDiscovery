@@ -88,6 +88,7 @@ def experiment(variant, args):
         hidden_size_rnn=hidden_size_rnn,
         output_size=skill_dim,
         hidden_sizes=[M, M],
+        feature_decode_hidden_size=[M, M],
         seq_len=seq_len
     )
     policy = SkillTanhGaussianPolicyRevised(
