@@ -44,8 +44,8 @@ class MyGaussian(Gaussian):
 class ConstantGaussianMultiDim(ConstantGaussian):
 
     def forward(self, x):
-        mean = torch.zeros((*[x.shape[:-1]], self.output_dim)).to(x)
-        std = torch.ones((*[x.shape[:-1]], self.output_dim)).to(x) * self.std
+        mean = torch.zeros((*x.shape[:-1], self.output_dim)).to(x)
+        std = torch.ones((*x.shape[:-1], self.output_dim)).to(x) * self.std
         return Normal(loc=mean, scale=std)
 
     @property
