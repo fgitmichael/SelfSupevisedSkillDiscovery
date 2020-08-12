@@ -7,13 +7,15 @@ from diayn_with_rnn_classifier.algo.seq_wise_algo_classfier_perf_logging import 
 
 from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills import \
     SeqCollectorRevisedDiscreteSkills
+from diayn_seq_code_revised.data_collector.seq_collector_revised import \
+    SeqCollectorRevised
 
 import self_supervised.utils.typed_dicts as td
 
 
 class SeqwiseAlgoRevised(SeqWiseAlgoClassfierPerfLogging):
 
-    def set_next_skill(self, data_collector: SeqCollectorRevisedDiscreteSkills):
+    def set_next_skill(self, data_collector: SeqCollectorRevised):
         data_collector.skill_reset()
 
 
@@ -23,6 +25,7 @@ class SeqwiseAlgoRevisedDiscreteSkills(SeqwiseAlgoRevised):
                                        num_paths=1,
                                        seq_len=200) \
             -> List[td.TransitonModeMappingDiscreteSkills]:
+        assert isinstance(self.seq_eval_collector, SeqCollectorRevisedDiscreteSkills)
 
         for id, skill in enumerate(
                 self.seq_eval_collector.skill_selector.get_skill_grid()):
