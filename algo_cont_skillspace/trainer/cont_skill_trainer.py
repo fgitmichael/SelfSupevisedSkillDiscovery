@@ -181,11 +181,13 @@ class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
             dist=recon_feature_seq_dist,
             sample=recon_feature_seq_dist.loc,
         )
+
+        # Loss Calculation
         info_loss, log_dict = self.loss_fun(
             pri=pri,
             post=post,
             recon=recon,
-            data=hidden_feature_seq
+            data=hidden_feature_seq.detach()
         )
 
         return dict(
