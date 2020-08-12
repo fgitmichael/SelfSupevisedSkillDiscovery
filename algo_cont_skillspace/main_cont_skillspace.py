@@ -53,7 +53,7 @@ def experiment(variant, args):
     run_comment = sep_str
     run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
-    run_comment += "seq wise step wise revised" + sep_str
+    run_comment += "continous skill space" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
 
     seed = 0
