@@ -3,7 +3,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torch.nn import functional as F
 from tqdm import tqdm
 
-from ce_vae_test.networks.ce_vae import MinVae
+from ce_vae_test.networks.min_vae import MinVae
 
 from mode_disent.utils.mmd import compute_mmd_tutorial
 from code_slac.utils import calc_kl_divergence
@@ -218,3 +218,5 @@ class CeVaeTrainer(object):
                 )
 
                 step += 1
+
+
