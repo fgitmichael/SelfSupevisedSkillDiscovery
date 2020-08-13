@@ -127,12 +127,12 @@ class CeVaeTrainer(object):
 
         return info_loss
 
-    def log(self, epoch, to_log: dict):
+    def log(self, step, to_log: dict):
         for key, el in to_log.items():
             self.writer.add_scalar(
                 tag=key,
                 scalar_value=el,
-                global_step=epoch
+                global_step=step
             )
 
     def train(self, step, data, label):
@@ -141,13 +141,13 @@ class CeVaeTrainer(object):
         update_params(self.optimizer, self.vae, loss)
 
     @torch.no_grad()
-    def test(self, epoch, step, axes, fig, data, label):
+    def test(self, epoch, step, data, label):
         self.vae.train(False)
         forward_return_dict = self.vae(data)
         latent_post = forward_return_dict['latent_post']
         score = forward_return_dict['recon']
 
-        self.write_mode_map(epoch, step, axes, fig, latent_post, label)
+        self.write_mode_map(epoch, step, latent_post, label)
 
         self.write_accuracy(step, score, label)
 
@@ -164,12 +164,14 @@ class CeVaeTrainer(object):
 
         return accuracy
 
-    def write_mode_map(self, epoch, step, axes, fig, latent_post, label):
+    def write_mode_map(self, epoch, step, latent_post, label):
         mu = latent_post['sample']
         assert mu.shape[-1] == 2
 
         colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k',
                   'darkorange', 'gray', 'lightgreen']
+
+        fig, axes = plt.subplots()
 
         lim = [-3., 3.]
         axes.set_ylim(lim)
@@ -185,36 +187,35 @@ class CeVaeTrainer(object):
         #axes.legend()
         axes.grid(True)
         self.writer.add_figure(
-            tag='epoch{}/mode_map'.format(epoch),
-            figure=fig,
-            global_step=step
+            tag='mode_map'.format(epoch),
+            figure=plt.gcf(),
+            global_step=epoch
         )
 
+        plt.close()
+
+
+
     def run(self):
-        num_episodes = 10
-        fig, axes = plt.subplots()
+        num_episodes = 20
         step = 0
         for epoch in tqdm(range(self.num_epochs)):
-            train_iter = iter(self.train_loader)
-            test_iter = iter(self.test_loader)
             for episode in range(num_episodes):
 
-                train_data, train_label = train_iter.__next__()
+                train_data, train_label = self.train_loader.sample()
                 self.train(
                     step=step,
                     data=train_data.to(self.vae.device).reshape(-1, 28 * 28),
                     label=train_label.to(self.vae.device),
                 )
-
-                test_data, test_label = test_iter.__next__()
-                plt.clf()
-                self.test(
-                    epoch=epoch,
-                    step=step,
-                    data=test_data.to(self.vae.device).reshape(-1, 28 * 28),
-                    label=test_label.to(self.vae.device),
-                    fig=fig,
-                    axes=axes,
-                )
-
                 step += 1
+
+            test_data, test_label = self.test_loader.sample()
+
+            self.test(
+                epoch=epoch,
+                step=step,
+                data=test_data.to(self.vae.device).reshape(-1, 28 * 28),
+                label=test_label.to(self.vae.device),
+            )
+

@@ -11,7 +11,6 @@ from torch.utils.tensorboard import SummaryWriter
 
 from ce_vae_test.networks.min_vae import MinVae
 from ce_vae_test.trainer.ce_trainer import CeVaeTrainer
-from ce_vae_test.sampler.dataset_sampler import SamplerDatasetWithReplacement
 
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
@@ -32,22 +31,16 @@ torch.manual_seed(args.seed)
 
 device = torch.device("cuda" if args.cuda else "cpu")
 
-writer = SummaryWriter()
+writer = SummaryWriter(comment='orig')
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
-train_sampler = SamplerDatasetWithReplacement(
-    dataset=datasets.MNIST('../data',
-                           train=True,
-                           download=True,
-                           transform=transforms.ToTensor()),
-    batch_size=args.batch_size
-)
-test_sampler = SamplerDatasetWithReplacement(
-    dataset=datasets.MNIST('../data',
-                           train=False,
-                           transform=transforms.ToTensor()),
-    batch_size=args.batch_size * 10
-)
+train_loader = torch.utils.data.DataLoader(
+    datasets.MNIST('../data', train=True, download=True,
+                   transform=transforms.ToTensor()),
+    batch_size=args.batch_size, shuffle=True, **kwargs)
+test_loader = torch.utils.data.DataLoader(
+    datasets.MNIST('../data', train=False, transform=transforms.ToTensor()),
+    batch_size=args.batch_size * 3, shuffle=True, **kwargs)
 
 cevae = MinVae(
     input_size=28 * 28,
@@ -60,12 +53,12 @@ cevae = MinVae(
 trainer = CeVaeTrainer(
     vae=cevae,
     num_epochs=300,
-    train_loader=train_sampler,
-    test_loader=test_sampler,
+    train_loader=train_loader,
+    test_loader=test_loader,
     writer=writer,
     device=device,
-    alpha=0.90,
-    lamda=0.22
+    alpha=0.95,
+    lamda=0.2
 )
 
 trainer.run()
