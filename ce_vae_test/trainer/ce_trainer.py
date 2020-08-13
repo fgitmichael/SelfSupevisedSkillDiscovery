@@ -79,8 +79,8 @@ class CeVaeTrainer(object):
 
         return loss_on_latent
 
-    def loss_data(self, step, forward_return_dict, label) -> torch.Tensor:
-        score = forward_return_dict['recon']
+    def loss_data(self, step, forward_return_dict, data, label) -> torch.Tensor:
+        score = forward_return_dict['recon']['sample']
 
         # CE loss
         ce_loss = self.ce_criterion(score, label)

@@ -70,10 +70,17 @@ class MinVae(BaseNetwork):
             'sample': sample
         }
 
+    def recon(self, data, latent_post) -> dict:
+        recon_dist = self.dec(latent_post['sample'])
+        return {
+            'dist': recon_dist,
+            'sample': recon_dist.rsample(),
+        }
+
     def forward(self, data):
         latent_post = self.sample_post(data)
         latent_pri = self.sample_pri(data.size(0))
-        recon = self.dec(latent_post['sample']).loc
+        recon = self.recon(data, latent_post)
 
         return {
             'recon': recon,

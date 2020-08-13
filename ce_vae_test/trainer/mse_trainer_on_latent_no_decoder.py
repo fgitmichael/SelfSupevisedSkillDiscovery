@@ -24,6 +24,7 @@ class MseVaeTrainer(CeVaeTrainer):
     def loss_data(self,
                   step,
                   forward_return_dict,
+                  data,
                   label) -> torch.Tensor:
         assert len(label.shape) == 1
 
