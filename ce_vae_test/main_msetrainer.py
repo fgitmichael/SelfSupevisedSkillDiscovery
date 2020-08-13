@@ -51,7 +51,7 @@ test_sampler = SamplerDatasetWithReplacement(
 
 vae = MinVae(
     input_size=28 * 28,
-    output_size=10,
+    output_size=28 * 28,
     latent_dim=2,
     hidden_sizes_dec=[5],
     device=device
@@ -64,8 +64,9 @@ trainer = MseVaeTrainer(
     test_loader=test_sampler,
     writer=writer,
     device=device,
-    alpha=0.95,
-    lamda=0.2
+    alpha=0.99999,
+    lamda=0.1,
+    gamma=1.,
 )
 
 trainer.run()

@@ -21,7 +21,9 @@ class MseVaeTrainer(CeVaeTrainer):
 
         # Two-dimensional grid
         self.grid = torch.from_numpy(
-            NoohGridCreator().get_grid()
+            NoohGridCreator(
+                radius_factor=1.5
+            ).get_grid()
         ).to(self.device).float()
 
     def loss_data(self,
