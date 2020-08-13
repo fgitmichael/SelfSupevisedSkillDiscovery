@@ -9,8 +9,8 @@ from torchvision import datasets, transforms
 from torchvision.utils import save_image
 from torch.utils.tensorboard import SummaryWriter
 
-from ce_vae_test.networks.ce_vae import MinVae
-from ce_vae_test.trainer.trainer import CeVaeTrainer
+from ce_vae_test.networks.min_vae import MinVae
+from ce_vae_test.trainer.ce_trainer import CeVaeTrainer
 
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
