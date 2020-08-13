@@ -110,7 +110,8 @@ class CeVaeTrainer(object):
         data_loss = self.loss_data(
             step=step,
             forward_return_dict=forward_return_dict,
-            label=label
+            data=data,
+            label=label,
         )
 
         info_loss = data_loss + latent_loss
