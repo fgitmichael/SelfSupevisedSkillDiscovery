@@ -34,7 +34,7 @@ class CeVaeTrainer(object):
         self.train_loader = train_loader
         self.test_loader = test_loader
         self.alpha = alpha
-        self.lamda  =lamda
+        self.lamda = lamda
         self.writer = writer
         self.device = device
 
@@ -196,8 +196,6 @@ class CeVaeTrainer(object):
 
         plt.close()
 
-
-
     def run(self):
         num_episodes = 20
         step = 0
@@ -220,4 +218,3 @@ class CeVaeTrainer(object):
                 data=test_data.to(self.vae.device).reshape(-1, 28 * 28),
                 label=test_label.to(self.vae.device),
             )
-
