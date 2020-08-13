@@ -42,7 +42,7 @@ class CeVaeTrainer(object):
             lr=0.0001
         )
 
-    def loss_latent(self, step, forward_return_dict):
+    def loss_latent(self, step, forward_return_dict) -> torch.Tensor:
         latent_post = forward_return_dict['latent_post']
         latent_pri = forward_return_dict['latent_pri']
 
@@ -78,7 +78,7 @@ class CeVaeTrainer(object):
 
         return loss_on_latent
 
-    def loss_data(self, step, forward_return_dict, label):
+    def loss_data(self, step, forward_return_dict, label) -> torch.Tensor:
         score = forward_return_dict['recon']
 
         # CE loss
@@ -218,5 +218,3 @@ class CeVaeTrainer(object):
                 )
 
                 step += 1
-
-
