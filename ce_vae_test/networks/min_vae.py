@@ -37,7 +37,7 @@ class MinVae(BaseNetwork):
             )
         else:
             self.dec = Gaussian(
-                input_dim=input_size,
+                input_dim=latent_dim,
                 output_dim=output_size,
                 hidden_units=hidden_sizes_dec
             )
