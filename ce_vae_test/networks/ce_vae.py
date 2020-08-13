@@ -30,7 +30,7 @@ class MinVae(BaseNetwork):
 
         self.prior = ConstantGaussian(latent_dim)
 
-        if hidden_sizes_enc is None:
+        if hidden_sizes_dec is None:
             self.dec = Gaussian(
                 input_dim=latent_dim,
                 output_dim=output_size,
