@@ -22,7 +22,7 @@ import rlkit.torch.pytorch_util as ptu
 class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
 
     def _log_perf_eval(self, epoch):
-        classifier_accuracy_eval, post_fig = self._classfier_perf_eval()
+        classifier_accuracy_eval, post_figures = self._classfier_perf_eval()
 
         self.diagnostic_writer.writer.writer.add_scalar(
             tag="Rnn Debug/Classfier accuracy eval",
@@ -30,11 +30,13 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
             global_step=epoch
         )
 
-        self.diagnostic_writer.writer.writer.add_figure(
-            tag="Rnn Debug/Mode Post Plot of evaluation sequences from environment",
-            figure=post_fig,
-            global_step=epoch
-        )
+        for key, fig in post_figures.items():
+            self.diagnostic_writer.writer.writer.add_figure(
+                tag="Rnn Debug/Mode Post Plot of evaluation sequences from environment {}"
+                    .format(key),
+                figure=fig,
+                global_step=epoch
+            )
 
     def _get_paths_mode_influence_test(self, num_paths=1, seq_len=200)\
             -> List[td.TransitionModeMapping]:
@@ -116,13 +118,13 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
 
         df_accuracy = F.mse_loss(pred_skill_dist.loc, mode)
 
-        posterior_fig = self._plot_posterior(
+        figs = self._plot_posterior(
             post_dist=pred_skill_dist,
             skills_gt_seq=mode,
             skill_id_seq=skill_id
         )
 
-        return df_accuracy, posterior_fig
+        return df_accuracy, figs
 
     def _plot_posterior(self,
                         post_dist,
@@ -150,9 +152,6 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
         plt.clf()
         plt.interactive(False)
         _, axes = plt.subplots()
-        lim = [-3., 3.]
-        axes.set_ylim(lim)
-        axes.set_xlim(lim)
 #        for idx, skill_gt_seq in enumerate(skills_gt_seq):
         for id in skill_ids_unique:
             id_idx = skill_ids == id
@@ -166,9 +165,32 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
                     id, ptu.get_numpy(skills_gt_seq[id_idx, 0][0])),
                 c=color_array[id]
             )
-
-        axes.legend()
         axes.grid(True)
-        fig = plt.gcf()
+        axes.legend()
+        fig_without_lim = plt.gcf()
+        plt.close()
 
-        return fig
+        _, axes = plt.subplots()
+        for id in skill_ids_unique:
+            id_idx = skill_ids == id
+            id_idx = id_idx.squeeze()
+            assert skills_gt_seq[id_idx, ...].shape[1:] == skills_gt_seq.shape[1:]
+
+            plt.scatter(
+                ptu.get_numpy(post_dist.loc[id_idx, :, 0].reshape(-1)),
+                ptu.get_numpy(post_dist.loc[id_idx, :, 1].reshape(-1)),
+                label="skill_{}_({})".format(
+                    id, ptu.get_numpy(skills_gt_seq[id_idx, 0][0])),
+                c=color_array[id]
+            )
+        lim = [-3., 3.]
+        axes.set_ylim(lim)
+        axes.set_xlim(lim)
+        axes.legend()
+
+        fig_with_lim = plt.gcf()
+
+        return dict(
+            no_lim=fig_without_lim,
+            lim=fig_with_lim
+        )
