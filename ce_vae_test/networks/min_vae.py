@@ -46,7 +46,7 @@ class MinVae(BaseNetwork):
         self.input_size = input_size
         self.output_size = output_size
 
-    def sample_post(self, data):
+    def sample_post(self, data) -> dict:
         """
         Args:
             data        : (N, data_dim)
@@ -62,7 +62,7 @@ class MinVae(BaseNetwork):
             'sample': sample
         }
 
-    def sample_pri(self, batch_size):
+    def sample_pri(self, batch_size) -> dict:
         dist = self.prior(torch.rand(batch_size, 1).to(self.device))
         sample = dist.sample()
         return {
