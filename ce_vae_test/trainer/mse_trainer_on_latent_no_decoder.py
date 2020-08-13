@@ -26,6 +26,23 @@ class MseVaeTrainer(CeVaeTrainer):
             ).get_grid()
         ).to(self.device).float()
 
+    @torch.no_grad()
+    def test(self, epoch, step, data, label):
+        self.vae.train(False)
+        forward_return_dict = self.vae(data)
+        latent_post = forward_return_dict['latent_post']
+        score = forward_return_dict['recon']['sample']
+
+        legend = ['{}'.format(tensor.detach().cpu().numpy())
+                  for tensor in self.grid]
+        self.write_mode_map(epoch,
+                            step,
+                            latent_post=latent_post,
+                            label=label,
+                            legend=legend)
+
+        self.write_accuracy(step, score, label)
+
     def loss_data(self,
                   step,
                   forward_return_dict,

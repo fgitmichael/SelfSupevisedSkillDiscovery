@@ -166,7 +166,13 @@ class CeVaeTrainer(object):
 
         return accuracy
 
-    def write_mode_map(self, epoch, step, latent_post, label):
+    def create_mode_map(self, latent_post, label, legend=None):
+        if legend is not None:
+            assert len(legend) == 10
+        else:
+            legend = 10 * ['']
+
+
         mu = latent_post['sample']
         assert mu.shape[-1] == 2
 
@@ -183,11 +189,21 @@ class CeVaeTrainer(object):
             bool_idx = label == number
             plt.scatter(mu.detach().cpu().numpy()[bool_idx.cpu().numpy(), 0],
                         mu.detach().cpu().numpy()[bool_idx.cpu().numpy(), 1],
-                        label=number,
+                        label="{}{}".format(number, legend[number]),
                         c=colors[number])
 
-        #axes.legend()
+        axes.legend()
         axes.grid(True)
+
+        return plt.gcf()
+
+    def write_mode_map(self, epoch, step, latent_post, label, legend=None):
+        fig = self.create_mode_map(
+            latent_post=latent_post,
+            label=label,
+            legend=legend,
+        )
+
         self.writer.add_figure(
             tag='mode_map'.format(epoch),
             figure=plt.gcf(),

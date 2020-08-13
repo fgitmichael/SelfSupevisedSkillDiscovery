@@ -66,7 +66,7 @@ trainer = MseVaeTrainer(
     device=device,
     alpha=0.99999,
     lamda=0.1,
-    gamma=1.,
+    gamma=0.0,
 )
 
 trainer.run()
