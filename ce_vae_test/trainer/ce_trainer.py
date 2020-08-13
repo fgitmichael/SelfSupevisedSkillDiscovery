@@ -99,7 +99,7 @@ class CeVaeTrainer(object):
 
     def loss(self, step, data, label):
         forward_return_dict = self.vae(data)
-        score = forward_return_dict['recon']
+        score = forward_return_dict['recon']['sample']
         assert score.shape == torch.Size((data.size(0), self.vae.output_size))
 
         latent_loss = self.loss_latent(
@@ -146,7 +146,7 @@ class CeVaeTrainer(object):
         self.vae.train(False)
         forward_return_dict = self.vae(data)
         latent_post = forward_return_dict['latent_post']
-        score = forward_return_dict['recon']
+        score = forward_return_dict['recon']['sample']
 
         self.write_mode_map(epoch, step, latent_post, label)
 
