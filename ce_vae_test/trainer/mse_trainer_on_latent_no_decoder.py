@@ -9,12 +9,15 @@ class MseVaeTrainer(CeVaeTrainer):
 
     def __init__(self,
                  *args,
+                 gamma=1.,
                  **kwargs):
         super().__init__(*args, **kwargs)
 
         # Overwrite Loss
         self.ce_criterion = None
         self.mse_criterion = nn.MSELoss()
+
+        self.gamma = gamma
 
         # Two-dimensional grid
         self.grid = torch.from_numpy(
@@ -29,18 +32,25 @@ class MseVaeTrainer(CeVaeTrainer):
         assert len(label.shape) == 1
 
         targets = self.grid[label]
-        mse_loss = self.mse_criterion(
+        mse_loss_latent = self.mse_criterion(
             forward_return_dict['latent_post']['dist'].loc,
             targets
         )
+        mse_loss_recon = self.mse_criterion(
+            forward_return_dict['recon']['dist'].loc,
+            data
+        )
+        mse_loss_recon_weighted = mse_loss_recon * self.gamma
 
-        loss_on_data = mse_loss
+        loss_on_data = mse_loss_latent + mse_loss_recon_weighted
 
-        prestring = "info_loss"
+        prestring = "info_loss_data"
         self.log(
             step,
             {
-                'mse_loss': mse_loss,
+                '{}/mse_loss_recon'.format(prestring): mse_loss_recon,
+                '{}/mse_loss_recon_weighted'.format(prestring): mse_loss_recon_weighted,
+                '{}/mse_loss_latent'.format(prestring): mse_loss_latent,
                 '{}/loss_on_data'.format(prestring): loss_on_data
             }
         )
