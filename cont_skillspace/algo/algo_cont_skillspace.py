@@ -3,11 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from torch.nn import functional as F
 from typing import List
+import copy
 
 from diayn_seq_code_revised.algo.seqwise_algo_revised import SeqwiseAlgoRevised
 
 from self_supervised.utils import typed_dicts as td
-from self_supervised.base.replay_buffer.env_replay_buffer import NormalSequenceReplayBuffer
+from self_supervised.base.replay_buffer.env_replay_buffer import \
+    NormalSequenceReplayBuffer
 
 from cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
