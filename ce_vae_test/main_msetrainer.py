@@ -10,7 +10,7 @@ from torchvision.utils import save_image
 from torch.utils.tensorboard import SummaryWriter
 
 from ce_vae_test.networks.min_vae import MinVae
-from ce_vae_test.trainer.ce_trainer import CeVaeTrainer
+from ce_vae_test.trainer.mse_trainer_on_latent_no_decoder import MseVaeTrainer
 
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
@@ -40,9 +40,9 @@ train_loader = torch.utils.data.DataLoader(
     batch_size=args.batch_size, shuffle=True, **kwargs)
 test_loader = torch.utils.data.DataLoader(
     datasets.MNIST('../data', train=False, transform=transforms.ToTensor()),
-    batch_size=args.batch_size * 3, shuffle=True, **kwargs)
+    batch_size=args.batch_size * 2, shuffle=True, **kwargs)
 
-cevae = MinVae(
+vae = MinVae(
     input_size=28 * 28,
     output_size=10,
     latent_dim=2,
@@ -50,8 +50,8 @@ cevae = MinVae(
     device=device
 ).to(device)
 
-trainer = CeVaeTrainer(
-    vae=cevae,
+trainer = MseVaeTrainer(
+    vae=vae,
     num_epochs=300,
     train_loader=train_loader,
     test_loader=test_loader,
