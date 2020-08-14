@@ -23,7 +23,7 @@ from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqColl
 from diayn_original_tb.policies.diayn_policy_extension import \
     SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
 from diayn_original_tb.algo.algo_diayn_tb_perf_logging import \
-    DIAYNTorchOnlineRLAlgorithmTbPerfLogging
+    DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently
 
 from diayn_with_rnn_classifier.trainer.diayn_trainer_modularized import \
     DIAYNTrainerModularized
@@ -119,7 +119,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = DIAYNTorchOnlineRLAlgorithmTbPerfLogging(
+    algorithm = DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
