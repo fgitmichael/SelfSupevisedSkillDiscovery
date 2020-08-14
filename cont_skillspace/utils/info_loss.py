@@ -12,6 +12,9 @@ class InfoLoss:
         self.alpha = alpha
         self.lamda = lamda
 
+        self.dist_key = 'dist'
+        self.sample_key = 'sample'
+
     def loss(self,
              pri: dict,
              post: dict,
@@ -39,16 +42,104 @@ class InfoLoss:
                 kld                 : scalar tensor
                 mmd                 : scalar tensor
                 mse                 : scalar tensor
+                ll                  : scalar tensor
                 kld_info            : scalar tensor
                 mmd_info            : scalar tensor
                 loss_latent         : scalar tensor
                 loss_data           : scalar tensor
                 info_loss           : scalar tensor
         """
-        if dist_key is None:
-            dist_key = 'dist'
-        if sample_key is None:
-            sample_key = 'sample'
+        if dist_key is not None:
+            self.dist_key = dist_key
+
+        if sample_key is not None:
+            self.sample_key = sample_key
+
+        self.input_assertions(
+            post=post,
+            pri=pri,
+            recon=recon,
+            data=data
+        )
+
+        latent_loss_dict = self._latent_loss(
+            post=post,
+            pri=pri
+        )
+        data_loss_dict = self._data_loss(
+            dict(recon=recon,
+                 data=data,
+                 post=post,)
+        )
+
+        info_loss = data_loss_dict['loss'] + \
+                    latent_loss_dict['kld_info'] + \
+                    latent_loss_dict['mmd_info']
+
+        log_dict = {**latent_loss_dict['log_dict'],
+                    **data_loss_dict['log_dict']}
+
+        return info_loss, log_dict
+
+    def _latent_loss(self, post, pri):
+        kld = calc_kl_divergence([post[self.dist_key]],
+                                 [pri[self.dist_key]])
+
+        mmd = compute_mmd_tutorial(pri[self.sample_key],
+                                   post[self.sample_key])
+
+        kld_info = (1 - self.alpha) * kld
+        mmd_info = (self.alpha + self.lamda - 1) * mmd
+
+        log = dict(
+            kld=kld,
+            mmd=mmd,
+            kld_info=kld_info,
+            mmd_info=mmd_info,
+            loss_latent=kld_info + mmd_info,
+        )
+
+        return dict(
+            kld_info=kld_info,
+            mmd_info=mmd_info,
+            log_dict=log,
+        )
+
+    def _data_loss(self, data_dict):
+        """
+        Args:
+            data_dict
+                post                : (N, latent_dim) dist and samples
+                recon               : (N, data_dim) dist and samples
+                data                : (N, data_dim) tensor
+        Return:
+            loss                    : scalar tensor
+            log_dict                : dictionary
+        """
+        mse = F.mse_loss(
+            data_dict['recon'][self.dist_key].loc,
+            data_dict['data'])
+
+        ll = data_dict['recon'][self.dist_key].log_prob(data_dict['data'])
+
+        log = dict(
+            mse=mse,
+            ll=ll,
+            loss_data=mse,
+        )
+
+        return dict(
+            loss=mse,
+            log_dict=log,
+        )
+
+    def input_assertions(self,
+                         post,
+                         pri,
+                         recon,
+                         data):
+        dist_key = self.dist_key
+        sample_key = self.sample_key
 
         if not data.is_contiguous():
             data = data.contiguous()
@@ -66,34 +157,3 @@ class InfoLoss:
 
         assert recon[dist_key].batch_shape \
                == recon[sample_key].shape \
-
-        kld = calc_kl_divergence([post[dist_key]],
-                                 [pri[dist_key]])
-
-        mmd = compute_mmd_tutorial(pri[sample_key],
-                                   post[sample_key])
-
-        mse = F.mse_loss(recon[sample_key],
-                         data)
-
-        alpha = self.alpha
-        lamda = self.lamda
-        kld_info = (1 - alpha) * kld
-        mmd_info = (alpha + lamda - 1) * mmd
-        info_loss = mse + kld_info + mmd_info
-
-        loss_latent = mmd_info + kld_info
-        loss_data = mse
-
-        log_dict = dict(
-            kld=kld,
-            mmd=mmd,
-            mse=mse,
-            kld_info=kld_info,
-            mmd_info=mmd_info,
-            loss_latent=loss_latent,
-            loss_data=loss_data,
-            info_loss=info_loss,
-        )
-
-        return info_loss, log_dict
