@@ -36,14 +36,27 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         super()._end_epoch(epoch)
 
         if self.diagnostic_writer.is_log(epoch):
-            self.write_mode_influence(epoch)
+            self.write_mode_influence_and_log(epoch)
             #self.write_skill_hist(epoch)
-
             gt.stamp('mode influence logging')
 
-    def write_mode_influence(self, epoch):
+    def write_mode_influence_and_log(self, epoch):
         paths = self._get_paths_mode_influence_test()
+        self._write_mode_influence_and_log(
+            paths=paths,
+            epoch=epoch,
+        )
 
+    def _write_mode_influence_and_log(self, paths, epoch):
+        """
+        Main logging function
+
+        Args:
+            eval_paths              : (data_dim, seq_dim) evaluation paths
+                                      sampled directly
+                                      from the environment
+            epoch                   : int
+        """
         obs_dim = paths[0].obs.shape[0]
         action_dim = paths[0].action.shape[0]
 
@@ -55,6 +68,16 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
                 action_dim=action_dim,
                 epoch=epoch
             )
+
+        # Plot influence in one plot
+        self._write_mode_influence_one_plot(
+            paths=paths,
+            epoch=epoch,
+        )
+
+    def _write_mode_influence_one_plot(self, paths, epoch):
+        obs_dim = paths[0].obs.shape[0]
+        action_dim = paths[0].action.shape[0]
 
         # Plot influence in one plot
         if obs_dim == 2:
@@ -75,7 +98,6 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
                 step=epoch,
                 labels=["skill {}".format(path.skill_id.squeeze()[0]) for path in paths],
             )
-
 
     def _write_mode_influence(self,
                               path,
