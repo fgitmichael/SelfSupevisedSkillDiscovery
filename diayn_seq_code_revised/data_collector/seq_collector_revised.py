@@ -17,6 +17,8 @@ from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDi
 
 import rlkit.torch.pytorch_util as ptu
 
+import self_supervised.utils.typed_dicts as td
+
 class SeqCollectorRevised(PathCollectorRevisedBase):
 
     def __init__(self,
@@ -90,6 +92,10 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
         )
         assert paths[0].obs.shape == (seq_len, self.policy.obs_dim)
 
+        prepared_paths = self.prepare_paths_before_save(paths, seq_len)
+        self._epoch_paths.extend(prepared_paths)
+
+    def prepare_paths_before_save(self, paths, seq_len) -> List[td.TransitionModeMapping]:
         # Extend to TransitionModeMapping
         seq_dim = 0
         skill_seq = np.stack(
@@ -106,7 +112,7 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
             )
             paths_with_skills.append(with_skill)
 
-        self._epoch_paths.extend(paths_with_skills)
+        return paths_with_skills
 
     def _check_paths(self,
                      seq_len,

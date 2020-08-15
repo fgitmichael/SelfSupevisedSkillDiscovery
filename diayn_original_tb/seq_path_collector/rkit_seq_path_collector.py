@@ -15,6 +15,8 @@ from diayn_original_tb.policies.diayn_policy_extension import \
 
 from diayn_no_oh.policies.diayn_policy_no_oh import SkillTanhGaussianPolicyNoOHTwoDim
 
+from diayn_original_cont.policy.policies import MakeDeterministicCont
+
 
 class SeqCollector(PathCollector):
 
@@ -23,6 +25,7 @@ class SeqCollector(PathCollector):
                  policy: Union[
                          SkillTanhGaussianPolicyExtension,
                          SkillTanhGaussianPolicyNoOHTwoDim,
+                         MakeDeterministicCont,
                          MakeDeterministicExtension],
                  max_num_epoch_paths_saved: int = None,
                  render: bool = False,
