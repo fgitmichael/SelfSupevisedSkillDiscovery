@@ -9,10 +9,6 @@ from itertools import chain
 from diayn_with_rnn_classifier.trainer.\
     seq_wise_trainer_with_diayn_classifier_vote \
     import DIAYNTrainerMajorityVoteSeqClassifier
-from diayn_with_rnn_classifier.trainer.diayn_trainer_modularized import \
-    DIAYNTrainerModularized
-from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise import \
-    BiRnnStepwiseClassifier
 
 import self_supervised.utils.my_pytorch_util as my_ptu
 
