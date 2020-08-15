@@ -11,13 +11,13 @@ from self_supervised.utils.writer import MyWriterWithActivation
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
+
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 
-from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
-    BiRnnStepwiseSeqWiseClassifier
+from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator
 
 from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
@@ -25,13 +25,14 @@ from diayn_seq_code_revised.networks.my_gaussian import \
     ConstantGaussianMultiDim
 from seqwise_cont_skillspace.algo.algo_cont_skillspace import SeqwiseAlgoRevisedContSkills
 
-from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import \
-    ContSkillTrainerSeqwiseStepwise
 from seqwise_cont_skillspace.utils.info_loss import InfoLoss
 from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
 from seqwise_cont_skillspace.networks.rnn_seqwise_stepwise_classifier_revised import \
-    StepwiseSeqwiseClassifierStandard
+    StepwiseSeqwiseClassifierVae
+from seqwise_cont_skillspace.trainer.\
+    discrete_skillspace_seqwise_stepwise_revised_trainer import \
+    DiscreteSkillTrainerSeqwiseStepwise
 
 from diayn_seq_code_revised.data_collector.skill_selector import \
     SkillSelectorDiscrete
@@ -50,13 +51,15 @@ def experiment(variant, args):
     skill_dim = 2
     hidden_size_rnn = 100
     variant['algorithm_kwargs']['batch_size'] //= seq_len
+    skill_repeat = 5
 
     sep_str = " | "
     run_comment = sep_str
     run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
-    run_comment += "continous skill space" + sep_str
+    run_comment += "discrete skill space" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
+    run_comment += "skill repeat: {}{}".format(skill_repeat, sep_str)
 
     seed = 0
     torch.manual_seed = seed
@@ -85,12 +88,13 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = StepwiseSeqwiseClassifierStandard(
+    df = StepwiseSeqwiseClassifierVae(
         input_size=obs_dim,
         hidden_size_rnn=hidden_size_rnn,
-        output_size=skill_dim,
+        output_size=2 * hidden_size_rnn,
         hidden_sizes=[M, M],
-        seq_len=seq_len
+        seq_len=seq_len,
+        skill_dim=skill_dim,
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
@@ -102,8 +106,8 @@ def experiment(variant, args):
     skill_prior = ConstantGaussianMultiDim(
         output_dim=skill_dim
     )
-    skill_selector = SkillSelectorContinous(
-        prior_skill_dist=skill_prior
+    skill_selector = SkillSelectorDiscrete(
+        NoohGridCreator(repeat=skill_repeat).get_grid
     )
     eval_path_collector = SeqCollectorRevisedOptionalSkillId(
         eval_env,
