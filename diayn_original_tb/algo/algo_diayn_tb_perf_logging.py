@@ -9,7 +9,7 @@ from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 
 class DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently(DIAYNTorchOnlineRLAlgorithmTb):
     # Saves one evaluation sampling loop from env compared to
-    # DIAYNTorchOnlineRLAlgorithmTbPerfLogging
+    # DIAYNTorchOnlineRLAlgorithmTbPerfLogging (can be found below for comparison)
     def _classifier_perf_eval(self, eval_paths):
         obs_dim = eval_paths[0].obs.shape[0]
         seq_len = eval_paths[0].obs.shape[-1]
