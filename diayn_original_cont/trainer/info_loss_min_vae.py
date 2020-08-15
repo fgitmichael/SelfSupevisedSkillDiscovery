@@ -37,7 +37,7 @@ class InfoLossLatentGuided(InfoLoss):
 
         return dict(
             loss=loss_on_data,
-            log=log_dict
+            log_dict=log_dict
         )
 
     def loss(self,
