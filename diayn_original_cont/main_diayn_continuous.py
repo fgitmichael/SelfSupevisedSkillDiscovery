@@ -25,7 +25,7 @@ from diayn_original_cont.trainer.diayn_cont_trainer import \
     DIAYNTrainerCont
 from diayn_original_cont.algo.algo_cont import DIAYNContAlgo
 from diayn_original_cont.trainer.info_loss_min_vae import \
-    InfoLossLatentGuided, InfoLossGuidedAndRecon
+    InfoLossLatentGuided
 from diayn_original_cont.networks.vae_regressor import VaeRegressor
 from diayn_original_cont.data_collector.seq_collector_optionally_id import \
     SeqCollectorRevisedOptionalId
