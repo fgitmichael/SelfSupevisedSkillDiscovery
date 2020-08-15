@@ -19,14 +19,22 @@ from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
-from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
-from diayn_original_tb.policies.diayn_policy_extension import \
-    SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
-from diayn_original_tb.algo.algo_diayn_tb_perf_logging import \
-    DIAYNTorchOnlineRLAlgorithmTbPerfLogging
+from diayn_original_cont.policy.policies import \
+    SkillTanhGaussianPolicyExtensionCont, MakeDeterministicCont
+from diayn_original_cont.trainer.diayn_cont_trainer import \
+    DIAYNTrainerCont
+from diayn_original_cont.algo.algo_cont import DIAYNContAlgo
+from diayn_original_cont.trainer.info_loss_min_vae import \
+    InfoLossLatentGuided
+from diayn_original_cont.networks.vae_regressor import VaeRegressor
+from diayn_original_cont.data_collector.seq_collector_optionally_id import \
+    SeqCollectorRevisedOptionalId
 
-from diayn_with_rnn_classifier.trainer.diayn_trainer_modularized import \
-    DIAYNTrainerModularized
+from cont_skillspace.data_collector.skill_selector_cont_skills import \
+    SkillSelectorContinous
+
+from diayn_seq_code_revised.networks.my_gaussian import \
+    ConstantGaussianMultiDim
 
 
 def experiment(variant, args):
@@ -41,6 +49,7 @@ def experiment(variant, args):
     run_comment += "DIAYN_mlp | "
     run_comment += "own_env | "
     run_comment += "perf_loggin | "
+    run_comment += "cont skills vae"
 
     seed = 0
     torch.manual_seed = seed
@@ -69,18 +78,18 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = FlattenMlp(
-        input_size=obs_dim,
-        output_size=skill_dim,
-        hidden_sizes=[M, M],
+    skill_prior = ConstantGaussianMultiDim(
+        output_dim=skill_dim
     )
-    policy = SkillTanhGaussianPolicyExtension(
-        obs_dim=obs_dim + skill_dim,
+    skill_selector = SkillSelectorContinous(prior_skill_dist=skill_prior)
+    policy = SkillTanhGaussianPolicyExtensionCont(
+        obs_dim=obs_dim,
         action_dim=action_dim,
         hidden_sizes=[M, M],
-        skill_dim=skill_dim
+        skill_dim=skill_dim,
+        skill_selector_cont=skill_selector,
     )
-    eval_policy = MakeDeterministicExtension(policy)
+    eval_policy = MakeDeterministicCont(policy)
     eval_path_collector = DIAYNMdpPathCollector(
         eval_env,
         eval_policy,
@@ -89,16 +98,27 @@ def experiment(variant, args):
         expl_env,
         policy,
     )
-    seq_eval_collector = SeqCollector(
+    seq_eval_collector = SeqCollectorRevisedOptionalId(
         env=eval_env,
-        policy=eval_policy
+        policy=eval_policy,
+        skill_selector=skill_selector,
+        max_seqs=1000,
     )
     replay_buffer = DIAYNEnvReplayBuffer(
         variant['replay_buffer_size'],
         expl_env,
         skill_dim
     )
-    trainer = DIAYNTrainerModularized(
+    info_loss_fun = InfoLossLatentGuided(
+        alpha=0.99,
+        lamda=0.2,
+    ).loss
+    df = VaeRegressor(
+        input_size=obs_dim,
+        latent_dim=skill_dim,
+        output_size=obs_dim,
+    )
+    trainer = DIAYNTrainerCont(
         env=eval_env,
         policy=policy,
         qf1=qf1,
@@ -106,12 +126,13 @@ def experiment(variant, args):
         df=df,
         target_qf1=target_qf1,
         target_qf2=target_qf2,
+        info_loss_fun=info_loss_fun,
         **variant['trainer_kwargs']
     )
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='../diayn_original_tb/logs',
+        log_dir='logs',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
@@ -119,7 +140,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = DIAYNTorchOnlineRLAlgorithmTbPerfLogging(
+    algorithm = DIAYNContAlgo(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
@@ -145,7 +166,7 @@ if __name__ == "__main__":
                         )
     parser.add_argument('--skill_dim',
                         type=int,
-                        default=10,
+                        default=2,
                         help='skill dimension'
                         )
     args = parser.parse_args()
