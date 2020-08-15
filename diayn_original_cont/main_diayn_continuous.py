@@ -25,13 +25,14 @@ from diayn_original_cont.trainer.diayn_cont_trainer import \
     DIAYNTrainerCont
 from diayn_original_cont.algo.algo_cont import DIAYNContAlgo
 from diayn_original_cont.trainer.info_loss_min_vae import \
-    InfoLossLatentGuided
+    InfoLossLatentGuided, InfoLossGuidedAndRecon
 from diayn_original_cont.networks.vae_regressor import VaeRegressor
 from diayn_original_cont.data_collector.seq_collector_optionally_id import \
     SeqCollectorRevisedOptionalId
 
-from cont_skillspace.data_collector.skill_selector_cont_skills import \
-    SkillSelectorContinous
+from diayn_seq_code_revised.data_collector.skill_selector import \
+    SkillSelectorDiscrete
+from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator
 
 from diayn_seq_code_revised.networks.my_gaussian import \
     ConstantGaussianMultiDim
@@ -50,6 +51,8 @@ def experiment(variant, args):
     run_comment += "own_env | "
     run_comment += "perf_loggin | "
     run_comment += "cont skills vae"
+    run_comment += "skill_selector discrete | "
+    run_comment += "info loss with guide"
 
     seed = 0
     torch.manual_seed = seed
@@ -81,7 +84,11 @@ def experiment(variant, args):
     skill_prior = ConstantGaussianMultiDim(
         output_dim=skill_dim
     )
-    skill_selector = SkillSelectorContinous(prior_skill_dist=skill_prior)
+    noohgrid_creator_fun = NoohGridCreator().get_grid
+    skill_selector = SkillSelectorDiscrete(
+        get_skill_grid_fun=noohgrid_creator_fun
+    )
+    #skill_selector = SkillSelectorContinous(prior_skill_dist=skill_prior)
     policy = SkillTanhGaussianPolicyExtensionCont(
         obs_dim=obs_dim,
         action_dim=action_dim,
@@ -117,6 +124,7 @@ def experiment(variant, args):
         input_size=obs_dim,
         latent_dim=skill_dim,
         output_size=obs_dim,
+        hidden_sizes_enc=[30, 30],
     )
     trainer = DIAYNTrainerCont(
         env=eval_env,
