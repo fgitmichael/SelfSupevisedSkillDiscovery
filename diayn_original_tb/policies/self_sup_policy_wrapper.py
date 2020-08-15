@@ -26,8 +26,7 @@ class RlkitWrapperForMySkillPolicy(SkillTanhGaussianPolicy):
             raise NotImplementedError('This wrapper simulates the rlkit behaviour.'
                                       'In rkit no skill is given as arg.')
 
-        skill_vec = ptu.zeros(self.skill_dim)
-        skill_vec[self.skill] += 1
+        skill_vec = self.get_skill_vec_from_self_skill()
 
         action_mapping = super().get_action(
             obs_np=obs_np,
@@ -35,11 +34,23 @@ class RlkitWrapperForMySkillPolicy(SkillTanhGaussianPolicy):
             deterministic=deterministic,
         )
 
+        skill_return = self.get_skill_for_return(action_mapping)
+
+        return action_mapping.action, {"skill": skill_return}
+
+    def get_skill_vec_from_self_skill(self):
+        skill_vec = ptu.zeros(self.skill_dim)
+        skill_vec[self.skill] += 1
+        return skill_vec
+
+    def get_skill_for_return(self, action_mapping):
         # Rlkit wants oh
         skill_oh = np.zeros((self.skill_dim))
         skill_oh[action_mapping.agent_info['skill']] += 1
 
-        return action_mapping.action, {"skill": skill_oh}
+        return skill_oh
+
+
 
     def skill_reset(self):
         self.skill = random.randint(0, self.skill_dim - 1)
