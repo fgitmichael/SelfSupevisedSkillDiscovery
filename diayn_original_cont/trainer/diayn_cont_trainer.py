@@ -216,25 +216,27 @@ class DIAYNTrainerCont(DIAYNTrainerModularized):
         data_dim = -1
 
         z_hat = skills
-        train_dict = self.df(next_obs)
+        train_dict = self.df(next_obs, train=True)
 
-        latent_post_dist = train_dict['latent_post']['dist']
+        latent_post_dist = train_dict['post']['dist']
         assert latent_post_dist.batch_shape == skills.shape
         rewards = torch.sum(
             latent_post_dist.log_prob(skills),
-            dim=data_dim
+            dim=data_dim,
+            keepdim=True,
         )
         assert rewards.shape == torch.Size((next_obs.size(0), 1))
 
-        vae_ret_dict = self.skill_vae(next_obs, train=True)
+        vae_ret_dict = self.df(next_obs, train=True)
         info_loss, log_dict = self.info_loss_fun(
             **vae_ret_dict,
             data=next_obs,
-            latent_guide=skills
+            latent_guide=skills,
         )
 
         return dict(
             df_loss=info_loss,
             rewards=rewards,
             pred_skill=vae_ret_dict['post']['dist'].loc,
+            log_dict=log_dict,
         )
