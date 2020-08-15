@@ -120,11 +120,8 @@ class InfoLoss:
             data_dict['recon'][self.dist_key].loc,
             data_dict['data'])
 
-        ll = data_dict['recon'][self.dist_key].log_prob(data_dict['data'])
-
         log = dict(
             mse=mse,
-            ll=ll,
             loss_data=mse,
         )
 
