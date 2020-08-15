@@ -25,14 +25,16 @@ from diayn_seq_code_revised.networks.my_gaussian import \
     ConstantGaussianMultiDim
 from seqwise_cont_skillspace.algo.algo_cont_skillspace import SeqwiseAlgoRevisedContSkills
 
-from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import ContSkillTrainerSeqwiseStepwise
-from seqwise_cont_skillspace.networks.rnn_vae_classifier import \
-    RnnVaeClassifierContSkills
+from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import \
+    ContSkillTrainerSeqwiseStepwise
 from seqwise_cont_skillspace.utils.info_loss import InfoLoss
-from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
-    SkillSelectorContinous
 from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
+from seqwise_cont_skillspace.networks.rnn_seqwise_stepwise_classifier_revised import \
+    StepwiseSeqwiseClassifierStandard
+
+from diayn_seq_code_revised.data_collector.skill_selector import \
+    SkillSelectorDiscrete
 
 
 def experiment(variant, args):
@@ -83,12 +85,11 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = RnnVaeClassifierContSkills(
+    df = StepwiseSeqwiseClassifierStandard(
         input_size=obs_dim,
         hidden_size_rnn=hidden_size_rnn,
         output_size=skill_dim,
         hidden_sizes=[M, M],
-        feature_decode_hidden_size=[M, M],
         seq_len=seq_len
     )
     policy = SkillTanhGaussianPolicyRevised(
