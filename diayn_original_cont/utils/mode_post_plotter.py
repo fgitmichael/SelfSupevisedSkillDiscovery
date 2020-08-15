@@ -62,13 +62,10 @@ class ModepostPlotter:
                 skills[bool_idx]
                 == np.stack([skills[bool_idx][0]] * np.sum(bool_idx.astype(np.int)),
                             axis=self.batch_dim))
-            try:
-                plt.scatter(mu_post[bool_idx, 0],
-                            mu_post[bool_idx, 1],
-                            label="skill {}, {}".format(skill_id, skills[0]),
-                            c=self.colors[skill_id])
-            except:
-                pass
+            plt.scatter(mu_post[bool_idx, 0],
+                        mu_post[bool_idx, 1],
+                        label="skill {}, {}".format(skill_id, skills[bool_idx][0]),
+                        c=self.colors[skill_id])
 
         axes.legend()
         axes.grid(True)
