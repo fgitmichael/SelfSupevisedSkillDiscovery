@@ -24,7 +24,7 @@ class SkillTanhGaussianPolicyRevised(SkillTanhGaussianPolicy):
         data_dim = -1
 
         obs_tensor = ptu.from_numpy(obs_np)
-        obs_skill_cat = torch.cat([obs_tensor, self.skill], data_dim)
+        obs_skill_cat = torch.cat([obs_tensor, self.skill], dim=data_dim)
 
         action = self.get_skill_actions(
             obs_skill_cat=obs_skill_cat,
