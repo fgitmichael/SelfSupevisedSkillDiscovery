@@ -20,7 +20,7 @@ from rlkit.core.eval_util import create_stats_ordered_dict
 import self_supervised.utils.my_pytorch_util as my_ptu
 
 
-class ContSkillTrainer(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
+class ContSkillTrainerSeqwiseStepwise(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
 
     def __init__(self,
                  *args,

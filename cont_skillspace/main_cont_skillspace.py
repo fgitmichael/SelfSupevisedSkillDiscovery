@@ -25,7 +25,7 @@ from diayn_seq_code_revised.networks.my_gaussian import \
     ConstantGaussianMultiDim
 from cont_skillspace.algo.algo_cont_skillspace import SeqwiseAlgoRevisedContSkills
 
-from cont_skillspace.trainer.cont_skill_trainer import ContSkillTrainer
+from cont_skillspace.trainer.cont_skill_trainer import ContSkillTrainerSeqwiseStepwise
 from cont_skillspace.networks.rnn_vae_classifier import \
     RnnVaeClassifierContSkills
 from cont_skillspace.utils.info_loss import InfoLoss
@@ -132,7 +132,7 @@ def experiment(variant, args):
         alpha=0.999,
         lamda=0.22
     ).loss
-    trainer = ContSkillTrainer(
+    trainer = ContSkillTrainerSeqwiseStepwise(
         skill_prior_dist=skill_prior,
         loss_fun=info_loss_fun,
         env=eval_env,
