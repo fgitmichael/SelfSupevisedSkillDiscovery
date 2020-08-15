@@ -94,7 +94,8 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
         prepared_paths = self.prepare_paths_before_save(paths, seq_len)
         self._epoch_paths.extend(prepared_paths)
 
-    def prepare_paths_before_save(self, paths, seq_len) -> List[td.TransitionModeMapping]:
+    def prepare_paths_before_save(self, paths, seq_len) \
+            -> List[td.TransitionModeMapping]:
         # Extend to TransitionModeMapping
         seq_dim = 0
         skill_seq = np.stack(
