@@ -11,8 +11,8 @@ from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
     DIAYNAlgoStepwiseSeqwiseRevisedTrainer
 from diayn_seq_code_revised.networks.my_gaussian import ConstantGaussianMultiDim
 
-from cont_skillspace.utils.info_loss import InfoLoss
-from cont_skillspace.networks.rnn_vae_classifier import RnnVaeClassifierContSkills
+from seqwise_cont_skillspace.utils.info_loss import InfoLoss
+from seqwise_cont_skillspace.networks.rnn_vae_classifier import RnnVaeClassifierContSkills
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.core.eval_util import create_stats_ordered_dict

@@ -2,7 +2,7 @@ import torch
 
 from torch.nn import functional as F
 
-from cont_skillspace.utils.info_loss import InfoLoss
+from seqwise_cont_skillspace.utils.info_loss import InfoLoss
 
 
 class InfoLossLatentGuided(InfoLoss):

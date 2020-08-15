@@ -11,10 +11,10 @@ from self_supervised.utils import typed_dicts as td
 from self_supervised.base.replay_buffer.env_replay_buffer import \
     NormalSequenceReplayBuffer
 
-from cont_skillspace.data_collector.seq_collector_optional_skill_id import \
+from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
-from cont_skillspace.networks.rnn_vae_classifier import RnnVaeClassifierContSkills
-from cont_skillspace.utils.get_colors import get_colors
+from seqwise_cont_skillspace.networks.rnn_vae_classifier import RnnVaeClassifierContSkills
+from seqwise_cont_skillspace.utils.get_colors import get_colors
 
 import rlkit.torch.pytorch_util as ptu
 

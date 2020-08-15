@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from cont_skillspace.utils.get_colors import get_colors
+from seqwise_cont_skillspace.utils.get_colors import get_colors
 
 
 class ModepostPlotter:
