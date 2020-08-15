@@ -12,23 +12,27 @@ from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
-from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
-    SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
+
+from self_supervised.memory.self_sup_replay_buffer import \
+    SelfSupervisedEnvSequenceReplayBuffer
 
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
     BiRnnStepwiseSeqWiseClassifier
 
-from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills import \
-    SeqCollectorRevisedDiscreteSkills
 from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
-from diayn_seq_code_revised.algo.seqwise_algo_revised import \
-    SeqwiseAlgoRevisedDiscreteSkills
-from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDiscrete
-from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
-    DIAYNAlgoStepwiseSeqwiseRevisedTrainer
+from diayn_seq_code_revised.networks.my_gaussian import \
+    ConstantGaussianMultiDim
+from seqwise_cont_skillspace.algo.algo_cont_skillspace import SeqwiseAlgoRevisedContSkills
 
-from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCreator
+from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import ContSkillTrainerSeqwiseStepwise
+from seqwise_cont_skillspace.networks.rnn_vae_classifier import \
+    RnnVaeClassifierContSkills
+from seqwise_cont_skillspace.utils.info_loss import InfoLoss
+from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
+    SkillSelectorContinous
+from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
+    SeqCollectorRevisedOptionalSkillId
 
 
 def experiment(variant, args):
@@ -37,23 +41,11 @@ def experiment(variant, args):
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-    # Skill Grids
-    skill_repeat = 5
-    nooh_grid_creator = NoohGridCreator(
-        repeat=skill_repeat,
-        radius_factor=1
-    )
-    get_no_oh_grid = nooh_grid_creator.get_grid
-
-    oh_grid_creator = OhGridCreator()
-    get_oh_grid = oh_grid_creator.get_grid
 
     seq_len = 100
-    one_hot_skill_encoding = False
-    skill_dim = args.skill_dim \
-        if one_hot_skill_encoding \
-        else get_no_oh_grid().shape[-1]
-    num_skills = args.skill_dim
+    one_hot_skill_encoding = True
+    #skill_dim = args.skill_dim
+    skill_dim = 2
     hidden_size_rnn = 100
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
@@ -61,10 +53,8 @@ def experiment(variant, args):
     run_comment = sep_str
     run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
-    run_comment += "seq wise step wise revised" + sep_str
+    run_comment += "continous skill space" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
-    if not one_hot_skill_encoding:
-        run_comment += "skill repeat: {}".format(skill_repeat) + sep_str
 
     seed = 0
     torch.manual_seed = seed
@@ -93,11 +83,12 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = BiRnnStepwiseSeqWiseClassifier(
+    df = RnnVaeClassifierContSkills(
         input_size=obs_dim,
-        output_size=num_skills,
         hidden_size_rnn=hidden_size_rnn,
+        output_size=skill_dim,
         hidden_sizes=[M, M],
+        feature_decode_hidden_size=[M, M],
         seq_len=seq_len
     )
     policy = SkillTanhGaussianPolicyRevised(
@@ -107,34 +98,43 @@ def experiment(variant, args):
         hidden_sizes=[M, M],
     )
     eval_policy = MakeDeterministicRevised(policy)
-    skill_selector = SkillSelectorDiscrete(
-        get_skill_grid_fun=get_oh_grid if one_hot_skill_encoding else get_no_oh_grid
+    skill_prior = ConstantGaussianMultiDim(
+        output_dim=skill_dim
     )
-    eval_path_collector = SeqCollectorRevisedDiscreteSkills(
+    skill_selector = SkillSelectorContinous(
+        prior_skill_dist=skill_prior
+    )
+    eval_path_collector = SeqCollectorRevisedOptionalSkillId(
         eval_env,
         eval_policy,
         max_seqs=50,
         skill_selector=skill_selector
     )
-    expl_step_collector = SeqCollectorRevisedDiscreteSkills(
+    expl_step_collector = SeqCollectorRevisedOptionalSkillId(
         expl_env,
         policy,
         max_seqs=50,
         skill_selector=skill_selector
     )
-    seq_eval_collector = SeqCollectorRevisedDiscreteSkills(
+    seq_eval_collector = SeqCollectorRevisedOptionalSkillId(
         env=eval_env,
         policy=eval_policy,
         max_seqs = 50,
         skill_selector = skill_selector
     )
-    replay_buffer = SelfSupervisedEnvSequenceReplayBufferDiscreteSkills(
+    replay_buffer = SelfSupervisedEnvSequenceReplayBuffer(
         max_replay_buffer_size=variant['replay_buffer_size'],
         seq_len=seq_len,
         mode_dim=skill_dim,
         env=expl_env,
     )
-    trainer = DIAYNAlgoStepwiseSeqwiseRevisedTrainer(
+    info_loss_fun = InfoLoss(
+        alpha=0.999,
+        lamda=0.22
+    ).loss
+    trainer = ContSkillTrainerSeqwiseStepwise(
+        skill_prior_dist=skill_prior,
+        loss_fun=info_loss_fun,
         env=eval_env,
         policy=policy,
         qf1=qf1,
@@ -155,7 +155,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = SeqwiseAlgoRevisedDiscreteSkills(
+    algorithm = SeqwiseAlgoRevisedContSkills(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
