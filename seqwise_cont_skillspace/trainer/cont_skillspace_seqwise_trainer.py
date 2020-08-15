@@ -264,7 +264,10 @@ class ContSkillTrainerSeqwiseStepwise(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
 
         skills_per_seq_gt = skills[:, 0, :]
         assert skills_per_seq_gt.shape == torch.Size((batch_size, skill_dim))
-        assert my_ptu.tensor_equality(torch.stack([skills_per_seq_gt] * seq_len, dim=seq_dim), skills)
+        assert my_ptu.tensor_equality(
+            torch.stack([skills_per_seq_gt] * seq_len, dim=seq_dim),
+            skills
+        )
 
         # Apply MSE Loss
         df_seq_loss = self.df_criterion(
