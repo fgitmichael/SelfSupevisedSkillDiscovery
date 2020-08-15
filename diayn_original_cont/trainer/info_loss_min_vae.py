@@ -23,8 +23,10 @@ class InfoLossLatentGuided(InfoLoss):
         latent_guide = data_dict['latent_guide']
         super_ret_dict = super()._data_loss(data_dict)
         post = data_dict['post']
-        data_loss_guided = F.mse_loss(post[self.dist_key].loc,
-                                      latent_guide)
+        data_loss_guided = F.mse_loss(
+            post[self.dist_key].loc,
+            latent_guide,
+        )
 
         loss_on_data = data_loss_guided
 
