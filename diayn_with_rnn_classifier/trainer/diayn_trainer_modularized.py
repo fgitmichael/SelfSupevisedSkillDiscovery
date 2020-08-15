@@ -90,7 +90,6 @@ class DIAYNTrainerModularized(DIAYNTrainer):
             'q_target'
         )(qf_ret_dict)
 
-
         """
         Update networks
         """
