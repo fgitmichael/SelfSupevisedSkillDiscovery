@@ -17,7 +17,6 @@ from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDi
 
 import rlkit.torch.pytorch_util as ptu
 
-import self_supervised.utils.typed_dicts as td
 
 class SeqCollectorRevised(PathCollectorRevisedBase):
 
