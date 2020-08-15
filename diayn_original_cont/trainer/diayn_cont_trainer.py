@@ -40,7 +40,7 @@ class DIAYNTrainerCont(DIAYNTrainerModularized):
         df_loss, \
         rewards, \
         pred_skill, \
-        log_dict = itemgetter(
+        df_log_dict = itemgetter(
             'df_loss',
             'rewards',
             'pred_skill',
@@ -117,7 +117,7 @@ class DIAYNTrainerCont(DIAYNTrainerModularized):
         Save some statistics for eval
         """
         self._save_stats(
-            dummy=None,
+            df_loss_log=df_log_dict,
             df_accuracy=F.mse_loss(pred_skill, skills),
             log_pi=log_pi,
             q_new_actions=q_new_actions,
@@ -131,11 +131,11 @@ class DIAYNTrainerCont(DIAYNTrainerModularized):
             policy_mean=policy_mean,
             policy_log_std=policy_log_std,
             alpha=alpha,
-            alpha_loss=alpha_loss
+            alpha_loss=alpha_loss,
         )
 
     def _save_stats(self,
-                    dummy,
+                    df_loss_log,
                     df_accuracy,
                     log_pi,
                     q_new_actions,
@@ -165,6 +165,9 @@ class DIAYNTrainerCont(DIAYNTrainerModularized):
             This way, these statistics are only computed for one batch.
             """
             policy_loss = (log_pi - q_new_actions).mean()
+
+            for key, el in df_loss_log.items():
+                self.eval_statistics[key] = ptu.get_numpy(el)
 
             self.eval_statistics['Intrinsic Rewards'] = np.mean(ptu.get_numpy(rewards))
             self.eval_statistics['DF Loss'] = np.mean(ptu.get_numpy(df_loss))
