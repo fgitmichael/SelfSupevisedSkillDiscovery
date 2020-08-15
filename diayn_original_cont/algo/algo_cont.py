@@ -51,6 +51,7 @@ class DIAYNContAlgo(DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently):
             paths=paths,
             epoch=epoch
         )
+        self._log_net_param_hist(epoch)
 
     def write_mode_map(self, paths, epoch):
         assert isinstance(paths[0], td.TransitonModeMappingDiscreteSkills)
@@ -143,3 +144,12 @@ class DIAYNContAlgo(DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently):
         df_accuracy = F.mse_loss(skills, skill_post['dist'].loc)
 
         return df_accuracy
+
+    def _log_net_param_hist(self, epoch):
+        for k, net in self.trainer.network_dict.items():
+            for name, weight in net.named_parameters():
+                self.diagnostic_writer.writer.writer. \
+                    add_histogram(k + name, weight, epoch)
+                if weight.grad is not None:
+                    self.diagnostic_writer.writer.writer. \
+                        add_histogram(f'{k + name}.grad', weight.grad, epoch)
