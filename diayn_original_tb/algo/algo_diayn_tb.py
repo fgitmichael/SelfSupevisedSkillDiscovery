@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from typing import List
+from typing import List, Union
 import numpy as np
 import gtimer as gt
 
@@ -18,13 +18,17 @@ from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills
 
 from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
 
+from diayn_seq_code_revised.data_collector.seq_collector_revised import \
+    SeqCollectorRevised
+
 
 class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
 
     def __init__(self,
                  *args,
                  diagnostic_writer: DiagnosticsWriter,
-                 seq_eval_collector: SeqCollector,
+                 seq_eval_collector: Union[SeqCollector,
+                                           SeqCollectorRevised],
                  **kwargs
                  ):
         super().__init__(*args, **kwargs)
