@@ -101,6 +101,7 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
             seq_batch           : (N, S, data_dim)
         Return:
             hidden_seq          : (N, S, 2 * hidden_size_rnn) if bidirectional
+            h_n                 : (N, num_features)
         """
         batch_size = seq_batch.size(self.batch_dim)
         seq_len = seq_batch.size(self.seq_dim)
