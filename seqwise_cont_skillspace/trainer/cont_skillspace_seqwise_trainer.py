@@ -37,9 +37,8 @@ class ContSkillTrainerSeqwiseStepwise(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
         # Overwrite Criterion
         self.df_criterion = nn.MSELoss()
 
-        # Overwrite Optimizer
-        assert isinstance(self.df, RnnVaeClassifierContSkills)
-        self.df_optimizer_step = optimizer_class(
+    def create_optimizer_step(self, optimizer_class, df_lr):
+        return optimizer_class(
             chain(
                 self.df.classifier.parameters(),
                 self.df.feature_decoder.parameters(),
