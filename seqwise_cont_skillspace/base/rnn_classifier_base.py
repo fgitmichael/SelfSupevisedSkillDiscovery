@@ -13,6 +13,8 @@ from diayn_rnn_seq_rnn_stepwise_classifier.networks.positional_encoder import \
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.pos_encoder_oh import \
     PositionalEncodingOh
 
+from seqwise_cont_skillspace.networks.nooh_encoder import NoohPosEncoder
+
 
 class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
 
@@ -22,7 +24,7 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
                  skill_dim,
                  hidden_sizes: list,
                  seq_len,
-                 pos_encoder_variant='transformer'):
+                 pos_encoder_variant='cont_encoder'):
         """
         Args:
             obs_dim             : dimension of state representation
@@ -31,6 +33,7 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
         """
         super(StepwiseSeqwiseClassifierBase, self).__init__()
 
+        self.skill_dim = skill_dim
         self.rnn = nn.GRU(
             input_size=obs_dim,
             hidden_size=hidden_size_rnn,
@@ -47,28 +50,49 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
         self.rnn_params['num_features_hidden_seq'] = \
             self.rnn_params['num_directions'] * self.rnn.hidden_size
 
-        minimum_input_size_step_classifier = self.rnn_params['num_features']
+        minimum_input_size_step_classifier = self.rnn_params['num_features_hidden_seq']
+        pos_encode_dim = 0
         if pos_encoder_variant=='transformer':
             self.pos_encoder = PositionalEncoding(
-                d_model=self.rnn_params['num_features'],
+                d_model=self.rnn_params['num_features_hidden_seq'],
                 max_len=seq_len,
                 dropout=0.1
             )
             input_size_classifier = minimum_input_size_step_classifier
+            pos_encode_dim = 0
 
-        else:
+
+        elif pos_encoder_variant=='oh_encoder':
             self.pos_encoder = PositionalEncodingOh()
             input_size_classifier = minimum_input_size_step_classifier + seq_len
+            pos_encode_dim = seq_len
+
+        elif pos_encoder_variant=='cont_encoder':
+            self.pos_encoder = NoohPosEncoder(
+                encode_dim=self.skill_dim,
+                max_seq_len=300,
+            )
+            input_size_classifier = minimum_input_size_step_classifier + \
+                                    self.pos_encoder.encode_dim
+            pos_encode_dim = self.pos_encoder.encode_dim
+
+        else:
+            raise NotImplementedError(
+                "{} encoding is not implement".format(pos_encoder_variant))
+
+        self.pos_encode_dim = pos_encode_dim
+        self.rnn_params['num_features_hs_posenc'] = \
+            self.rnn_params['num_features_hidden_seq'] + pos_encode_dim
 
         self.classifier_step = self.create_stepwise_classifier(
-            feature_dim=self.rnn_params['num_features_hidden_seq'],
-            skill_dim=skill_dim,
+            feature_dim=input_size_classifier,
+            skill_dim=self.skill_dim,
             hidden_sizes=hidden_sizes
         )
 
         self.classifier_seq = self.create_seqwise_classifier(
             feature_dim=self.rnn_params['num_features_h_n'],
-            skill_dim=skill_dim,
+            skill_dim=self.skill_dim,
             hidden_sizes=hidden_sizes,
         )
 
@@ -105,6 +129,7 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
             hidden_seq          : (N, S, 2 * hidden_size_rnn) if bidirectional
             h_n                 : (N, num_features)
         """
+        assert len(seq_batch.shape) == 3
         batch_size = seq_batch.size(self.batch_dim)
         seq_len = seq_batch.size(self.seq_dim)
 
@@ -120,16 +145,16 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
              self.rnn.hidden_size)
         )
 
-        assert my_ptu.tensor_equality(
-            h_n.transpose(1, 0).reshape(
-                batch_size,
-                self.rnn_params['num_features'])[0][self.rnn.hidden_size:],
-            h_n.transpose(1, 0)[0][0]
-        )
         h_n = h_n.transpose(1, 0)
+        assert my_ptu.tensor_equality(
+            h_n.reshape(
+                batch_size,
+                self.rnn_params['num_features_hidden_seq'])[0][:self.rnn.hidden_size],
+            h_n[0][0]
+        )
         h_n = h_n.reshape(
             batch_size,
-            self.rnn_params['num_features']
+            self.rnn_params['num_features_hidden_seq']
         )
 
         return hidden_seq, h_n
