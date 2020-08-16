@@ -14,6 +14,10 @@ from diayn_rnn_seq_rnn_stepwise_classifier.networks.pos_encoder_oh import \
     PositionalEncodingOh
 
 from seqwise_cont_skillspace.networks.nooh_encoder import NoohPosEncoder
+from seqwise_cont_skillspace.networks.transformer_stack_pos_encoder import \
+    PositionalEncodingTransformerStacked
+
+from mode_disent_no_ssm.utils.empty_network import Empty
 
 
 class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
@@ -24,7 +28,7 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
                  skill_dim,
                  hidden_sizes: list,
                  seq_len,
-                 pos_encoder_variant='cont_encoder'):
+                 pos_encoder_variant='empty'):
         """
         Args:
             obs_dim             : dimension of state representation
@@ -61,6 +65,14 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
             input_size_classifier = minimum_input_size_step_classifier
             pos_encode_dim = 0
 
+        elif pos_encoder_variant=='transformer_stacked':
+            self.pos_encoder = PositionalEncodingTransformerStacked(
+                d_model=self.rnn_params['num_features_hidden_seq'],
+                max_len=seq_len,
+                dropout=0.1
+            )
+            input_size_classifier = minimum_input_size_step_classifier * 2
+            pos_encode_dim = minimum_input_size_step_classifier
 
         elif pos_encoder_variant=='oh_encoder':
             self.pos_encoder = PositionalEncodingOh()
@@ -75,6 +87,11 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
             input_size_classifier = minimum_input_size_step_classifier + \
                                     self.pos_encoder.encode_dim
             pos_encode_dim = self.pos_encoder.encode_dim
+
+        elif pos_encoder_variant=='empty':
+            self.pos_encoder = Empty()
+            input_size_classifier = minimum_input_size_step_classifier
+            pos_encode_dim = 0
 
         else:
             raise NotImplementedError(
