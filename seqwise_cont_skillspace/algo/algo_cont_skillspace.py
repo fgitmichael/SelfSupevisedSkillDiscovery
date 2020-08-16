@@ -67,7 +67,7 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
         batch = self.replay_buffer.random_batch_bsd_format(
             batch_size=batch_size)
 
-        assert isinstance(self.trainer.df, RnnVaeClassifierContSkills)
+        #assert isinstance(self.trainer.df, RnnVaeClassifierContSkills)
         pred_skill_dist = self.trainer.df(
             ptu.from_numpy(batch.next_obs)
         )
@@ -138,11 +138,11 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
         """
         batch_size = self.batch_size
 
-        assert skills_gt_seq.size(-1) == 2
+        #assert skills_gt_seq.size(-1) == 2
         assert isinstance(self.replay_buffer, NormalSequenceReplayBuffer)
         assert post_dist.batch_shape == skills_gt_seq.shape
 
-        assert isinstance(self.trainer.df, RnnVaeClassifierContSkills)
+        #assert isinstance(self.trainer.df, RnnVaeClassifierContSkills)
         assert len(post_dist.batch_shape) == 3
 
         skill_ids = ptu.get_numpy(skill_id_seq[:, 0]).astype(np.int)
@@ -180,7 +180,7 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
                 ptu.get_numpy(post_dist.loc[id_idx, :, 0].reshape(-1)),
                 ptu.get_numpy(post_dist.loc[id_idx, :, 1].reshape(-1)),
                 label="skill_{}_({})".format(
-                    id, ptu.get_numpy(skills_gt_seq[id_idx, 0][0])),
+                    id, ptu.get_numpy(skills_gt_seq[id_idx, 0][0][:2])),
                 c=color_array[id]
             )
         lim = [-3., 3.]
