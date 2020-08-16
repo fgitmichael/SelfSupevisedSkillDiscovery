@@ -1,6 +1,7 @@
 import torch
 import torch.distributions as torch_dist
 from torch import nn
+from itertools import chain
 
 from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import \
     ContSkillTrainerSeqwiseStepwise
@@ -23,12 +24,12 @@ class DiscreteSkillTrainerSeqwiseStepwise(ContSkillTrainerSeqwiseStepwise):
             **kwargs
         )
 
-        # Overwrite Criterion
-        self.df_criterion = nn.SmoothL1Loss()
-
-        # Overwrite Optimizer
-        self.df_optimizer_step = optimizer_class(
-            self.df.classifier_step.parameters(),
+    def create_optimizer_step(self, optimizer_class, df_lr):
+        return optimizer_class(
+            chain(
+                self.df.classifier_step.parameters(),
+                self.df.pos_encoder.parameters(),
+            ),
             lr=df_lr
         )
 
