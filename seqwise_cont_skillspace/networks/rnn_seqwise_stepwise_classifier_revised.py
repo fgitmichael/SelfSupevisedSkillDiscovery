@@ -1,3 +1,6 @@
+import torch
+from torch import distributions
+
 from self_supervised.network.flatten_mlp import FlattenMlp
 
 from seqwise_cont_skillspace.base.rnn_classifier_base import \
@@ -6,13 +9,6 @@ from diayn_original_cont.networks.vae_regressor import VaeRegressor
 
 
 class StepwiseSeqwiseClassifierVae(StepwiseSeqwiseClassifierBase):
-
-    def __init__(self,
-                 *args,
-                 skill_dim,
-                 **kwargs):
-        super(StepwiseSeqwiseClassifierVae, self).__init__(*args, **kwargs)
-        self.skill_dim = skill_dim
 
     def create_seqwise_classifier(
             self,
@@ -34,7 +30,7 @@ class StepwiseSeqwiseClassifierVae(StepwiseSeqwiseClassifierBase):
     ) -> VaeRegressor:
         return VaeRegressor(
             input_size=feature_dim,
-            latent_dim=self.skill_dim,
+            latent_dim=skill_dim,
             output_size=feature_dim,
             hidden_sizes_enc=hidden_sizes,
             hidden_sizes_dec=hidden_sizes
@@ -47,21 +43,22 @@ class StepwiseSeqwiseClassifierVae(StepwiseSeqwiseClassifierBase):
         Return:
             pred_skill          : (N, skill_dim)
         """
-        assert self.classifier_step.input_size == self.rnn_params['num_features']
-        assert h_n.size(self.data_dim) == self.rnn_params['num_features']
+        assert self.classifier_seq.input_size == self.rnn_params['num_features_h_n']
+        assert h_n.size(self.data_dim) == self.rnn_params['num_features_h_n']
 
-        return self.classifier_step(h_n)
+        return self.classifier_seq(h_n)
 
     def classify_stepwise(self, hidden_seq_stacked):
         """
         Args:
             hidden_seq_stacked          : (N * S, 2 * hidden_size_rnn)
         Return:
-            pred_skills         : (N * S, skill_dim)
+            pred_skills                 : (N * S, skill_dim)
 
         """
-        assert hidden_seq_stacked.size(self.data_dim) == self.rnn_params['num_channels']
-        return_dict = self.classifier_step(hidden_seq_stacked)
+        assert hidden_seq_stacked.size(self.data_dim) == \
+               self.rnn_params['num_features_hs_posenc']
+        return_dict = self.classifier_step(hidden_seq_stacked, train=True)
 
         return return_dict
 
@@ -85,13 +82,14 @@ class StepwiseSeqwiseClassifierVae(StepwiseSeqwiseClassifierBase):
         )
 
         hidden_seq = hidden_seq.detach()
+        hidden_seq = self.pos_encoder(hidden_seq)
 
         batch_size = hidden_seq.size(self.batch_dim)
         seq_len = hidden_seq.size(self.seq_dim)
         hidden_seq_dim = hidden_seq.size(self.data_dim)
         pred_skill_steps_dict = self.classify_stepwise(
             hidden_seq_stacked=hidden_seq.
-                view(batch_size * seq_len, hidden_seq_dim)
+                reshape(batch_size * seq_len, hidden_seq_dim)
         )
 
         if train:
@@ -102,4 +100,13 @@ class StepwiseSeqwiseClassifierVae(StepwiseSeqwiseClassifierBase):
                 hidden_features_seq=hidden_seq,
             )
         else:
-            return pred_skill_steps_dict['post']
+            return distributions.Normal(
+                loc=pred_skill_steps_dict['post']['dist'].loc.reshape(
+                    seq_batch.size(self.batch_dim),
+                    seq_batch.size(self.seq_dim),
+                    self.skill_dim),
+                scale=pred_skill_steps_dict['post']['dist'].scale.reshape(
+                    seq_batch.size(self.batch_dim),
+                    seq_batch.size(self.seq_dim),
+                    self.skill_dim)
+            )
