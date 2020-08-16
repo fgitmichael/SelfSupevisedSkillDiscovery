@@ -66,21 +66,25 @@ class DiscreteSkillTrainerSeqwiseStepwise(ContSkillTrainerSeqwiseStepwise):
         seq_len = skills.size(seq_dim)
         skill_dim = skills.size(data_dim)
 
+        skills = skills.view(batch_size * seq_len, skill_dim)
+
         hidden_feature_seq = loss_calc_values['hidden_feature_seq']
-        recon_feature_seq = loss_calc_values['recon_feature_seq']
-        post_skills = loss_calc_values['post_skills']
+        recon_feature_seq = loss_calc_values['recon_feature_seq']['dist']
+        post_skills = loss_calc_values['post_skills']['dist']
 
         assert hidden_feature_seq.shape == torch.Size(
             (batch_size,
              seq_len,
-             2 * self.df.rnn.hidden_size))
+             self.df.rnn_params['num_features_hs_posenc']))
+        hidden_feature_seq = hidden_feature_seq.reshape(batch_size * seq_len, -1)
+
         assert post_skills.batch_shape == skills.shape
         assert hidden_feature_seq.shape == recon_feature_seq.batch_shape
 
         # Rewards
         rewards = post_skills.log_prob(skills)
         rewards = torch.sum(rewards, dim=data_dim, keepdim=True)
-        assert rewards.shape == torch.Size((batch_size, seq_len, 1))
+        rewards = rewards.reshape(batch_size, seq_len, 1)
 
         # Reshape Dist
         pri_dist = self.skill_prior(hidden_feature_seq)
@@ -110,7 +114,8 @@ class DiscreteSkillTrainerSeqwiseStepwise(ContSkillTrainerSeqwiseStepwise):
             pri=pri,
             post=post,
             recon=recon,
-            data=hidden_feature_seq.detach()
+            data=hidden_feature_seq.detach(),
+            latent_guide=skills,
         )
 
         return dict(
