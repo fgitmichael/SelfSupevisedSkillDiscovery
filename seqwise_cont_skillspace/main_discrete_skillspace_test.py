@@ -23,8 +23,8 @@ from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
 from diayn_seq_code_revised.networks.my_gaussian import \
     ConstantGaussianMultiDim
-from seqwise_cont_skillspace.algo.algo_cont_skillspace import SeqwiseAlgoRevisedContSkills
 
+from seqwise_cont_skillspace.algo.algo_cont_skillspace import SeqwiseAlgoRevisedContSkills
 from seqwise_cont_skillspace.utils.info_loss import InfoLoss
 from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
@@ -37,6 +37,8 @@ from seqwise_cont_skillspace.trainer.\
 from diayn_seq_code_revised.data_collector.skill_selector import \
     SkillSelectorDiscrete
 
+from diayn_original_cont.trainer.info_loss_min_vae import InfoLossLatentGuided
+
 
 def experiment(variant, args):
     expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
@@ -48,10 +50,10 @@ def experiment(variant, args):
     seq_len = 100
     one_hot_skill_encoding = True
     #skill_dim = args.skill_dim
-    skill_dim = 2
+    skill_repeat = 5
+    skill_dim = 2 * skill_repeat
     hidden_size_rnn = 100
     variant['algorithm_kwargs']['batch_size'] //= seq_len
-    skill_repeat = 5
 
     sep_str = " | "
     run_comment = sep_str
@@ -89,12 +91,11 @@ def experiment(variant, args):
         hidden_sizes=[M, M],
     )
     df = StepwiseSeqwiseClassifierVae(
-        input_size=obs_dim,
+        obs_dim=obs_dim,
         hidden_size_rnn=hidden_size_rnn,
-        output_size=2 * hidden_size_rnn,
+        skill_dim=skill_dim,
         hidden_sizes=[M, M],
         seq_len=seq_len,
-        skill_dim=skill_dim,
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
@@ -133,11 +134,11 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
-    info_loss_fun = InfoLoss(
+    info_loss_fun = InfoLossLatentGuided(
         alpha=0.999,
-        lamda=0.22
+        lamda=0.
     ).loss
-    trainer = ContSkillTrainerSeqwiseStepwise(
+    trainer = DiscreteSkillTrainerSeqwiseStepwise(
         skill_prior_dist=skill_prior,
         loss_fun=info_loss_fun,
         env=eval_env,
