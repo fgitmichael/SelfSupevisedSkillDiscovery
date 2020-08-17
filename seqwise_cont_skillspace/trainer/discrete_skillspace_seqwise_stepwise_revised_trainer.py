@@ -2,6 +2,7 @@ import torch
 import torch.distributions as torch_dist
 from torch import nn
 from itertools import chain
+from operator import itemgetter
 
 from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import \
     ContSkillTrainerSeqwiseStepwise
@@ -23,6 +24,8 @@ class DiscreteSkillTrainerSeqwiseStepwise(ContSkillTrainerSeqwiseStepwise):
             optimizer_class=optimizer_class,
             **kwargs
         )
+
+        self.df_train_counter = 0
 
     def create_optimizer_step(self, optimizer_class, df_lr):
         return optimizer_class(
@@ -124,3 +127,111 @@ class DiscreteSkillTrainerSeqwiseStepwise(ContSkillTrainerSeqwiseStepwise):
             log_dict=log_dict
         )
 
+    def train_whole_df_only(self, batch):
+        batch_dim = 0
+        seq_dim = 1
+        data_dim = -1
+
+        terminals = batch['terminals']
+        obs = batch['observations']
+        actions = batch['actions']
+        next_obs = batch['next_observations']
+        skills = batch['skills']
+
+        assert terminals.shape[:-1] \
+               == obs.shape[:-1] \
+               == actions.shape[:-1] \
+               == next_obs.shape[:-1] \
+               == skills.shape[:-1]
+        assert obs.size(data_dim) == next_obs.size(data_dim)
+        assert skills.size(data_dim) == self.policy.skill_dim
+        assert terminals.size(data_dim) == 1
+
+        """
+        DF Loss and Intrinsic Reward
+        """
+        df_ret_dict = self._df_loss_intrinsic_reward(
+            skills=skills,
+            next_obs=next_obs
+        )
+
+        df_loss, \
+        rewards, \
+        log_dict = itemgetter(
+            'df_loss',
+            'rewards',
+            'log_dict'
+        )(df_ret_dict)
+
+        self.df_optimizer_seq.zero_grad()
+        df_loss['seq'].backward()
+        self.df_optimizer_seq.step()
+
+        self.df_optimizer_step.zero_grad()
+        df_loss['step'].backward()
+        self.df_optimizer_step.step()
+
+    def train_df_step_only(self, batch):
+        batch_dim = 0
+        seq_dim = 1
+        data_dim = -1
+
+        terminals = batch['terminals']
+        obs = batch['observations']
+        actions = batch['actions']
+        next_obs = batch['next_observations']
+        skills = batch['skills']
+
+        assert terminals.shape[:-1] \
+               == obs.shape[:-1] \
+               == actions.shape[:-1] \
+               == next_obs.shape[:-1] \
+               == skills.shape[:-1]
+        assert obs.size(data_dim) == next_obs.size(data_dim)
+        assert skills.size(data_dim) == self.policy.skill_dim
+        assert terminals.size(data_dim) == 1
+
+        df_ret_dict = self.df(
+            next_obs,
+            train=True
+        )
+
+        classified_steps, \
+        feature_recon_dist, \
+        classified_seqs, \
+        hidden_features_seq = itemgetter(
+            'classified_steps',
+            'feature_recon_dist',
+            'classified_seqs',
+            'hidden_features_seq')(df_ret_dict)
+
+        # Step Loss and rewards
+        loss_calc_values = dict(
+            hidden_feature_seq=hidden_features_seq,
+            recon_feature_seq=feature_recon_dist,
+            post_skills=classified_steps
+        )
+        ret_dict_step = self._df_loss_step_rewards(
+            loss_calc_values=loss_calc_values,
+            skills=skills
+        )
+
+        df_loss_step, \
+        rewards, \
+        log_dict_df_step = itemgetter(
+            'df_loss',
+            'rewards',
+            'log_dict')(ret_dict_step)
+
+        self.df_optimizer_step.zero_grad()
+        df_loss_step.backward()
+        self.df_optimizer_step.step()
+
+    def train_from_torch(self, batch):
+        if self.df_train_counter % 5 == 0:
+            super(DiscreteSkillTrainerSeqwiseStepwise, self).train_from_torch(batch)
+
+        else:
+            self.train_df_step_only(batch)
+
+        self.df_train_counter += 1
