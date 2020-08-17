@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from self_supervised.base.network.mlp import MyMlp
 
 from code_slac.network.base import BaseNetwork
 
@@ -19,7 +20,10 @@ class NoohPosEncoder(BaseNetwork):
         #self.encodings = torch.nn.Parameter(
         #    self.encodings,
         #    requires_grad=True).to(ptu.device)
-        self.encoding_gen = nn.Linear(encode_dim, encode_dim)
+        self.encoding_gen = MyMlp(
+            input_size=encode_dim,
+            output_size=encode_dim,
+        )
         self.batch_dim = 0
         self.seq_dim = 1
         self.data_dim = -1
