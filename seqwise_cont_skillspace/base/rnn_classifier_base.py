@@ -177,6 +177,14 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
         return hidden_seq, h_n
 
     @abc.abstractmethod
+    def classify_stepwise(self, data):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def classify_seqwise(self, data):
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def forward(self,
                 seq_batch,
                 train=False):

@@ -28,11 +28,9 @@ from seqwise_cont_skillspace.algo.algo_cont_skillspace import SeqwiseAlgoRevised
 from seqwise_cont_skillspace.utils.info_loss import InfoLoss
 from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
-from seqwise_cont_skillspace.networks.rnn_seqwise_stepwise_classifier_revised import \
-    StepwiseSeqwiseClassifierVae
-from seqwise_cont_skillspace.trainer.\
-    discrete_skillspace_seqwise_stepwise_revised_trainer import \
-    DiscreteSkillTrainerSeqwiseStepwise
+from seqwise_cont_skillspace.networks.classifier_seqwise_stepwise_ssvaestyle import \
+    SeqwiseStepwiseClassifierContSsvaestyle
+from seqwise_cont_skillspace.trainer.trainer_ssvaestyle import SsvaestyleSkillTrainer
 
 from diayn_seq_code_revised.data_collector.skill_selector import \
     SkillSelectorDiscrete
