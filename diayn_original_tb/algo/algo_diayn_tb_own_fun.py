@@ -38,6 +38,7 @@ from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised_noid import
 from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import ContSkillTrainerSeqwiseStepwise
 from seqwise_cont_skillspace.trainer.discrete_skillspace_seqwise_stepwise_revised_trainer \
     import DiscreteSkillTrainerSeqwiseStepwise
+from seqwise_cont_skillspace.trainer.trainer_ssvaestyle import SsvaestyleSkillTrainer
 
 class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
@@ -177,7 +178,9 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                                   DIAYNAlgoStepwiseSeqwiseRevisedNoidTrainer,
                                   ContSkillTrainerSeqwiseStepwise,
                                   DiscreteSkillTrainerSeqwiseStepwise,
-                                  DIAYNStepWiseRnnTrainer]:
+                                  DIAYNStepWiseRnnTrainer,
+                                  SsvaestyleSkillTrainer,
+                                  ]:
             train_dict = dict(
                 rewards=train_data.reward,
                 terminals=train_data.terminal,
