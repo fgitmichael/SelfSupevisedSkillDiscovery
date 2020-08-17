@@ -108,7 +108,7 @@ def experiment(variant, args):
         output_dim=skill_dim
     )
     skill_selector = SkillSelectorDiscrete(
-        NoohGridCreator(repeat=skill_repeat).get_grid
+        NoohGridCreator(repeat=skill_repeat, radius_factor=2).get_grid
     )
     eval_path_collector = SeqCollectorRevisedOptionalSkillId(
         eval_env,
@@ -135,8 +135,8 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = InfoLossLatentGuided(
-        alpha=0.999,
-        lamda=0.
+        alpha=0.99,
+        lamda=0.3
     ).loss
     trainer = DiscreteSkillTrainerSeqwiseStepwise(
         skill_prior_dist=skill_prior,
