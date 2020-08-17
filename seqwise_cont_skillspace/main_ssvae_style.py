@@ -47,9 +47,9 @@ def experiment(variant, args):
     seq_len = 100
     one_hot_skill_encoding = True
     #skill_dim = args.skill_dim
-    skill_repeat = 5
+    skill_repeat = 1
     skill_dim = 2 * skill_repeat
-    hidden_size_rnn = 100
+    hidden_size_rnn = 30
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
@@ -87,7 +87,7 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = StepwiseSeqwiseClassifierVae(
+    df = SeqwiseStepwiseClassifierContSsvaestyle(
         obs_dim=obs_dim,
         hidden_size_rnn=hidden_size_rnn,
         skill_dim=skill_dim,
@@ -132,10 +132,10 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = InfoLoss(
-        alpha=0.99,
-        lamda=0.3
+        alpha=1.,
+        lamda=0.2,
     ).loss
-    trainer = DiscreteSkillTrainerSeqwiseStepwise(
+    trainer = SsvaestyleSkillTrainer(
         skill_prior_dist=skill_prior,
         loss_fun=info_loss_fun,
         env=eval_env,
@@ -151,7 +151,7 @@ def experiment(variant, args):
     writer = MyWriterWithActivation(
         seed=seed,
         log_dir='logs',
-        run_comment=run_comment
+        run_comment=run_comment,
     )
     diagno_writer = DiagnosticsWriter(
         writer=writer,

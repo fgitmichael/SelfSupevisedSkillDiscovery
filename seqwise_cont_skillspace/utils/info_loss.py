@@ -21,7 +21,8 @@ class InfoLoss:
              recon: dict,
              data: torch.Tensor,
              dist_key=None,
-             sample_key=None):
+             sample_key=None,
+             **kwargs):
         """
         Args:
             pri
