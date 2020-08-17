@@ -35,7 +35,7 @@ class InfoLoss:
                 dist                : (N, data_dim) distribution
                 sample              : (N, data_dim) samples
                                       (for gaussians typically loc instead of samples)
-            data                    : (N, ..., data_dim) tensor of original data
+            data                    : (N, data_dim) tensor of original data
 
         Return:
             loss                    : scalar tensor
@@ -155,3 +155,79 @@ class InfoLoss:
 
         assert recon[dist_key].batch_shape \
                == recon[sample_key].shape \
+
+
+class GuidedInfoLoss(InfoLoss):
+
+    def _data_loss(self, data_dict):
+        """
+        Args:
+            data_dict
+                post                : (N, latent_dim) dist and samples
+                recon               : (N, data_dim) dist and samples
+                data                : (N, data_dim) tensor
+                guide               : (N, latent_dim) tensor
+        Return:
+            loss                    : scalar tensor
+            log_dict                : dictionary
+        """
+        guide = data_dict['guide']
+        post = data_dict['post']
+        guided_loss = F.mse_loss(guide, post[self.dist_key].loc)
+
+        loss_data = guided_loss
+        log = dict(
+            guided=guided_loss,
+            loss_data=loss_data,
+        )
+
+        return dict(
+            loss=loss_data,
+            log_dict=log,
+        )
+
+    def loss(self,
+             pri: dict,
+             post: dict,
+             recon: dict,
+             data: torch.Tensor,
+             dist_key=None,
+             sample_key=None,
+             **kwargs):
+        if not 'guide' in kwargs:
+            raise ValueError("Guide has to be passed!")
+        guide = kwargs['guide']
+
+        if dist_key is not None:
+            self.dist_key = dist_key
+
+        if sample_key is not None:
+            self.sample_key = sample_key
+
+        self.input_assertions(
+            post=post,
+            pri=pri,
+            recon=recon,
+            data=data
+        )
+
+        latent_loss_dict = self._latent_loss(
+            post=post,
+            pri=pri
+        )
+        data_loss_dict = self._data_loss(
+            dict(recon=recon,
+                 data=data,
+                 post=post,
+                 guide=guide
+            )
+        )
+
+        info_loss = data_loss_dict['loss'] + \
+                    latent_loss_dict['kld_info'] + \
+                    latent_loss_dict['mmd_info']
+
+        log_dict = {**latent_loss_dict['log_dict'],
+                    **data_loss_dict['log_dict']}
+
+        return info_loss, log_dict
