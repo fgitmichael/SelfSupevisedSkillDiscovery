@@ -228,7 +228,7 @@ class DiscreteSkillTrainerSeqwiseStepwise(ContSkillTrainerSeqwiseStepwise):
         self.df_optimizer_step.step()
 
     def train_from_torch(self, batch):
-        if self.df_train_counter % 5 == 0:
+        if self.df_train_counter % 1 == 0:
             super(DiscreteSkillTrainerSeqwiseStepwise, self).train_from_torch(batch)
 
         else:
