@@ -52,7 +52,7 @@ class DIAYNStepWiseSeqWiseRnnTrainer(DIAYNTrainerMajorityVoteSeqClassifier):
 
     def create_optimizer_step(self, optimizer_class, df_lr):
         return optimizer_class(
-            self.df.classifier_step.parameters(),
+            self.df.classifier.parameters(),
             lr=df_lr
         )
 
