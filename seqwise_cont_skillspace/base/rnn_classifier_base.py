@@ -28,7 +28,8 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
                  skill_dim,
                  hidden_sizes: list,
                  seq_len,
-                 pos_encoder_variant='cont_encoder'):
+                 dropout=0.0,
+                 pos_encoder_variant='transformer'):
         """
         Args:
             obs_dim             : dimension of state representation
