@@ -31,6 +31,8 @@ from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id impo
 from seqwise_cont_skillspace.networks.classifier_seqwise_stepwise_ssvaestyle import \
     SeqwiseStepwiseClassifierContSsvaestyle
 from seqwise_cont_skillspace.trainer.trainer_ssvaestyle import SsvaestyleSkillTrainer
+from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
+    SkillSelectorContinous
 
 from diayn_seq_code_revised.data_collector.skill_selector import \
     SkillSelectorDiscrete

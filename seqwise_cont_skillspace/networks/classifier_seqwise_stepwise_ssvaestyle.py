@@ -3,7 +3,7 @@ from torch import distributions
 
 from seqwise_cont_skillspace.base.rnn_classifier_base import StepwiseSeqwiseClassifierBase
 
-from self_supervised.network.flatten_mlp import FlattenMlp
+from self_supervised.network.flatten_mlp import FlattenMlp, FlattenMlpDropout
 
 from diayn_original_cont.networks.vae_regressor import VaeRegressor
 
@@ -70,11 +70,11 @@ class SeqwiseStepwiseClassifierContSsvaestyle(StepwiseSeqwiseClassifierBase):
         pred_skills_seq = torch.stack([pred_skills_seq] * seq_len, dim=self.seq_dim)
 
         input_classifier = torch.cat([hidden_seq, pred_skills_seq], dim=self.data_dim)
-        assert input_classifier.size(self.data_dim) == self.classifier_step.input_size
+        #assert input_classifier.size(self.data_dim) == self.classifier_step.input_size
 
         assert hidden_seq.size(self.data_dim) == \
             self.rnn_params['num_features_hs_posenc']
-        return_dict = self.classifier_step(input_classifier, train=True)
+        return_dict = self.classifier_step(hidden_seq, train=True)
 
         return return_dict
 
