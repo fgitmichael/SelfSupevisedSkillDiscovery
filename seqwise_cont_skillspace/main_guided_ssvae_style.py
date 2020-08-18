@@ -29,7 +29,7 @@ from seqwise_cont_skillspace.utils.info_loss import GuidedInfoLoss
 from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
 from seqwise_cont_skillspace.networks.classifier_seqwise_stepwise_ssvaestyle import \
-    SeqwiseStepwiseClassifierContSsvaestyle
+    SeqwiseStepwiseClassifierContSsvaestyle, GuidedNoSsvaestyle
 from seqwise_cont_skillspace.trainer.trainer_guided_ssvae_style import \
     GuidedSsvaestyleTrainer
 
@@ -50,7 +50,7 @@ def experiment(variant, args):
     #skill_dim = args.skill_dim
     skill_repeat = 1
     skill_dim = 2 * skill_repeat
-    hidden_size_rnn = 30
+    hidden_size_rnn = 50
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
@@ -134,7 +134,7 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = GuidedInfoLoss(
-        alpha=1.,
+        alpha=0.9,
         lamda=0.2,
     ).loss
     trainer = GuidedSsvaestyleTrainer(
