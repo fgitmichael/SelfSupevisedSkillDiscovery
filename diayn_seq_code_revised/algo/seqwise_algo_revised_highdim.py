@@ -13,13 +13,17 @@ from diayn_seq_code_revised.data_collector.seq_collector_revised import \
 import self_supervised.utils.typed_dicts as td
 
 
-class SeqwiseAlgoRevised(SeqWiseAlgoClassfierPerfLogging):
+class SeqwiseAlgoRevisedHighdim(SeqWiseAlgoClassfierPerfLogging):
 
     def set_next_skill(self, data_collector: SeqCollectorRevised):
         data_collector.skill_reset()
 
+    def write_mode_influence_and_log(self, epoch):
+        # Omit method
+        pass
 
-class SeqwiseAlgoRevisedDiscreteSkills(SeqwiseAlgoRevised):
+
+class SeqwiseAlgoRevisedDiscreteSkillsHighdim(SeqwiseAlgoRevisedHighdim):
 
     def _get_paths_mode_influence_test(self,
                                        num_paths=1,
