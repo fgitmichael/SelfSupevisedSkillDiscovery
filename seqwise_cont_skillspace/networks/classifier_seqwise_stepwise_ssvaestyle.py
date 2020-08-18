@@ -117,3 +117,43 @@ class SeqwiseStepwiseClassifierContSsvaestyle(StepwiseSeqwiseClassifierBase):
 
         else:
             return pred_skill_dict_step['post']['dist']
+
+
+class GuidedNoSsvaestyle(SeqwiseStepwiseClassifierContSsvaestyle):
+
+    def create_stepwise_classifier(
+            self,
+            feature_dim,
+            skill_dim,
+            hidden_sizes,
+            dropout=0.,
+    ) -> VaeRegressor:
+        return VaeRegressor(
+            input_size=feature_dim,
+            latent_dim=skill_dim,
+            output_size=feature_dim,
+            hidden_sizes_enc=hidden_sizes,
+            hidden_sizes_dec=hidden_sizes,
+            dropout=0.5,
+        )
+
+    def classify_stepwise(self, data_dict):
+        """
+        Args:
+            data_dict
+                hidden_seq          : (N, S, 2 * hidden_size_rnn)
+                                      detached(!) hidden features
+                                      sequence of the rnn
+                pred_skills_seq     : (N, skill_dim) predicted skills of seq classifier
+        Return:
+            pred_skills             : (N, S, skill_dim)
+        """
+        hidden_seq = data_dict['hidden_seq']
+
+        seq_len = hidden_seq.size(self.seq_dim)
+
+        assert hidden_seq.size(self.data_dim) == \
+               self.rnn_params['num_features_hs_posenc']
+        return_dict = self.classifier_step(hidden_seq, train=True)
+
+        return return_dict
