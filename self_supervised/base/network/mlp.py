@@ -30,15 +30,13 @@ class MyMlp(BaseNetwork):
         model = []
         in_size = input_size
         for i, next_size in enumerate(hidden_sizes):
-            fc = nn.Linear(in_size, next_size)
+            self.construct_layer(
+                model,
+                in_size=in_size,
+                next_size=next_size,
+                hidden_activation=hidden_activation,
+            )
             in_size = next_size
-            model.append(fc)
-
-            if self.layer_norm:
-                ln = nn.LayerNorm(next_size)
-                model.append(ln)
-
-            model.append(hidden_activation)
 
         last_fc = nn.Linear(in_size, output_size)
         model.append(last_fc)
@@ -47,6 +45,45 @@ class MyMlp(BaseNetwork):
 
         self.net = nn.Sequential(*model).apply(initializer)
 
+    def construct_layer(
+            self,
+            model,
+            in_size,
+            next_size,
+            hidden_activation
+    ):
+        fc = nn.Linear(in_size, next_size)
+        model.append(fc)
+        if self.layer_norm:
+            ln = nn.LayerNorm(next_size)
+            model.append(ln)
+        model.append(hidden_activation)
+
     def forward(self, input: torch.Tensor) \
             -> torch.Tensor:
         return self.net(input)
+
+
+class MlpWithDropout(MyMlp):
+
+    def __init__(self,
+                 *args,
+                 dropout=0.,
+                 **kwargs):
+        self.dropout = dropout
+        super(MlpWithDropout, self).__init__(*args, **kwargs)
+
+    def construct_layer(
+            self,
+            model,
+            in_size,
+            next_size,
+            hidden_activation
+    ):
+        fc = nn.Linear(in_size, next_size)
+        model.append(fc)
+        if self.layer_norm:
+            ln = nn.LayerNorm(next_size)
+            model.append(ln)
+        model.append(hidden_activation)
+        model.append(nn.Dropout(self.dropout))

@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.distributions import Normal
 
 from code_slac.network.latent import Gaussian, ConstantGaussian
-from self_supervised.base.network.mlp import MyMlp
+from self_supervised.base.network.mlp import MyMlp, MlpWithDropout
 
 
 class MyGaussian(Gaussian):
@@ -13,7 +13,8 @@ class MyGaussian(Gaussian):
                  output_dim,
                  hidden_units=None,
                  std=None,
-                 leaky_slope=0.2):
+                 leaky_slope=0.2,
+                 dropout=0.):
         super().__init__(
             input_dim=input_dim,
             output_dim=output_dim,
@@ -22,12 +23,12 @@ class MyGaussian(Gaussian):
             leaky_slope=leaky_slope
         )
 
-        # Overwrite net
-        self.net = MyMlp(
+        self.net = MlpWithDropout(
             input_size=input_dim,
             output_size=2*output_dim if std is None else output_dim,
             hidden_sizes=hidden_units,
-            hidden_activation=nn.LeakyReLU(leaky_slope)
+            hidden_activation=nn.LeakyReLU(leaky_slope),
+            dropout=dropout,
         )
 
     @property

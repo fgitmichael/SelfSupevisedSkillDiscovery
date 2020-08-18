@@ -14,26 +14,30 @@ class SeqwiseStepwiseClassifierContSsvaestyle(StepwiseSeqwiseClassifierBase):
             self,
             feature_dim,
             skill_dim,
-            hidden_sizes
+            hidden_sizes,
+            dropout=0.,
     ) -> FlattenMlp:
-        return FlattenMlp(
+        return FlattenMlpDropout(
             input_size=feature_dim,
             output_size=skill_dim,
             hidden_sizes=hidden_sizes,
+            dropout=dropout
         )
 
     def create_stepwise_classifier(
             self,
             feature_dim,
             skill_dim,
-            hidden_sizes
+            hidden_sizes,
+            dropout=0.,
     ) -> VaeRegressor:
         return VaeRegressor(
-            input_size=feature_dim + skill_dim,
+            input_size=feature_dim,
             latent_dim=skill_dim,
             output_size=feature_dim,
             hidden_sizes_enc=hidden_sizes,
             hidden_sizes_dec=hidden_sizes,
+            dropout=dropout,
         )
 
     def classify_seqwise(self, h_n):

@@ -94,6 +94,7 @@ def experiment(variant, args):
         skill_dim=skill_dim,
         hidden_sizes=[M, M],
         seq_len=seq_len,
+        dropout=0.5,
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,

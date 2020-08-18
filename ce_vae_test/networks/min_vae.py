@@ -3,6 +3,7 @@ import torch
 from code_slac.network.latent import Gaussian, ConstantGaussian
 from code_slac.network.base import BaseNetwork
 
+from diayn_seq_code_revised.networks.my_gaussian import MyGaussian
 
 
 class MinVae(BaseNetwork):
@@ -11,35 +12,42 @@ class MinVae(BaseNetwork):
                  input_size,
                  latent_dim,
                  output_size,
+                 dropout=0.,
                  hidden_sizes_enc=None,
                  hidden_sizes_dec=None,
                  device='cuda'):
         super(MinVae, self).__init__()
 
         if hidden_sizes_enc is None:
-            self.enc = Gaussian(
+            self.enc = MyGaussian(
                 input_dim=input_size,
                 output_dim=latent_dim,
+                dropout=dropout,
             )
         else:
-            self.enc = Gaussian(
+            self.enc = MyGaussian(
                 input_dim=input_size,
                 output_dim=latent_dim,
-                hidden_units=hidden_sizes_enc
+                hidden_units=hidden_sizes_enc,
+                dropout=dropout,
             )
 
         self.prior = ConstantGaussian(latent_dim)
 
         if hidden_sizes_dec is None:
-            self.dec = Gaussian(
+            self.dec = MyGaussian(
                 input_dim=latent_dim,
                 output_dim=output_size,
+                dropout=dropout,
+                std=0.1,
             )
         else:
-            self.dec = Gaussian(
+            self.dec = MyGaussian(
                 input_dim=latent_dim,
                 output_dim=output_size,
-                hidden_units=hidden_sizes_dec
+                hidden_units=hidden_sizes_dec,
+                dropout=dropout,
+                std=0.1,
             )
 
         self.device = device

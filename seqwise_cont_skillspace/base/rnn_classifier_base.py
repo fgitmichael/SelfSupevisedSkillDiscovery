@@ -104,13 +104,15 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
         self.classifier_step = self.create_stepwise_classifier(
             feature_dim=input_size_classifier,
             skill_dim=self.skill_dim,
-            hidden_sizes=hidden_sizes
+            hidden_sizes=[80, 80],
+            dropout=dropout,
         )
 
         self.classifier_seq = self.create_seqwise_classifier(
             feature_dim=self.rnn_params['num_features_h_n'],
             skill_dim=self.skill_dim,
             hidden_sizes=hidden_sizes,
+            dropout=dropout,
         )
 
         self.set_dimensions()
@@ -125,7 +127,8 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
             self,
             feature_dim,
             skill_dim,
-            hidden_sizes
+            hidden_sizes,
+            dropout=0.
     ):
         raise NotImplementedError
 
@@ -134,7 +137,8 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
             self,
             feature_dim,
             skill_dim,
-            hidden_sizes
+            hidden_sizes,
+            dropout=0.,
     ):
         raise NotImplementedError
 
