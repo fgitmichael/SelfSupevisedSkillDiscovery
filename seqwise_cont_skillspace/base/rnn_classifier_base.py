@@ -43,7 +43,7 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
             input_size=obs_dim,
             hidden_size=hidden_size_rnn,
             batch_first=True,
-            bidirectional=True
+            bidirectional=True,
         )
         self.rnn_params = {}
         self.rnn_params['num_directions'] = \
