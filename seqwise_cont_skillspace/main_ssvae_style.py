@@ -49,7 +49,7 @@ def experiment(variant, args):
     #skill_dim = args.skill_dim
     skill_repeat = 1
     skill_dim = 2 * skill_repeat
-    hidden_size_rnn = 30
+    hidden_size_rnn = 7
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
@@ -93,6 +93,7 @@ def experiment(variant, args):
         skill_dim=skill_dim,
         hidden_sizes=[M, M],
         seq_len=seq_len,
+        dropout=0.3
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
@@ -104,9 +105,12 @@ def experiment(variant, args):
     skill_prior = ConstantGaussianMultiDim(
         output_dim=skill_dim
     )
-    skill_selector = SkillSelectorDiscrete(
-        NoohGridCreator(repeat=skill_repeat, radius_factor=2).get_grid
+    skill_selector = SkillSelectorContinous(
+        prior_skill_dist=skill_prior
     )
+    #skill_selector = SkillSelectorDiscrete(
+    #    NoohGridCreator(repeat=skill_repeat, radius_factor=2).get_grid
+    #)
     eval_path_collector = SeqCollectorRevisedOptionalSkillId(
         eval_env,
         eval_policy,
@@ -132,8 +136,8 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = InfoLoss(
-        alpha=1.,
-        lamda=0.2,
+        alpha=0.97,
+        lamda=0.3,
     ).loss
     trainer = SsvaestyleSkillTrainer(
         skill_prior_dist=skill_prior,
@@ -204,7 +208,7 @@ if __name__ == "__main__"   :
             num_expl_steps_per_train_loop=10,
             min_num_steps_before_training=1000,
             max_path_length=1000,
-            batch_size=1024,
+            batch_size=2024,
         ),
         trainer_kwargs=dict(
             discount=0.99,
