@@ -22,12 +22,20 @@ import rlkit.torch.pytorch_util as ptu
 class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
 
     def _log_perf_eval(self, epoch):
-        classifier_accuracy_eval, post_figures = self._classfier_perf_eval()
+        classifier_accuracy_eval, \
+        classifier_accuracy_seq_eval, \
+        post_figures = self._classfier_perf_eval()
 
         self.diagnostic_writer.writer.writer.add_scalar(
             tag="Rnn Debug/Classfier accuracy eval",
             scalar_value=classifier_accuracy_eval,
             global_step=epoch
+        )
+
+        self.diagnostic_writer.writer.writer.add_scalar(
+            tag="Rnn Debug/Classfier accuracy eval sequence",
+            scalar_value=classifier_accuracy_seq_eval,
+            global_step=epoch,
         )
 
         for key, fig in post_figures.items():
@@ -112,11 +120,14 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
         assert next_obs.shape \
                == torch.Size((len(eval_paths), self.seq_len, obs_dim))
 
-        pred_skill_dist = self.trainer.df(
-            next_obs,
+        ret_dict = self.trainer.df(
+            next_obs, train=True
         )
+        pred_skill_dist = ret_dict['classified_steps']['dist']
+        pred_skill_dist_seq = ret_dict['classified_seqs']
 
         df_accuracy = F.mse_loss(pred_skill_dist.loc, mode)
+        df_accuracy_seq = F.mse_loss(pred_skill_dist_seq, mode[:, 0, :])
 
         figs = self._plot_posterior(
             post_dist=pred_skill_dist,
@@ -124,7 +135,7 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
             skill_id_seq=skill_id
         )
 
-        return df_accuracy, figs
+        return df_accuracy, df_accuracy_seq, figs
 
     def _plot_posterior(self,
                         post_dist,
