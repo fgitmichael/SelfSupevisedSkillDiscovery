@@ -13,13 +13,12 @@ from rlkit.core import logger
 
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
-from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
-    TransitonModeMappingDiscreteSkills
-
 from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
 
 from diayn_seq_code_revised.data_collector.seq_collector_revised import \
     SeqCollectorRevised
+
+import self_supervised.utils.typed_dicts as td
 
 
 class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
@@ -141,7 +140,7 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
 
         # TODO: write rewards
     def _get_paths_mode_influence_test(self, num_paths=1, seq_len=200) \
-            -> List[TransitonModeMappingDiscreteSkills]:
+            -> List[td.TransitonModeMappingDiscreteSkills]:
 
         for _ in range(num_paths):
             for skill in range(self.policy.skill_dim):
