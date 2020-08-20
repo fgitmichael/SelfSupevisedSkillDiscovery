@@ -9,6 +9,8 @@ from diayn_rnn_seq_rnn_stepwise_classifier.networks.positional_encoder import \
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.pos_encoder_oh import \
     PositionalEncodingOh
 
+from mode_disent_no_ssm.utils.empty_network import Empty
+
 
 class BiRnnStepwiseClassifier(BaseNetwork):
 
@@ -18,7 +20,7 @@ class BiRnnStepwiseClassifier(BaseNetwork):
                  output_size,
                  hidden_sizes: list,
                  seq_len,
-                 pos_encoder_variant='transformer',
+                 pos_encoder_variant='empty',
                  ):
         """
         Args:
@@ -51,9 +53,11 @@ class BiRnnStepwiseClassifier(BaseNetwork):
             )
             input_size_classifier = minimal_input_size_classifier
 
+        elif pos_encoder_variant=='empty':
+            self.pos_encoder = Empty()
+            input_size_classifier = minimal_input_size_classifier
         else:
-            self.pos_encoder = PositionalEncodingOh()
-            input_size_classifier = minimal_input_size_classifier + seq_len
+            raise NotImplementedError
 
         self.classifier = self.create_classifier(
             input_size=input_size_classifier,
