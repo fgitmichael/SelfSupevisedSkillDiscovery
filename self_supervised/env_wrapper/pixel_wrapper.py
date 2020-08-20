@@ -14,6 +14,7 @@ class PixelNormalizedBoxEnvWrapper(NormalizedBoxEnvWrapper):
             **kwargs,
         )
         self.render_kwargs = render_kwargs
+        self.env.render()
 
     def step(self,
              action: np.ndarray,
@@ -47,4 +48,7 @@ class PixelNormalizedBoxEnvWrapper(NormalizedBoxEnvWrapper):
                 **self.render_kwargs,
             )
 
-        return (obs, pixel_obs)
+        return dict(
+            state_obs=obs,
+            pixel_obs=pixel_obs
+        )

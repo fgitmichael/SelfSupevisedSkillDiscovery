@@ -31,6 +31,7 @@ def pixel_rollout(
     agent_infos = []
     env_infos = []
     o = env.reset()
+    o = o['state_obs']
     agent.reset()
     next_o = None
     path_length = 0
@@ -38,12 +39,14 @@ def pixel_rollout(
         env.render(**render_kwargs)
     while path_length < max_path_length:
 
-        a, agent_info = agent.get_action(o)
+        try:
+            a, agent_info = agent.get_action(o)
+        except:
+            pass
         next_o, r, d, env_info = env.step(a)
 
-        observations.append(next_o[0])
-        pixel_obs.append(next_o[1])
-        next_o = next_o[0]
+        observations.append(next_o['state_obs'])
+        pixel_obs.append(next_o['pixel_obs'])
 
         rewards.append(r)
         terminals.append(d)
@@ -55,7 +58,7 @@ def pixel_rollout(
 
         if max_path_length == np.inf and d:
             break
-        o = next_o
+        o = next_o['state_obs']
         if render:
             env.render(**render_kwargs)
 
@@ -63,16 +66,17 @@ def pixel_rollout(
     if len(actions.shape) == 1:
         actions = np.expand_dims(actions, 1)
     observations = np.array(observations)
+    next_o = next_o['state_obs']
     if len(observations.shape) == 1:
         observations = np.expand_dims(observations, 1)
-        next_o = np.array([next_o])
+        next_o = np.array([next_o['state_obs']])
     next_observations = np.vstack(
         (
             observations[1:, :],
             np.expand_dims(next_o, 0)
         )
     )
-    pixel_obs = np.stack(pixel_obs, dim=0)
+    pixel_obs = np.stack(pixel_obs, axis=0)
     return dict(
         observations=observations,
         actions=actions,
