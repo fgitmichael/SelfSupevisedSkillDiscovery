@@ -16,6 +16,7 @@ from diayn_seq_code_revised.base.skill_selector_base import SkillSelectorBase
 from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDiscrete
 
 import rlkit.torch.pytorch_util as ptu
+from rlkit.samplers.rollout_functions import rollout
 
 
 class SeqCollectorRevised(PathCollectorRevisedBase):
@@ -29,12 +30,12 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
                  skill_selector: Union[
                     SkillSelectorBase,
                     SkillSelectorDiscrete],
-                 max_seqs: int
+                 max_seqs: int,
                  ):
         self.policy = policy
-        self._rollouter = RollouterRevised(
+        self._rollouter = self.create_rollouter(
             env=env,
-            policy=self.policy
+            policy=self.policy,
         )
         self.skill_selector = skill_selector
 
@@ -42,6 +43,16 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
         self._skill = None
         self._num_steps_total = 0
         self._num_paths_total = 0
+
+    def create_rollouter(
+            self,
+            env,
+            policy,
+    ):
+        return RollouterRevised(
+            env=env,
+            policy=policy,
+        )
 
     @property
     def skill(self):
@@ -74,10 +85,13 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
             num_steps_collected += seq_len
             paths.append(path)
 
-        self._num_steps_total += len(paths)
+        self._num_paths_total += len(paths)
         self._num_steps_total += num_steps_collected
 
         return paths
+
+    def _check_path(self, path, seq_len):
+        assert path.obs.shape == (seq_len, self.policy.obs_dim)
 
     def collect_new_paths(
             self,
@@ -89,7 +103,7 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
             seq_len=seq_len,
             num_seqs=num_seqs
         )
-        assert paths[0].obs.shape == (seq_len, self.policy.obs_dim)
+        self._check_path(paths[0], seq_len)
 
         prepared_paths = self.prepare_paths_before_save(paths, seq_len)
         self._epoch_paths.extend(prepared_paths)
