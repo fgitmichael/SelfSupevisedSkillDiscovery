@@ -71,6 +71,7 @@ def experiment(variant, args):
     num_skills = args.skill_dim
     hidden_size_rnn = 2
     variant['algorithm_kwargs']['batch_size'] //= seq_len
+    pos_encoding = "empty"
 
     sep_str = " | "
     run_comment = sep_str
@@ -78,6 +79,7 @@ def experiment(variant, args):
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "seq wise step wise revised" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
+    run_comment += "pos encoding: {}{}".format(pos_encoding, sep_str)
     if not one_hot_skill_encoding:
         run_comment += "skill repeat: {}".format(skill_repeat) + sep_str
 
@@ -114,7 +116,7 @@ def experiment(variant, args):
         hidden_size_rnn=hidden_size_rnn,
         hidden_sizes=[25, 25],
         seq_len=seq_len,
-        pos_encoder_variant='empty',
+        pos_encoder_variant=pos_encoding,
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
