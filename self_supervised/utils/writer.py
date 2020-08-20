@@ -48,6 +48,9 @@ class MyWriter(WriterBase):
         )
         self.plt_creator = PltCreator()
 
+    def __del__(self):
+        self.writer.close()
+
     def plot(self,
              *args,
              tb_str: str,
