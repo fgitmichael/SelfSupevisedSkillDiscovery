@@ -46,11 +46,12 @@ class RollouterRevised(RollouterBase):
                  env: gym.Env,
                  policy: Union[SkillTanhGaussianPolicyRevised,
                                MakeDeterministicRevised],
+                 rollout_fun=rollout,
                  ):
         self.env = env
         self.policy = policy
 
-        self.rollout_wrapper = RlkitRolloutSamplerWrapper(rollout)
+        self.rollout_wrapper = RlkitRolloutSamplerWrapper(rollout_fun)
 
     def do_rollout(self,
                    seq_len: int=None) -> td.TransitionMapping:
