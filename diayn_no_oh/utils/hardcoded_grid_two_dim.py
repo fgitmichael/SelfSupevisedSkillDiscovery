@@ -34,7 +34,9 @@ class NoohGridCreator(object):
         return grid
 
 class OhGridCreator(object):
+    def __init__(self, num_skills=10):
+        self.num_skills = num_skills
     def get_grid(self) -> np.ndarray:
-        grid = np.eye(10)
+        grid = np.eye(self.num_skills)
 
         return grid
