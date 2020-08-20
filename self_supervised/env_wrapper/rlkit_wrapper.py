@@ -21,9 +21,11 @@ class NormalizedBoxEnvWrapper(NormalizedBoxEnvForPytorch):
 
     # Only change: default for normalize states
     def __init__(self,
+                 *args,
                  **env_kwargs,
                  ):
         super().__init__(
+            *args,
             **env_kwargs
         )
 

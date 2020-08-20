@@ -1,5 +1,5 @@
 from typing import Dict, List
-from numpy import np
+import numpy as np
 
 from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills import \
     SeqCollectorRevisedDiscreteSkills
@@ -31,7 +31,7 @@ class SeqCollectorRevisedDiscreteSkillsPixel(SeqCollectorRevisedDiscreteSkills):
                 seq_len=seq_len
             )
 
-            pixel_obs = path.next_obs[1],
+            pixel_obs = path.next_obs[1]
             path.next_obs = path.next_obs[0]
 
             self._check_paths(
@@ -70,9 +70,34 @@ class SeqCollectorRevisedDiscreteSkillsPixel(SeqCollectorRevisedDiscreteSkills):
         prepared_paths = []
         for path_mapping, pixel_o in zip(prepared_path_mappings, pixel_obs):
             prepared_path = dict(
-                path_mapping=path_mapping,
+                **path_mapping,
                 pixel_obs=pixel_o,
             )
             prepared_paths.append(prepared_path)
 
         return prepared_paths
+
+    def get_epoch_paths(self) -> List[dict]:
+        """
+        Return:
+            list of dicts with keys of TransitionModeMappingDiscreteSkills and pixel_obs
+        """
+        assert len(self._epoch_paths) > 0
+
+        epoch_paths = list(self._epoch_paths)
+        epoch_paths_ret = []
+        for idx, path in enumerate(epoch_paths):
+            assert len(path['obs'].shape) == 2
+
+            epoch_path_ret = {}
+            for k, v in path.items():
+                # tranpose the usual elements and don't transpose pixel obs
+                if isinstance(v, np.ndarray) and len(v.shape) == 2:
+                    epoch_path_ret[k] = path[k].transpose(1, 0)
+                else:
+                    epoch_path_ret[k] = path[k]
+
+            epoch_paths_ret.append(epoch_path_ret)
+            self.reset()
+
+        return epoch_paths_ret
