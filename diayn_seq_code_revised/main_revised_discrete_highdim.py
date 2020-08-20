@@ -11,6 +11,7 @@ from self_supervised.utils.writer import MyWriterWithActivation
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
+from self_supervised.env_wrapper.pixel_wrapper import PixelNormalizedBoxEnvWrapper
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
@@ -27,6 +28,8 @@ from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
     DIAYNAlgoStepwiseSeqwiseRevisedTrainer
 from diayn_seq_code_revised.algo.seqwise_algo_revised_highdim import \
     SeqwiseAlgoRevisedDiscreteSkillsHighdim
+from diayn_seq_code_revised.data_collector.seq_collector_revised_discreteskills_pixel \
+    import SeqCollectorRevisedDiscreteSkillsPixel
 
 from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCreator
 
@@ -34,6 +37,16 @@ from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCrea
 def experiment(variant, args):
     expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
     eval_env = copy.deepcopy(expl_env)
+    render_kwargs = dict(
+        width=64,
+        height=64,
+    )
+    pixel_env = PixelNormalizedBoxEnvWrapper(
+        gym_id=str(args.env),
+        render_kwargs=render_kwargs,
+    )
+    pixel_env.obs_stats = expl_env.obs_stats
+
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
@@ -49,7 +62,7 @@ def experiment(variant, args):
     get_oh_grid = oh_grid_creator.get_grid
 
     seq_len = 100
-    one_hot_skill_encoding = False
+    one_hot_skill_encoding = True
     skill_dim = args.skill_dim \
         if one_hot_skill_encoding \
         else get_no_oh_grid().shape[-1]
@@ -125,8 +138,14 @@ def experiment(variant, args):
     seq_eval_collector = SeqCollectorRevisedDiscreteSkills(
         env=eval_env,
         policy=eval_policy,
-        max_seqs = 50,
-        skill_selector = skill_selector
+        max_seqs=50,
+        skill_selector=skill_selector
+    )
+    seqpixel_eval_collector = SeqCollectorRevisedDiscreteSkillsPixel(
+        env=pixel_env,
+        policy=eval_policy,
+        max_seqs=50,
+        skill_selector=skill_selector,
     )
     replay_buffer = SelfSupervisedEnvSequenceReplayBufferDiscreteSkills(
         max_replay_buffer_size=variant['replay_buffer_size'],
@@ -161,6 +180,7 @@ def experiment(variant, args):
         evaluation_env=eval_env,
         exploration_data_collector=expl_step_collector,
         evaluation_data_collector=eval_path_collector,
+        seqpixel_eval_collector=seqpixel_eval_collector,
         replay_buffer=replay_buffer,
 
         seq_len=seq_len,
@@ -178,7 +198,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--env',
                         type=str,
-                        default="MountainCarContinuous-v0",
+                        default="HalfCheetah-v2",
                         help='environment'
                         )
     parser.add_argument('--skill_dim',
