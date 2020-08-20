@@ -62,7 +62,12 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
             seq_len=seq_len,
             num_seqs=num_seqs
         )
+        self._check_path(paths[0], seq_len)
+        prepared_paths = self.prepare_paths_before_save(paths, seq_len)
 
+        self._epoch_paths.extend(prepared_paths)
+
+    def prepare_paths_before_save(self, paths, seq_len) -> List[td.TransitionModeMapping]:
         # Extend to TransitionModeMappingDiscreteSkills
         seq_dim = 0
         skill_seq = np.stack(
@@ -73,7 +78,6 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
         skill_id = np.array([self.skill_id])
         skill_id_seq = np.stack([skill_id] * seq_len, axis=seq_dim)
         assert skill_id_seq.shape == (seq_len, 1)
-
         paths_with_skill_id = []
         for idx, path in enumerate(paths):
             with_skill_id = td.TransitonModeMappingDiscreteSkills(
@@ -83,7 +87,7 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
             )
             paths_with_skill_id.append(with_skill_id)
 
-        self._epoch_paths.extend(paths_with_skill_id)
+        return paths_with_skill_id
 
     def get_epoch_paths(self) -> List[td.TransitonModeMappingDiscreteSkills]:
         """
