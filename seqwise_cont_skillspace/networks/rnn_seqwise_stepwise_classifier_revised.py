@@ -1,7 +1,7 @@
 import torch
 from torch import distributions
 
-from self_supervised.network.flatten_mlp import FlattenMlp
+from self_supervised.network.flatten_mlp import FlattenMlpDropout
 
 from seqwise_cont_skillspace.base.rnn_classifier_base import \
     StepwiseSeqwiseClassifierBase
@@ -14,9 +14,10 @@ class StepwiseSeqwiseClassifierVae(StepwiseSeqwiseClassifierBase):
             self,
             feature_dim,
             skill_dim,
-            hidden_sizes
-    ) -> FlattenMlp:
-        return FlattenMlp(
+            hidden_sizes,
+            dropout=0.
+    ) -> FlattenMlpDropout:
+        return FlattenMlpDropout(
             input_size=feature_dim,
             output_size=skill_dim,
             hidden_sizes=hidden_sizes,
@@ -26,7 +27,7 @@ class StepwiseSeqwiseClassifierVae(StepwiseSeqwiseClassifierBase):
             self,
             feature_dim,
             skill_dim,
-            hidden_sizes
+            hidden_sizes,
     ) -> VaeRegressor:
         return VaeRegressor(
             input_size=feature_dim,
