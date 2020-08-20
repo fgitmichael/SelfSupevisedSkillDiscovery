@@ -42,3 +42,15 @@ class NormalizedBoxEnvWrapper(NormalizedBoxEnvForPytorch):
             obs_return = next_obs
 
         return obs_return, reward, done, info
+
+    @property
+    def obs_stats(self):
+        return dict(
+            mean=self.obs_mean,
+            std=self.obs_std
+        )
+
+    @obs_stats.setter
+    def obs_stats(self, obs_stats):
+        self.obs_mean = obs_stats['mean']
+        self.obs_std = obs_stats['std']
