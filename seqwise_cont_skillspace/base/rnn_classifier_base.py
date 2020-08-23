@@ -28,6 +28,7 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
                  skill_dim,
                  hidden_sizes: list,
                  seq_len,
+                 num_layers: int = 1,
                  dropout=0.0,
                  pos_encoder_variant='transformer'):
         """
@@ -44,6 +45,8 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
             hidden_size=hidden_size_rnn,
             batch_first=True,
             bidirectional=True,
+            num_layers=num_layers,
+            dropout=dropout,
         )
         self.rnn_params = {}
         self.rnn_params['num_directions'] = \
@@ -171,12 +174,12 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
         assert my_ptu.tensor_equality(
             h_n.reshape(
                 batch_size,
-                self.rnn_params['num_features_hidden_seq'])[0][:self.rnn.hidden_size],
+                self.rnn_params['num_features_h_n'])[0][:self.rnn.hidden_size],
             h_n[0][0]
         )
         h_n = h_n.reshape(
             batch_size,
-            self.rnn_params['num_features_hidden_seq']
+            self.rnn_params['num_features_h_n']
         )
 
         return hidden_seq, h_n
