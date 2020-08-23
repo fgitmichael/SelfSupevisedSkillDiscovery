@@ -24,16 +24,18 @@ from diayn_seq_code_revised.policies.skill_policy import \
 from diayn_seq_code_revised.networks.my_gaussian import \
     ConstantGaussianMultiDim
 
-from seqwise_cont_skillspace.algo.algo_cont_skillspace import SeqwiseAlgoRevisedContSkills
-from seqwise_cont_skillspace.utils.info_loss import InfoLoss
 from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
-from seqwise_cont_skillspace.trainer.trainer_ssvaestyle import SsvaestyleSkillTrainer
 from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
+from seqwise_cont_skillspace.utils.info_loss import InfoLoss
 
 from sequence_stepwise_only.networks.stepwise_only_rnn_classifier import \
-    StepwiseOnlyRnnClassifier
+    StepwiseOnlyRnnClassifierCont
+from sequence_stepwise_only.trainer.stepwise_only_trainer_cont import \
+    StepwiseOnlyTrainerCont
+from sequence_stepwise_only.algo.stepwise_only_algo import \
+    SeqAlgoRevisedContSkillsStepwiseOnly
 
 from diayn_seq_code_revised.data_collector.skill_selector import \
     SkillSelectorDiscrete
@@ -52,7 +54,7 @@ def experiment(variant, args):
     #skill_dim = args.skill_dim
     skill_repeat = 1
     skill_dim = 2 * skill_repeat
-    hidden_size_rnn = 100
+    hidden_size_rnn = 10
     num_rnn_layers = 2
     cont_discrete = 'continuous'
     variant['algorithm_kwargs']['batch_size'] //= seq_len
@@ -93,7 +95,7 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = StepwiseOnlyRnnClassifier(
+    df = StepwiseOnlyRnnClassifierCont(
         obs_dim=obs_dim,
         hidden_size_rnn=hidden_size_rnn,
         skill_dim=skill_dim,
@@ -151,7 +153,7 @@ def experiment(variant, args):
         alpha=0.999,
         lamda=0.5,
     ).loss
-    trainer = SsvaestyleSkillTrainer(
+    trainer = StepwiseOnlyTrainerCont(
         skill_prior_dist=skill_prior,
         loss_fun=info_loss_fun,
         env=eval_env,
@@ -174,7 +176,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = SeqwiseAlgoRevisedContSkills(
+    algorithm = SeqAlgoRevisedContSkillsStepwiseOnly(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
@@ -228,6 +230,7 @@ if __name__ == "__main__"   :
             target_update_period=1,
             policy_lr=3E-4,
             qf_lr=3E-4,
+            df_lr=1E-4,
             reward_scale=1,
             use_automatic_entropy_tuning=True,
         ),

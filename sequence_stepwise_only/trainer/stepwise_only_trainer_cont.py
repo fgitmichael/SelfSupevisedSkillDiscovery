@@ -247,3 +247,24 @@ class StepwiseOnlyTrainerCont(ContSkillTrainerSeqwiseStepwise):
                 self.eval_statistics['Alpha'] = alpha.item()
                 self.eval_statistics['Alpha Loss'] = alpha_loss.item()
         self._n_train_steps_total += 1
+
+    def _update_networks(self,
+                         df_loss,
+                         qf1_loss,
+                         qf2_loss,
+                         policy_loss):
+        self.df_optimizer_step.zero_grad()
+        df_loss['step'].backward()
+        self.df_optimizer_step.step()
+
+        self.qf1_optimizer.zero_grad()
+        qf1_loss.backward()
+        self.qf1_optimizer.step()
+
+        self.qf2_optimizer.zero_grad()
+        qf2_loss.backward()
+        self.qf2_optimizer.step()
+
+        self.policy_optimizer.zero_grad()
+        policy_loss.backward()
+        self.policy_optimizer.step()
