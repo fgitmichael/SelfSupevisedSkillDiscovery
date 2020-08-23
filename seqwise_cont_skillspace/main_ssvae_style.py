@@ -211,7 +211,7 @@ if __name__ == "__main__"   :
         algorithm="DIAYN",
         version="normal",
         layer_size=256,
-        replay_buffer_size=int(100),
+        replay_buffer_size=int(1000),
         algorithm_kwargs=dict(
             num_epochs=1000,
             num_eval_steps_per_epoch=5000,
