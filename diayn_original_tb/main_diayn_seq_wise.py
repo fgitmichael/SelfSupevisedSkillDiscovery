@@ -20,6 +20,7 @@ from self_supervised.utils.writer import MyWriterWithActivation
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
+from self_supervised.network.flatten_mlp import FlattenMlpDropout
 from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
@@ -33,6 +34,13 @@ from diayn_original_tb.policies.diayn_policy_extension import \
 from diayn_original_tb.algo.algo_diayn_tb_own_fun import DIAYNTorchOnlineRLAlgorithmOwnFun
 from diayn_original_tb.algo.diayn_trainer_orig_extension import DIAYNTrainerExtension
 from diayn_original_tb.policies.self_sup_policy_wrapper import RlkitWrapperForMySkillPolicy
+from diayn_original_tb.algo.algo_diayn_tb_perf_logging import \
+    DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently
+
+from diayn_with_rnn_classifier.algo.seq_wise_algo_classfier_perf_logging import \
+    SeqWiseAlgoClassfierPerfLogging
+from diayn_with_rnn_classifier.trainer.diayn_trainer_modularized import \
+    DIAYNTrainerModularized
 
 def experiment(variant, args):
     expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
@@ -46,7 +54,7 @@ def experiment(variant, args):
 
     run_comment = ""
     run_comment += "seq_len: {} ".format(seq_len)
-    run_comment += "own functions"
+    run_comment += "own functions seqwise"
 
     seed = 0
     torch.manual_seed = seed
@@ -75,10 +83,11 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = MyFlattenMlp(
+    df = FlattenMlpDropout(
         input_size=obs_dim,
         output_size=skill_dim,
         hidden_sizes=[M, M],
+        dropout=0.5,
     )
     #policy = SkillTanhGaussianPolicyExtension(
     #    obs_dim=obs_dim + skill_dim,
@@ -111,7 +120,7 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
-    trainer = DIAYNTrainerExtension(
+    trainer = DIAYNTrainerModularized(
         env=eval_env,
         policy=policy,
         qf1=qf1,
@@ -132,7 +141,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = DIAYNTorchOnlineRLAlgorithmOwnFun(
+    algorithm = SeqWiseAlgoClassfierPerfLogging(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
@@ -153,10 +162,16 @@ def experiment(variant, args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('env', type=str,
-                        help='environment')
-    parser.add_argument('--skill_dim', type=int, default=10,
-                        help='skill dimension')
+    parser.add_argument('--env',
+                        type=str,
+                        default="MountainCarContinuous-v0",
+                        help='environment'
+                        )
+    parser.add_argument('--skill_dim',
+                        type=int,
+                        default=10,
+                        help='skill dimension'
+                        )
     args = parser.parse_args()
 
     # noinspection PyTypeChecker
