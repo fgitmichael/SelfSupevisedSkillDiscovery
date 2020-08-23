@@ -96,14 +96,15 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
         batch = self.replay_buffer.random_batch_bsd_format(
             batch_size=batch_size)
 
-        z_hat = ptu.from_numpy(batch.skill_id[:, 0, :])
+        z_hat = ptu.from_numpy(batch.skill_id)
         d_pred = self.trainer.df(
             ptu.from_numpy(batch.next_obs))
-        d_pred = d_pred[:, 0, :]
         pred_log_softmax = F.log_softmax(d_pred, dim=-1)
         pred_z = torch.argmax(pred_log_softmax, dim=-1, keepdim=True)
         assert z_hat.shape == pred_z.shape
 
+        pred_z = pred_z.view(-1, 1)
+        z_hat = z_hat.view(-1, 1).int()
         df_accuracy = torch.sum(
             torch.eq(
                 z_hat,
