@@ -51,14 +51,17 @@ def experiment(variant, args):
     #skill_dim = args.skill_dim
     skill_repeat = 1
     skill_dim = 2 * skill_repeat
-    hidden_size_rnn = 7
+    hidden_size_rnn = 100
+    num_rnn_layers = 2
+    cont_discrete = 'continuous'
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
     run_comment = sep_str
+    run_comment += "ssvae {}".format(sep_str)
     run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
-    run_comment += "discrete skill space" + sep_str
+    run_comment += "{} skills".format(cont_discrete) + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
     run_comment += "skill repeat: {}{}".format(skill_repeat, sep_str)
 
@@ -95,7 +98,9 @@ def experiment(variant, args):
         skill_dim=skill_dim,
         hidden_sizes=[M, M],
         seq_len=seq_len,
-        dropout=0.3
+        dropout=0.5,
+        pos_encoder_variant='transformer',
+        num_layers=num_rnn_layers,
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
@@ -107,12 +112,16 @@ def experiment(variant, args):
     skill_prior = ConstantGaussianMultiDim(
         output_dim=skill_dim
     )
-    skill_selector = SkillSelectorContinous(
-        prior_skill_dist=skill_prior
-    )
-    #skill_selector = SkillSelectorDiscrete(
-    #    NoohGridCreator(repeat=skill_repeat, radius_factor=2).get_grid
-    #)
+    if cont_discrete == 'continuous':
+        skill_selector = SkillSelectorContinous(
+            prior_skill_dist=skill_prior
+        )
+    elif cont_discrete == 'discrete':
+        skill_selector = SkillSelectorDiscrete(
+            NoohGridCreator(repeat=skill_repeat, radius_factor=2).get_grid
+        )
+    else:
+        raise NotImplementedError
     eval_path_collector = SeqCollectorRevisedOptionalSkillId(
         eval_env,
         eval_policy,
@@ -138,8 +147,8 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = InfoLoss(
-        alpha=0.97,
-        lamda=0.3,
+        alpha=0.999,
+        lamda=0.5,
     ).loss
     trainer = SsvaestyleSkillTrainer(
         skill_prior_dist=skill_prior,
@@ -202,7 +211,7 @@ if __name__ == "__main__"   :
         algorithm="DIAYN",
         version="normal",
         layer_size=256,
-        replay_buffer_size=int(1E6),
+        replay_buffer_size=int(100),
         algorithm_kwargs=dict(
             num_epochs=1000,
             num_eval_steps_per_epoch=5000,

@@ -121,13 +121,15 @@ class InfoLoss:
             data_dict['recon'][self.dist_key].loc,
             data_dict['data'])
 
+        data_loss = mse
+
         log = dict(
             mse=mse,
-            loss_data=mse,
+            loss_data=data_loss,
         )
 
         return dict(
-            loss=mse,
+            loss=data_loss,
             log_dict=log,
         )
 
@@ -173,7 +175,8 @@ class GuidedInfoLoss(InfoLoss):
         """
         guide = data_dict['guide']
         post = data_dict['post']
-        guided_loss = F.mse_loss(guide, post[self.dist_key].loc)
+        #guided_loss = F.mse_loss(guide, post[self.dist_key].loc)
+        guided_loss = - post['dist'].log_prob(guide).sum(dim=-1).mean()
 
         loss_data = guided_loss
         log = dict(
@@ -196,6 +199,8 @@ class GuidedInfoLoss(InfoLoss):
              **kwargs):
         if not 'guide' in kwargs:
             raise ValueError("Guide has to be passed!")
+        if len(list(kwargs.keys())) > 1:
+            raise ValueError("Values that are not used are passed!")
         guide = kwargs['guide']
 
         if dist_key is not None:
