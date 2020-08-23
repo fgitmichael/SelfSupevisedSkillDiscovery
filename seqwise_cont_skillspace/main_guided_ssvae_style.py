@@ -35,6 +35,8 @@ from seqwise_cont_skillspace.trainer.trainer_guided_ssvae_style import \
 
 from diayn_seq_code_revised.data_collector.skill_selector import \
     SkillSelectorDiscrete
+from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
+    SkillSelectorContinous
 
 from diayn_original_cont.trainer.info_loss_min_vae import InfoLossLatentGuided
 
@@ -50,8 +52,10 @@ def experiment(variant, args):
     #skill_dim = args.skill_dim
     skill_repeat = 1
     skill_dim = 2 * skill_repeat
-    hidden_size_rnn = 50
+    hidden_size_rnn = 100
+    pos_encoder = 'empty'
     variant['algorithm_kwargs']['batch_size'] //= seq_len
+    skill_cont_or_discrete = 'continuous'
 
     sep_str = " | "
     run_comment = sep_str
@@ -60,6 +64,8 @@ def experiment(variant, args):
     run_comment += "discrete skill space" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
     run_comment += "skill repeat: {}{}".format(skill_repeat, sep_str)
+    run_comment += "pos_encoder: {}{}".format(pos_encoder, sep_str)
+    run_comment += "skill space: {}{}".format(skill_cont_or_discrete, sep_str)
 
     seed = 0
     torch.manual_seed = seed
@@ -88,13 +94,14 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = SeqwiseStepwiseClassifierContSsvaestyle(
+    df = GuidedNoSsvaestyle(
         obs_dim=obs_dim,
         hidden_size_rnn=hidden_size_rnn,
         skill_dim=skill_dim,
         hidden_sizes=[M, M],
         seq_len=seq_len,
         dropout=0.5,
+        pos_encoder_variant=pos_encoder,
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
@@ -106,9 +113,19 @@ def experiment(variant, args):
     skill_prior = ConstantGaussianMultiDim(
         output_dim=skill_dim
     )
-    skill_selector = SkillSelectorDiscrete(
+    skill_selector_discrete = SkillSelectorDiscrete(
         NoohGridCreator(repeat=skill_repeat, radius_factor=2).get_grid
     )
+    skill_selector_cont = SkillSelectorContinous(
+        prior_skill_dist=skill_prior
+    )
+    if skill_cont_or_discrete=='continuous':
+        skill_selector = skill_selector_cont
+    elif skill_cont_or_discrete=='discrete':
+        skill_selector = skill_selector_discrete
+    else:
+        raise NotImplementedError
+
     eval_path_collector = SeqCollectorRevisedOptionalSkillId(
         eval_env,
         eval_policy,
@@ -135,7 +152,7 @@ def experiment(variant, args):
     )
     info_loss_fun = GuidedInfoLoss(
         alpha=0.9,
-        lamda=0.2,
+        lamda=0.001,
     ).loss
     trainer = GuidedSsvaestyleTrainer(
         skill_prior_dist=skill_prior,
@@ -198,7 +215,7 @@ if __name__ == "__main__"   :
         algorithm="DIAYN",
         version="normal",
         layer_size=256,
-        replay_buffer_size=int(1E6),
+        replay_buffer_size=int(5000),
         algorithm_kwargs=dict(
             num_epochs=1000,
             num_eval_steps_per_epoch=5000,
