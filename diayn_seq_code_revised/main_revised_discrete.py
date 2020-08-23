@@ -98,7 +98,8 @@ def experiment(variant, args):
         output_size=num_skills,
         hidden_size_rnn=hidden_size_rnn,
         hidden_sizes=[M, M],
-        seq_len=seq_len
+        seq_len=seq_len,
+        pos_encoder_variant='transformer',
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,

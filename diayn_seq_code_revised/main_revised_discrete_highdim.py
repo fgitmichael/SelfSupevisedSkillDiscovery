@@ -69,7 +69,7 @@ def experiment(variant, args):
         if one_hot_skill_encoding \
         else get_no_oh_grid().shape[-1]
     num_skills = args.skill_dim
-    hidden_size_rnn = 2
+    hidden_size_rnn = 3
     variant['algorithm_kwargs']['batch_size'] //= seq_len
     pos_encoding = "empty"
 
@@ -77,7 +77,7 @@ def experiment(variant, args):
     run_comment = sep_str
     run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
-    run_comment += "seq wise step wise revised" + sep_str
+    run_comment += "seq wise step wise revised high dim" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
     run_comment += "pos encoding: {}{}".format(pos_encoding, sep_str)
     if not one_hot_skill_encoding:
@@ -114,7 +114,7 @@ def experiment(variant, args):
         input_size=obs_dim,
         output_size=num_skills,
         hidden_size_rnn=hidden_size_rnn,
-        hidden_sizes=[25, 25],
+        hidden_sizes=[8, 8],
         seq_len=seq_len,
         pos_encoder_variant=pos_encoding,
     )
