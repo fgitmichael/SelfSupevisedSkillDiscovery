@@ -23,11 +23,13 @@ class SeqwiseAlgoRevisedHighdim(SeqwiseAlgoRevisedDiscreteSkills):
     def __init__(self,
                  *args,
                  seqpixel_eval_collector,
+                 seq_len_eval=200,
                  **kwargs):
         super(SeqwiseAlgoRevisedHighdim, self).__init__(
             *args,
             **kwargs
         )
+        self.seq_len_eval = seq_len_eval
         self.seqpixel_eval_collector = seqpixel_eval_collector
 
     def set_next_skill(self, data_collector: SeqCollectorRevised):
@@ -48,10 +50,32 @@ class SeqwiseAlgoRevisedHighdim(SeqwiseAlgoRevisedDiscreteSkills):
         return mode_influence_eval_paths_pixel
 
     def write_mode_influence_and_log(self, epoch):
-        paths = self._get_paths_mode_influence_test_pixel()
-        self._write_mode_influence_and_log(paths, epoch)
+        paths_pixel = self._get_paths_mode_influence_test_pixel(
+            seq_len=self.seq_len_eval,
+        )
+        self._write_mode_influence_and_log_pixel(paths_pixel, epoch)
 
-    def _write_mode_influence_and_log(self, paths, epoch):
+        paths_normal = self._get_paths_mode_influence_test(
+            num_paths=1,
+            seq_len=self.seq_len_eval,
+        )
+        self._write_mode_influence_and_log(paths=paths_normal, epoch=epoch)
+
+    def _write_mode_influence(self,
+                              path,
+                              obs_dim,
+                              action_dim,
+                              epoch
+                              ):
+        path.obs = path.obs[:self.trainer.df.obs_dimensions_used]
+        super()._write_mode_influence(
+            path=path,
+            obs_dim=self.trainer.df.obs_dimensions_used,
+            action_dim=action_dim,
+            epoch=epoch
+        )
+
+    def _write_mode_influence_and_log_pixel(self, paths, epoch):
 
         # Create videos for each path
         for path in paths:

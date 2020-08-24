@@ -25,10 +25,16 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
         gt.stamp("net parameter histogram logging")
 
     def _log_perf_eval(self, epoch):
-        classfier_accuracy_eval = self._classfier_perf_eval()
+        classfier_accuracy_eval_step, classfier_accuracy_eval_seq = self._classfier_perf_eval()
         self.diagnostic_writer.writer.writer.add_scalar(
-            tag="Rnn Debug/Classfier accuracy eval",
-            scalar_value=classfier_accuracy_eval,
+            tag="Rnn Debug/Classfier accuracy eval step",
+            scalar_value=classfier_accuracy_eval_step,
+            global_step=epoch
+        )
+
+        self.diagnostic_writer.writer.writer.add_scalar(
+            tag="Rnn Debug/Classfier accuracy eval seq",
+            scalar_value=classfier_accuracy_eval_seq,
             global_step=epoch
         )
 
@@ -70,22 +76,33 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
         assert z_hat.shape \
             == torch.Size((len(eval_paths), self.seq_len, 1))
 
-        d_pred = self.trainer.df(
+        d_pred_step, d_pred_seq = self.trainer.df(
             next_obs,
+            train=True
         )
-        d_pred_log_softmax = F.log_softmax(d_pred, dim=-1)
+        d_pred_logsoftmax_step = F.log_softmax(d_pred_step, dim=-1)
+        d_pred_logsoftmax_seq = F.log_softmax(d_pred_seq, dim=-1)
 
-        pred_z = torch.argmax(d_pred_log_softmax, dim=-1, keepdim=True)
-        assert z_hat.shape == pred_z.shape
-        pred_z = pred_z.view(-1, 1)
-        z_hat = z_hat.view(-1, 1)
-        df_accuracy = torch.sum(
+        pred_z_step = torch.argmax(d_pred_logsoftmax_step, dim=-1, keepdim=True)
+        pred_z_seq = torch.argmax(d_pred_logsoftmax_seq, dim=-1, keepdim=True)
+        assert z_hat.shape == pred_z_step.shape
+        pred_z_step = pred_z_step.view(-1, 1)
+        z_hat_step = z_hat.view(-1, 1)
+        df_accuracy_step = torch.sum(
             torch.eq(
-                z_hat,
-                pred_z
-            )).float()/pred_z.size(0)
+                z_hat_step,
+                pred_z_step
+            )).float()/pred_z_step.size(0)
 
-        return df_accuracy
+        z_hat_seq = z_hat[:, 0]
+        df_accuracy_seq = torch.sum(
+            torch.eq(
+                z_hat_seq,
+                pred_z_seq
+            )
+        ).float()/pred_z_seq.size(0)
+
+        return df_accuracy_step, df_accuracy_seq
 
     @torch.no_grad()
     def _classfier_perf_on_memory(self):

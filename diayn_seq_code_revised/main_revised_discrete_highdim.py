@@ -35,7 +35,10 @@ from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCrea
 
 
 def experiment(variant, args):
-    expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
+    expl_env = NormalizedBoxEnvWrapper(
+        gym_id=str(args.env),
+        action_repeat=1,
+    )
     eval_env = copy.deepcopy(expl_env)
     render_kwargs = dict(
         width=64,
@@ -43,6 +46,7 @@ def experiment(variant, args):
     )
     pixel_env = PixelNormalizedBoxEnvWrapper(
         gym_id=str(args.env),
+        action_repeat=1,
         render_kwargs=render_kwargs,
     )
     pixel_env.obs_stats = expl_env.obs_stats
@@ -114,9 +118,10 @@ def experiment(variant, args):
         input_size=obs_dim,
         output_size=num_skills,
         hidden_size_rnn=hidden_size_rnn,
-        hidden_sizes=[8, 8],
+        hidden_sizes=[M, M],
         seq_len=seq_len,
         pos_encoder_variant=pos_encoding,
+        dropout=0.5,
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
@@ -171,12 +176,12 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logs',
+        log_dir='logshighdim',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
         writer=writer,
-        log_interval=10
+        log_interval=3
     )
 
     algorithm = SeqwiseAlgoRevisedDiscreteSkillsHighdim(
@@ -189,6 +194,7 @@ def experiment(variant, args):
         replay_buffer=replay_buffer,
 
         seq_len=seq_len,
+        seq_len_eval=seq_len//2,
 
         diagnostic_writer=diagno_writer,
         seq_eval_collector=seq_eval_collector,
@@ -218,7 +224,7 @@ if __name__ == "__main__":
         algorithm="DIAYN",
         version="normal",
         layer_size=256,
-        replay_buffer_size=int(1E6),
+        replay_buffer_size=int(5000),
         algorithm_kwargs=dict(
             num_epochs=1000,
             num_eval_steps_per_epoch=5000,
@@ -226,7 +232,7 @@ if __name__ == "__main__":
             num_expl_steps_per_train_loop=10,
             min_num_steps_before_training=1000,
             max_path_length=1000,
-            batch_size=1024,
+            batch_size=4096,
         ),
         trainer_kwargs=dict(
             discount=0.99,

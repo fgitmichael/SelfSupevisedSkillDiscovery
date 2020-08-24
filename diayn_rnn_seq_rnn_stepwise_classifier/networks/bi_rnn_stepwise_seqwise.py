@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 from code_slac.network.base import BaseNetwork
-from self_supervised.network.flatten_mlp import FlattenMlp
+from self_supervised.network.flatten_mlp import FlattenMlp, FlattenMlpDropout
 
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.positional_encoder import \
     PositionalEncoding
@@ -16,26 +16,32 @@ import self_supervised.utils.my_pytorch_util as my_ptu
 
 class BiRnnStepwiseSeqWiseClassifier(BiRnnStepwiseClassifier):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self,
+                 *args,
+                 dropout = 0.,
+                 **kwargs):
         super().__init__(*args, **kwargs)
-        hidden_size_rnn = kwargs['hidden_size_rnn']
         self.output_size = kwargs['output_size']
         hidden_sizes = kwargs['hidden_sizes']
 
         self.classifier_seq = self.create_classifier_seq(
             input_size=self.rnn_params['num_features'],
             output_size=self.output_size,
-            hidden_sizes=hidden_sizes
+            hidden_sizes=hidden_sizes,
+            dropout=dropout,
         )
 
     def create_classifier_seq(self,
                               input_size,
                               output_size,
-                              hidden_sizes):
-        return FlattenMlp(
+                              hidden_sizes,
+                              dropout,
+                              ):
+        return FlattenMlpDropout(
             input_size=input_size,
             output_size=output_size,
-            hidden_sizes=hidden_sizes
+            hidden_sizes=hidden_sizes,
+            dropout=dropout,
         )
 
     def _classify_stepwise(self, hidden_seq):
