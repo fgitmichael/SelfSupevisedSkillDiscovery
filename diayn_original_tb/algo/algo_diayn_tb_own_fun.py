@@ -45,6 +45,9 @@ from seqwise_cont_skillspace.trainer.trainer_guided_ssvae_style import \
 
 from sequence_stepwise_only.trainer.stepwise_only_trainer_cont import StepwiseOnlyTrainerCont
 
+from two_d_navigation_demo.trainer.trainer_stepwise_only_discrete import \
+    StepwiseOnlyDiscreteTrainer
+
 class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
     def __init__(self,
@@ -187,6 +190,7 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                                   SsvaestyleSkillTrainer,
                                   GuidedSsvaestyleTrainer,
                                   StepwiseOnlyTrainerCont,
+                                  StepwiseOnlyDiscreteTrainer,
                                   ]:
             train_dict = dict(
                 rewards=train_data.reward,
