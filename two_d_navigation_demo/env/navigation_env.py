@@ -49,6 +49,7 @@ class TwoDimNavigationEnv(gym.Env):
 
     def step(self, action: np.ndarray):
         action /= 10
+        assert action in self.action_space
         self.state += action
         self.state = self.map_back(self.state)
         assert self.state in self.observation_space
