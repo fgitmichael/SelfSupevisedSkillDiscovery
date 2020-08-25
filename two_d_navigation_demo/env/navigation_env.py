@@ -14,8 +14,8 @@ class TwoDimNavigationEnv(gym.Env):
         self.min_observation = np.zeros((2,), dtype=np.float)
         self.max_observation = np.array(size, dtype=np.float)
 
-        self.min_action = np.zeros((2,), dtype=np.float)
         self.max_action = np.array(action_max, dtype=np.float)
+        self.min_action = -self.max_action
 
         self.action_space = gym.spaces.Box(
             low=self.min_action,
@@ -48,9 +48,12 @@ class TwoDimNavigationEnv(gym.Env):
         return self.state
 
     def step(self, action: np.ndarray):
-        action /= 10
-        assert action in self.action_space
-        self.state += action
+        action = action / 10
+        try:
+            assert action in self.action_space
+        except:
+            pass
+        self.state = self.state + action
         self.state = self.map_back(self.state)
         assert self.state in self.observation_space
         self.check_state(self.state)
