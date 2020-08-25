@@ -8,30 +8,27 @@ import rlkit.torch.pytorch_util as ptu
 from rlkit.launchers.launcher_util import setup_logger
 
 from self_supervised.utils.writer import MyWriterWithActivation
-from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
 
-from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
-    BiRnnStepwiseSeqWiseClassifier
-
 from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills import \
     SeqCollectorRevisedDiscreteSkills
 from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
-from diayn_seq_code_revised.algo.seqwise_algo_revised import \
-    SeqwiseAlgoRevisedDiscreteSkills
 from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDiscrete
-from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
-    DIAYNAlgoStepwiseSeqwiseRevisedTrainer
 
-from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCreator
+from diayn_no_oh.utils.hardcoded_grid_two_dim import OhGridCreator
 
 from two_d_navigation_demo.env.navigation_env import \
     TwoDimNavigationEnv
+from two_d_navigation_demo.networks.stepwise_only_discrete_classifier import \
+    StepwiseOnlyRnnClassifierDiscrete
+from two_d_navigation_demo.algo.seqwise_algo_step_only import AlgoStepwiseOnlyDiscreteSkills
+from two_d_navigation_demo.trainer.trainer_stepwise_only_discrete import \
+    StepwiseOnlyDiscreteTrainer
 
 
 def experiment(variant, args):
@@ -41,33 +38,24 @@ def experiment(variant, args):
     action_dim = eval_env.action_space.low.size
 
     # Skill Grids
-    skill_repeat = 5
-    nooh_grid_creator = NoohGridCreator(
-        repeat=skill_repeat,
-        radius_factor=1
-    )
-    get_no_oh_grid = nooh_grid_creator.get_grid
 
     oh_grid_creator = OhGridCreator()
     get_oh_grid = oh_grid_creator.get_grid
 
     seq_len = 200
     one_hot_skill_encoding = False
-    skill_dim = args.skill_dim \
-        if one_hot_skill_encoding \
-        else get_no_oh_grid().shape[-1]
+    skill_dim = args.skill_dim
     num_skills = args.skill_dim
     hidden_size_rnn = 10
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
     run_comment = sep_str
+    run_comment += "stepwise only {}".format(sep_str)
     run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "seq wise step wise revised" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
-    if not one_hot_skill_encoding:
-        run_comment += "skill repeat: {}".format(skill_repeat) + sep_str
 
     seed = 0
     torch.manual_seed = seed
@@ -96,9 +84,9 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = BiRnnStepwiseSeqWiseClassifier(
-        input_size=obs_dim,
-        output_size=num_skills,
+    df = StepwiseOnlyRnnClassifierDiscrete(
+        obs_dim=obs_dim,
+        skill_dim=num_skills,
         hidden_size_rnn=hidden_size_rnn,
         hidden_sizes=[M, M],
         seq_len=seq_len,
@@ -112,11 +100,10 @@ def experiment(variant, args):
     )
     eval_policy = MakeDeterministicRevised(policy)
     skill_selector = SkillSelectorDiscrete(
-        get_skill_grid_fun=get_oh_grid if one_hot_skill_encoding else get_no_oh_grid
+        get_skill_grid_fun=get_oh_grid
     )
     eval_path_collector = SeqCollectorRevisedDiscreteSkills(
-        eval_env,
-        eval_policy,
+        eval_env, eval_policy,
         max_seqs=50,
         skill_selector=skill_selector
     )
@@ -138,7 +125,7 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
-    trainer = DIAYNAlgoStepwiseSeqwiseRevisedTrainer(
+    trainer = StepwiseOnlyDiscreteTrainer(
         env=eval_env,
         policy=policy,
         qf1=qf1,
@@ -151,7 +138,7 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logs',
+        log_dir='logs_stepwise_only',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
@@ -159,7 +146,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = SeqwiseAlgoRevisedDiscreteSkills(
+    algorithm = AlgoStepwiseOnlyDiscreteSkills(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
@@ -213,8 +200,7 @@ if __name__ == "__main__":
             target_update_period=1,
             policy_lr=3E-4,
             qf_lr=3E-4,
-            df_lr_seq=1E-4,
-            df_lr_step=1E-5,
+            df_lr_step=1E-3,
             reward_scale=1,
             use_automatic_entropy_tuning=True,
         ),

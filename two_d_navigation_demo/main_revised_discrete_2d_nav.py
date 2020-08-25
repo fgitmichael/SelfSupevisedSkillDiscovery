@@ -30,11 +30,12 @@ from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
 
 from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCreator
 
-from
+from two_d_navigation_demo.env.navigation_env import \
+    TwoDimNavigationEnv
 
 
 def experiment(variant, args):
-    expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
+    expl_env = TwoDimNavigationEnv()
     eval_env = copy.deepcopy(expl_env)
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
@@ -56,7 +57,7 @@ def experiment(variant, args):
         if one_hot_skill_encoding \
         else get_no_oh_grid().shape[-1]
     num_skills = args.skill_dim
-    hidden_size_rnn = 100
+    hidden_size_rnn = 10
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
@@ -101,7 +102,7 @@ def experiment(variant, args):
         hidden_size_rnn=hidden_size_rnn,
         hidden_sizes=[M, M],
         seq_len=seq_len,
-        pos_encoder_variant='transformer',
+        pos_encoder_variant='empty',
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
@@ -150,7 +151,7 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logs',
+        log_dir='logs_seqwise_stepwise',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
@@ -212,6 +213,8 @@ if __name__ == "__main__":
             target_update_period=1,
             policy_lr=3E-4,
             qf_lr=3E-4,
+            df_lr_seq=1E-3,
+            df_lr_step=1E-3,
             reward_scale=1,
             use_automatic_entropy_tuning=True,
         ),

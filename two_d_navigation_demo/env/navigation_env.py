@@ -38,24 +38,43 @@ class TwoDimNavigationEnv(gym.Env):
 
     def reset(self):
         self.state = np.mean(
-            self.observation_space.high - self.observation_space.low,
+            np.stack([self.observation_space.low,
+                      self.observation_space.high],
+                     axis=-1),
             axis=-1)
+        assert self.state in self.observation_space
+        self.check_state(self.state)
+        assert np.all(self.state == np.array([0.5, 0.5]))
         return self.state
 
     def step(self, action: np.ndarray):
+        action /= 10
         self.state += action
         self.state = self.map_back(self.state)
-        reward = 0
+        assert self.state in self.observation_space
+        self.check_state(self.state)
+        reward = 0.
         done = False
         info = {}
         return self.state, reward, done, {}
+
+    def check_state(self, state):
+        for dim in state:
+            assert dim <= 1. and dim >= 0.
 
     def map_back(self, state):
         assert state.shape \
                == self.min_observation.shape \
                == self.max_observation.shape
-        return np.clip(
-            state,
-            a_min=self.min_observation,
-            a_max=self.max_observation,
-        )
+        if not state in self.observation_space:
+            mapped_back = np.clip(
+                state,
+                a_min=self.min_observation,
+                a_max=self.max_observation,
+            )
+            assert mapped_back in self.observation_space
+
+        else:
+            mapped_back = state
+
+        return mapped_back
