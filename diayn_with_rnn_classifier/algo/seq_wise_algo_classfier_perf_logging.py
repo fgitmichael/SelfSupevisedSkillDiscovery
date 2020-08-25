@@ -25,7 +25,8 @@ class SeqWiseAlgoClassfierPerfLogging(DIAYNTorchOnlineRLAlgorithmOwnFun):
         gt.stamp("net parameter histogram logging")
 
     def _log_perf_eval(self, epoch):
-        classfier_accuracy_eval_step, classfier_accuracy_eval_seq = self._classfier_perf_eval()
+        classfier_accuracy_eval_step, \
+        classfier_accuracy_eval_seq = self._classfier_perf_eval()
         self.diagnostic_writer.writer.writer.add_scalar(
             tag="Rnn Debug/Classfier accuracy eval step",
             scalar_value=classfier_accuracy_eval_step,
