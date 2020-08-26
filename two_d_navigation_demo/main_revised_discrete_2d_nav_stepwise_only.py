@@ -42,7 +42,7 @@ def experiment(variant, args):
     oh_grid_creator = OhGridCreator()
     get_oh_grid = oh_grid_creator.get_grid
 
-    seq_len = 200
+    seq_len = 100
     one_hot_skill_encoding = False
     skill_dim = args.skill_dim
     num_skills = args.skill_dim
@@ -90,7 +90,7 @@ def experiment(variant, args):
         hidden_size_rnn=hidden_size_rnn,
         hidden_sizes=[M, M],
         seq_len=seq_len,
-        pos_encoder_variant='empty',
+        pos_encoder_variant='transformer',
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,

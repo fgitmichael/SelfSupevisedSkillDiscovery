@@ -148,7 +148,7 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logs',
+        log_dir='logs2',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
