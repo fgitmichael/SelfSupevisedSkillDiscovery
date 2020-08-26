@@ -1,6 +1,7 @@
 import gym
 from gym.utils import seeding
 import numpy as np
+import warnings
 
 class TwoDimNavigationEnv(gym.Env):
 
@@ -49,10 +50,13 @@ class TwoDimNavigationEnv(gym.Env):
 
     def step(self, action: np.ndarray):
         action = action / 10
-        try:
-            assert action in self.action_space
-        except:
-            pass
+        if action not in self.action_space and \
+                np.all(np.abs(action) - self.action_space.high < 1E7):
+            warnings.warn('Action is numerically out of actions space')
+
+        elif np.all(np.abs(action) - self.action_space.high > 1E7):
+            raise ValueError('Action is out of action space')
+
         self.state = self.state + action
         self.state = self.map_back(self.state)
         assert self.state in self.observation_space
