@@ -14,6 +14,26 @@ from rlkit.core.eval_util import create_stats_ordered_dict
 
 class DIAYNTrainerModularized(DIAYNTrainer):
 
+    def __init__(self,
+                 *args,
+                 entropy_regularization_alpha=None,
+                 use_automatic_entropy_tuning=True,
+                 **kwargs):
+        # Check for consistent inputs
+        if entropy_regularization_alpha is None:
+            assert use_automatic_entropy_tuning
+
+        else:
+            assert not use_automatic_entropy_tuning
+
+        self.entropy_reg_alpha = entropy_regularization_alpha
+
+        super(DIAYNTrainerModularized, self).__init__(
+            *args,
+            use_automatic_entropy_tuning=use_automatic_entropy_tuning,
+            **kwargs
+        )
+
     def train_from_torch(self, batch):
         terminals = batch['terminals']
         obs = batch['observations']
@@ -162,7 +182,7 @@ class DIAYNTrainerModularized(DIAYNTrainer):
             alpha = self.log_alpha.exp()
         else:
             alpha_loss = 0
-            alpha = 1
+            alpha = self.entropy_reg_alpha
 
         q_new_actions = torch.min(
             self.qf1(obs_skills, new_obs_actions),
