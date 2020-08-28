@@ -57,6 +57,16 @@ class TwoDimNavigationEnv(gym.Env):
         elif np.all(np.abs(action) - self.action_space.high > 1E7):
             raise ValueError('Action is out of action space')
 
+        #if action[0] > 0:
+        #    action[0] = 0.1
+        #else:
+        #    action[0] = -0.1
+
+        #if action[1] > 0:
+        #    action[1] = 0.1
+        #else:
+        #    action[1] = -0.1
+
         self.state = self.state + action
         self.state = self.map_back(self.state)
         assert self.state in self.observation_space
