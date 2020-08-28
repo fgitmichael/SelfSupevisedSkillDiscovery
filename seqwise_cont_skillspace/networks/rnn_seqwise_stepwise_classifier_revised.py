@@ -4,11 +4,11 @@ from torch import distributions
 from self_supervised.network.flatten_mlp import FlattenMlpDropout
 
 from seqwise_cont_skillspace.base.rnn_classifier_base import \
-    StepwiseSeqwiseClassifierBase
+    RnnStepwiseSeqwiseClassifierBase
 from diayn_original_cont.networks.vae_regressor import VaeRegressor
 
 
-class StepwiseSeqwiseClassifierVae(StepwiseSeqwiseClassifierBase):
+class StepwiseSeqwiseClassifierVae(RnnStepwiseSeqwiseClassifierBase):
 
     def create_seqwise_classifier(
             self,

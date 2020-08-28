@@ -1,10 +1,10 @@
 from seqwise_cont_skillspace.networks.rnn_seqwise_stepwise_classifier_revised \
-    import StepwiseSeqwiseClassifierBase
+    import RnnStepwiseSeqwiseClassifierBase
 
 from diayn_original_cont.networks.vae_regressor import VaeRegressor
 
 
-class StepwiseOnlyRnnClassifierCont(StepwiseSeqwiseClassifierBase):
+class StepwiseOnlyRnnClassifierCont(RnnStepwiseSeqwiseClassifierBase):
 
     def create_seqwise_classifier(
             self,
