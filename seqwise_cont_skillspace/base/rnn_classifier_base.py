@@ -20,7 +20,7 @@ from seqwise_cont_skillspace.networks.transformer_stack_pos_encoder import \
 from mode_disent_no_ssm.utils.empty_network import Empty
 
 
-class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
+class RnnStepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
 
     def __init__(self,
                  obs_dim,
@@ -37,7 +37,7 @@ class StepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
             hidden_size_rnn     : dimension of hidden state in the rnn
             skill_dim           : dimension of targets
         """
-        super(StepwiseSeqwiseClassifierBase, self).__init__()
+        super(RnnStepwiseSeqwiseClassifierBase, self).__init__()
 
         self.skill_dim = skill_dim
         self.rnn = nn.GRU(
