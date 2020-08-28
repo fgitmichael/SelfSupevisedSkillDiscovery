@@ -1,10 +1,10 @@
 from seqwise_cont_skillspace.networks.rnn_seqwise_stepwise_classifier_revised \
-    import StepwiseSeqwiseClassifierBase
+    import RnnStepwiseSeqwiseClassifierBase
 
 from self_supervised.network.flatten_mlp import FlattenMlpDropout
 
 
-class StepwiseOnlyRnnClassifierDiscrete(StepwiseSeqwiseClassifierBase):
+class StepwiseOnlyRnnClassifierDiscrete(RnnStepwiseSeqwiseClassifierBase):
 
     def __init__(self,
                  *args,
