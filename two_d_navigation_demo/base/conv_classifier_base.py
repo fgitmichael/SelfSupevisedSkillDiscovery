@@ -8,8 +8,7 @@ from code_slac.network.base import BaseNetwork
 from self_supervised.network.flatten_mlp import FlattenMlp
 import self_supervised.utils.my_pytorch_util as my_ptu
 
-from two_d_navigation_demo.base.seqwise_stepwise_classfier_base import \
-    create_pos_encoder
+from two_d_navigation_demo.base.create_posencoder import create_pos_encoder
 
 from code_slac.network.base import weights_init_xavier
 
