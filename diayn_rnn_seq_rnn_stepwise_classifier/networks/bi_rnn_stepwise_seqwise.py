@@ -18,14 +18,17 @@ class BiRnnStepwiseSeqWiseClassifier(BiRnnStepwiseClassifier):
 
     def __init__(self,
                  *args,
-                 dropout = 0.,
+                 dropout=0.,
                  **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            *args,
+            dropout=dropout,
+            **kwargs)
         self.output_size = kwargs['output_size']
         hidden_sizes = kwargs['hidden_sizes']
 
         self.classifier_seq = self.create_classifier_seq(
-            input_size=self.rnn_params['num_features'],
+            input_size=self.rnn_params['num_features_h_n'],
             output_size=self.output_size,
             hidden_sizes=hidden_sizes,
             dropout=dropout,
@@ -67,12 +70,12 @@ class BiRnnStepwiseSeqWiseClassifier(BiRnnStepwiseClassifier):
         h_n = h_n.transpose(1, 0)
         assert my_ptu.tensor_equality(
             h_n.reshape(batch_size,
-                        self.rnn_params['num_features'])[0],
+                        self.rnn_params['num_features_h_n'])[0],
             h_n[0].reshape(-1)
         )
 
         h_n = h_n.reshape(batch_size,
-                          self.rnn_params['num_features'])
+                          self.rnn_params['num_features_h_n'])
 
         classified_seqs = self.classifier_seq(h_n)
         assert classified_seqs.shape == torch.Size(

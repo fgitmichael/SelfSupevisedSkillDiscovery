@@ -22,6 +22,7 @@ class BiRnnStepwiseClassifier(BaseNetwork):
                  seq_len,
                  dropout=0.,
                  pos_encoder_variant='empty',
+                 num_layers=1,
                  ):
         """
         Args:
@@ -36,20 +37,24 @@ class BiRnnStepwiseClassifier(BaseNetwork):
             input_size=input_size,
             hidden_size=hidden_size_rnn,
             batch_first=True,
-            bidirectional=True
+            bidirectional=True,
+            num_layers=num_layers,
+            dropout=dropout if num_layers > 1 else 0.,
         )
         self.rnn_params = {}
         self.rnn_params['num_directions'] = \
             2 if self.rnn.bidirectional else 1
         self.rnn_params['num_channels'] = \
             self.rnn_params['num_directions'] * self.rnn.num_layers
-        self.rnn_params['num_features'] = \
+        self.rnn_params['num_features_h_n'] = \
             self.rnn_params['num_channels'] * self.rnn.hidden_size
+        self.rnn_params['num_features_hidden_seq'] = \
+            self.rnn.hidden_size * self.rnn_params['num_directions']
 
-        minimal_input_size_classifier = self.rnn_params['num_features']
+        minimal_input_size_classifier = self.rnn_params['num_features_hidden_seq']
         if pos_encoder_variant=='transformer':
             self.pos_encoder = PositionalEncoding(
-                d_model=self.rnn_params['num_features'],
+                d_model=self.rnn_params['num_features_hidden_seq'],
                 max_len=seq_len,
                 dropout=0.1
             )
@@ -108,7 +113,7 @@ class BiRnnStepwiseClassifier(BaseNetwork):
         assert hidden_seq.shape == torch.Size(
             (batch_size,
              seq_len,
-             self.rnn_params['num_features'])
+             self.rnn_params['num_features_hidden_seq'])
         )
 
         classified = self.classifier(hidden_seq_pos_encoded)
