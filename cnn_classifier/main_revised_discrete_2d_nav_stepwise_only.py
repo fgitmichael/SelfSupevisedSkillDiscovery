@@ -24,11 +24,12 @@ from diayn_no_oh.utils.hardcoded_grid_two_dim import OhGridCreator
 
 from two_d_navigation_demo.env.navigation_env import \
     TwoDimNavigationEnv
-from two_d_navigation_demo.networks.stepwise_only_discrete_classifier import \
-    StepwiseOnlyRnnClassifierDiscrete
 from two_d_navigation_demo.algo.seqwise_algo_step_only import AlgoStepwiseOnlyDiscreteSkills
 from two_d_navigation_demo.trainer.trainer_stepwise_only_discrete import \
     StepwiseOnlyDiscreteTrainer
+
+from cnn_classifier.networks.cnn_classifier_stepwise import CnnStepwiseClassifierDiscrete
+from cnn_classifier.networks.cnn_one_layer_classifier import CnnOneLayerForClassification
 
 
 def experiment(variant, args):
@@ -39,14 +40,15 @@ def experiment(variant, args):
 
     # Skill Grids
 
-    oh_grid_creator = OhGridCreator()
+    oh_grid_creator = OhGridCreator(
+        num_skills=args.skill_dim
+    )
     get_oh_grid = oh_grid_creator.get_grid
 
     seq_len = 100
     one_hot_skill_encoding = False
     skill_dim = args.skill_dim
     num_skills = args.skill_dim
-    hidden_size_rnn = 10
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
@@ -55,7 +57,6 @@ def experiment(variant, args):
     run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "seq wise step wise revised" + sep_str
-    run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
 
     seed = 0
     torch.manual_seed = seed
@@ -84,13 +85,19 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = StepwiseOnlyRnnClassifierDiscrete(
+    cnn_one_layer = CnnOneLayerForClassification(
         obs_dim=obs_dim,
+        cnn_params=dict(
+            channels=(10, 30)
+        )
+    )
+    df = CnnStepwiseClassifierDiscrete(
         skill_dim=num_skills,
-        hidden_size_rnn=hidden_size_rnn,
-        hidden_sizes=[M, M],
+        hidden_sizes_classifier=[M, M],
         seq_len=seq_len,
+        feature_extractor=cnn_one_layer,
         pos_encoder_variant='transformer',
+        dropout=0.1,
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
