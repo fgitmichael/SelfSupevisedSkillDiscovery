@@ -48,6 +48,9 @@ from sequence_stepwise_only.trainer.stepwise_only_trainer_cont import StepwiseOn
 from two_d_navigation_demo.trainer.trainer_stepwise_only_discrete import \
     StepwiseOnlyDiscreteTrainer
 
+from cnn_classifier_stepwise_seqwise.trainer.cnn_stepwise_seqwise_trainer import \
+    CnnStepwiseSeqwiseTrainer
+
 class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
     def __init__(self,
@@ -191,6 +194,7 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                                   GuidedSsvaestyleTrainer,
                                   StepwiseOnlyTrainerCont,
                                   StepwiseOnlyDiscreteTrainer,
+                                  CnnStepwiseSeqwiseTrainer,
                                   ]:
             train_dict = dict(
                 rewards=train_data.reward,
