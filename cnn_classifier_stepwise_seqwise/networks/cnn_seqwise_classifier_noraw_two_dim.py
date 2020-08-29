@@ -9,7 +9,7 @@ from mode_disent_no_ssm.utils.empty_network import Empty
 from self_supervised.network.flatten_mlp import FlattenMlpDropout
 
 
-class ClassifierSeqwiseOneLayerFeatureExtractorWithoutCnn(CnnForClassificationSeqwiseBase):
+class CnnClassifierSeqwiseNoRawTwoDim(CnnForClassificationSeqwiseBase):
 
     def create_seqwise_classifier(self, params) -> FlattenMlpDropout:
         # num_channels * dim1 * dim2 (see reshape for classifier)
@@ -24,18 +24,20 @@ class ClassifierSeqwiseOneLayerFeatureExtractorWithoutCnn(CnnForClassificationSe
         )
 
     def create_cnn_raw_processor(self, params) -> nn.Module:
-        in_channels = params['in_channels']
-        dropout = params['dropout']
-        return nn.Sequential(
-            # (N, C, 100, 2) -> (N, C, 10, 2)
-            nn.MaxPool2d(
-                kernel_size=(10, 1),
-            ),
-            nn.BatchNorm2d(in_channels),
-            nn.Dropout(dropout),
-        )
+        #in_channels = params['in_channels']
+        #dropout = params['dropout']
+        #return nn.Sequential(
+        #    # (N, C, 100, 2) -> (N, C, 10, 2)
+        #    nn.MaxPool2d(
+        #        kernel_size=(10, 1),
+        #    ),
+        #    nn.BatchNorm2d(in_channels),
+        #    nn.Dropout(dropout),
+        #)
+        return Empty()
 
-    def reshape_for_classifier(self, input: torch.Tensor) -> torch.Tensor:
+    def reshape_processedraw_for_seqwise_classifier(self, input: torch.Tensor) \
+            -> torch.Tensor:
         """
         Args:
             input           : (N, num_channels, dim1, dim2), dimensions depend on the raw

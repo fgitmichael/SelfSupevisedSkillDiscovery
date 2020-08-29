@@ -4,7 +4,7 @@ import torch
 from code_slac.network.base import BaseNetwork
 
 
-class CnnStepwiseClassifierNetBase(BaseNetwork, metaclass=abc.ABCMeta):
+class CnnFeatureExtractorBase(BaseNetwork, metaclass=abc.ABCMeta):
 
     def __init__(self,
                  obs_dim,

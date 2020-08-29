@@ -23,7 +23,7 @@ class CnnForClassificationSeqwiseBase(BaseNetwork, metaclass=abc.ABCMeta):
         raise NotImplementedError
     
     @abc.abstractmethod
-    def reshape_for_classifier(self, input: torch.Tensor) -> torch.Tensor:
+    def reshape_processedraw_for_seqwise_classifier(self, input: torch.Tensor) -> torch.Tensor:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -54,18 +54,15 @@ class CnnForClassificationSeqwiseBase(BaseNetwork, metaclass=abc.ABCMeta):
         """
         input has to be raw output from cnn stepwise classifier
         """
-        batch_size, num_channels, seq_len, data_dim = features_raw.shape
         assert len(features_raw.shape) == 4
 
     def forward(self,
                 features_raw: torch.Tensor,
                 ):
-        batch_size, num_channels, seq_len, data_dim = features_raw.shape
-
         self.check_input(features_raw)
         processed_features_raw = self.raw_processor(features_raw)
 
-        prepared_processed = self.reshape_for_classifier(processed_features_raw)
+        prepared_processed = self.reshape_processedraw_for_seqwise_classifier(processed_features_raw)
         classified_seqs = self.seq_classifier(prepared_processed)
 
         return classified_seqs

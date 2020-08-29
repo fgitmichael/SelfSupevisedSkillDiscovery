@@ -29,7 +29,7 @@ from two_d_navigation_demo.trainer.trainer_stepwise_only_discrete import \
     StepwiseOnlyDiscreteTrainer
 
 from cnn_classifier_stepwise.networks.classifier_cnn_feature_extractor_df import CnnStepwiseClassifierDiscreteDf
-from cnn_classifier_stepwise.networks.cnn_one_layer_classifier import CnnFeatureExtractor
+from cnn_classifier_stepwise.networks.cnn_one_layer_classifier import CnnFeatureExtractorTwoDim
 
 
 def experiment(variant, args):
@@ -85,7 +85,7 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    cnn_one_layer = CnnFeatureExtractor(
+    cnn_one_layer = CnnFeatureExtractorTwoDim(
         obs_dim=obs_dim,
         cnn_params=dict(
             channels=(10, 30)

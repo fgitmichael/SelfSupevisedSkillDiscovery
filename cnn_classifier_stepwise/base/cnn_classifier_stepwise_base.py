@@ -4,7 +4,7 @@ from operator import itemgetter
 from code_slac.network.base import BaseNetwork
 
 from cnn_classifier_stepwise.base.cnn_feature_extractor_base import \
-    CnnStepwiseClassifierNetBase
+    CnnFeatureExtractorBase
 
 from two_d_navigation_demo.base.create_posencoder import \
     create_pos_encoder
@@ -16,7 +16,7 @@ class CnnStepwiseClassifierBaseDf(BaseNetwork, metaclass=abc.ABCMeta):
                  skill_dim,
                  hidden_sizes_classifier_step,
                  seq_len,
-                 feature_extractor: CnnStepwiseClassifierNetBase,
+                 feature_extractor: CnnFeatureExtractorBase,
                  pos_encoder_variant='transformer',
                  dropout=0.,
                  ):

@@ -1,3 +1,5 @@
+import torch
+
 from cnn_classifier_stepwise_seqwise.base.cnn_classifier_stepwise_seqwise_df_base import \
     CnnStepwiseSeqwiseClassifierDfBase
 
@@ -22,6 +24,12 @@ class CnnStepwiseSeqwiseClassifierDiscrete(CnnStepwiseSeqwiseClassifierDfBase):
             hidden_sizes=hidden_sizes,
             dropout=dropout,
         )
+
+    def check_obs_seq(self, obs):
+        seq_dim = 1
+        data_dim = -1
+        assert len(obs.shape) == 3
+        assert obs.size(seq_dim) > obs.size(data_dim)
 
     def forward(self,
                 obs_next,

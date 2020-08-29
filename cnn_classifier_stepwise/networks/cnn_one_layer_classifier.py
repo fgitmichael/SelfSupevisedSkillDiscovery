@@ -2,12 +2,12 @@ import torch
 from torch import nn
 
 from cnn_classifier_stepwise.base.cnn_feature_extractor_base import \
-    CnnStepwiseClassifierNetBase
+    CnnFeatureExtractorBase
 
 from code_slac.network.base import weights_init_xavier
 
 
-class CnnFeatureExtractor(CnnStepwiseClassifierNetBase):
+class CnnFeatureExtractorTwoDim(CnnFeatureExtractorBase):
 
     def create_cnn(self, params) -> nn.Module:
         channels = params['channels']

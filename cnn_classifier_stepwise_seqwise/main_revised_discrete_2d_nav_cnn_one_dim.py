@@ -30,9 +30,12 @@ from two_d_navigation_demo.env.navigation_env import \
 
 from cnn_classifier_stepwise_seqwise.networks.cnn_classifier_stepwise_seqwise_df import \
     CnnStepwiseSeqwiseClassifierDiscrete
-from cnn_classifier_stepwise.networks.cnn_one_layer_classifier import CnnFeatureExtractorTwoDim
-from cnn_classifier_stepwise_seqwise.networks.cnn_seqwise_classifier_noraw_two_dim import \
-    CnnClassifierSeqwiseNoRawTwoDim
+from cnn_classifier_stepwise_seqwise.networks.feature_extractor_one_dim import \
+    CnnFeatureExtractorOneDim
+#from cnn_classifier_stepwise_seqwise.networks.cnn_seqwise_classifier_noraw_one_dim import \
+#    CnnClassifierSeqwiseNoRawOneDim
+from cnn_classifier_stepwise_seqwise.networks.cnn_seqwise_classifier_withrawprocessor_one_dim import \
+    CnnClassifierSeqwiseWithRaw1d
 from cnn_classifier_stepwise_seqwise.trainer.cnn_stepwise_seqwise_trainer import \
     CnnStepwiseSeqwiseTrainer
 
@@ -44,33 +47,20 @@ def experiment(variant, args):
     action_dim = eval_env.action_space.low.size
 
     # Skill Grids
-    skill_repeat = 5
-    nooh_grid_creator = NoohGridCreator(
-        repeat=skill_repeat,
-        radius_factor=1
-    )
-    get_no_oh_grid = nooh_grid_creator.get_grid
-
     oh_grid_creator = OhGridCreator()
     get_oh_grid = oh_grid_creator.get_grid
 
     seq_len = 100
-    one_hot_skill_encoding = False
-    skill_dim = args.skill_dim \
-        if one_hot_skill_encoding \
-        else get_no_oh_grid().shape[-1]
+    skill_dim = args.skill_dim
     num_skills = args.skill_dim
     hidden_size_rnn = 10
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
     run_comment = sep_str
-    run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "seq wise step wise revised" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
-    if not one_hot_skill_encoding:
-        run_comment += "skill repeat: {}".format(skill_repeat) + sep_str
 
     seed = 0
     torch.manual_seed = seed
@@ -100,26 +90,26 @@ def experiment(variant, args):
         hidden_sizes=[M, M],
     )
     out_channels_feature_extractor = 3
-    feature_extractor = CnnFeatureExtractorTwoDim(
+    feature_extractor = CnnFeatureExtractorOneDim(
         obs_dim=obs_dim,
         cnn_params=dict(
-            channels=[out_channels_feature_extractor],
+            obs_dim=obs_dim,
             dropout=0.5,
         ),
     )
     pooling_kernel_seq_dim = 20
-    seqwise_classifier = CnnClassifierSeqwiseNoRawTwoDim(
+    seqwise_classifier = CnnClassifierSeqwiseWithRaw1d(
         num_skills=num_skills,
         raw_processor_params=dict(
-            in_channels=out_channels_feature_extractor,
+            data_dim=obs_dim,
             dropout=0.5,
-            pooling_kernel_seq_dim=pooling_kernel_seq_dim,
+            #pooling_kernel_seq_dim=pooling_kernel_seq_dim,
         ),
         seqwise_classifier_params=dict(
             #num_in_features=out_channels_feature_extractor *
             #                obs_dim *
             #                seq_len//pooling_kernel_seq_dim,
-            num_in_features=60,
+            num_in_features=10*2,
             hidden_sizes=(150, 150),
             dropout=0.5,
         ),
@@ -141,7 +131,7 @@ def experiment(variant, args):
     )
     eval_policy = MakeDeterministicRevised(policy)
     skill_selector = SkillSelectorDiscrete(
-        get_skill_grid_fun=get_oh_grid if one_hot_skill_encoding else get_no_oh_grid
+        get_skill_grid_fun=get_oh_grid
     )
     eval_path_collector = SeqCollectorRevisedDiscreteSkills(
         eval_env,
@@ -232,7 +222,7 @@ if __name__ == "__main__":
             num_expl_steps_per_train_loop=10,
             min_num_steps_before_training=1000,
             max_path_length=1000,
-            batch_size=1024,
+            batch_size=2024,
         ),
         trainer_kwargs=dict(
             discount=0.99,
@@ -240,8 +230,8 @@ if __name__ == "__main__":
             target_update_period=1,
             policy_lr=3E-4,
             qf_lr=3E-4,
-            df_lr_seq=1E-3,
-            df_lr_step=1E-3,
+            df_lr_seq=1E-4,
+            df_lr_step=8E-4,
             reward_scale=1,
             use_automatic_entropy_tuning=True,
         ),
