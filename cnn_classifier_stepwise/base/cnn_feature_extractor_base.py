@@ -4,7 +4,7 @@ import torch
 from code_slac.network.base import BaseNetwork
 
 
-class CnnForClassificationBase(BaseNetwork, metaclass=abc.ABCMeta):
+class CnnStepwiseClassifierNetBase(BaseNetwork, metaclass=abc.ABCMeta):
 
     def __init__(self,
                  obs_dim,
@@ -70,15 +70,23 @@ class CnnForClassificationBase(BaseNetwork, metaclass=abc.ABCMeta):
         """
         raise NotImplementedError
 
-    def forward(self, seq: torch.Tensor):
+    def forward(self,
+                seq: torch.Tensor,
+                return_features_raw=False,
+                ):
         batch_size, seq_len, data_dim = seq.shape
         self.check_input(seq)
         seq_for_cnn = self.reshape_for_cnn(seq)
-        features = self.net(seq_for_cnn)
+        features_raw = self.net(seq_for_cnn)
 
-        feature_seq = self.reshape_output(features)
+        feature_seq = self.reshape_output(features_raw)
         self.check_output(feature_seq,
                           batch_size=batch_size,
                           seq_len=seq_len,
                           )
-        return feature_seq
+
+        if return_features_raw:
+            return feature_seq, features_raw
+
+        else:
+            return feature_seq

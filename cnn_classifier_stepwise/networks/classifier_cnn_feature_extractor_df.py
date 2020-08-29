@@ -1,9 +1,9 @@
-from cnn_classifier.base.cnn_classifier_base import \
-    CnnStepwiseClassifierBase
+from cnn_classifier_stepwise.base.cnn_classifier_stepwise_base import \
+    CnnStepwiseClassifierBaseDf
 
 from self_supervised.network.flatten_mlp import FlattenMlpDropout
 
-class CnnStepwiseClassifierDiscrete(CnnStepwiseClassifierBase):
+class CnnStepwiseClassifierDiscreteDf(CnnStepwiseClassifierBaseDf):
 
     def create_stepwise_classifier(self,
                                    feature_dim,

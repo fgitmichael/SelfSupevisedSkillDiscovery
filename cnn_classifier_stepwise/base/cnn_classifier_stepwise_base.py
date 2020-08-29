@@ -3,20 +3,20 @@ from operator import itemgetter
 
 from code_slac.network.base import BaseNetwork
 
-from cnn_classifier.base.cnn_base_for_classifier import \
-    CnnForClassificationBase
+from cnn_classifier_stepwise.base.cnn_feature_extractor_base import \
+    CnnStepwiseClassifierNetBase
 
 from two_d_navigation_demo.base.create_posencoder import \
     create_pos_encoder
 
 
-class CnnStepwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
+class CnnStepwiseClassifierBaseDf(BaseNetwork, metaclass=abc.ABCMeta):
 
     def __init__(self,
                  skill_dim,
-                 hidden_sizes_classifier,
+                 hidden_sizes_classifier_step,
                  seq_len,
-                 feature_extractor: CnnForClassificationBase,
+                 feature_extractor: CnnStepwiseClassifierNetBase,
                  pos_encoder_variant='transformer',
                  dropout=0.,
                  ):
@@ -39,7 +39,7 @@ class CnnStepwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
         self.stepwise_classifier = self.create_stepwise_classifier(
             feature_dim=pos_encoder_feature_dim,
             skill_dim=self.skill_dim,
-            hidden_sizes=hidden_sizes_classifier,
+            hidden_sizes=hidden_sizes_classifier_step,
             dropout=dropout,
         )
 

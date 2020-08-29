@@ -28,8 +28,8 @@ from two_d_navigation_demo.algo.seqwise_algo_step_only import AlgoStepwiseOnlyDi
 from two_d_navigation_demo.trainer.trainer_stepwise_only_discrete import \
     StepwiseOnlyDiscreteTrainer
 
-from cnn_classifier.networks.cnn_classifier_stepwise import CnnStepwiseClassifierDiscrete
-from cnn_classifier.networks.cnn_one_layer_classifier import CnnOneLayerForClassification
+from cnn_classifier_stepwise.networks.classifier_cnn_feature_extractor_df import CnnStepwiseClassifierDiscreteDf
+from cnn_classifier_stepwise.networks.cnn_one_layer_classifier import CnnFeatureExtractor
 
 
 def experiment(variant, args):
@@ -85,15 +85,15 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    cnn_one_layer = CnnOneLayerForClassification(
+    cnn_one_layer = CnnFeatureExtractor(
         obs_dim=obs_dim,
         cnn_params=dict(
             channels=(10, 30)
         )
     )
-    df = CnnStepwiseClassifierDiscrete(
+    df = CnnStepwiseClassifierDiscreteDf(
         skill_dim=num_skills,
-        hidden_sizes_classifier=[M, M],
+        hidden_sizes_classifier_step=[M, M],
         seq_len=seq_len,
         feature_extractor=cnn_one_layer,
         pos_encoder_variant='transformer',
