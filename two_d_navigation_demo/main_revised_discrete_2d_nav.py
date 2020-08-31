@@ -8,7 +8,6 @@ import rlkit.torch.pytorch_util as ptu
 from rlkit.launchers.launcher_util import setup_logger
 
 from self_supervised.utils.writer import MyWriterWithActivation
-from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
@@ -28,7 +27,7 @@ from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDi
 from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
     DIAYNAlgoStepwiseSeqwiseRevisedTrainer
 
-from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCreator
+from diayn_no_oh.utils.hardcoded_grid_two_dim import OhGridCreator
 
 from two_d_navigation_demo.env.navigation_env import \
     TwoDimNavigationEnv
@@ -40,34 +39,20 @@ def experiment(variant, args):
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-    # Skill Grids
-    skill_repeat = 5
-    nooh_grid_creator = NoohGridCreator(
-        repeat=skill_repeat,
-        radius_factor=1
-    )
-    get_no_oh_grid = nooh_grid_creator.get_grid
-
     oh_grid_creator = OhGridCreator()
     get_oh_grid = oh_grid_creator.get_grid
 
     seq_len = 100
-    one_hot_skill_encoding = False
-    skill_dim = args.skill_dim \
-        if one_hot_skill_encoding \
-        else get_no_oh_grid().shape[-1]
+    skill_dim = args.skill_dim
     num_skills = args.skill_dim
-    hidden_size_rnn = 10
+    hidden_size_rnn = 40
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
     run_comment = sep_str
-    run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "seq wise step wise revised" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
-    if not one_hot_skill_encoding:
-        run_comment += "skill repeat: {}".format(skill_repeat) + sep_str
 
     seed = 0
     torch.manual_seed = seed
@@ -112,7 +97,7 @@ def experiment(variant, args):
     )
     eval_policy = MakeDeterministicRevised(policy)
     skill_selector = SkillSelectorDiscrete(
-        get_skill_grid_fun=get_oh_grid if one_hot_skill_encoding else get_no_oh_grid
+        get_skill_grid_fun=get_oh_grid
     )
     eval_path_collector = SeqCollectorRevisedDiscreteSkills(
         eval_env,

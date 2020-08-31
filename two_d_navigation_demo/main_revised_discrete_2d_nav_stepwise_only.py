@@ -43,7 +43,6 @@ def experiment(variant, args):
     get_oh_grid = oh_grid_creator.get_grid
 
     seq_len = 100
-    one_hot_skill_encoding = False
     skill_dim = args.skill_dim
     num_skills = args.skill_dim
     hidden_size_rnn = 10
@@ -52,7 +51,6 @@ def experiment(variant, args):
     sep_str = " | "
     run_comment = sep_str
     run_comment += "stepwise only {}".format(sep_str)
-    run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "seq wise step wise revised" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
