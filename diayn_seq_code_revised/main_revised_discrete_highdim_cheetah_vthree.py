@@ -12,6 +12,9 @@ from rlkit.launchers.launcher_util import setup_logger
 from self_supervised.utils.writer import MyWriterWithActivation
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
+from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
+from self_supervised.env_wrapper.pixel_wrapper import PixelNormalizedBoxEnvWrapper
+
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
@@ -71,6 +74,7 @@ def experiment(variant, args):
     run_comment += "seq wise step wise revised high dim" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
     run_comment += "pos encoding: {}{}".format(pos_encoding, sep_str)
+    run_comment += "include current positions{}".format(sep_str)
 
     seed = 0
     torch.manual_seed = seed
@@ -107,7 +111,7 @@ def experiment(variant, args):
         seq_len=seq_len,
         pos_encoder_variant=pos_encoding,
         dropout=0.5,
-        obs_dims_selected=[0,],
+        obs_dims_selected=[0, 1, 2,],
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
@@ -227,6 +231,8 @@ if __name__ == "__main__":
             policy_lr=3E-4,
             qf_lr=3E-4,
             reward_scale=1,
+            df_lr_seq=1E-3,
+            df_lr_step=1E-3,
             use_automatic_entropy_tuning=True,
         ),
     )
