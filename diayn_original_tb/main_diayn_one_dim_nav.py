@@ -1,3 +1,4 @@
+import gym
 import argparse
 import torch
 import numpy as np
@@ -5,31 +6,28 @@ import copy
 #from gym.envs.mujoco import HalfCheetahEnv
 
 import rlkit.torch.pytorch_util as ptu
+from rlkit.torch.sac.diayn.diayn_env_replay_buffer import DIAYNEnvReplayBuffer
 from rlkit.launchers.launcher_util import setup_logger
+from rlkit.torch.sac.diayn.diayn_path_collector import DIAYNMdpPathCollector
+from rlkit.samplers.data_collector.step_collector import MdpStepCollector
+from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
+from rlkit.torch.networks import FlattenMlp
 
 from self_supervised.utils.writer import MyWriterWithActivation
-from self_supervised.network.flatten_mlp import FlattenMlp as \
-    MyFlattenMlp
+from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
-from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
-    SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
 
-from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills import \
-    SeqCollectorRevisedDiscreteSkills
-from diayn_seq_code_revised.policies.skill_policy import \
-    SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
-from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDiscrete
+from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
+from diayn_original_tb.policies.diayn_policy_extension import \
+    SkillTanhGaussianPolicyExtension, MakeDeterministicExtension
+from diayn_original_tb.algo.algo_diayn_tb_perf_logging import \
+    DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently
 
-from diayn_no_oh.utils.hardcoded_grid_two_dim import OhGridCreator
+from diayn_with_rnn_classifier.trainer.diayn_trainer_modularized import \
+    DIAYNTrainerModularized
 
 from two_d_navigation_demo.env.navigation_env import \
     TwoDimNavigationEnv
-from two_d_navigation_demo.algo.seqwise_algo_step_only import AlgoStepwiseOnlyDiscreteSkills
-from two_d_navigation_demo.trainer.trainer_stepwise_only_discrete import \
-    StepwiseOnlyDiscreteTrainer
-
-from cnn_classifier_stepwise.networks.classifier_cnn_feature_extractor_df import CnnStepwiseClassifierDiscreteDf
-from cnn_classifier_stepwise.networks.cnn_one_layer_classifier import CnnFeatureExtractorTwoDim
 
 
 def experiment(variant, args):
@@ -37,26 +35,13 @@ def experiment(variant, args):
     eval_env = copy.deepcopy(expl_env)
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
-
-    # Skill Grids
-
-    oh_grid_creator = OhGridCreator(
-        num_skills=args.skill_dim
-    )
-    get_oh_grid = oh_grid_creator.get_grid
-
-    seq_len = 100
-    one_hot_skill_encoding = False
     skill_dim = args.skill_dim
-    num_skills = args.skill_dim
-    variant['algorithm_kwargs']['batch_size'] //= seq_len
 
-    sep_str = " | "
-    run_comment = sep_str
-    run_comment += "stepwise only {}".format(sep_str)
-    run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
-    run_comment += "seq_len: {}".format(seq_len) + sep_str
-    run_comment += "seq wise step wise revised" + sep_str
+    run_comment = ""
+    run_comment += "DIAYN_policy | "
+    run_comment += "DIAYN_mlp | "
+    run_comment += "own_env | "
+    run_comment += "perf_loggin | "
 
     seed = 0
     torch.manual_seed = seed
@@ -65,74 +50,56 @@ def experiment(variant, args):
     np.random.seed(seed)
 
     M = variant['layer_size']
-    qf1 = MyFlattenMlp(
+    qf1 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    qf2 = MyFlattenMlp(
+    qf2 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    target_qf1 = MyFlattenMlp(
+    target_qf1 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    target_qf2 = MyFlattenMlp(
+    target_qf2 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    cnn_one_layer = CnnFeatureExtractorTwoDim(
-        obs_dim=obs_dim,
-        cnn_params=dict(
-            channels=(10, 30)
-        )
+    df = FlattenMlp(
+        input_size=obs_dim,
+        output_size=skill_dim,
+        hidden_sizes=[M, M],
     )
-    df = CnnStepwiseClassifierDiscreteDf(
-        skill_dim=num_skills,
-        hidden_sizes_classifier_step=[M, M],
-        seq_len=seq_len,
-        feature_extractor=cnn_one_layer,
-        pos_encoder_variant='transformer',
-        dropout=0.1,
-    )
-    policy = SkillTanhGaussianPolicyRevised(
-        obs_dim=obs_dim,
+    policy = SkillTanhGaussianPolicyExtension(
+        obs_dim=obs_dim + skill_dim,
         action_dim=action_dim,
-        skill_dim=skill_dim,
         hidden_sizes=[M, M],
+        skill_dim=skill_dim
     )
-    eval_policy = MakeDeterministicRevised(policy)
-    skill_selector = SkillSelectorDiscrete(
-        get_skill_grid_fun=get_oh_grid
+    eval_policy = MakeDeterministicExtension(policy)
+    eval_path_collector = DIAYNMdpPathCollector(
+        eval_env,
+        eval_policy,
     )
-    eval_path_collector = SeqCollectorRevisedDiscreteSkills(
-        eval_env, eval_policy,
-        max_seqs=50,
-        skill_selector=skill_selector
-    )
-    expl_step_collector = SeqCollectorRevisedDiscreteSkills(
+    expl_step_collector = MdpStepCollector(
         expl_env,
         policy,
-        max_seqs=50,
-        skill_selector=skill_selector
     )
-    seq_eval_collector = SeqCollectorRevisedDiscreteSkills(
+    seq_eval_collector = SeqCollector(
         env=eval_env,
-        policy=eval_policy,
-        max_seqs = 50,
-        skill_selector = skill_selector
+        policy=eval_policy
     )
-    replay_buffer = SelfSupervisedEnvSequenceReplayBufferDiscreteSkills(
-        max_replay_buffer_size=variant['replay_buffer_size'],
-        seq_len=seq_len,
-        mode_dim=skill_dim,
-        env=expl_env,
+    replay_buffer = DIAYNEnvReplayBuffer(
+        variant['replay_buffer_size'],
+        expl_env,
+        skill_dim
     )
-    trainer = StepwiseOnlyDiscreteTrainer(
+    trainer = DIAYNTrainerModularized(
         env=eval_env,
         policy=policy,
         qf1=qf1,
@@ -145,7 +112,7 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logs_stepwise_only',
+        log_dir='logs',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
@@ -153,15 +120,13 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = AlgoStepwiseOnlyDiscreteSkills(
+    algorithm = DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
         exploration_data_collector=expl_step_collector,
         evaluation_data_collector=eval_path_collector,
         replay_buffer=replay_buffer,
-
-        seq_len=seq_len,
 
         diagnostic_writer=diagno_writer,
         seq_eval_collector=seq_eval_collector,
@@ -195,11 +160,11 @@ if __name__ == "__main__":
         algorithm_kwargs=dict(
             num_epochs=1000,
             num_eval_steps_per_epoch=5000,
-            num_trains_per_train_loop=10,
-            num_expl_steps_per_train_loop=10,
+            num_trains_per_train_loop=1000,
+            num_expl_steps_per_train_loop=1000,
             min_num_steps_before_training=1000,
             max_path_length=1000,
-            batch_size=1024,
+            batch_size=256,
         ),
         trainer_kwargs=dict(
             discount=0.99,
@@ -207,7 +172,6 @@ if __name__ == "__main__":
             target_update_period=1,
             policy_lr=3E-4,
             qf_lr=3E-4,
-            df_lr_step=1E-3,
             reward_scale=1,
             use_automatic_entropy_tuning=True,
         ),
