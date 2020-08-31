@@ -16,8 +16,10 @@ from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
 
-from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
-    BiRnnStepwiseSeqWiseClassifier
+#from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
+#    BiRnnStepwiseSeqWiseClassifier
+from diayn_seq_code_revised.networks.bi_rnn_stepwise_seqwise_obs_dimension_selection \
+    import RnnStepwiseSeqwiseClassifierObsDimSelect
 
 from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills import \
     SeqCollectorRevisedDiscreteSkills
@@ -54,38 +56,24 @@ def experiment(variant, args):
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-    # Skill Grids
-    skill_repeat = 1
-    nooh_grid_creator = NoohGridCreator(
-        repeat=skill_repeat,
-        radius_factor=1
-    )
-    get_no_oh_grid = nooh_grid_creator.get_grid
-
     oh_grid_creator = OhGridCreator(
         num_skills=args.skill_dim,
     )
     get_oh_grid = oh_grid_creator.get_grid
 
-    seq_len = 100
-    one_hot_skill_encoding = True
-    skill_dim = args.skill_dim \
-        if one_hot_skill_encoding \
-        else get_no_oh_grid().shape[-1]
+    seq_len = 120
+    skill_dim = args.skill_dim
     num_skills = args.skill_dim
-    hidden_size_rnn = 3
+    hidden_size_rnn = 20
     variant['algorithm_kwargs']['batch_size'] //= seq_len
     pos_encoding = "empty"
 
     sep_str = " | "
     run_comment = sep_str
-    run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "seq wise step wise revised high dim" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
     run_comment += "pos encoding: {}{}".format(pos_encoding, sep_str)
-    if not one_hot_skill_encoding:
-        run_comment += "skill repeat: {}".format(skill_repeat) + sep_str
 
     seed = 0
     torch.manual_seed = seed
@@ -114,7 +102,7 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = BiRnnStepwiseSeqWiseClassifier(
+    df = RnnStepwiseSeqwiseClassifierObsDimSelect(
         input_size=obs_dim,
         output_size=num_skills,
         hidden_size_rnn=hidden_size_rnn,
@@ -122,6 +110,7 @@ def experiment(variant, args):
         seq_len=seq_len,
         pos_encoder_variant=pos_encoding,
         dropout=0.5,
+        obs_dims_selected=[0,],
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
@@ -131,7 +120,7 @@ def experiment(variant, args):
     )
     eval_policy = MakeDeterministicRevised(policy)
     skill_selector = SkillSelectorDiscrete(
-        get_skill_grid_fun=get_oh_grid if one_hot_skill_encoding else get_no_oh_grid
+        get_skill_grid_fun=get_oh_grid
     )
     eval_path_collector = SeqCollectorRevisedDiscreteSkills(
         eval_env,
@@ -232,7 +221,7 @@ if __name__ == "__main__":
             num_expl_steps_per_train_loop=10,
             min_num_steps_before_training=1000,
             max_path_length=1000,
-            batch_size=4096,
+            batch_size=1096,
         ),
         trainer_kwargs=dict(
             discount=0.99,
