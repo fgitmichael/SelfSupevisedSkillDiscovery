@@ -26,12 +26,11 @@ from diayn_original_tb.algo.algo_diayn_tb_perf_logging import \
 from diayn_with_rnn_classifier.trainer.diayn_trainer_modularized import \
     DIAYNTrainerModularized
 
-from two_d_navigation_demo.env.navigation_env import \
-    TwoDimNavigationEnv
+from one_d_navigation_demo.env.one_dim_navigation_env import OneDimNavigationEnv
 
 
 def experiment(variant, args):
-    expl_env = TwoDimNavigationEnv()
+    expl_env = OneDimNavigationEnv()
     eval_env = copy.deepcopy(expl_env)
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
@@ -130,6 +129,7 @@ def experiment(variant, args):
 
         diagnostic_writer=diagno_writer,
         seq_eval_collector=seq_eval_collector,
+        mode_influence_paths_obs_lim=(-1, 11),
 
         **variant['algorithm_kwargs']
     )
