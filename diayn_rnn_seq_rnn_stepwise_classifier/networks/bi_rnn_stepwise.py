@@ -20,9 +20,11 @@ class BiRnnStepwiseClassifier(BaseNetwork):
                  output_size,
                  hidden_sizes: list,
                  seq_len,
+                 normalize_before_feature_extraction: bool = False,
                  dropout=0.,
                  pos_encoder_variant='empty',
                  num_layers=1,
+                 bias=True,
                  ):
         """
         Args:
@@ -40,6 +42,7 @@ class BiRnnStepwiseClassifier(BaseNetwork):
             bidirectional=True,
             num_layers=num_layers,
             dropout=dropout if num_layers > 1 else 0.,
+            bias=bias,
         )
         self.rnn_params = {}
         self.rnn_params['num_directions'] = \
@@ -73,6 +76,8 @@ class BiRnnStepwiseClassifier(BaseNetwork):
             dropout=dropout,
         )
 
+        self.normalize_before_feature_extraction = normalize_before_feature_extraction
+
     def create_classifier(self,
                           input_size,
                           output_size,
@@ -91,6 +96,12 @@ class BiRnnStepwiseClassifier(BaseNetwork):
         data_dim = -1
         batch_size = seq_batch.size(batch_dim)
         seq_len = seq_batch.size(seq_dim)
+
+        if self.normalize_before_feature_extraction:
+            std, mean = torch.std_mean(seq_batch, dim=seq_dim)
+            mean = torch.stack([mean] * seq_len, dim=seq_dim)
+            std = torch.stack([std] * seq_len, dim=seq_dim)
+            seq_batch = (seq_batch - mean)/(std + 1E-8)
 
         hidden_seq, h_n = self.rnn(seq_batch)
         assert hidden_seq.shape == torch.Size(

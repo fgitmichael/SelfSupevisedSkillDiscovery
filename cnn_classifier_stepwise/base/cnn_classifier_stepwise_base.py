@@ -1,4 +1,5 @@
 import abc
+import torch
 from operator import itemgetter
 
 from code_slac.network.base import BaseNetwork
@@ -19,6 +20,7 @@ class CnnStepwiseClassifierBaseDf(BaseNetwork, metaclass=abc.ABCMeta):
                  feature_extractor: CnnFeatureExtractorBase,
                  pos_encoder_variant='transformer',
                  dropout=0.,
+                 normalize_before_feature_extraction=False,
                  ):
         super().__init__()
         self.skill_dim = skill_dim
@@ -43,6 +45,8 @@ class CnnStepwiseClassifierBaseDf(BaseNetwork, metaclass=abc.ABCMeta):
             dropout=dropout,
         )
 
+        self.normalize_before_feature_extraction=normalize_before_feature_extraction
+
     @property
     @abc.abstractmethod
     def num_skills(self):
@@ -55,6 +59,14 @@ class CnnStepwiseClassifierBaseDf(BaseNetwork, metaclass=abc.ABCMeta):
         Return:
             feature_seq     : (N, S, feature_dim)
         """
+        seq_dim = 1
+        batch_size, seq_len, data_dim = seq.shape
+        if self.normalize_before_feature_extraction:
+            std, mean = torch.std_mean(seq, dim=seq_dim)
+            mean = torch.stack([mean] * seq_len, dim=seq_dim)
+            std = torch.stack([std] * seq_len, dim=seq_dim)
+            seq = (seq - mean)/(std + 1E-8)
+
         return self.feature_extractor(seq)
 
     @abc.abstractmethod
