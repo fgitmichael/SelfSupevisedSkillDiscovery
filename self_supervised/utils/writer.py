@@ -85,7 +85,6 @@ class MyWriter(WriterBase):
                 ):
         fig = self.plt_creator.scatter(
             *args,
-            tb_str=tb_str,
             labels=labels,
             x_lim=x_lim,
             y_lim=y_lim,

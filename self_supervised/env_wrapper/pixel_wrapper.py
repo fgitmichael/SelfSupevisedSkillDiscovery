@@ -19,9 +19,10 @@ class PixelNormalizedBoxEnvWrapper(NormalizedBoxEnvWrapper):
     def step(self,
              action: np.ndarray,
              denormalize: bool = False,
-             ) -> Tuple:
+             ) -> tuple:
         step_tuple = super().step(
             action=action,
+            denormalize=denormalize,
         )
         if self.render_kwargs is None:
             pixel_obs = self.env.render(mode='rgb_array')

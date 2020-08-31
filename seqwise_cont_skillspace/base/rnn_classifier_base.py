@@ -28,6 +28,7 @@ class RnnStepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
                  skill_dim,
                  hidden_sizes: list,
                  seq_len,
+                 normalize_before_feature_extraction: bool = False,
                  num_layers: int = 1,
                  dropout=0.0,
                  pos_encoder_variant='transformer'):
@@ -121,6 +122,8 @@ class RnnStepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
 
         self.set_dimensions()
 
+        self.normalize_before_feature_extraction = normalize_before_feature_extraction
+
     def set_dimensions(self):
         self.batch_dim = 0
         self.seq_dim = 1
@@ -157,6 +160,13 @@ class RnnStepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
         assert len(seq_batch.shape) == 3
         batch_size = seq_batch.size(self.batch_dim)
         seq_len = seq_batch.size(self.seq_dim)
+
+        if self.normalize_before_feature_extraction:
+            std, mean = torch.std_mean(seq_batch, dim=self.seq_dim)
+            mean = torch.stack([mean] * seq_len, dim=self.seq_dim)
+            std = torch.stack([std] * seq_len, dim=self.seq_dim)
+            seq_batch = (seq_batch - mean)/(std + 1E-8)
+            #std, mean = torch.std_mean(seq_batch, dim=self.seq_dim)
 
         hidden_seq, h_n = self.rnn(seq_batch)
         assert hidden_seq.shape == torch.Size(

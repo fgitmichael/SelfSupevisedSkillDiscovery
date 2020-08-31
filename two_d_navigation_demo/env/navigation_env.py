@@ -45,7 +45,6 @@ class TwoDimNavigationEnv(gym.Env):
             axis=-1)
         assert self.state in self.observation_space
         self.check_state(self.state)
-        assert np.all(self.state == np.array([0.5, 0.5]))
         return self.state
 
     def step(self, action: np.ndarray):
