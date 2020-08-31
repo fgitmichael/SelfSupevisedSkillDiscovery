@@ -39,10 +39,7 @@ def pixel_rollout(
         env.render(**render_kwargs)
     while path_length < max_path_length:
 
-        try:
-            a, agent_info = agent.get_action(o)
-        except:
-            pass
+        a, agent_info = agent.get_action(o)
         next_o, r, d, env_info = env.step(a)
 
         observations.append(next_o['state_obs'])
