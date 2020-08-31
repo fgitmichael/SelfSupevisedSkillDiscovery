@@ -65,7 +65,8 @@ class SeqwiseAlgoRevisedHighdim(SeqwiseAlgoRevisedDiscreteSkills):
                               path,
                               obs_dim,
                               action_dim,
-                              epoch
+                              epoch,
+                              obs_lim=None,
                               ):
         path.obs = path.obs[:self.trainer.df.obs_dimensions_used]
         super()._write_mode_influence(
