@@ -42,7 +42,7 @@ def experiment(variant, args):
     seq_len = 100
     skill_dim = args.skill_dim
     num_skills = args.skill_dim
-    hidden_size_rnn = 10
+    hidden_size_rnn = 100
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
@@ -154,6 +154,9 @@ def experiment(variant, args):
         diagnostic_writer=diagno_writer,
         seq_eval_collector=seq_eval_collector,
 
+        mode_influence_one_plot_scatter=True,
+        mode_influence_paths_obs_lim=(-1, 11),
+
         **variant['algorithm_kwargs']
     )
     algorithm.to(ptu.device)
@@ -187,7 +190,7 @@ if __name__ == "__main__":
             num_expl_steps_per_train_loop=10,
             min_num_steps_before_training=1000,
             max_path_length=1000,
-            batch_size=1024,
+            batch_size=2000,
         ),
         trainer_kwargs=dict(
             discount=0.99,
