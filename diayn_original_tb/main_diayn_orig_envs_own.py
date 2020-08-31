@@ -15,8 +15,6 @@ from rlkit.torch.networks import FlattenMlp
 
 from self_supervised.utils.writer import MyWriterWithActivation
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
-from self_supervised.network.flatten_mlp import FlattenMlp as \
-    MyFlattenMlp
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
@@ -49,7 +47,7 @@ def experiment(variant, args):
     np.random.seed(seed)
 
     M = variant['layer_size']
-    qf1 = MyFlattenMlp(
+    qf1 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
