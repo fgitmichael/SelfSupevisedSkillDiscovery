@@ -39,10 +39,24 @@ class HalfCheetahPixelWrapper:
         return (next_obs, *step_tuple[1:])
 
     def reset(self):
-        obs = self.reset()
+        obs = self.env.reset()
         pixel_obs = self.get_pixel_obs()
 
         return dict(
             state_obs=obs,
             pixel_obs=pixel_obs,
         )
+
+    @property
+    def observation_space(self):
+        return self.env.observation_space
+
+    @property
+    def action_space(self):
+        return self.env.action_space
+
+    def close(self):
+        self.env.close()
+
+    def seed(self, seed):
+        self.env.seed(seed)
