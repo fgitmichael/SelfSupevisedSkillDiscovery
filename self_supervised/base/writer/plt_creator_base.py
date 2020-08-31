@@ -94,10 +94,11 @@ class PltCreator(object, metaclass=abc.ABCMeta):
             ...
             **kwargs        : i.e. color
         """
-        lineobjects = plt.plot(*args, **kwargs)
+        lineobjects = plt.scatter(*args, **kwargs)
 
         if labels is not None:
-            plt.legend(lineobjects, labels)
+            pass
+            #plt.legend(lineobjects, labels)
 
         if x_lim is not None:
             plt.xlim(*x_lim)
