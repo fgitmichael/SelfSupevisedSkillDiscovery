@@ -90,7 +90,10 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                  num_expl_steps_per_train_loop,
                  num_trains_per_train_loop,
                  num_train_loops_per_epoch=1,
-                 min_num_steps_before_training=0):
+                 min_num_steps_before_training=0,
+                 mode_influence_one_plot_scatter=False,
+                 mode_influence_paths_obs_lim=None,
+                 ):
         super().__init__(
             trainer,
             exploration_env,
@@ -108,6 +111,8 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
             num_trains_per_train_loop=num_trains_per_train_loop,
             num_train_loops_per_epoch=num_train_loops_per_epoch,
             min_num_steps_before_training=min_num_steps_before_training,
+            mode_influence_one_plot_scatter=mode_influence_one_plot_scatter,
+            mode_influence_paths_obs_lim=mode_influence_paths_obs_lim,
         )
 
         self.seq_len = seq_len

@@ -28,12 +28,17 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
                  diagnostic_writer: DiagnosticsWriter,
                  seq_eval_collector: Union[SeqCollector,
                                            SeqCollectorRevised],
+                 mode_influence_one_plot_scatter=False,
+                 mode_influence_paths_obs_lim: tuple=None,
                  **kwargs
                  ):
         super().__init__(*args, **kwargs)
 
         self.diagnostic_writer = diagnostic_writer
         self.seq_eval_collector = seq_eval_collector
+
+        self.mode_influence_one_plot_scatter = mode_influence_one_plot_scatter
+        self.mode_influence_path_obs_lim = mode_influence_paths_obs_lim
 
     def _end_epoch(self, epoch):
         super()._end_epoch(epoch)
@@ -69,7 +74,8 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
                 path,
                 obs_dim=obs_dim,
                 action_dim=action_dim,
-                epoch=epoch
+                epoch=epoch,
+                obs_lim=self.mode_influence_path_obs_lim,
             )
 
         # Plot influence in one plot
@@ -102,11 +108,29 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
                 labels=["skill {}".format(path.skill_id.squeeze()[0]) for path in paths],
             )
 
+            if self.mode_influence_one_plot_scatter:
+                self.diagnostic_writer.writer.scatter(
+                    obs[0], obs[1],
+                    tb_str="ModeInfluence All Skills in One Plot Scatter/With Limits",
+                    step=epoch,
+                    labels=["skill {}".format(path.skill_id.squeeze()[0]) for path in paths],
+                    x_lim=[-2, 2],
+                    y_lim=[-2, 2]
+                )
+                obs = np.stack([path.obs for path in paths], axis=2)
+                self.diagnostic_writer.writer.scatter(
+                    obs[0], obs[1],
+                    tb_str="ModeInfluence All Skills in One Plot Scatter/Without Limits",
+                    step=epoch,
+                    labels=["skill {}".format(path.skill_id.squeeze()[0]) for path in paths],
+                )
+
     def _write_mode_influence(self,
                               path,
                               obs_dim,
                               action_dim,
-                              epoch
+                              epoch,
+                              obs_lim=None,
                               ):
         skill_id = path.skill_id.squeeze()[0]
 
@@ -116,7 +140,7 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
             tb_str="Mode Influence Test: Obs/Skill {}".format(skill_id),
             arrays_to_plot=path.obs,
             step=epoch,
-            y_lim=[-3, 3]
+            y_lim=[-3, 3] if obs_lim is None else obs_lim,
         )
 
         if obs_dim == 2:
@@ -137,8 +161,8 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
             step=epoch,
             y_lim=[-1.2, 1.2]
         )
-
         # TODO: write rewards
+
     def _get_paths_mode_influence_test(self, num_paths=1, seq_len=200) \
             -> List[td.TransitonModeMappingDiscreteSkills]:
 
