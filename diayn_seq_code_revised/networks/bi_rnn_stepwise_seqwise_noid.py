@@ -1,7 +1,7 @@
 import torch
 
 from diayn_seq_code_revised.networks.my_gaussian \
-    import MyGaussian as Gaussian
+    import MyGaussian
 
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
     BiRnnStepwiseSeqWiseClassifier
@@ -11,11 +11,14 @@ class BiRnnStepwiseSeqwiseNoidClassifier(BiRnnStepwiseSeqWiseClassifier):
     def create_classifier(self,
                           input_size,
                           output_size,
-                          hidden_sizes):
-        return Gaussian(
+                          hidden_sizes,
+                          dropout,
+                          ):
+        return MyGaussian(
             input_dim=input_size,
             output_dim=output_size,
-            hidden_units=hidden_sizes
+            hidden_units=hidden_sizes,
+            dropout=dropout,
         )
 
     def _classify_stepwise(self, hidden_seq):
@@ -32,7 +35,7 @@ class BiRnnStepwiseSeqwiseNoidClassifier(BiRnnStepwiseSeqWiseClassifier):
         assert hidden_seq.shape == torch.Size(
             (batch_size,
              seq_len,
-             self.rnn_params['num_features'])
+             self.rnn_params['num_features_hidden_seq'])
         )
 
         classified = self.classifier(hidden_seq_pos_encoded)
