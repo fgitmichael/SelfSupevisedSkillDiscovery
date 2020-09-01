@@ -42,31 +42,34 @@ from diayn_seq_code_revised.data_collector.skill_selector import \
 
 from diayn_original_cont.trainer.info_loss_min_vae import InfoLossLatentGuided
 
+from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
+
 
 def experiment(variant, args):
-    expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
-    eval_env = copy.deepcopy(expl_env)
+    #expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
+    #eval_env = copy.deepcopy(expl_env)
+    expl_env = TwoDimNavigationEnv()
+    eval_env = TwoDimNavigationEnv()
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-    seq_len = 100
+    seq_len = 50
     one_hot_skill_encoding = True
     #skill_dim = args.skill_dim
-    skill_repeat = 1
-    skill_dim = 2 * skill_repeat
-    hidden_size_rnn = 10
-    num_rnn_layers = 2
+    hidden_size_rnn = 8
+    num_rnn_layers = 1
     cont_discrete = 'continuous'
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
+    skill_dim = 2
     run_comment = sep_str
     run_comment += "stepwise only discrete {}".format(sep_str)
     run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "{} skills".format(cont_discrete) + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
-    run_comment += "skill repeat: {}{}".format(skill_repeat, sep_str)
+    run_comment += "num rnn layers: {}".format(num_rnn_layers)
 
     seed = 0
     torch.manual_seed = seed
@@ -99,9 +102,9 @@ def experiment(variant, args):
         obs_dim=obs_dim,
         hidden_size_rnn=hidden_size_rnn,
         skill_dim=skill_dim,
-        hidden_sizes=[M, M],
+        hidden_sizes=[128, 128],
         seq_len=seq_len,
-        dropout=0.5,
+        dropout=0.4,
         pos_encoder_variant='transformer',
         num_layers=num_rnn_layers,
     )
@@ -121,7 +124,7 @@ def experiment(variant, args):
         )
     elif cont_discrete == 'discrete':
         skill_selector = SkillSelectorDiscrete(
-            NoohGridCreator(repeat=skill_repeat, radius_factor=2).get_grid
+            NoohGridCreator(repeat=1, radius_factor=2).get_grid
         )
     else:
         raise NotImplementedError
@@ -150,8 +153,8 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = InfoLoss(
-        alpha=0.999,
-        lamda=0.5,
+        alpha=0.96,
+        lamda=0.3,
     ).loss
     trainer = StepwiseOnlyTrainerCont(
         skill_prior_dist=skill_prior,
@@ -211,7 +214,7 @@ if __name__ == "__main__"   :
 
     # noinspection PyTypeChecker
     variant = dict(
-        algorithm="DIAYN",
+        algorithm="stepwise only cont skills",
         version="normal",
         layer_size=256,
         replay_buffer_size=int(1000),
@@ -222,7 +225,7 @@ if __name__ == "__main__"   :
             num_expl_steps_per_train_loop=10,
             min_num_steps_before_training=1000,
             max_path_length=1000,
-            batch_size=2024,
+            batch_size=1024,
         ),
         trainer_kwargs=dict(
             discount=0.99,
@@ -230,11 +233,12 @@ if __name__ == "__main__"   :
             target_update_period=1,
             policy_lr=3E-4,
             qf_lr=3E-4,
-            df_lr=1E-4,
+            df_lr=1E-3,
             reward_scale=1,
             use_automatic_entropy_tuning=True,
         ),
     )
-    setup_logger('DIAYN_' + str(args.skill_dim) + '_' + args.env, variant=variant)
+    setup_logger('Stepwise_Only_Cont'
+                 + str(args.skill_dim) + '_' + args.env, variant=variant)
     ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
     experiment(variant, args)
