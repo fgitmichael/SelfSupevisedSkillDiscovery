@@ -25,7 +25,7 @@ from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import \
     ContSkillTrainerSeqwiseStepwise
 from seqwise_cont_skillspace.networks.rnn_vae_classifier import \
     RnnVaeClassifierContSkills
-from seqwise_cont_skillspace.utils.info_loss import InfoLoss
+from seqwise_cont_skillspace.utils.info_loss import InfoLoss, GuidedInfoLoss
 from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
 from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
@@ -125,7 +125,7 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
-    info_loss_fun = InfoLoss(
+    info_loss_fun = GuidedInfoLoss(
         alpha=0.99,
         lamda=0.2,
     ).loss

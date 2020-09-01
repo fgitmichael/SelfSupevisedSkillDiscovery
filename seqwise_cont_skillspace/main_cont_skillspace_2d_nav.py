@@ -8,7 +8,6 @@ import rlkit.torch.pytorch_util as ptu
 from rlkit.launchers.launcher_util import setup_logger
 
 from self_supervised.utils.writer import MyWriterWithActivation
-from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
@@ -16,16 +15,14 @@ from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 
-from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
-    BiRnnStepwiseSeqWiseClassifier
-
 from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
 from diayn_seq_code_revised.networks.my_gaussian import \
     ConstantGaussianMultiDim
 from seqwise_cont_skillspace.algo.algo_cont_skillspace import SeqwiseAlgoRevisedContSkills
 
-from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import ContSkillTrainerSeqwiseStepwise
+from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import \
+    ContSkillTrainerSeqwiseStepwise
 from seqwise_cont_skillspace.networks.rnn_vae_classifier import \
     RnnVaeClassifierContSkills
 from seqwise_cont_skillspace.utils.info_loss import InfoLoss
@@ -34,24 +31,22 @@ from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
 from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
 
+from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
+
 
 def experiment(variant, args):
-    expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
-    eval_env = copy.deepcopy(expl_env)
+    expl_env = TwoDimNavigationEnv()
+    eval_env = TwoDimNavigationEnv()
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-
     seq_len = 100
-    one_hot_skill_encoding = True
-    #skill_dim = args.skill_dim
     skill_dim = 2
-    hidden_size_rnn = 100
+    hidden_size_rnn = 20
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
     run_comment = sep_str
-    run_comment += "one hot: {}".format(one_hot_skill_encoding) + sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "continous skill space" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
@@ -87,9 +82,11 @@ def experiment(variant, args):
         input_size=obs_dim,
         hidden_size_rnn=hidden_size_rnn,
         output_size=skill_dim,
-        hidden_sizes=[M, M],
-        feature_decode_hidden_size=[M, M],
-        seq_len=seq_len
+        hidden_sizes=[30, 30],
+        feature_decode_hidden_size=[30, 30],
+        seq_len=seq_len,
+        pos_encoder_variant='transformer',
+        dropout=0.2,
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
@@ -119,8 +116,8 @@ def experiment(variant, args):
     seq_eval_collector = SeqCollectorRevisedOptionalSkillId(
         env=eval_env,
         policy=eval_policy,
-        max_seqs = 50,
-        skill_selector = skill_selector
+        max_seqs=50,
+        skill_selector=skill_selector
     )
     replay_buffer = SelfSupervisedEnvSequenceReplayBuffer(
         max_replay_buffer_size=variant['replay_buffer_size'],
@@ -129,8 +126,8 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = InfoLoss(
-        alpha=0.999,
-        lamda=0.22
+        alpha=0.99,
+        lamda=0.2,
     ).loss
     trainer = ContSkillTrainerSeqwiseStepwise(
         skill_prior_dist=skill_prior,
@@ -147,7 +144,7 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logs',
+        log_dir='logs2dnav',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
@@ -211,6 +208,8 @@ if __name__ == "__main__":
             qf_lr=3E-4,
             reward_scale=1,
             use_automatic_entropy_tuning=True,
+            df_lr_step=9E-4,
+            df_lr_seq=8E-4,
         ),
     )
     setup_logger('DIAYN_' + str(args.skill_dim) + '_' + args.env, variant=variant)
