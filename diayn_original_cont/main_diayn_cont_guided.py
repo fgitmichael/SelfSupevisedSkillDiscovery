@@ -120,7 +120,7 @@ def experiment(variant, args):
         expl_env,
         skill_dim
     )
-    info_loss_fun = InfoLoss(
+    info_loss_fun = InfoLossLatentGuided(
         alpha=0.99,
         lamda=0.2,
     ).loss
