@@ -1,5 +1,6 @@
 import torch
 from torch.nn import functional as F
+import warnings
 
 from mode_disent.utils.mmd import compute_mmd_tutorial
 from code_slac.utils import calc_kl_divergence
@@ -14,6 +15,8 @@ class InfoLoss:
 
         self.dist_key = 'dist'
         self.sample_key = 'sample'
+
+        self.call_cnt = 0
 
     def loss(self,
              pri: dict,
@@ -50,6 +53,11 @@ class InfoLoss:
                 loss_data           : scalar tensor
                 info_loss           : scalar tensor
         """
+        # To make switching between the loss function easier
+        if 'latent_guide' in kwargs.keys() and self.call_cnt == 0:
+            self.call_cnt += 1
+            warnings.warn('Guide in the Lossfunction is not used')
+
         if dist_key is not None:
             self.dist_key = dist_key
 
