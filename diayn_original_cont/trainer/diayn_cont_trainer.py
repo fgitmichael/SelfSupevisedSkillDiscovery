@@ -7,7 +7,8 @@ import rlkit.torch.pytorch_util as ptu
 from rlkit.core.eval_util import create_stats_ordered_dict
 
 from diayn_original_cont.networks.vae_regressor import VaeRegressor
-from diayn_original_cont.trainer.info_loss_min_vae import InfoLossLatentGuided
+from diayn_original_cont.trainer.info_loss_min_vae import \
+    InfoLossLatentGuided, InfoLoss
 
 from diayn_with_rnn_classifier.trainer.diayn_trainer_modularized import \
     DIAYNTrainerModularized
@@ -231,6 +232,7 @@ class DIAYNTrainerCont(DIAYNTrainerModularized):
         assert rewards.shape == torch.Size((next_obs.size(0), 1))
 
         vae_ret_dict = self.df(next_obs, train=True)
+
         info_loss, log_dict = self.info_loss_fun(
             **vae_ret_dict,
             data=next_obs,

@@ -47,9 +47,10 @@ class InfoLossLatentGuided(InfoLoss):
              post: dict,
              recon: dict,
              data: torch.Tensor,
-             latent_guide: torch.Tensor=None,
+             latent_guide: torch.Tensor = None,
              dist_key=None,
-             sample_key=None):
+             sample_key=None,
+             ):
         """
         Args:
             ...                         : see base
