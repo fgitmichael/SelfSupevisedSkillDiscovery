@@ -17,7 +17,7 @@ from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_supervised.memory.self_sup_replay_buffer import \
     SelfSupervisedEnvSequenceReplayBuffer
 
-from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator
+from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCreator
 
 from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
@@ -70,6 +70,7 @@ def experiment(variant, args):
     run_comment += "{} skills".format(cont_discrete) + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
     run_comment += "num rnn layers: {}".format(num_rnn_layers)
+    run_comment += "guided loss {}".format(sep_str)
 
     seed = 0
     torch.manual_seed = seed
@@ -124,7 +125,7 @@ def experiment(variant, args):
         )
     elif cont_discrete == 'discrete':
         skill_selector = SkillSelectorDiscrete(
-            NoohGridCreator(repeat=1, radius_factor=2).get_grid
+            get_skill_grid_fun=NoohGridCreator(repeat=1, radius_factor=1).get_grid
         )
     else:
         raise NotImplementedError
@@ -152,9 +153,9 @@ def experiment(variant, args):
         mode_dim=skill_dim,
         env=expl_env,
     )
-    info_loss_fun = InfoLoss(
-        alpha=0.96,
-        lamda=0.3,
+    info_loss_fun = InfoLossLatentGuided(
+        alpha=0.99,
+        lamda=0,
     ).loss
     trainer = StepwiseOnlyTrainerCont(
         skill_prior_dist=skill_prior,
@@ -214,7 +215,7 @@ if __name__ == "__main__"   :
 
     # noinspection PyTypeChecker
     variant = dict(
-        algorithm="stepwise only cont skills",
+        algorithm="stepwise only cont skills guided",
         version="normal",
         layer_size=256,
         replay_buffer_size=int(1000),
@@ -233,12 +234,12 @@ if __name__ == "__main__"   :
             target_update_period=1,
             policy_lr=3E-4,
             qf_lr=3E-4,
-            df_lr=1E-3,
+            df_lr=5E-3,
             reward_scale=1,
             use_automatic_entropy_tuning=True,
         ),
     )
-    setup_logger('Stepwise_Only_Cont'
+    setup_logger('Stepwise_Only_Cont guided'
                  + str(args.skill_dim) + '_' + args.env, variant=variant)
     ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
     experiment(variant, args)
