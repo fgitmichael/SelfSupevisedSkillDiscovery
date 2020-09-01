@@ -48,6 +48,13 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
             #self.write_skill_hist(epoch)
             gt.stamp('mode influence logging')
 
+        self.diagnostic_writer.save_net(
+            net=self.policy,
+            save_name="policy_net",
+            epoch=epoch,
+            log_interval=20,
+        )
+
     def write_mode_influence_and_log(self, epoch):
         paths = self._get_paths_mode_influence_test()
         self._write_mode_influence_and_log(
