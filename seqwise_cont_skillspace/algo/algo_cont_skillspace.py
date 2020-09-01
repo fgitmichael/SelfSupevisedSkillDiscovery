@@ -123,7 +123,7 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
         ret_dict = self.trainer.df(
             next_obs, train=True
         )
-        pred_skill_dist = ret_dict['classified_steps']['dist']
+        pred_skill_dist = ret_dict['classified_steps']
         pred_skill_dist_seq = ret_dict['classified_seqs']
 
         df_accuracy = F.mse_loss(pred_skill_dist.loc, mode)
