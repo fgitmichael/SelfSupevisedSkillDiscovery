@@ -26,8 +26,6 @@ class ContSkillTrainerSeqwiseStepwise(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
                  *args,
                  skill_prior_dist: ConstantGaussianMultiDim,
                  loss_fun: InfoLoss.loss,
-                 optimizer_class=torch.optim.Adam,
-                 df_lr=1e-3,
                  **kwargs):
         super().__init__(*args, **kwargs)
 

@@ -109,7 +109,7 @@ class RnnStepwiseSeqwiseClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
         self.classifier_step = self.create_stepwise_classifier(
             feature_dim=input_size_classifier,
             skill_dim=self.skill_dim,
-            hidden_sizes=[80, 80],
+            hidden_sizes=hidden_sizes,
             dropout=dropout,
         )
 
