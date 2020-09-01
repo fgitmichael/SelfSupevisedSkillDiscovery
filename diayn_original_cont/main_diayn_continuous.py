@@ -10,13 +10,10 @@ from rlkit.torch.sac.diayn.diayn_env_replay_buffer import DIAYNEnvReplayBuffer
 from rlkit.launchers.launcher_util import setup_logger
 from rlkit.torch.sac.diayn.diayn_path_collector import DIAYNMdpPathCollector
 from rlkit.samplers.data_collector.step_collector import MdpStepCollector
-from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
 from rlkit.torch.networks import FlattenMlp
 
 from self_supervised.utils.writer import MyWriterWithActivation
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
-from self_supervised.network.flatten_mlp import FlattenMlp as \
-    MyFlattenMlp
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 from diayn_original_cont.policy.policies import \
@@ -26,21 +23,28 @@ from diayn_original_cont.trainer.diayn_cont_trainer import \
 from diayn_original_cont.algo.algo_cont import DIAYNContAlgo
 from diayn_original_cont.trainer.info_loss_min_vae import \
     InfoLossLatentGuided
+from seqwise_cont_skillspace.utils.info_loss import InfoLoss
 from diayn_original_cont.networks.vae_regressor import VaeRegressor
 from diayn_original_cont.data_collector.seq_collector_optionally_id import \
     SeqCollectorRevisedOptionalId
 
 from diayn_seq_code_revised.data_collector.skill_selector import \
     SkillSelectorDiscrete
+from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
+    SkillSelectorContinous
 from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator
 
 from diayn_seq_code_revised.networks.my_gaussian import \
     ConstantGaussianMultiDim
 
+from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
+
 
 def experiment(variant, args):
-    expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
-    eval_env = copy.deepcopy(expl_env)
+    #expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
+    #eval_env = copy.deepcopy(expl_env)
+    expl_env = TwoDimNavigationEnv()
+    eval_env = TwoDimNavigationEnv()
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
     skill_dim = args.skill_dim
@@ -61,7 +65,7 @@ def experiment(variant, args):
     np.random.seed(seed)
 
     M = variant['layer_size']
-    qf1 = MyFlattenMlp(
+    qf1 = FlattenMlp(
         input_size=obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
@@ -85,10 +89,10 @@ def experiment(variant, args):
         output_dim=skill_dim
     )
     noohgrid_creator_fun = NoohGridCreator().get_grid
-    skill_selector = SkillSelectorDiscrete(
-        get_skill_grid_fun=noohgrid_creator_fun
-    )
-    #skill_selector = SkillSelectorContinous(prior_skill_dist=skill_prior)
+    #skill_selector = SkillSelectorDiscrete(
+       #get_skill_grid_fun=noohgrid_creator_fun
+    #
+    skill_selector = SkillSelectorContinous(prior_skill_dist=skill_prior)
     policy = SkillTanhGaussianPolicyExtensionCont(
         obs_dim=obs_dim,
         action_dim=action_dim,
@@ -116,7 +120,7 @@ def experiment(variant, args):
         expl_env,
         skill_dim
     )
-    info_loss_fun = InfoLossLatentGuided(
+    info_loss_fun = InfoLoss(
         alpha=0.99,
         lamda=0.2,
     ).loss
