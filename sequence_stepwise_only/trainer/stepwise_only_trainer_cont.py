@@ -157,11 +157,16 @@ class StepwiseOnlyTrainerCont(ContSkillTrainerSeqwiseStepwise):
             batch_size * seq_len,
             hidden_feature_seq_data_dim,
             )
+        skills = skills.reshape(
+            batch_size * seq_len,
+            skill_dim
+        )
         info_loss, log_dict = self.loss_fun(
             pri=pri,
             post=post,
             recon=recon,
-            data=hidden_feature_seq.detach()
+            data=hidden_feature_seq.detach(),
+            latent_guide=skills,
         )
 
         return dict(
