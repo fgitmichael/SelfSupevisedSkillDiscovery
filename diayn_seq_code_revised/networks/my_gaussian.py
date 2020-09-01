@@ -15,13 +15,21 @@ class MyGaussian(Gaussian):
                  std=None,
                  leaky_slope=0.2,
                  dropout=0.):
-        super().__init__(
-            input_dim=input_dim,
-            output_dim=output_dim,
-            hidden_units=hidden_units,
-            std=std,
-            leaky_slope=leaky_slope
-        )
+        if hidden_units is None:
+            super().__init__(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                std=std,
+                leaky_slope=leaky_slope
+            )
+        else:
+            super().__init__(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                hidden_units=hidden_units,
+                std=std,
+                leaky_slope=leaky_slope
+            )
 
         self.net = MlpWithDropout(
             input_size=input_dim,
