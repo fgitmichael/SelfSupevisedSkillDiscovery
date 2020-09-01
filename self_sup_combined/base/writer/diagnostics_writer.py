@@ -1,4 +1,7 @@
-from self_supervised.utils.writer import WriterDataMapping, MyWriterWithActivation
+import torch
+import os
+
+from self_supervised.utils.writer import MyWriterWithActivation
 
 
 class DiagnosticsWriter:
@@ -18,3 +21,14 @@ class DiagnosticsWriter:
 
         if step % log_interval == 0:
             return True
+
+    def save_net(self,
+                 net: torch.nn.Module,
+                 save_name: str,
+                 epoch: int,
+                 log_interval: int
+                 ):
+        if self.is_log(epoch, log_interval) and epoch > 0:
+            save_name = "{}_epoch{}".format(save_name, epoch)
+            save_path = os.path.join(self.writer.model_dir, save_name)
+            torch.save(net, save_path)
