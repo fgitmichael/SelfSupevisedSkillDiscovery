@@ -181,12 +181,20 @@ class ContSkillTrainerSeqwiseStepwise(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
             sample=recon_feature_seq_dist.loc,
         )
 
+        # Reshape
+        hidden_feature_seq = hidden_feature_seq.detach()
+        hidden_feature_seq = hidden_feature_seq.reshape(
+            -1,
+            hidden_feature_seq.size(data_dim)
+        )
+
         # Loss Calculation
         info_loss, log_dict = self.loss_fun(
             pri=pri,
             post=post,
             recon=recon,
-            data=hidden_feature_seq.detach()
+            data=hidden_feature_seq.detach().reshape(-1, hidden_feature_seq.size(data_dim)),
+            guide=skills.detach().reshape(batch_size * seq_len, skill_dim)
         )
 
         return dict(
