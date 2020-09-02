@@ -1,3 +1,5 @@
+from typing import Union
+
 from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
     BiRnnStepwiseSeqWiseClassifier
 
@@ -7,7 +9,7 @@ class RnnStepwiseSeqwiseClassifierObsDimSelect(BiRnnStepwiseSeqWiseClassifier):
     def __init__(self,
                  *args,
                  input_size,
-                 obs_dims_selected: list=None,
+                 obs_dims_selected: Union[tuple, list]=None,
                  **kwargs,
                  ):
         if obs_dims_selected is not None:

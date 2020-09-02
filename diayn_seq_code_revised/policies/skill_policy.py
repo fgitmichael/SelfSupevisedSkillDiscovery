@@ -49,13 +49,10 @@ class SkillTanhGaussianPolicyRevised(SkillTanhGaussianPolicy):
                   skill: torch.Tensor):
         self.skill = skill
 
-    def forward(self,
-                obs: torch.Tensor,
-                skill_vec=None,
-                reparameterize=True,
-                return_log_prob=False,
-                deterministic=False):
-        # Dims checking
+    def recover_obs_skillvec(self,
+                  obs: torch.Tensor,
+                  skill_vec: torch.Tensor = None,
+                  ):
         if skill_vec is None:
             assert obs.shape[-1] == self.input_size
         else:
@@ -67,6 +64,20 @@ class SkillTanhGaussianPolicyRevised(SkillTanhGaussianPolicy):
         else:
             obs_base_call = obs
             skill_vec_base_call = skill_vec
+
+        return obs_base_call, skill_vec_base_call
+
+    def forward(self,
+                obs: torch.Tensor,
+                skill_vec=None,
+                reparameterize=True,
+                return_log_prob=False,
+                deterministic=False):
+        obs_base_call, \
+        skill_vec_base_call = self.recover_obs_skillvec(
+            obs=obs,
+            skill_vec=skill_vec,
+        )
 
         for_ret_mapping = super().forward(
             obs=obs_base_call,

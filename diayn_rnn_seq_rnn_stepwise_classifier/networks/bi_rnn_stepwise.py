@@ -20,6 +20,7 @@ class BiRnnStepwiseClassifier(BaseNetwork):
                  output_size,
                  hidden_sizes: list,
                  seq_len,
+                 obs_dims_used: tuple = None,
                  normalize_before_feature_extraction: bool = False,
                  dropout=0.,
                  pos_encoder_variant='empty',
@@ -101,6 +102,9 @@ class BiRnnStepwiseClassifier(BaseNetwork):
         data_dim = -1
         batch_size = seq_batch.size(batch_dim)
         seq_len = seq_batch.size(seq_dim)
+
+        if self.obs_dims_used is not None:
+            seq_batch = seq_batch[:, :, self.obs_dims_used]
 
         if self.normalize_before_feature_extraction:
             std, mean = torch.std_mean(seq_batch, dim=seq_dim)

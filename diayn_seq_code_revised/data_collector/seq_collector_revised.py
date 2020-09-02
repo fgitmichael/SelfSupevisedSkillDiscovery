@@ -91,7 +91,7 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
         return paths
 
     def _check_path(self, path, seq_len):
-        assert path.obs.shape == (seq_len, self.policy.obs_dim)
+        assert path.obs.shape == (seq_len, self.obs_dim)
 
     def collect_new_paths(
             self,
@@ -128,11 +128,15 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
 
         return paths_with_skills
 
+    @property
+    def obs_dim(self):
+        return self._rollouter.env.observation_space.shape[-1]
+
     def _check_paths(self,
                      seq_len,
                      path: td.TransitionMapping):
-        obs_dim = self.policy.obs_dim
-        action_dim = self.policy.action_dim
+        obs_dim = self.obs_dim
+        action_dim = self._rollouter.env.action_space.shape[-1]
         skill_dim = self.skill_selector.skill_dim
 
         batch_dim = 0

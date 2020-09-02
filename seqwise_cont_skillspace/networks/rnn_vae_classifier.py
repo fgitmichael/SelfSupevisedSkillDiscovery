@@ -11,13 +11,15 @@ class RnnVaeClassifierContSkills(BiRnnStepwiseSeqwiseNoidClassifier):
     def __init__(self,
                  *args,
                  feature_decode_hidden_size=(256, 256),
+                 layer_norm=False,
                  **kwargs):
         super().__init__(*args, **kwargs)
 
         self.feature_decoder = Gaussian(
             input_dim=self.classifier.output_size,
             output_dim=2 * self.rnn.hidden_size,
-            hidden_units=feature_decode_hidden_size
+            hidden_units=feature_decode_hidden_size,
+            layer_norm=layer_norm,
         )
 
     def forward(self,
