@@ -14,9 +14,14 @@ from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator
 
 class SkillSelectorContinous(SkillSelectorBase):
 
-    def __init__(self, prior_skill_dist: MyGaussian):
+    def __init__(self,
+                 prior_skill_dist: MyGaussian,
+                 grid_radius_factor=1.,
+                 ):
         self.skill_prior = prior_skill_dist
-        self.grid = NoohGridCreator().get_grid()
+        self.grid = NoohGridCreator(
+            radius_factor=grid_radius_factor,
+        ).get_grid()
 
     def get_random_skill(self, batch_size=1) -> torch.Tensor:
         dist = self.skill_prior(torch.tensor([1.]))
