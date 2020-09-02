@@ -25,6 +25,7 @@ class BiRnnStepwiseClassifier(BaseNetwork):
                  pos_encoder_variant='empty',
                  num_layers=1,
                  bias=True,
+                 layer_norm=False,
                  ):
         """
         Args:
@@ -74,20 +75,24 @@ class BiRnnStepwiseClassifier(BaseNetwork):
             output_size=output_size,
             hidden_sizes=hidden_sizes,
             dropout=dropout,
+            layer_norm=layer_norm,
         )
 
         self.normalize_before_feature_extraction = normalize_before_feature_extraction
+        self.obs_dims_used = obs_dims_used
 
     def create_classifier(self,
                           input_size,
                           output_size,
                           hidden_sizes,
-                          dropout
+                          dropout,
+                          layer_norm=False,
                           ):
         return FlattenMlpDropout(
             input_size=input_size,
             output_size=output_size,
-            hidden_sizes=hidden_sizes
+            hidden_sizes=hidden_sizes,
+            layer_norm=False,
         )
 
     def _process_seq(self, seq_batch):

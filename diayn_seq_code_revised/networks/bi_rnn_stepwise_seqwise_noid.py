@@ -13,12 +13,14 @@ class BiRnnStepwiseSeqwiseNoidClassifier(BiRnnStepwiseSeqWiseClassifier):
                           output_size,
                           hidden_sizes,
                           dropout,
+                          layer_norm=False,
                           ):
         return MyGaussian(
             input_dim=input_size,
             output_dim=output_size,
             hidden_units=hidden_sizes,
             dropout=dropout,
+            layer_norm=layer_norm,
         )
 
     def _classify_stepwise(self, hidden_seq):

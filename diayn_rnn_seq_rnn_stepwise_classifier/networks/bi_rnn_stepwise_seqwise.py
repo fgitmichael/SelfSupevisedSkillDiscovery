@@ -19,10 +19,12 @@ class BiRnnStepwiseSeqWiseClassifier(BiRnnStepwiseClassifier):
     def __init__(self,
                  *args,
                  dropout=0.,
+                 layer_norm=False,
                  **kwargs):
         super().__init__(
             *args,
             dropout=dropout,
+            layer_norm=layer_norm,
             **kwargs)
         self.output_size = kwargs['output_size']
         hidden_sizes = kwargs['hidden_sizes']
@@ -32,6 +34,7 @@ class BiRnnStepwiseSeqWiseClassifier(BiRnnStepwiseClassifier):
             output_size=self.output_size,
             hidden_sizes=hidden_sizes,
             dropout=dropout,
+            layer_norm=layer_norm,
         )
 
     def create_classifier_seq(self,
@@ -39,12 +42,14 @@ class BiRnnStepwiseSeqWiseClassifier(BiRnnStepwiseClassifier):
                               output_size,
                               hidden_sizes,
                               dropout,
+                              layer_norm=False,
                               ):
         return FlattenMlpDropout(
             input_size=input_size,
             output_size=output_size,
             hidden_sizes=hidden_sizes,
             dropout=dropout,
+            layer_norm=layer_norm,
         )
 
     def _classify_stepwise(self, hidden_seq):

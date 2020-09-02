@@ -14,7 +14,9 @@ class MyGaussian(Gaussian):
                  hidden_units=None,
                  std=None,
                  leaky_slope=0.2,
-                 dropout=0.):
+                 dropout=0.,
+                 layer_norm=False,
+                 ):
         if hidden_units is None:
             super().__init__(
                 input_dim=input_dim,
@@ -31,12 +33,14 @@ class MyGaussian(Gaussian):
                 leaky_slope=leaky_slope
             )
 
+        # Overwrite base-net
         self.net = MlpWithDropout(
             input_size=input_dim,
             output_size=2*output_dim if std is None else output_dim,
             hidden_sizes=hidden_units,
             hidden_activation=nn.LeakyReLU(leaky_slope),
             dropout=dropout,
+            layer_norm=layer_norm,
         )
 
     @property
