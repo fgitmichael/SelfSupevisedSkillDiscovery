@@ -42,8 +42,11 @@ from seqwise_cont_skillspace.trainer.discrete_skillspace_seqwise_stepwise_revise
 from seqwise_cont_skillspace.trainer.trainer_ssvaestyle import SsvaestyleSkillTrainer
 from seqwise_cont_skillspace.trainer.trainer_guided_ssvae_style import \
     GuidedSsvaestyleTrainer
+from seqwise_cont_skillspace.trainer.cont_skillspace_nocont_steprepeat_trainer \
+    import ContSkillTrainerSeqwiseStepwiseStepRepeatTrainer
 
-from sequence_stepwise_only.trainer.stepwise_only_trainer_cont import StepwiseOnlyTrainerCont
+from sequence_stepwise_only.trainer.stepwise_only_trainer_cont import \
+    StepwiseOnlyTrainerCont
 
 from two_d_navigation_demo.trainer.trainer_stepwise_only_discrete import \
     StepwiseOnlyDiscreteTrainer
@@ -200,6 +203,7 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                                   StepwiseOnlyTrainerCont,
                                   StepwiseOnlyDiscreteTrainer,
                                   CnnStepwiseSeqwiseTrainer,
+                                  ContSkillTrainerSeqwiseStepwiseStepRepeatTrainer,
                                   ]:
             train_dict = dict(
                 rewards=train_data.reward,
