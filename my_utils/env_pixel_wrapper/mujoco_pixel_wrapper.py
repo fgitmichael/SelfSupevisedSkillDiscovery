@@ -1,12 +1,12 @@
 import numpy as np
 import gym
-from gym.envs.mujoco.half_cheetah_v3 import HalfCheetahEnv
+from gym.envs.mujoco.mujoco_env import MujocoEnv
 
 
-class HalfCheetahPixelWrapper:
+class MujocoPixelWrapper:
 
     def __init__(self,
-                 env: HalfCheetahEnv,
+                 env: MujocoEnv,
                  render_kwargs=None,
                  ):
         self.env = env
