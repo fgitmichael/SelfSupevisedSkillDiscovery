@@ -193,8 +193,11 @@ class ContSkillTrainerSeqwiseStepwise(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
             pri=pri,
             post=post,
             recon=recon,
-            data=hidden_feature_seq.detach().reshape(-1, hidden_feature_seq.size(data_dim)),
-            guide=skills.detach().reshape(batch_size * seq_len, skill_dim)
+            data=hidden_feature_seq.detach().reshape(
+                -1, hidden_feature_seq.size(data_dim)
+            ),
+            guide=skills.detach().reshape(
+                batch_size * seq_len, skill_dim)
         )
 
         return dict(
