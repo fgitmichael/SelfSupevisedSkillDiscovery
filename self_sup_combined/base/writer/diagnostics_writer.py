@@ -1,5 +1,7 @@
 import torch
 import os
+import sys
+from shutil import copyfile
 
 from self_supervised.utils.writer import MyWriterWithActivation
 
@@ -14,6 +16,7 @@ class DiagnosticsWriter:
         self._diagnostics = {}
 
         self.writer = writer
+        self.copy_main_script()
 
     def is_log(self, step, log_interval=None) -> bool:
         if log_interval is None:
@@ -32,3 +35,9 @@ class DiagnosticsWriter:
             save_name = "{}_epoch{}".format(save_name, epoch)
             save_path = os.path.join(self.writer.model_dir, save_name)
             torch.save(net, save_path)
+
+    def copy_main_script(self):
+        script_path = sys.argv[0]
+        save_path = os.path.join(self.writer.summary_dir, 'main_script.py')
+        copyfile(script_path, save_path)
+
