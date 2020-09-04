@@ -4,7 +4,7 @@ import numpy as np
 import copy
 import gym
 from gym.envs.mujoco.half_cheetah_v3 import HalfCheetahEnv as HalfCheetahVersionThreeEnv
-from my_utils.env_pixel_wrapper.mujoco_half_cheetah import HalfCheetahPixelWrapper
+from my_utils.env_pixel_wrapper.mujoco_pixel_wrapper import MujocoPixelWrapper
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.launchers.launcher_util import setup_logger
