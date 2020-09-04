@@ -1,6 +1,7 @@
 import torch
 import os
 import sys
+import gym
 from shutil import copyfile
 
 from self_supervised.utils.writer import MyWriterWithActivation
@@ -25,16 +26,21 @@ class DiagnosticsWriter:
         if step % log_interval == 0:
             return True
 
-    def save_net(self,
-                 net: torch.nn.Module,
-                 save_name: str,
-                 epoch: int,
-                 log_interval: int
-                 ):
+    def save_object(self,
+                    obj,
+                    save_name: str,
+                    epoch: int,
+                    log_interval: int
+                    ):
         if self.is_log(epoch, log_interval) and epoch > 0:
-            save_name = "{}_epoch{}".format(save_name, epoch)
+            save_name = "{}_epoch{}.pkl".format(save_name, epoch)
             save_path = os.path.join(self.writer.model_dir, save_name)
-            torch.save(net, save_path)
+            torch.save(obj, save_path)
+
+    def save_env(self,
+                 env: gym.Env):
+        save_path = os.path.join(self.writer.model_dir, "env.pkl")
+        torch.save(env, save_path)
 
     def copy_main_script(self):
         script_path = sys.argv[0]
