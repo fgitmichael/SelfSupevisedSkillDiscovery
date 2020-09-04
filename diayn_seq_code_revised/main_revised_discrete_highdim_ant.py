@@ -2,9 +2,11 @@ import argparse
 import torch
 import numpy as np
 import copy
+import os
 import gym
 from gym.envs.mujoco.half_cheetah_v3 import HalfCheetahEnv as HalfCheetahVersionThreeEnv
-from my_utils.env_pixel_wrapper.mujoco_half_cheetah import HalfCheetahPixelWrapper
+from my_utils.env_pixel_wrapper.mujoco_pixel_wrapper import MujocoPixelWrapper
+from gym.envs.mujoco.ant_v3 import AntEnv as AntVersionThreeEnv
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.launchers.launcher_util import setup_logger
@@ -28,6 +30,8 @@ from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills
     SeqCollectorRevisedDiscreteSkills
 from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
+from diayn_seq_code_revised.policies.skill_policy_obsdim_select \
+    import SkillTanhGaussianPolicyRevisedObsSelect
 from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDiscrete
 from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
     DIAYNAlgoStepwiseSeqwiseRevisedTrainer
@@ -40,21 +44,33 @@ from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCrea
 
 
 def experiment(variant, args):
-    expl_env = HalfCheetahVersionThreeEnv(
-        exclude_current_positions_from_observation=False
+    #expl_env = HalfCheetahVersionThreeEnv(
+    #    exclude_current_positions_from_observation=False
+    #)
+    #eval_env = copy.deepcopy(expl_env)
+    expl_env = AntVersionThreeEnv(
+        xml_file=os.path.join(os.getcwd(), "./models/ant_reduced_gearratio.xml"),
+        exclude_current_positions_from_observation=True,
     )
     eval_env = copy.deepcopy(expl_env)
     render_kwargs = dict(
         width=64,
         height=64,
     )
-    pixel_env = HalfCheetahPixelWrapper(
+    pixel_env = MujocoPixelWrapper(
         env=copy.deepcopy(eval_env),
         render_kwargs=render_kwargs,
     )
 
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
+    #obs_dims_selected_classifier = (0, 1,)
+    #obs_dims_selected_policy = tuple(i for i in range(
+    #    obs_dims_selected_classifier[-1] + 1, # include only exclude x, y
+    #    obs_dim))
+    #assert 2 in obs_dims_selected_policy
+    obs_dims_selected_classifier = None
+    obs_dims_selected_policy = ()
 
     oh_grid_creator = OhGridCreator(
         num_skills=args.skill_dim,
@@ -111,13 +127,15 @@ def experiment(variant, args):
         seq_len=seq_len,
         pos_encoder_variant=pos_encoding,
         dropout=0.5,
-        obs_dims_selected=[0, 1, 2,],
+        obs_dims_selected=obs_dims_selected_classifier,
     )
-    policy = SkillTanhGaussianPolicyRevised(
-        obs_dim=obs_dim,
+    policy = SkillTanhGaussianPolicyRevisedObsSelect(
+        obs_dim=len(obs_dims_selected_policy),
         action_dim=action_dim,
         skill_dim=skill_dim,
         hidden_sizes=[M, M],
+        obs_dims_selected=obs_dims_selected_policy,
+        obs_dim_real=obs_dim,
     )
     eval_policy = MakeDeterministicRevised(policy)
     skill_selector = SkillSelectorDiscrete(
