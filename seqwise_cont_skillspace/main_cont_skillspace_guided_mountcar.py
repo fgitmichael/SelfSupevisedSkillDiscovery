@@ -41,7 +41,7 @@ def experiment(variant, args):
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-    seq_len = 100
+    seq_len = 70
     skill_dim = 2
     hidden_size_rnn = 20
     variant['algorithm_kwargs']['batch_size'] //= seq_len
@@ -84,7 +84,7 @@ def experiment(variant, args):
         input_size=obs_dim,
         hidden_size_rnn=hidden_size_rnn,
         output_size=skill_dim,
-        hidden_sizes=[30, 30],
+        hidden_sizes=[40, 40],
         feature_decode_hidden_size=[30, 30],
         seq_len=seq_len,
         pos_encoder_variant='transformer',
@@ -98,10 +98,11 @@ def experiment(variant, args):
     )
     eval_policy = MakeDeterministicRevised(policy)
     skill_prior = ConstantGaussianMultiDim(
-        output_dim=skill_dim
+        output_dim=skill_dim,
     )
     skill_selector = SkillSelectorContinous(
-        prior_skill_dist=skill_prior
+        prior_skill_dist=skill_prior,
+        grid_radius_factor=1.5,
     )
     eval_path_collector = SeqCollectorRevisedOptionalSkillId(
         eval_env,
@@ -128,7 +129,7 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = GuidedInfoLoss(
-        alpha=0.99,
+        alpha=0.95,
         lamda=0.2,
     ).loss
     trainer = ContSkillTrainerSeqwiseStepwise(
@@ -146,7 +147,7 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logs2dnav',
+        log_dir='logsmountaincar',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
@@ -195,7 +196,7 @@ if __name__ == "__main__":
         replay_buffer_size=int(1E6),
         algorithm_kwargs=dict(
             num_epochs=1000,
-            num_eval_steps_per_epoch=5000,
+            num_eval_steps_per_epoch=1000,
             num_trains_per_train_loop=10,
             num_expl_steps_per_train_loop=10,
             min_num_steps_before_training=1000,

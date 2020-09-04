@@ -23,6 +23,8 @@ from seqwise_cont_skillspace.algo.algo_cont_skillspace import SeqwiseAlgoRevised
 
 from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import \
     ContSkillTrainerSeqwiseStepwise
+from seqwise_cont_skillspace.trainer.cont_skillspace_nocont_steprepeat_trainer \
+    import ContSkillTrainerSeqwiseStepwiseStepRepeatTrainer
 from seqwise_cont_skillspace.networks.rnn_vae_classifier import \
     RnnVaeClassifierContSkills
 from seqwise_cont_skillspace.utils.info_loss import InfoLoss
@@ -40,6 +42,7 @@ def experiment(variant, args):
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
+    step_training_repeat = 1
     seq_len = 100
     skill_dim = 2
     hidden_size_rnn = 20
@@ -50,6 +53,7 @@ def experiment(variant, args):
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "continous skill space" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
+    run_comment += "step training repeat: {}".format(step_training_repeat)
 
     seed = 0
     torch.manual_seed = seed
@@ -129,7 +133,7 @@ def experiment(variant, args):
         alpha=0.99,
         lamda=0.2,
     ).loss
-    trainer = ContSkillTrainerSeqwiseStepwise(
+    trainer = ContSkillTrainerSeqwiseStepwiseStepRepeatTrainer(
         skill_prior_dist=skill_prior,
         loss_fun=info_loss_fun,
         env=eval_env,
@@ -139,6 +143,7 @@ def experiment(variant, args):
         df=df,
         target_qf1=target_qf1,
         target_qf2=target_qf2,
+        step_training_repeat=step_training_repeat,
         **variant['trainer_kwargs']
     )
 
