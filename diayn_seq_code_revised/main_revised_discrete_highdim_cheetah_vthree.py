@@ -48,7 +48,7 @@ def experiment(variant, args):
         width=64,
         height=64,
     )
-    pixel_env = HalfCheetahPixelWrapper(
+    pixel_env = MujocoPixelWrapper(
         env=copy.deepcopy(eval_env),
         render_kwargs=render_kwargs,
     )
