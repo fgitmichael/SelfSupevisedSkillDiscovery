@@ -40,4 +40,3 @@ class DiagnosticsWriter:
         script_path = sys.argv[0]
         save_path = os.path.join(self.writer.summary_dir, 'main_script.py')
         copyfile(script_path, save_path)
-
