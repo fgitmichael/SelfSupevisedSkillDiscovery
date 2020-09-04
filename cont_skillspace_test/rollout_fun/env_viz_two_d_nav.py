@@ -6,7 +6,7 @@ from cont_skillspace_test.rollout_fun.visualize_episode import \
 
 import rlkit.torch.pytorch_util as ptu
 
-class EnvVisualizationTwoDNavGuidedasdfasfd(EnvVisualization):
+class EnvVisualizationTwoDNavGuided(EnvVisualization):
 
     def __init__(self,
                  *args,
@@ -46,7 +46,7 @@ class EnvVisualizationTwoDNavGuidedasdfasfd(EnvVisualization):
         print("closed fig")
 
 
-class EnvVisualizationTwoDNavHighdimusingVae(EnvVisualizationTwoDNavGuidedasdfasfd):
+class EnvVisualizationTwoDNavHighdimusingVae(EnvVisualizationTwoDNavGuided):
     def __init__(self,
                  *args,
                  skill_selector,
