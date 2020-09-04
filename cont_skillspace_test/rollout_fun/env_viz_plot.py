@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from cont_skillspace_test.rollout_fun.visualize_episode import \
-    EnvVisualization
+from cont_skillspace_test.rollout_fun.env_viz_base import \
+    EnvVisualizationBase
 
 import rlkit.torch.pytorch_util as ptu
 
-class EnvVisualizationPlotGuided(EnvVisualization):
+class EnvVisualizationPlotGuided(EnvVisualizationBase):
 
     def __init__(self,
                  *args,

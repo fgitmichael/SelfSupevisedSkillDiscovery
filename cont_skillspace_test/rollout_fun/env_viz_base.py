@@ -7,7 +7,7 @@ from cont_skillspace_test.widget.ia_widget import IaVisualization
 
 import rlkit.torch.pytorch_util as ptu
 
-class EnvVisualization(metaclass=abc.ABCMeta):
+class EnvVisualizationBase(metaclass=abc.ABCMeta):
     def __init__(self,
                  env: gym.Env,
                  policy: torch.nn.Module,
