@@ -18,6 +18,14 @@ class SeqwiseAlgoRevised(SeqWiseAlgoClassfierPerfLogging):
     def set_next_skill(self, data_collector: SeqCollectorRevised):
         data_collector.skill_reset()
 
+    def _end_epoch(self, epoch):
+        super()._end_epoch(epoch)
+        self.diagnostic_writer.save_object(
+            obj=self.seq_eval_collector.skill_selector,
+            save_name="skill_selector",
+            epoch=epoch,
+            log_interval=20
+        )
 
 class SeqwiseAlgoRevisedDiscreteSkills(SeqwiseAlgoRevised):
 
