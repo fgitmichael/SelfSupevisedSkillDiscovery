@@ -33,3 +33,14 @@ def tensor_equality(*tensors):
             break
 
     return bool_var
+
+@torch.no_grad()
+def eval(module: torch.nn.Module, *args, **kwargs):
+    train_mode_before = module.training
+    module.train(False)
+    try:
+        ret_val = module(*args, **kwargs)
+    except:
+        raise ValueError
+    module.train(train_mode_before)
+    return ret_val
