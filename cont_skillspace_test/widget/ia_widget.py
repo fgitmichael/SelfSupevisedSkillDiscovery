@@ -1,12 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 from matplotlib.widgets import Slider, Button
+matplotlib.use('TkAgg')
+
 
 class IaVisualization:
 
     def __init__(self,
+                 reset_fun,
+                 set_next_skill_fun,
                  ):
         self.fig, self.ax = plt.subplots()
+
+        self.reset_fun = reset_fun
+        self.set_next_skill_fun = set_next_skill_fun
 
         width = 3
         self.v = plt.axvline(0.6, ymin=-5, ymax=5)
@@ -25,10 +33,20 @@ class IaVisualization:
                             valinit=0.5, valstep=0.01)
         self.slid2 = Slider(self.ax_slid2, 'y_pos', -width, width,
                             valinit=0.5, valstep=0.01)
+        self.reset_button = Button(self.ax_start_button, label='Reset')
+
         self.slid1.on_changed(self._slider_callback)
         self.slid2.on_changed(self._slider_callback)
+        self.reset_button.on_clicked(self._reset_button_callback)
+
+        plt.interactive(False)
+        plt.pause(0.05)
 
         self._cursor_location = None
+
+    def _reset_button_callback(self, a):
+        self.reset_fun()
+        self.set_next_skill_fun(cursor_location=self.cursor_location)
 
     def _slider_callback(self, a):
         x_pos = self.slid1.val
@@ -40,5 +58,8 @@ class IaVisualization:
     def cursor_location(self) -> np.ndarray:
         x_pos = self.slid1.val
         y_pos = self.slid2.val
-        self._cursor_location = np.ndarray([x_pos, y_pos])
+        self._cursor_location = np.array([x_pos, y_pos])
         return self._cursor_location
+
+    def __del__(self):
+        plt.close(self.fig)

@@ -1,5 +1,4 @@
 import torch
-import os
 
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 from cont_skillspace_test.rollout_fun.env_viz_two_d_nav import \
