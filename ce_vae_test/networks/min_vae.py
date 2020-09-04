@@ -32,27 +32,44 @@ class MinVae(BaseNetwork):
                 dropout=dropout,
             )
 
+        self.dec = self.create_dec(
+            input_dim=latent_dim,
+            output_dim=output_size,
+            hidden_units=hidden_sizes_dec,
+            dropout=dropout,
+        )
+
         self.prior = ConstantGaussian(latent_dim)
 
-        if hidden_sizes_dec is None:
-            self.dec = MyGaussian(
-                input_dim=latent_dim,
-                output_dim=output_size,
-                dropout=dropout,
-                std=0.1,
-            )
-        else:
-            self.dec = MyGaussian(
-                input_dim=latent_dim,
-                output_dim=output_size,
-                hidden_units=hidden_sizes_dec,
-                dropout=dropout,
-                std=0.1,
-            )
 
         self.device = device
         self.input_size = input_size
         self.output_size = output_size
+
+    def create_dec(
+            self,
+            input_dim,
+            output_dim,
+            hidden_units,
+            dropout,
+    ) -> MyGaussian:
+        if hidden_units is None:
+            dec = MyGaussian(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                dropout=dropout,
+                std=0.1,
+            )
+        else:
+            dec = MyGaussian(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                hidden_units=hidden_units,
+                dropout=dropout,
+                std=0.1,
+            )
+
+        return dec
 
     def sample_post(self, data) -> dict:
         """
