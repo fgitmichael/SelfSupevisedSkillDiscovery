@@ -153,10 +153,6 @@ class DIAYNTrainerCont(DIAYNTrainerModularized):
                     alpha_loss
                     ):
         """
-        Args:
-            dummy           : for avoiding changes of signature
-        """
-        """
         Save some statistics for eval
         """
         if self._need_to_update_eval_statistics:

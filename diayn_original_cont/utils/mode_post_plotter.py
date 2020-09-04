@@ -71,5 +71,3 @@ class ModepostPlotter:
         axes.grid(True)
 
         return plt.gcf()
-
-

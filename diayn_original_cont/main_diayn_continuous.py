@@ -185,7 +185,7 @@ if __name__ == "__main__":
 
     # noinspection PyTypeChecker
     variant = dict(
-        algorithm="DIAYN",
+        algorithm="DIAYN Continuous",
         version="normal",
         layer_size=256,
         replay_buffer_size=int(1E6),
@@ -208,6 +208,7 @@ if __name__ == "__main__":
             use_automatic_entropy_tuning=True,
         ),
     )
-    setup_logger('DIAYN_' + str(args.skill_dim) + '_' + args.env, variant=variant)
+    setup_logger('DIAYN_Continuous'
+                 + str(args.skill_dim) + '_' + args.env, variant=variant)
     ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
     experiment(variant, args)
