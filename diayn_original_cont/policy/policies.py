@@ -6,6 +6,8 @@ from diayn_original_tb.policies.self_sup_policy_wrapper import \
     RlkitWrapperForMySkillPolicy, \
     MakeDeterministicMyPolicyWrapper
 
+import rlkit.torch.pytorch_util as ptu
+
 
 class SkillTanhGaussianPolicyExtensionCont(RlkitWrapperForMySkillPolicy):
 
@@ -16,7 +18,7 @@ class SkillTanhGaussianPolicyExtensionCont(RlkitWrapperForMySkillPolicy):
                  ):
         super().__init__(*args, **kwargs)
         self.skill_selector_cont = skill_selector_cont
-        self.skill = self.skill_selector_cont.get_random_skill()
+        self.skill = None
 
     def skill_reset(self):
            self.skill = self.skill_selector_cont.get_random_skill()
@@ -27,6 +29,8 @@ class SkillTanhGaussianPolicyExtensionCont(RlkitWrapperForMySkillPolicy):
 
     @property
     def skill(self):
+        if self._skill is None:
+            return ptu.randn(self.skill_dim)
         return self._skill
 
     @skill.setter
