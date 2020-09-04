@@ -6,7 +6,7 @@ from cont_skillspace_test.rollout_fun.visualize_episode import \
 
 import rlkit.torch.pytorch_util as ptu
 
-class EnvVisualizationTwoDNavGuided(EnvVisualization):
+class EnvVisualizationPlotGuided(EnvVisualization):
 
     def __init__(self,
                  *args,
@@ -33,8 +33,14 @@ class EnvVisualizationTwoDNavGuided(EnvVisualization):
         obs_np = np.stack(obs, axis=1)
         self.vizualization_ax.plot(
             obs_np[0], obs_np[1])
-        self.vizualization_ax.set_xlim([0, 1])
-        self.vizualization_ax.set_ylim([0, 1])
+        self.vizualization_ax.set_xlim(
+            [self.env.observation_space.low[0],
+             self.env.observation_space.high[0]]
+        )
+        self.vizualization_ax.set_ylim(
+            [self.env.observation_space.low[1],
+             self.env.observation_space.high[1]]
+        )
         plt.show()
 
     def set_skill(self, cursor_location: np.ndarray):
@@ -46,7 +52,7 @@ class EnvVisualizationTwoDNavGuided(EnvVisualization):
         print("closed fig")
 
 
-class EnvVisualizationTwoDNavHighdimusingVae(EnvVisualizationTwoDNavGuided):
+class EnvVisualizationPlotHduvae(EnvVisualizationPlotGuided):
     def __init__(self,
                  *args,
                  skill_selector,
