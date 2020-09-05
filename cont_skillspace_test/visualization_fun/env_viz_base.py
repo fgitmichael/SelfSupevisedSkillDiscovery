@@ -52,3 +52,43 @@ class EnvVisualizationBase(metaclass=abc.ABCMeta):
 
     def __del__(self):
         self.env.close()
+
+
+class EnvVisualizationGuidedBase(EnvVisualizationBase, metaclass=abc.ABCMeta):
+
+    def __init__(self,
+                 *args,
+                 seq_len,
+                 **kwargs):
+        super().__init__(*args, **kwargs)
+        self.seq_len = seq_len
+
+    def get_skill_from_cursor_location(self, cursor_location: np.ndarray):
+        return ptu.from_numpy(cursor_location)
+
+    def reset(self):
+        self.obs = self.env.reset()
+
+    @abc.abstractmethod
+    def visualize(self):
+        raise NotImplementedError
+
+    def set_skill(self, cursor_location: np.ndarray):
+        super().set_skill(cursor_location)
+        self.visualize()
+
+
+class EnvVisualizationHduvaeBase(EnvVisualizationGuidedBase, metaclass=abc.ABCMeta):
+    def __init__(self,
+                 *args,
+                 skill_selector,
+                 **kwargs,
+                 ):
+        super().__init__(*args, **kwargs)
+        self.skill_selector = skill_selector
+
+    def get_skill_from_cursor_location(self, cursor_location: np.ndarray):
+        latent = ptu.from_numpy(cursor_location)
+        self.skill_selector.dfvae.dec.eval()
+        skill = self.skill_selector.dfvae.dec(latent).loc
+        return skill
