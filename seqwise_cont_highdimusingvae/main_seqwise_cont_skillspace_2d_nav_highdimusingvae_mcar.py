@@ -2,6 +2,7 @@ import argparse
 import torch
 import numpy as np
 import copy
+import gym
 #from gym.envs.mujoco import HalfCheetahEnv
 
 import rlkit.torch.pytorch_util as ptu

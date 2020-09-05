@@ -54,6 +54,7 @@ def experiment(variant, args):
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
     run_comment += "guided latent loss"
 
+    log_folder="cartpole"
     seed = 0
     torch.manual_seed = seed
     expl_env.seed(seed)
@@ -148,7 +149,7 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logsmountaincar',
+        log_dir=log_folder,
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
@@ -179,7 +180,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--env',
                         type=str,
-                        default="MountainCarContinuous-v0",
+                        default="InvertedPendulum-v2",
                         help='environment'
                         )
     parser.add_argument('--skill_dim',
