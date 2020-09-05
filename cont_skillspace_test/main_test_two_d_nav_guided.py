@@ -2,7 +2,7 @@ import torch
 import os
 
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
-from cont_skillspace_test.rollout_fun.env_viz_two_d_nav import \
+from cont_skillspace_test.visualization_fun.env_viz_plot import \
     EnvVisualizationPlotGuided
 
 import rlkit.torch.pytorch_util as ptu

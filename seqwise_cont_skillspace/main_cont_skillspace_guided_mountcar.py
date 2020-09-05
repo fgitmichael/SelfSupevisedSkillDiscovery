@@ -20,7 +20,8 @@ from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
 from diayn_seq_code_revised.networks.my_gaussian import \
     ConstantGaussianMultiDim
-from seqwise_cont_skillspace.algo.algo_cont_skillspace import SeqwiseAlgoRevisedContSkills
+from seqwise_cont_skillspace.algo.algo_cont_skillspace import \
+    SeqwiseAlgoRevisedContSkills
 
 from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import \
     ContSkillTrainerSeqwiseStepwise

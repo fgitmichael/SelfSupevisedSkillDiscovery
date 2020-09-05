@@ -41,10 +41,10 @@ from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
 
 def experiment(variant, args):
-    #expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
-    #eval_env = copy.deepcopy(expl_env)
-    expl_env = TwoDimNavigationEnv()
-    eval_env = TwoDimNavigationEnv()
+    expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
+    eval_env = copy.deepcopy(expl_env)
+    #expl_env = TwoDimNavigationEnv()
+    #eval_env = TwoDimNavigationEnv()
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
     skill_dim = args.skill_dim

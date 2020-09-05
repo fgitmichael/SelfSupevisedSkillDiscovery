@@ -6,7 +6,7 @@
 import torch
 
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
-from cont_skillspace_test.rollout_fun.env_viz_plot import \
+from cont_skillspace_test.visualization_fun.env_viz_plot import \
     EnvVisualizationPlotHduvae
 
 import rlkit.torch.pytorch_util as ptu
