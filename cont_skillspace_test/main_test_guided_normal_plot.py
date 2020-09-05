@@ -1,7 +1,9 @@
+# MountainCar path
+#/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/seqwise_cont_skillspace/
+# logsmountaincar/mode_disent0-20200905-1302 | seq_len: 70 | continous skill space
+# | hidden rnn_dim: 20 | guided latent loss/model
 import torch
-import os
 
-from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 from cont_skillspace_test.visualization_fun.env_viz_plot import \
     EnvVisualizationPlotGuided
 
