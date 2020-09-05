@@ -6,15 +6,21 @@ from cont_skillspace_test.rollout_fun.env_viz_base import \
 
 import rlkit.torch.pytorch_util as ptu
 
+from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
+
+
 class EnvVisualizationPlotGuided(EnvVisualizationBase):
 
     def __init__(self,
                  *args,
                  seq_len,
+                 plot_offset=0.05,
                  **kwargs):
         super().__init__(*args, **kwargs)
         self.seq_len = seq_len
         self.fig1, self.vizualization_ax = plt.subplots()
+        plt.grid()
+        self.plot_offset = plot_offset
 
     def get_skill_from_cursor_location(self, cursor_location: np.ndarray):
         return ptu.from_numpy(cursor_location)
@@ -33,14 +39,6 @@ class EnvVisualizationPlotGuided(EnvVisualizationBase):
         obs_np = np.stack(obs, axis=1)
         self.vizualization_ax.plot(
             obs_np[0], obs_np[1])
-        self.vizualization_ax.set_xlim(
-            [self.env.observation_space.low[0],
-             self.env.observation_space.high[0]]
-        )
-        self.vizualization_ax.set_ylim(
-            [self.env.observation_space.low[1],
-             self.env.observation_space.high[1]]
-        )
         plt.show()
 
     def set_skill(self, cursor_location: np.ndarray):
