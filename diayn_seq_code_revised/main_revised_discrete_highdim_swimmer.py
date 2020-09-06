@@ -4,10 +4,8 @@ import numpy as np
 import copy
 import os
 import gym
-from gym.envs.mujoco.half_cheetah_v3 import HalfCheetahEnv as HalfCheetahVersionThreeEnv
+from gym.envs.mujoco.swimmer_v3 import SwimmerEnv as SwimmerVersionThreeEnv
 from my_utils.env_pixel_wrapper.mujoco_pixel_wrapper import MujocoPixelWrapper
-from gym.envs.mujoco.ant_v3 import AntEnv as AntVersionThreeEnv
-from gym.envs.mujoco.hopper_v3 import HopperEnv as HopperVersionThreeEnv
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.launchers.launcher_util import setup_logger
@@ -45,11 +43,7 @@ from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCrea
 
 
 def experiment(variant, args):
-    #expl_env = HalfCheetahVersionThreeEnv(
-    #    exclude_current_positions_from_observation=False
-    #)
-    #eval_env = copy.deepcopy(expl_env)
-    expl_env = HopperVersionThreeEnv(
+    expl_env = SwimmerVersionThreeEnv(
         exclude_current_positions_from_observation=False,
     )
     eval_env = copy.deepcopy(expl_env)
@@ -64,7 +58,7 @@ def experiment(variant, args):
 
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
-    obs_dims_selected_classifier = (0,)
+    obs_dims_selected_classifier = (0, 1)
     obs_dims_selected_policy = tuple([i for i in range(obs_dim)
                                      if i not in obs_dims_selected_classifier] )
 
@@ -180,7 +174,7 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='./logshighdim/hopper',
+        log_dir='./logshighdim/swimmer',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(

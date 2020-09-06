@@ -2,7 +2,7 @@ import argparse
 import torch
 import numpy as np
 import copy
-from gym.envs.mujoco.half_cheetah_v3 import HalfCheetahEnv as HalfCheetahVersionThreeEnv
+from gym.envs.mujoco.swimmer_v3 import SwimmerEnv as SwimmerVersionThreeEnv
 #from gym.envs.mujoco import HalfCheetahEnv
 
 import rlkit.torch.pytorch_util as ptu
@@ -40,7 +40,7 @@ from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
 
 def experiment(variant, args):
-    expl_env = HalfCheetahVersionThreeEnv(
+    expl_env = SwimmerVersionThreeEnv(
         exclude_current_positions_from_observation=False
     )
     eval_env = copy.deepcopy(expl_env)
@@ -50,7 +50,7 @@ def experiment(variant, args):
     seq_len = 70
     skill_dim = 2
     hidden_size_rnn = 5
-    used_obs_dims_df = None
+    used_obs_dims_df = (0, 1)
     used_obs_dims_policy = tuple(i for i in range(1, obs_dim))
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 

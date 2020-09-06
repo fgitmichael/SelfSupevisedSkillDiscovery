@@ -59,7 +59,7 @@ def experiment(variant, args):
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "continous skill space" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
-    run_comment += "gused_obs_dimsuided latent loss"
+    run_comment += "guided latent loss"
 
     log_folder="logshalfcheetah"
     seed = 0
@@ -114,7 +114,7 @@ def experiment(variant, args):
     )
     skill_selector = SkillSelectorContinous(
         prior_skill_dist=skill_prior,
-        grid_radius_factor=1.5,
+        grid_radius_factor=2,
     )
     eval_path_collector = SeqCollectorRevisedOptionalSkillId(
         eval_env,
@@ -141,7 +141,7 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = GuidedInfoLoss(
-        alpha=0.97,
+        alpha=0.99,
         lamda=0.2,
     ).loss
     trainer = ContSkillTrainerSeqwiseStepwise(

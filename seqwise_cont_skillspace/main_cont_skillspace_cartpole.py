@@ -25,8 +25,8 @@ from seqwise_cont_skillspace.algo.algo_cont_skillspace import \
 
 from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import \
     ContSkillTrainerSeqwiseStepwise
-from seqwise_cont_skillspace.networks.rnn_vae_classifier import \
-    RnnVaeClassifierContSkills
+from seqwise_cont_skillspace.networks.classifier_seq_step_cont_choose_dims import \
+    RnnStepwiseSeqwiseClassifierObsDimSelect
 from seqwise_cont_skillspace.utils.info_loss import InfoLoss, GuidedInfoLoss
 from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
@@ -44,7 +44,8 @@ def experiment(variant, args):
 
     seq_len = 70
     skill_dim = 2
-    hidden_size_rnn = 20
+    hidden_size_rnn = 5
+    used_obs_dims = (1,)
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
@@ -54,7 +55,7 @@ def experiment(variant, args):
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
     run_comment += "guided latent loss"
 
-    log_folder="cartpole"
+    log_folder="logscartpole"
     seed = 0
     torch.manual_seed = seed
     expl_env.seed(seed)
@@ -82,7 +83,7 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = RnnVaeClassifierContSkills(
+    df = RnnStepwiseSeqwiseClassifierObsDimSelect(
         input_size=obs_dim,
         hidden_size_rnn=hidden_size_rnn,
         output_size=skill_dim,
@@ -91,6 +92,7 @@ def experiment(variant, args):
         seq_len=seq_len,
         pos_encoder_variant='transformer',
         dropout=0.2,
+        obs_dims_selected=used_obs_dims,
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
@@ -131,7 +133,7 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = GuidedInfoLoss(
-        alpha=0.95,
+        alpha=0.97,
         lamda=0.2,
     ).loss
     trainer = ContSkillTrainerSeqwiseStepwise(
@@ -213,8 +215,8 @@ if __name__ == "__main__":
             qf_lr=3E-4,
             reward_scale=1,
             use_automatic_entropy_tuning=True,
-            df_lr_step=9E-4,
-            df_lr_seq=8E-4,
+            df_lr_step=1E-3,
+            df_lr_seq=1E-3,
         ),
     )
     setup_logger('Cont skill space guided'

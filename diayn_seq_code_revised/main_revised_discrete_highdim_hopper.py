@@ -64,18 +64,19 @@ def experiment(variant, args):
 
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
-    obs_dims_selected_classifier = (1, 2,)
-    obs_dims_selected_policy = tuple(i for i in range(obs_dim) if i not in obs_dims_selected_classifier)
+    obs_dims_selected_classifier = (0,)
+    obs_dims_selected_policy = tuple([i for i in range(obs_dim)
+                                     if i not in obs_dims_selected_classifier] )
 
     oh_grid_creator = OhGridCreator(
         num_skills=args.skill_dim,
     )
     get_oh_grid = oh_grid_creator.get_grid
 
-    seq_len = 120
+    seq_len = 200
     skill_dim = args.skill_dim
     num_skills = args.skill_dim
-    hidden_size_rnn = 20
+    hidden_size_rnn = 8
     variant['algorithm_kwargs']['batch_size'] //= seq_len
     pos_encoding = "empty"
 
@@ -179,7 +180,7 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logshighdim',
+        log_dir='./logshighdim/hopper',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
@@ -197,7 +198,8 @@ def experiment(variant, args):
         replay_buffer=replay_buffer,
 
         seq_len=seq_len,
-        seq_len_eval=seq_len//2,
+        seq_len_eval=seq_len,
+        fps=16,
 
         diagnostic_writer=diagno_writer,
         seq_eval_collector=seq_eval_collector,

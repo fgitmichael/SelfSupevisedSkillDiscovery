@@ -2,7 +2,7 @@ import argparse
 import torch
 import numpy as np
 import copy
-from gym.envs.mujoco.half_cheetah_v3 import HalfCheetahEnv as HalfCheetahVersionThreeEnv
+from gym.envs.mujoco.hopper_v3 import HopperEnv as HopperVersionThreeEnv
 #from gym.envs.mujoco import HalfCheetahEnv
 
 import rlkit.torch.pytorch_util as ptu
@@ -39,8 +39,9 @@ from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id impo
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
 
+
 def experiment(variant, args):
-    expl_env = HalfCheetahVersionThreeEnv(
+    expl_env = HopperVersionThreeEnv(
         exclude_current_positions_from_observation=False
     )
     eval_env = copy.deepcopy(expl_env)
@@ -50,8 +51,8 @@ def experiment(variant, args):
     seq_len = 70
     skill_dim = 2
     hidden_size_rnn = 5
-    used_obs_dims_df = None
-    used_obs_dims_policy = tuple(i for i in range(1, obs_dim))
+    used_obs_dims_df = (0,)
+    used_obs_dims_policy = tuple([i for i in range(1, obs_dim)])
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
@@ -61,7 +62,7 @@ def experiment(variant, args):
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
     run_comment += "gused_obs_dimsuided latent loss"
 
-    log_folder="logshalfcheetah"
+    log_folder="logshopper"
     seed = 0
     torch.manual_seed = seed
     expl_env.seed(seed)
@@ -114,7 +115,7 @@ def experiment(variant, args):
     )
     skill_selector = SkillSelectorContinous(
         prior_skill_dist=skill_prior,
-        grid_radius_factor=1.5,
+        grid_radius_factor=2,
     )
     eval_path_collector = SeqCollectorRevisedOptionalSkillId(
         eval_env,
