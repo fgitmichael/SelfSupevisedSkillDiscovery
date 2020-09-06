@@ -24,6 +24,7 @@ class SeqwiseAlgoRevisedHighdim(SeqwiseAlgoRevisedDiscreteSkills):
                  *args,
                  seqpixel_eval_collector,
                  seq_len_eval=200,
+                 fps=4,
                  **kwargs):
         super(SeqwiseAlgoRevisedHighdim, self).__init__(
             *args,
@@ -31,6 +32,7 @@ class SeqwiseAlgoRevisedHighdim(SeqwiseAlgoRevisedDiscreteSkills):
         )
         self.seq_len_eval = seq_len_eval
         self.seqpixel_eval_collector = seqpixel_eval_collector
+        self.fps = fps
 
     def set_next_skill(self, data_collector: SeqCollectorRevised):
         data_collector.skill_reset()
@@ -98,6 +100,7 @@ class SeqwiseAlgoRevisedHighdim(SeqwiseAlgoRevisedDiscreteSkills):
                 tag='skill {}'.format(skills[:, 0]),
                 vid_tensor=pixel_tensor,
                 global_step=epoch,
+                fps=self.fps,
             )
 
 
