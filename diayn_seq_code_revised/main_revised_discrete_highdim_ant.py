@@ -184,7 +184,7 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logshighdim',
+        log_dir='./logshighdim/logs_ant',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
