@@ -22,8 +22,10 @@ class EnvVisualizationRenderGuided(EnvVisualizationGuidedBase):
         self.env.render()
 
     def visualize(self):
-        for _ in range(self.seq_len):
+        for step in range(self.seq_len):
             a, policy_info = self.policy.get_action(self.obs)
-            self.env.step(a)
+            self.obs, reward, done, info = self.env.step(a)
             time.sleep(self.render_dt)
             self.env.render()
+            self.update_plot()
+            print("step: {}".format(step))
