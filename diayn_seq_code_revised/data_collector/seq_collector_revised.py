@@ -167,7 +167,7 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
                    == path.next_obs.shape[batch_dim] \
                    == path.mode.shape[batch_dim]
 
-    def get_epoch_paths(self) \
+    def get_epoch_paths(self, reset=True) \
             -> Union[
                 List[td.TransitionModeMapping],
                 List[td.TransitonModeMappingDiscreteSkills]]:
@@ -183,7 +183,8 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
             assert len(path.obs.shape) == 2
             epoch_paths[idx] = path.transpose(1, 0)
 
-        self.reset()
+        if reset:
+            self.reset()
 
         return epoch_paths
 

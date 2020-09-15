@@ -90,7 +90,7 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
 
         return paths_with_skill_id
 
-    def get_epoch_paths(self) -> List[td.TransitonModeMappingDiscreteSkills]:
+    def get_epoch_paths(self, reset=True) -> List[td.TransitonModeMappingDiscreteSkills]:
         """
         Return:
             list of TransistionMapping consisting of (S, data_dim) np.ndarrays
@@ -105,7 +105,8 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
             assert len(path.obs.shape) == 2
             epoch_paths[idx] = path.transpose(1, 0)
 
-        self.reset()
+        if reset:
+            self.reset()
 
         return epoch_paths
 
