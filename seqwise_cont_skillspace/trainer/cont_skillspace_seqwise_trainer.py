@@ -120,6 +120,7 @@ class ContSkillTrainerSeqwiseStepwise(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
                 hidden_feature_seq  : (N, S, hidden_size_rnn)
                 recon_feature_seq   : (N, S, hidden_size_rnn) distributions
                 post_skills         : (N, S, skill_dim) distributions
+                skill_prior         : (N, S, skill_dim) distributions
             skills                  : (N, S, skill_dim)
 
         Return:
@@ -146,20 +147,21 @@ class ContSkillTrainerSeqwiseStepwise(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
         recon_feature_seq = loss_calc_values['recon_feature_seq']
         post_skills = loss_calc_values['post_skills']
 
-        assert hidden_feature_seq.shape == torch.Size(
-            (batch_size,
-             seq_len,
-             2 * self.df.rnn.hidden_size))
+        #assert hidden_feature_seq.shape == torch.Size(
+        #    (batch_size,
+        #     seq_len,
+        #     2 * self.df.rnn.hidden_size))
         assert post_skills.batch_shape == skills.shape
         assert hidden_feature_seq.shape == recon_feature_seq.batch_shape
 
         # Rewards
-        rewards = post_skills.log_prob(skills)
+        pri_dist = self.skill_prior(hidden_feature_seq)
+        rewards = post_skills.log_prob(skills) - pri_dist.log_prob(skills)
         rewards = torch.sum(rewards, dim=data_dim, keepdim=True)
         assert rewards.shape == torch.Size((batch_size, seq_len, 1))
 
         # Reshape Dist
-        pri_dist = self.reshape_normal(self.skill_prior(hidden_feature_seq))
+        pri_dist = self.reshape_dist(pri_dist)
         assert len(pri_dist.batch_shape) == 2
         pri = dict(
             dist=pri_dist,
@@ -167,14 +169,14 @@ class ContSkillTrainerSeqwiseStepwise(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
         )
 
         # Reshape Dist
-        post_dist = self.reshape_normal(post_skills)
+        post_dist = self.reshape_dist(post_skills)
         post = dict(
             dist=post_dist,
             sample=post_dist.rsample()
         )
 
         # Reshape Dist
-        recon_feature_seq_dist = self.reshape_normal(recon_feature_seq)
+        recon_feature_seq_dist = self.reshape_dist(recon_feature_seq)
         assert len(recon_feature_seq_dist.batch_shape) == 2
         recon = dict(
             dist=recon_feature_seq_dist,
@@ -206,45 +208,55 @@ class ContSkillTrainerSeqwiseStepwise(DIAYNAlgoStepwiseSeqwiseRevisedTrainer):
             log_dict=log_dict
         )
 
-    def reshape_normal(self, normal: torch_dist.Normal) -> torch_dist.Normal:
+    def reshape_dist(self, dist: torch_dist.Distribution) -> torch_dist.Distribution:
         """
         Args:
-            normal          : (N, S, data_dim)
+            dist          : (N, S, data_dim)
         Return:
-            normal          : (N * S, data_dim)
+            dist          : (N * S, data_dim)
         """
-        if not normal.loc.is_contiguous():
-            loc = normal.loc.contiguous()
-        else:
-            loc = normal.loc
-
-        if not normal.scale.is_contiguous():
-            scale = normal.scale.contiguous()
-        else:
-            scale = normal.scale
-
         batch_dim = 0
         seq_dim = 1
         data_dim = -1
-        batch_size = normal.batch_shape[batch_dim]
-        seq_len = normal.batch_shape[seq_dim]
-        data_size = normal.batch_shape[data_dim]
+        batch_size = dist.batch_shape[batch_dim]
+        seq_len = dist.batch_shape[seq_dim]
+        data_size = dist.batch_shape[data_dim]
 
-        assert my_ptu.tensor_equality(loc.view(batch_size * seq_len,
-                                               data_size)[:seq_len],
-                                      loc[0, :, :])
-        assert my_ptu.tensor_equality(scale.view(batch_size * seq_len,
-                                                 data_size)[:seq_len],
-                                      scale[0, :, :])
+        if isinstance(dist, torch_dist.Normal):
+            if not dist.loc.is_contiguous():
+                loc = dist.loc.contiguous()
+            else:
+                loc = dist.loc
 
-        # Reshape/View
-        loc_reshaped = normal.loc.view(batch_size * seq_len, data_size)
-        scale_reshaped = normal.scale.view(batch_size * seq_len, data_size)
+            if not dist.scale.is_contiguous():
+                scale = dist.scale.contiguous()
+            else:
+                scale = dist.scale
 
-        return torch_dist.Normal(
-            loc=loc_reshaped,
-            scale=scale_reshaped
-        )
+            assert my_ptu.tensor_equality(loc.view(batch_size * seq_len,
+                                                   data_size)[:seq_len],
+                                          loc[0, :, :])
+            assert my_ptu.tensor_equality(scale.view(batch_size * seq_len,
+                                                     data_size)[:seq_len],
+                                          scale[0, :, :])
+
+            # Reshape/View
+            loc_reshaped = dist.loc.view(batch_size * seq_len, data_size)
+            scale_reshaped = dist.scale.view(batch_size * seq_len, data_size)
+
+            return torch_dist.Normal(
+                loc=loc_reshaped,
+                scale=scale_reshaped
+            )
+
+        elif isinstance(dist, torch_dist.Uniform):
+            low_reshaped = dist.low.reshape(batch_size * seq_len, data_size)
+            high_reshaped = dist.high.reshape(batch_size * seq_len, data_size)
+
+            return torch_dist.Uniform(
+                low=low_reshaped,
+                high=high_reshaped,
+            )
 
     def _df_loss_seq(self,
                      pred_skills_seq,
