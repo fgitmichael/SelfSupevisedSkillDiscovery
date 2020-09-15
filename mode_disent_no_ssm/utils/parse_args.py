@@ -7,10 +7,13 @@ from pprint import pprint
 from easydict import EasyDict as edict
 
 
-def parse_args():
+def parse_args(
+        default=None,
+        return_config_path_name=False
+):
     parser = argparse.ArgumentParser()
     parser.add_argument('--config',
-                        default=None,
+                        default=default,
                         type=str,
                         help='Config file')
     args = parser.parse_args()
@@ -21,7 +24,10 @@ def parse_args():
     pprint(config_args)
     print("\n")
 
-    return config_args
+    if return_config_path_name:
+        return config_args, args.config
+    else:
+        return config_args
 
 
 def load_hparams(path_name):
