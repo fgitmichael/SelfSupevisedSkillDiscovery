@@ -66,10 +66,3 @@ class CnnForClassificationSeqwiseBase(BaseNetwork, metaclass=abc.ABCMeta):
         classified_seqs = self.seq_classifier(prepared_processed)
 
         return classified_seqs
-
-
-
-
-
-
-
