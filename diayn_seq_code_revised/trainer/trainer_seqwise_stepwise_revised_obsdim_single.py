@@ -12,5 +12,6 @@ class DIAYNAlgoStepwiseSeqwiseRevisedObsDimSingleTrainer(
             chain(
                 self.df.classifier.parameters(),
                 self.df.hidden_features_dim_matcher.parameters(),
-            )
+            ),
+            lr=df_lr
         )
