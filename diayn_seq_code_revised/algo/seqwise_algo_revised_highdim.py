@@ -24,6 +24,7 @@ class SeqwiseAlgoRevisedHighdim(SeqwiseAlgoRevisedDiscreteSkills):
                  *args,
                  seqpixel_eval_collector,
                  seq_len_eval=200,
+                 mode_influence_plotting=True,
                  fps=4,
                  **kwargs):
         super(SeqwiseAlgoRevisedHighdim, self).__init__(
@@ -33,6 +34,7 @@ class SeqwiseAlgoRevisedHighdim(SeqwiseAlgoRevisedDiscreteSkills):
         self.seq_len_eval = seq_len_eval
         self.seqpixel_eval_collector = seqpixel_eval_collector
         self.fps = fps
+        self.mode_influence_plotting = mode_influence_plotting
 
     def set_next_skill(self, data_collector: SeqCollectorRevised):
         data_collector.skill_reset()
@@ -70,13 +72,19 @@ class SeqwiseAlgoRevisedHighdim(SeqwiseAlgoRevisedDiscreteSkills):
                               epoch,
                               obs_lim=None,
                               ):
-        path.obs = path.obs[:self.trainer.df.obs_dimensions_used]
-        super()._write_mode_influence(
-            path=path,
-            obs_dim=self.trainer.df.obs_dimensions_used,
-            action_dim=action_dim,
-            epoch=epoch
-        )
+        if self.trainer.df.obs_dims_used is None:
+            path.obs = path.obs[:self.trainer.df.obs_dimensions_used]
+        else:
+            path.obs = path.obs[list(self.trainer.df.obs_dims_used)]
+        if self.mode_influence_plotting:
+            super()._write_mode_influence(
+                path=path,
+                obs_dim=self.trainer.df.obs_dimensions_used \
+                    if self.trainer.df.obs_dims_used is None \
+                    else len(self.trainer.df.obs_dims_used),
+                action_dim=action_dim,
+                epoch=epoch
+            )
 
     def _write_mode_influence_and_log_pixel(self, paths, epoch):
 
