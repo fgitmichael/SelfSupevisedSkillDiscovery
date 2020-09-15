@@ -36,7 +36,10 @@ class BiRnnStepwiseClassifier(BaseNetwork):
         """
         super(BiRnnStepwiseClassifier, self).__init__()
 
-        self.obs_dimensions_used = input_size
+        if obs_dims_used is not None:
+            input_size = len(obs_dims_used)
+            self.obs_dims_used = obs_dims_used
+
         self.rnn = nn.GRU(
             input_size=input_size,
             hidden_size=hidden_size_rnn,
@@ -94,6 +97,7 @@ class BiRnnStepwiseClassifier(BaseNetwork):
             output_size=output_size,
             hidden_sizes=hidden_sizes,
             layer_norm=False,
+            dropout=dropout,
         )
 
     def _process_seq(self, seq_batch):
