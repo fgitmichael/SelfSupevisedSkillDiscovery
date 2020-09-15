@@ -60,7 +60,7 @@ class SsvaestyleSkillTrainer(DiscreteSkillTrainerSeqwiseStepwise):
         rewards = torch.sum(rewards, dim=data_dim, keepdim=True)
 
         # Reshape Dist
-        pri_dist = self.reshape_normal(self.skill_prior(hidden_feature_seq))
+        pri_dist = self.reshape_dist(self.skill_prior(hidden_feature_seq))
         assert len(pri_dist.batch_shape) == 2
         pri = dict(
             dist=pri_dist,
@@ -68,14 +68,14 @@ class SsvaestyleSkillTrainer(DiscreteSkillTrainerSeqwiseStepwise):
         )
 
         # Reshape Dist
-        post_dist = self.reshape_normal(post_skills)
+        post_dist = self.reshape_dist(post_skills)
         post = dict(
             dist=post_dist,
             sample=post_dist.rsample()
         )
 
         # Reshape Dist
-        recon_feature_seq_dist = self.reshape_normal(recon_feature_seq)
+        recon_feature_seq_dist = self.reshape_dist(recon_feature_seq)
         assert len(recon_feature_seq_dist.batch_shape) == 2
         recon = dict(
             dist=recon_feature_seq_dist,

@@ -81,7 +81,7 @@ class ContSkillTrainerSeqwiseStepwiseHighdimusingvae(ContSkillTrainerSeqwiseStep
         hidden_seq_stacked_detached = hidden_feature_seq.reshape(
             batch_size * seq_len,
             hidden_feature_seq.size(data_dim)).detach()
-        pri_dist = self.reshape_normal(self.skill_prior(hidden_feature_seq))
+        pri_dist = self.reshape_dist(self.skill_prior(hidden_feature_seq))
         assert len(pri_dist.batch_shape) == 2
         pri = dict(
             dist=pri_dist,

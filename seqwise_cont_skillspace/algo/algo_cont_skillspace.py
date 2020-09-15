@@ -40,7 +40,8 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
 
         for key, fig in post_figures.items():
             self.diagnostic_writer.writer.writer.add_figure(
-                tag="Rnn Debug/Mode Post Plot of evaluation sequences from environment {}"
+                tag="Rnn Debug/Mode Post Plot of evaluation "
+                    "sequences from environment {}"
                     .format(key),
                 figure=fig,
                 global_step=epoch
@@ -63,7 +64,8 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
 
         mode_influence_eval_paths = self.seq_eval_collector.get_epoch_paths()
         assert type(mode_influence_eval_paths) is list
-        assert type(mode_influence_eval_paths[0]) is td.TransitonModeMappingDiscreteSkills
+        assert type(mode_influence_eval_paths[0]) \
+               is td.TransitonModeMappingDiscreteSkills
 
         return mode_influence_eval_paths
 
