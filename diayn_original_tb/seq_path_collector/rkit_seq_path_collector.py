@@ -144,13 +144,14 @@ class SeqCollector(PathCollector):
                    == path.next_obs.shape[batch_dim] \
                    == path.mode.shape[batch_dim]
 
-    def get_epoch_paths(self) -> List[td.TransitonModeMappingDiscreteSkills]:
+    def get_epoch_paths(self, reset=True) -> List[td.TransitonModeMappingDiscreteSkills]:
         """
         Return:
             list of TransistionMapping consisting of (data_dim, S) np.ndarrays
         """
         epoch_paths = list(self._epoch_paths)
-        self.reset()
+        if reset:
+            self.reset()
 
         return epoch_paths
 
