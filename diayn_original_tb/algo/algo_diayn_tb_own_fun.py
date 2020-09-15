@@ -1,6 +1,7 @@
 import gtimer as gt
 import random
 from typing import Union
+import numpy as np
 
 from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
 
@@ -34,6 +35,8 @@ from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised import \
     DIAYNAlgoStepwiseSeqwiseRevisedTrainer
 from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised_noid import \
     DIAYNAlgoStepwiseSeqwiseRevisedNoidTrainer
+from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised_obsdim_single \
+    import DIAYNAlgoStepwiseSeqwiseRevisedObsDimSingleTrainer
 
 from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import \
     ContSkillTrainerSeqwiseStepwise
@@ -44,6 +47,8 @@ from seqwise_cont_skillspace.trainer.trainer_guided_ssvae_style import \
     GuidedSsvaestyleTrainer
 from seqwise_cont_skillspace.trainer.cont_skillspace_nocont_steprepeat_trainer \
     import ContSkillTrainerSeqwiseStepwiseStepRepeatTrainer
+from seqwise_cont_skillspace.trainer.trainer_single_dims_cont import \
+    ContSkillTrainerSeqwiseStepwiseSingleDims
 
 from sequence_stepwise_only.trainer.stepwise_only_trainer_cont import \
     StepwiseOnlyTrainerCont
@@ -208,6 +213,8 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                                   CnnStepwiseSeqwiseTrainer,
                                   ContSkillTrainerSeqwiseStepwiseStepRepeatTrainer,
                                   ContSkillTrainerSeqwiseStepwiseHighdimusingvae,
+                                  DIAYNAlgoStepwiseSeqwiseRevisedObsDimSingleTrainer,
+                                  ContSkillTrainerSeqwiseStepwiseSingleDims,
                                   ]:
             train_dict = dict(
                 rewards=train_data.reward,
