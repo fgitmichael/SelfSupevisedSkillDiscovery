@@ -45,6 +45,7 @@ class EnvVisualizationBase(metaclass=abc.ABCMeta):
 
     def update_plot(self):
         plt.pause(0.001)
+        self.visualization.update_plot()
 
     def run(self):
         while True:

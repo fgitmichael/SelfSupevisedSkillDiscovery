@@ -25,6 +25,7 @@ class EnvVisualizationPlotGuided(EnvVisualizationGuidedBase):
             a, policy_info = self.policy.get_action(self.obs)
             self.obs, r, d, env_info = self.env.step(a)
             obs.append(self.obs)
+            #self.update_plot()
 
         obs_np = np.stack(obs, axis=1)
         self.vizualization_ax.plot(
