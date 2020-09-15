@@ -131,7 +131,7 @@ def experiment(variant, args):
     )
     info_loss_fun = InfoLoss(
         alpha=0.99,
-        lamda=0.2,
+        lamda=0.07,
     ).loss
     trainer = ContSkillTrainerSeqwiseStepwiseStepRepeatTrainer(
         skill_prior_dist=skill_prior,
@@ -149,7 +149,7 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logs2dnav',
+        log_dir='logs2dnav/vae',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(

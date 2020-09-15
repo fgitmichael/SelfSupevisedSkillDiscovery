@@ -23,8 +23,6 @@ from diayn_seq_code_revised.policies.skill_policy_obsdim_select \
     import SkillTanhGaussianPolicyRevisedObsSelect
 from diayn_seq_code_revised.networks.my_gaussian import \
     ConstantGaussianMultiDim
-from seqwise_cont_skillspace.algo.algo_cont_skillspace import \
-    SeqwiseAlgoRevisedContSkills
 
 from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import \
     ContSkillTrainerSeqwiseStepwise
@@ -35,6 +33,8 @@ from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
 from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
+from seqwise_cont_skillspace.algo.algo_cont_skillspace_highdim import \
+    SeqwiseAlgoRevisedContSkillsHighDim
 
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
@@ -47,11 +47,12 @@ def experiment(variant, args):
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-    seq_len = 70
+    seq_len = 100
     skill_dim = 2
     hidden_size_rnn = 5
     used_obs_dims_df = (0, 1)
-    used_obs_dims_policy = tuple(i for i in range(1, obs_dim))
+    used_obs_dims_policy = tuple(
+    [i for i in range(2, obs_dim)])
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
@@ -61,7 +62,7 @@ def experiment(variant, args):
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
     run_comment += "guided latent loss"
 
-    log_folder="logshalfcheetah"
+    log_folder="logsswimmer"
     seed = 0
     torch.manual_seed = seed
     expl_env.seed(seed)
@@ -114,7 +115,7 @@ def experiment(variant, args):
     )
     skill_selector = SkillSelectorContinous(
         prior_skill_dist=skill_prior,
-        grid_radius_factor=2,
+        grid_radius_factor=1.,
     )
     eval_path_collector = SeqCollectorRevisedOptionalSkillId(
         eval_env,
@@ -167,7 +168,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = SeqwiseAlgoRevisedContSkills(
+    algorithm = SeqwiseAlgoRevisedContSkillsHighDim(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
@@ -207,7 +208,7 @@ if __name__ == "__main__":
         layer_size=256,
         replay_buffer_size=int(1E6),
         algorithm_kwargs=dict(
-            num_epochs=1000,
+            num_epochs=400,
             num_eval_steps_per_epoch=1000,
             num_trains_per_train_loop=10,
             num_expl_steps_per_train_loop=10,

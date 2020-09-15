@@ -1,4 +1,3 @@
-import argparse
 import torch
 import numpy as np
 import copy
@@ -33,16 +32,18 @@ from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id impo
 
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
+from mode_disent_no_ssm.utils.parse_args import parse_args
 
-def experiment(variant, args):
+
+def experiment(variant, config):
     expl_env = TwoDimNavigationEnv()
     eval_env = TwoDimNavigationEnv()
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-    seq_len = 100
-    skill_dim = 2
-    hidden_size_rnn = 20
+    seq_len = config.seq_len
+    skill_dim = config.skill_dim
+    hidden_size_rnn = config.hidden_size_rnn
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
     sep_str = " | "
@@ -82,8 +83,8 @@ def experiment(variant, args):
         input_size=obs_dim,
         hidden_size_rnn=hidden_size_rnn,
         output_size=skill_dim,
-        hidden_sizes=[30, 30],
-        feature_decode_hidden_size=[30, 30],
+        hidden_sizes=config.hidden_sizes_df,
+        feature_decode_hidden_size=config.feature_decode_hidden_size_df,
         seq_len=seq_len,
         pos_encoder_variant='transformer',
         dropout=0.2,
@@ -144,14 +145,14 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logs2dnav',
+        log_dir='logs2dnav/guided',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
         writer=writer,
         log_interval=1
     )
-
+    diagno_writer.save_hparams(config)
     algorithm = SeqwiseAlgoRevisedContSkills(
         trainer=trainer,
         exploration_env=expl_env,
@@ -172,46 +173,22 @@ def experiment(variant, args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--env',
-                        type=str,
-                        default="MountainCarContinuous-v0",
-                        help='environment'
-                        )
-    parser.add_argument('--skill_dim',
-                        type=int,
-                        default=10,
-                        help='skill dimension'
-                        )
-    args = parser.parse_args()
-
+    config = parse_args(
+        default="config/two_dim_nav/2d_nav_guided_params.yaml"
+    )
     # noinspection PyTypeChecker
     variant = dict(
-        algorithm="DIAYN",
-        version="normal",
-        layer_size=256,
-        replay_buffer_size=int(1E6),
+        algorithm=config.algorithm,
+        version=config.version,
+        layer_size=config.layer_size,
+        replay_buffer_size=config.replay_buffer_size,
         algorithm_kwargs=dict(
-            num_epochs=1000,
-            num_eval_steps_per_epoch=5000,
-            num_trains_per_train_loop=10,
-            num_expl_steps_per_train_loop=10,
-            min_num_steps_before_training=1000,
-            max_path_length=1000,
-            batch_size=1024,
+            **config.algorithm_kwargs
         ),
         trainer_kwargs=dict(
-            discount=0.99,
-            soft_target_tau=5e-3,
-            target_update_period=1,
-            policy_lr=3E-4,
-            qf_lr=3E-4,
-            reward_scale=1,
-            use_automatic_entropy_tuning=True,
-            df_lr_step=9E-4,
-            df_lr_seq=8E-4,
+            **config.trainer_kwargs
         ),
     )
-    setup_logger('DIAYN_' + str(args.skill_dim) + '_' + args.env, variant=variant)
+    setup_logger('SeqContDiayn' + str(config.skill_dim) + '_', variant=variant)
     ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
-    experiment(variant, args)
+    experiment(variant, config)

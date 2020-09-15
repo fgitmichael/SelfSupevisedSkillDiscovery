@@ -10,7 +10,7 @@ from cont_skillspace_test.visualization_fun.env_viz_plot import \
 import rlkit.torch.pytorch_util as ptu
 
 ptu.set_gpu_mode(False)
-epoch = 100
+epoch = 140
 extension = ".pkl"
 policy_net_name = "policy_net_epoch{}".format(epoch) + extension
 env_name = "env" + extension
@@ -19,6 +19,6 @@ policy = torch.load(policy_net_name, map_location=ptu.device)
 env_viz = EnvVisualizationPlotGuided(
     env=env,
     policy=policy,
-    seq_len=100,
+    seq_len=200,
 )
 env_viz.run()

@@ -23,8 +23,8 @@ from diayn_seq_code_revised.policies.skill_policy_obsdim_select \
     import SkillTanhGaussianPolicyRevisedObsSelect
 from diayn_seq_code_revised.networks.my_gaussian import \
     ConstantGaussianMultiDim
-from seqwise_cont_skillspace.algo.algo_cont_skillspace import \
-    SeqwiseAlgoRevisedContSkills
+from seqwise_cont_skillspace.algo.algo_cont_skillspace_highdim import \
+    SeqwiseAlgoRevisedContSkillsHighDim
 
 from seqwise_cont_skillspace.trainer.cont_skillspace_seqwise_trainer import \
     ContSkillTrainerSeqwiseStepwise
@@ -35,6 +35,7 @@ from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
 from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
+from seqwise_cont_skillspace.networks.contant_uniform import ConstantUniformMultiDim
 
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
@@ -47,10 +48,10 @@ def experiment(variant, args):
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-    seq_len = 70
+    seq_len = 20
     skill_dim = 2
     hidden_size_rnn = 5
-    used_obs_dims_df = None
+    used_obs_dims_df = (0, 1, 2)
     used_obs_dims_policy = tuple(i for i in range(1, obs_dim))
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
@@ -59,7 +60,7 @@ def experiment(variant, args):
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "continous skill space" + sep_str
     run_comment += "hidden rnn_dim: {}{}".format(hidden_size_rnn, sep_str)
-    run_comment += "guided latent loss"
+    run_comment += "gused_obs_dimsuided latent loss"
 
     log_folder="logshalfcheetah"
     seed = 0
@@ -93,11 +94,11 @@ def experiment(variant, args):
         input_size=obs_dim,
         hidden_size_rnn=hidden_size_rnn,
         output_size=skill_dim,
-        hidden_sizes=[40, 40],
-        feature_decode_hidden_size=[30, 30],
+        hidden_sizes=[100, 100],
+        feature_decode_hidden_size=[1, 1],
         seq_len=seq_len,
         pos_encoder_variant='transformer',
-        dropout=0.2,
+        dropout=0.3,
         obs_dims_selected=used_obs_dims_df,
     )
     policy = SkillTanhGaussianPolicyRevisedObsSelect(
@@ -114,7 +115,7 @@ def experiment(variant, args):
     )
     skill_selector = SkillSelectorContinous(
         prior_skill_dist=skill_prior,
-        grid_radius_factor=2,
+        grid_radius_factor=1.5,
     )
     eval_path_collector = SeqCollectorRevisedOptionalSkillId(
         eval_env,
@@ -141,8 +142,8 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = GuidedInfoLoss(
-        alpha=0.99,
-        lamda=0.2,
+        alpha=0.999,
+        lamda=0.05,
     ).loss
     trainer = ContSkillTrainerSeqwiseStepwise(
         skill_prior_dist=skill_prior,
@@ -167,7 +168,7 @@ def experiment(variant, args):
         log_interval=1
     )
 
-    algorithm = SeqwiseAlgoRevisedContSkills(
+    algorithm = SeqwiseAlgoRevisedContSkillsHighDim(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
@@ -205,12 +206,12 @@ if __name__ == "__main__":
         algorithm="Cont skill space guided",
         version="normal",
         layer_size=256,
-        replay_buffer_size=int(1E6),
+        replay_buffer_size=int(1E4),
         algorithm_kwargs=dict(
-            num_epochs=1000,
+            num_epochs=300,
             num_eval_steps_per_epoch=1000,
-            num_trains_per_train_loop=10,
-            num_expl_steps_per_train_loop=10,
+            num_trains_per_train_loop=20,
+            num_expl_steps_per_train_loop=20,
             min_num_steps_before_training=1000,
             max_path_length=1000,
             batch_size=1024,

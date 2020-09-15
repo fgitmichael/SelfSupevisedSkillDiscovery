@@ -58,21 +58,21 @@ def experiment(variant, args):
 
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
-    obs_dims_selected_classifier = (0, 1)
+    obs_dims_selected_classifier = (0,)
     obs_dims_selected_policy = tuple([i for i in range(obs_dim)
-                                     if i not in obs_dims_selected_classifier] )
+                                     if i not in [0, 1]] )
 
     oh_grid_creator = OhGridCreator(
         num_skills=args.skill_dim,
     )
     get_oh_grid = oh_grid_creator.get_grid
 
-    seq_len = 200
+    seq_len = 120
     skill_dim = args.skill_dim
     num_skills = args.skill_dim
-    hidden_size_rnn = 8
+    hidden_size_rnn = 10
     variant['algorithm_kwargs']['batch_size'] //= seq_len
-    pos_encoding = "empty"
+    pos_encoding = "transformer"
 
     sep_str = " | "
     run_comment = sep_str
@@ -113,7 +113,7 @@ def experiment(variant, args):
         input_size=obs_dim,
         output_size=num_skills,
         hidden_size_rnn=hidden_size_rnn,
-        hidden_sizes=[M, M],
+        hidden_sizes=[40, 40],
         seq_len=seq_len,
         pos_encoder_variant=pos_encoding,
         dropout=0.5,
@@ -192,7 +192,7 @@ def experiment(variant, args):
         replay_buffer=replay_buffer,
 
         seq_len=seq_len,
-        seq_len_eval=seq_len,
+        seq_len_eval=100,
         fps=16,
 
         diagnostic_writer=diagno_writer,

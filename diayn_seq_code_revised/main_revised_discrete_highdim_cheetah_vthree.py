@@ -35,6 +35,11 @@ from diayn_seq_code_revised.algo.seqwise_algo_revised_highdim import \
     SeqwiseAlgoRevisedDiscreteSkillsHighdim
 from diayn_seq_code_revised.data_collector.seq_collector_revised_discreteskills_pixel \
     import SeqCollectorRevisedDiscreteSkillsPixel
+from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise import \
+    BiRnnStepwiseSeqWiseClassifier
+
+from diayn_seq_code_revised.policies.skill_policy_obsdim_select \
+    import SkillTanhGaussianPolicyRevisedObsSelect
 
 from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCreator
 
@@ -66,7 +71,9 @@ def experiment(variant, args):
     num_skills = args.skill_dim
     hidden_size_rnn = 20
     variant['algorithm_kwargs']['batch_size'] //= seq_len
-    pos_encoding = "empty"
+    pos_encoding = "transformer"
+    obs_dim_used_df = (0, 1, 2)
+    obs_dim_used_policy = tuple(i for i in range(1, obs_dim))
 
     sep_str = " | "
     run_comment = sep_str
@@ -103,7 +110,7 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = RnnStepwiseSeqwiseClassifierObsDimSelect(
+    df = BiRnnStepwiseSeqWiseClassifier(
         input_size=obs_dim,
         output_size=num_skills,
         hidden_size_rnn=hidden_size_rnn,
@@ -111,13 +118,15 @@ def experiment(variant, args):
         seq_len=seq_len,
         pos_encoder_variant=pos_encoding,
         dropout=0.5,
-        obs_dims_selected=[0, 1, 2,],
+        obs_dims_used=obs_dim_used_df,
     )
-    policy = SkillTanhGaussianPolicyRevised(
-        obs_dim=obs_dim,
+    policy = SkillTanhGaussianPolicyRevisedObsSelect(
+        obs_dim=len(obs_dim_used_policy),
         action_dim=action_dim,
         skill_dim=skill_dim,
         hidden_sizes=[M, M],
+        obs_dim_real=obs_dim,
+        obs_dims_selected=obs_dim_used_policy,
     )
     eval_policy = MakeDeterministicRevised(policy)
     skill_selector = SkillSelectorDiscrete(
