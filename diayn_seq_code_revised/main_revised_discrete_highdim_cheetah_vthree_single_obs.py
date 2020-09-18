@@ -39,6 +39,7 @@ from diayn_rnn_seq_rnn_stepwise_classifier.networks.bi_rnn_stepwise_seqwise impo
     BiRnnStepwiseSeqWiseClassifier
 from diayn_seq_code_revised.trainer.trainer_seqwise_stepwise_revised_obsdim_single \
     import DIAYNAlgoStepwiseSeqwiseRevisedObsDimSingleTrainer
+
 from diayn_seq_code_revised.policies.skill_policy_obsdim_select \
     import SkillTanhGaussianPolicyRevisedObsSelect
 from diayn_seq_code_revised.networks.bi_rnn_stepwise_seqwise_singledims import \
@@ -69,13 +70,13 @@ def experiment(variant, args):
     )
     get_oh_grid = oh_grid_creator.get_grid
 
-    seq_len = 20
+    seq_len = 10
     skill_dim = args.skill_dim
     num_skills = args.skill_dim
-    hidden_size_rnn = 2
+    hidden_size_rnn = 5
     variant['algorithm_kwargs']['batch_size'] //= seq_len
     pos_encoding = "transformer"
-    obs_dim_used_df = (0,)
+    obs_dim_used_df = (0, 1, 2)
     obs_dim_used_policy = tuple(i for i in range(1, obs_dim))
 
     sep_str = " | "
@@ -186,7 +187,7 @@ def experiment(variant, args):
     )
     diagno_writer = DiagnosticsWriter(
         writer=writer,
-        log_interval=10
+        log_interval=3
     )
 
     algorithm = SeqwiseAlgoRevisedDiscreteSkillsHighdim(
