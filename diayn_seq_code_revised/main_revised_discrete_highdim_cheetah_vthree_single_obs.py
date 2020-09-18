@@ -2,6 +2,8 @@ import argparse
 import torch
 import numpy as np
 import copy
+import sys
+sys.path.append('..')
 import gym
 from gym.envs.mujoco.half_cheetah_v3 import HalfCheetahEnv as HalfCheetahVersionThreeEnv
 from my_utils.env_pixel_wrapper.mujoco_pixel_wrapper import MujocoPixelWrapper

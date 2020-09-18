@@ -2,6 +2,8 @@ import argparse
 import torch
 import numpy as np
 import copy
+import sys
+sys.path.append('..')
 from gym.envs.mujoco.half_cheetah_v3 import HalfCheetahEnv as HalfCheetahVersionThreeEnv
 #from gym.envs.mujoco import HalfCheetahEnv
 
