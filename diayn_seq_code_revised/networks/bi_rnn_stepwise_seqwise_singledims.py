@@ -63,7 +63,8 @@ class BiRnnStepwiseSeqWiseClassifierSingleDims(BaseNetwork):
             self.rnn.hidden_size * self.rnn_params['num_directions']
 
         self.hidden_features_dim_matcher = self.create_hidden_features_dim_matcher(
-            input_size=len(self.obs_dims_used) * self.rnn_params['num_features_hidden_seq'],
+            input_size=len(self.obs_dims_used) \
+                       * self.rnn_params['num_features_hidden_seq'],
             output_size=feature_size,
             hidden_sizes=hidden_size_feature_dim_matcher,
         )
@@ -94,7 +95,10 @@ class BiRnnStepwiseSeqWiseClassifierSingleDims(BaseNetwork):
             layer_norm=layer_norm,
         )
 
-    def create_hidden_features_dim_matcher(self, input_size, output_size, hidden_sizes):
+    def create_hidden_features_dim_matcher(self,
+                                           input_size,
+                                           output_size,
+                                           hidden_sizes):
         return nn.Sequential(
             FlattenMlpDropout(
                 input_size=input_size,
