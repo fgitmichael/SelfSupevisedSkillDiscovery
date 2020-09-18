@@ -174,7 +174,7 @@ class SeqwiseAlgoRevisedContSkills(SeqwiseAlgoRevised):
             plt.scatter(
                 ptu.get_numpy(post_dist.loc[id_idx, :, 0].reshape(-1)),
                 ptu.get_numpy(post_dist.loc[id_idx, :, 1].reshape(-1)),
-                label="skill_{}_({})".format(
+                label="skill_{}({})".format(
                     id, ptu.get_numpy(skills_gt_seq[id_idx, 0][0])),
                 c=color_array[id]
             )
