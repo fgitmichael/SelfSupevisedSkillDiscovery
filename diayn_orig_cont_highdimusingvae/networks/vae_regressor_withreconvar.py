@@ -10,6 +10,7 @@ class VaeRegressorWithreconvar(VaeRegressor):
             output_dim,
             hidden_units,
             dropout,
+            std,
     ) -> MyGaussian:
         """
         Remove default std
@@ -19,6 +20,7 @@ class VaeRegressorWithreconvar(VaeRegressor):
                 input_dim=input_dim,
                 output_dim=output_dim,
                 dropout=dropout,
+                std=std,
             )
         else:
             dec = MyGaussian(
@@ -26,6 +28,7 @@ class VaeRegressorWithreconvar(VaeRegressor):
                 output_dim=output_dim,
                 hidden_units=hidden_units,
                 dropout=dropout,
+                std=std,
             )
 
         return dec
