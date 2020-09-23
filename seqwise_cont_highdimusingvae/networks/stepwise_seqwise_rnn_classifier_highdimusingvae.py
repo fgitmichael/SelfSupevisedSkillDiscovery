@@ -1,6 +1,7 @@
 from torch import distributions
 
-from seqwise_cont_skillspace.base.rnn_classifier_base import RnnStepwiseSeqwiseClassifierBase
+from seqwise_cont_skillspace.base.rnn_classifier_base import \
+    RnnStepwiseSeqwiseClassifierBase
 
 from self_supervised.network.flatten_mlp import FlattenMlp, FlattenMlpDropout
 

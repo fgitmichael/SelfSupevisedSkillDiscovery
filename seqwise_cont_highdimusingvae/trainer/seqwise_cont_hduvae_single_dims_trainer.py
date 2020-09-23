@@ -12,7 +12,7 @@ class ContSkillTrainerSeqwiseStepwiseHighdimusingvaeSingleDims(
         return optimizer_class(
             chain(
                 self.df.classifier.parameters(),
-                self.df.hidden_feature_dim_matcher.parameters(),
+                self.df.hidden_features_dim_matcher.parameters(),
             ),
             lr=df_lr,
         )
