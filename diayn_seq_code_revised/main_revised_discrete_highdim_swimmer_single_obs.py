@@ -1,4 +1,5 @@
 import argparse
+import os
 import torch
 import numpy as np
 import copy
@@ -50,7 +51,8 @@ from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator, OhGridCrea
 
 def experiment(variant, args):
     expl_env = SwimmerVersionThreeEnv(
-        exclude_current_positions_from_observation=False
+        exclude_current_positions_from_observation=False,
+        xml_file=os.path.join(os.getcwd(), "./models/swimmer_reduced_gearratio.xml"),
     )
     eval_env = copy.deepcopy(expl_env)
     render_kwargs = dict(
@@ -70,13 +72,13 @@ def experiment(variant, args):
     )
     get_oh_grid = oh_grid_creator.get_grid
 
-    seq_len = 100
+    seq_len = 50
     skill_dim = args.skill_dim
     num_skills = args.skill_dim
-    hidden_size_rnn = 2
+    hidden_size_rnn = 5
     variant['algorithm_kwargs']['batch_size'] //= seq_len
     pos_encoding = "transformer"
-    obs_dim_used_df = (0,)
+    obs_dim_used_df = (0, 1)
     obs_dim_used_policy = tuple(i for i in range(2, obs_dim))
 
     sep_str = " | "
@@ -182,7 +184,7 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logshighdim_swimmer',
+        log_dir='logshighdim_swimmer_singleobs',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(

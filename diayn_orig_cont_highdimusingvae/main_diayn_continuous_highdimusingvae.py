@@ -18,16 +18,15 @@ from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from diayn_original_cont.policy.policies import \
     SkillTanhGaussianPolicyExtensionCont, MakeDeterministicCont
 from seqwise_cont_skillspace.utils.info_loss import InfoLoss
-from diayn_orig_cont_highdimusingvae.networks.vae_regressor_withreconvar import \
-    VaeRegressorWithreconvar
+from diayn_original_cont.networks.vae_regressor import VaeRegressor
 from diayn_orig_cont_highdimusingvae.algo.algo_cont_highdimusingvae import \
     DIAYNContAlgoHighdimusingvae
 from diayn_original_cont.data_collector.seq_collector_optionally_id import \
     SeqCollectorRevisedOptionalId
 from diayn_orig_cont_highdimusingvae.trainer.diayn_cont_highdimusingvae_trainer import \
     DIAYNTrainerContHighdimusingvae
-from diayn_orig_cont_highdimusingvae.data_collector.skill_selector_cont_highdimusingvae \
-    import SkillSelectorContinousHighdimusingvae
+from diayn_orig_cont_highdimusingvae.data_collector.\
+    skill_selector_cont_highdimusingvae import SkillSelectorContinousHighdimusingvae
 
 from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator
 
@@ -89,13 +88,14 @@ def experiment(variant, args):
     #skill_selector = SkillSelectorDiscrete(
        #get_skill_grid_fun=noohgrid_creator_fun
     #
-    df = VaeRegressorWithreconvar(
+    df = VaeRegressor(
         input_size=obs_dim,
         latent_dim=2,
         output_size=skill_dim,
         hidden_sizes_enc=[M, M],
         hidden_sizes_dec=[M, M],
         dropout=0.5,
+        std=None,
     )
     skill_selector = SkillSelectorContinousHighdimusingvae(
         prior_skill_dist=skill_prior,

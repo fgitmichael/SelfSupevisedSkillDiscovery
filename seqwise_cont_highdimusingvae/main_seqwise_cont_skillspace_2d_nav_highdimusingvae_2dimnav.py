@@ -19,8 +19,8 @@ from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
 from diayn_seq_code_revised.networks.my_gaussian import \
     ConstantGaussianMultiDim
-from diayn_orig_cont_highdimusingvae.data_collector.skill_selector_cont_highdimusingvae \
-    import SkillSelectorContinousHighdimusingvae
+from diayn_orig_cont_highdimusingvae.data_collector.\
+    skill_selector_cont_highdimusingvae import SkillSelectorContinousHighdimusingvae
 
 from seqwise_cont_skillspace.utils.info_loss import InfoLoss
 from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \

@@ -7,6 +7,7 @@ import copy
 import rlkit.torch.pytorch_util as ptu
 from rlkit.launchers.launcher_util import setup_logger
 
+from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.utils.writer import MyWriterWithActivation
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
@@ -37,8 +38,8 @@ from seqwise_cont_highdimusingvae.trainer.seqwise_cont_hduvae_single_dims_traine
 
 
 def experiment(variant, args):
-    expl_env = TwoDimNavigationEnv()
-    eval_env = TwoDimNavigationEnv()
+    expl_env = NormalizedBoxEnvWrapper(gym_id=str(args.env))
+    eval_env = copy.deepcopy(expl_env)
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
@@ -54,7 +55,8 @@ def experiment(variant, args):
     hidden_sizes_latent_to_skill_decoder = [200, 200]
     variant['algorithm_kwargs']['batch_size'] //= seq_len
 
-    test_script_path_name = None
+    test_script_path_name = "/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/" \
+                            "cont_skillspace_test/main_test_hduvae_normal_render.py"
 
     sep_str = " | "
     run_comment = sep_str
@@ -144,8 +146,8 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = InfoLoss(
-        alpha=0.99,
-        lamda=0.2,
+        alpha=0.97,
+        lamda=0.3,
     ).loss
     trainer = ContSkillTrainerSeqwiseStepwiseHighdimusingvaeSingleDims(
         skill_prior_dist=skill_prior,
@@ -162,12 +164,13 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logs2dnav_singledim',
+        log_dir='mcar_singledims',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
         writer=writer,
-        log_interval=1
+        log_interval=1,
+        test_script_path_name=test_script_path_name,
     )
 
     algorithm = SeqwiseAlgoRevisedContSkillsHighdimusingvae(

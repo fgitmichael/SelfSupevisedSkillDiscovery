@@ -30,11 +30,10 @@ from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
 from seqwise_cont_highdimusingvae.algo.seqwise_cont_algo_highdimusingvae import \
     SeqwiseAlgoRevisedContSkillsHighdimusingvae
-from seqwise_cont_highdimusingvae.trainer.seqwise_cont_highdimusingvae_trainer \
-    import ContSkillTrainerSeqwiseStepwiseHighdimusingvae
-from seqwise_cont_highdimusingvae.networks.\
-    stepwise_seqwise_rnn_classifier_highdimusingvae \
-    import RnnStepwiseSeqwiseClassifierHighdimusingvae
+from seqwise_cont_highdimusingvae.networks.df_highdimusingvae_single_dims \
+    import RnnStepwiseSeqwiseClassifierHduvaeSingleDims
+from seqwise_cont_highdimusingvae.trainer.seqwise_cont_hduvae_single_dims_trainer \
+    import ContSkillTrainerSeqwiseStepwiseHighdimusingvaeSingleDims
 
 
 def experiment(variant, args):
@@ -44,11 +43,18 @@ def experiment(variant, args):
     action_dim = eval_env.action_space.low.size
 
     step_training_repeat = 1
-    seq_len = 100
+    seq_len = 30
     skill_dim = args.skill_dim
     hidden_size_rnn = 20
     latent_dim = 2
+    feature_size = 20
+    hidden_sizes_classifier_seq = [150, 150]
+    hidden_sizes_feature_dim_matcher = [150, 150]
+    hidden_sizes_feature_to_latent_encoder = [150, 150]
+    hidden_sizes_latent_to_skill_decoder = [150, 150]
     variant['algorithm_kwargs']['batch_size'] //= seq_len
+
+    test_script_path_name = None
 
     sep_str = " | "
     run_comment = sep_str
@@ -84,14 +90,19 @@ def experiment(variant, args):
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = RnnStepwiseSeqwiseClassifierHighdimusingvae(
-        obs_dim=obs_dim,
+    df = RnnStepwiseSeqwiseClassifierHduvaeSingleDims(
+        input_size=obs_dim,
         hidden_size_rnn=hidden_size_rnn,
+        feature_size=feature_size,
         skill_dim=skill_dim,
-        hidden_sizes=[M, M],
+        hidden_sizes_classifier_seq=hidden_sizes_classifier_seq,
+        hidden_sizes_classifier_step=None,
+        hidden_size_feature_dim_matcher=hidden_sizes_feature_dim_matcher,
         seq_len=seq_len,
         pos_encoder_variant='transformer',
-        dropout=0.2,
+        dropout=0.5,
+        hidden_sizes_feature_to_latent_encoder=hidden_sizes_feature_to_latent_encoder,
+        hidden_sizes_latent_to_skill_decoder=hidden_sizes_latent_to_skill_decoder,
     )
     policy = SkillTanhGaussianPolicyRevised(
         obs_dim=obs_dim,
@@ -105,7 +116,7 @@ def experiment(variant, args):
     )
     skill_selector = SkillSelectorContinousHighdimusingvae(
         prior_skill_dist=skill_prior,
-        df_vae_regressor=df.classifier_step,
+        df_vae_regressor=df.classifier,
         skill_dim=skill_dim,
     )
     eval_path_collector = SeqCollectorRevisedOptionalSkillId(
@@ -133,10 +144,10 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = InfoLoss(
-        alpha=0.99999,
+        alpha=0.97,
         lamda=0.2,
     ).loss
-    trainer = ContSkillTrainerSeqwiseStepwiseHighdimusingvae(
+    trainer = ContSkillTrainerSeqwiseStepwiseHighdimusingvaeSingleDims(
         skill_prior_dist=skill_prior,
         loss_fun=info_loss_fun,
         env=eval_env,
@@ -151,7 +162,7 @@ def experiment(variant, args):
 
     writer = MyWriterWithActivation(
         seed=seed,
-        log_dir='logs2dnav',
+        log_dir='logs2dnav_singledim',
         run_comment=run_comment
     )
     diagno_writer = DiagnosticsWriter(
@@ -187,7 +198,7 @@ if __name__ == "__main__":
                         )
     parser.add_argument('--skill_dim',
                         type=int,
-                        default=3,
+                        default=2,
                         help='skill dimension'
                         )
     args = parser.parse_args()
@@ -205,7 +216,7 @@ if __name__ == "__main__":
             num_expl_steps_per_train_loop=10,
             min_num_steps_before_training=1000,
             max_path_length=1000,
-            batch_size=1024,
+            batch_size=500,
         ),
         trainer_kwargs=dict(
             discount=0.99,
