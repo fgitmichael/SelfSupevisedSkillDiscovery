@@ -2,7 +2,8 @@ from typing import List, Union
 import numpy as np
 from typing import Union, List
 
-from diayn_seq_code_revised.data_collector.seq_collector_revised import SeqCollectorRevised
+from diayn_seq_code_revised.data_collector.seq_collector_revised import \
+    SeqCollectorRevised
 
 import self_supervised.utils.typed_dicts as td
 
