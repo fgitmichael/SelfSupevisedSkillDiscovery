@@ -33,7 +33,7 @@
         </body>
     </worldbody>
     <actuator>
-        <motor ctrllimited="true" ctrlrange="-1 1" gear="150.0" joint="rot2"/>
-        <motor ctrllimited="true" ctrlrange="-1 1" gear="150.0" joint="rot3"/>
+        <motor ctrllimited="true" ctrlrange="-1 1" gear="60.0" joint="rot2"/>
+        <motor ctrllimited="true" ctrlrange="-1 1" gear="60.0" joint="rot3"/>
     </actuator>
 </mujoco>
