@@ -5,6 +5,8 @@ from code_slac.network.base import BaseNetwork
 
 from diayn_seq_code_revised.networks.my_gaussian import MyGaussian
 
+import rlkit.torch.pytorch_util as ptu
+
 
 class MinVae(BaseNetwork):
 
@@ -13,9 +15,10 @@ class MinVae(BaseNetwork):
                  latent_dim,
                  output_size,
                  dropout=0.,
+                 std=0.1,
                  hidden_sizes_enc=None,
                  hidden_sizes_dec=None,
-                 device='cuda'):
+                 device=None):
         super(MinVae, self).__init__()
 
         if hidden_sizes_enc is None:
@@ -37,14 +40,15 @@ class MinVae(BaseNetwork):
             output_dim=output_size,
             hidden_units=hidden_sizes_dec,
             dropout=dropout,
+            std=std,
         )
 
         self.prior = ConstantGaussian(latent_dim)
 
-
-        self.device = device
         self.input_size = input_size
         self.output_size = output_size
+
+        self.device = ptu.device if device is None else device
 
     def create_dec(
             self,
@@ -52,13 +56,14 @@ class MinVae(BaseNetwork):
             output_dim,
             hidden_units,
             dropout,
+            std,
     ) -> MyGaussian:
         if hidden_units is None:
             dec = MyGaussian(
                 input_dim=input_dim,
                 output_dim=output_dim,
                 dropout=dropout,
-                std=0.1,
+                std=std,
             )
         else:
             dec = MyGaussian(
@@ -66,7 +71,7 @@ class MinVae(BaseNetwork):
                 output_dim=output_dim,
                 hidden_units=hidden_units,
                 dropout=dropout,
-                std=0.1,
+                std=std,
             )
 
         return dec
