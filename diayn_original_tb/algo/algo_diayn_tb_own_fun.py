@@ -61,6 +61,9 @@ from cnn_classifier_stepwise_seqwise.trainer.cnn_stepwise_seqwise_trainer import
 
 from seqwise_cont_highdimusingvae.trainer.seqwise_cont_highdimusingvae_trainer import \
     ContSkillTrainerSeqwiseStepwiseHighdimusingvae
+from seqwise_cont_highdimusingvae.trainer.seqwise_cont_hduvae_single_dims_trainer \
+    import ContSkillTrainerSeqwiseStepwiseHighdimusingvaeSingleDims
+
 
 class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
@@ -215,6 +218,7 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                                   ContSkillTrainerSeqwiseStepwiseHighdimusingvae,
                                   DIAYNAlgoStepwiseSeqwiseRevisedObsDimSingleTrainer,
                                   ContSkillTrainerSeqwiseStepwiseSingleDims,
+                                  ContSkillTrainerSeqwiseStepwiseHighdimusingvaeSingleDims,
                                   ]:
             train_dict = dict(
                 rewards=train_data.reward,
