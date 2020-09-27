@@ -1,0 +1,43 @@
+---
+algorithm: "Continuous Skill Space"
+version: "guided"
+layer_size: 256
+replay_buffer_size: 10000
+
+algorithm_kwargs:
+  num_epochs: 1000
+  num_eval_steps_per_epoch: 1000
+  num_trains_per_train_loop: 10
+  num_expl_steps_per_train_loop: 10
+  min_num_steps_before_training: 1000
+  max_path_length: 1000
+  batch_size: 350
+
+trainer_kwargs:
+  discount: 0.99
+  soft_target_tau: 0.005
+  target_update_period: 1
+  policy_lr: 0.0003
+  qf_lr: 0.0003
+  reward_scale: 1
+  use_automatic_entropy_tuning: True
+  df_lr_step: 0.001
+  df_lr_seq: 0.001
+
+seq_len: 40
+skill_dim: 2
+
+hidden_size_rnn: 30
+hidden_sizes_classifier_seq: [256, 256]
+hidden_sizes_classifier_step: [256, 256]
+hidden_size_feature_dim_matcher: [256,]
+dropout: 0.4
+pos_encoder_variant: transformer
+feature_size: 10
+obs_dims_used_df: null
+
+info_loss:
+  alpha: 0.94
+  lamda: 0.3
+
+test_script_path: /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py
