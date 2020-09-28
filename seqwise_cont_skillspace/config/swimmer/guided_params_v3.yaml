@@ -31,6 +31,7 @@ hidden_size_rnn: 40
 hidden_sizes_classifier_seq: [50, 50]
 hidden_sizes_classifier_step: [50, 50]
 hidden_size_feature_dim_matcher: [50,]
+rnn_bidirectional: False
 dropout: 0.5
 pos_encoder_variant: transformer
 feature_size: 40
