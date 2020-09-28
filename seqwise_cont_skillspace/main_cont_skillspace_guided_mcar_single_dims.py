@@ -1,8 +1,6 @@
-import argparse
 import torch
 import numpy as np
 import copy
-#from gym.envs.mujoco import HalfCheetahEnv
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.launchers.launcher_util import setup_logger

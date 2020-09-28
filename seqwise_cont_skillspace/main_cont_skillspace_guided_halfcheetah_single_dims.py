@@ -115,6 +115,7 @@ def experiment(variant,
         pos_encoder_variant=config.pos_encoder_variant,
         dropout=config.dropout,
         obs_dims_used=used_obs_dims_df,
+        bidirectional=config.rnn_bidirectional,
     )
     policy = SkillTanhGaussianPolicyRevisedObsSelect(
         obs_dim=len(used_obs_dims_policy),
