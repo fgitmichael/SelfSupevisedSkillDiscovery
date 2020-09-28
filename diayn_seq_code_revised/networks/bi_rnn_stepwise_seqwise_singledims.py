@@ -29,6 +29,7 @@ class BiRnnStepwiseSeqWiseClassifierSingleDims(BaseNetwork):
                  num_layers=1,
                  bias=True,
                  layer_norm=False,
+                 bidirectional=True,
                  ):
         """
         Args:
@@ -46,7 +47,7 @@ class BiRnnStepwiseSeqWiseClassifierSingleDims(BaseNetwork):
             input_size=1,
             hidden_size=hidden_size_rnn,
             batch_first=True,
-            bidirectional=True,
+            bidirectional=bidirectional,
             num_layers=num_layers,
             dropout=dropout if num_layers > 1 else 0.,
             bias=bias,
