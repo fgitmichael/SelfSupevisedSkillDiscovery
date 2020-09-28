@@ -25,8 +25,13 @@ parser.add_argument('--epoch',
                     default=100,
                     help="epoch to test",
                     )
+parser.add_argument('--render_dt',
+                    type=float,
+                    default=0.00001,
+                    help="render dt"
+                    )
 args = parser.parse_args()
-ptu.set_gpu_mode(True)
+ptu.set_gpu_mode(False)
 epoch = args.epoch
 extension = ".pkl"
 policy_net_name = "policy_net_epoch{}".format(epoch) + extension
@@ -37,6 +42,6 @@ env_viz = EnvVisualizationRenderGuided(
     env=env,
     policy=policy,
     seq_len=500,
-    render_dt=0.000001,
+    render_dt=args.render_dt,
 )
 env_viz.run()
