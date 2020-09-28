@@ -25,32 +25,36 @@ from seqwise_cont_skillspace.algo.algo_cont_skillspace_highdim import \
 
 from seqwise_cont_skillspace.trainer.trainer_single_dims_cont import \
     ContSkillTrainerSeqwiseStepwiseSingleDims
-from seqwise_cont_skillspace.networks.classifier_seq_step_cont_choose_dims import \
-    RnnStepwiseSeqwiseClassifierObsDimSelect
 from seqwise_cont_skillspace.utils.info_loss import InfoLoss, GuidedInfoLoss
 from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
 from seqwise_cont_skillspace.data_collector.seq_collector_optional_skill_id import \
     SeqCollectorRevisedOptionalSkillId
-from seqwise_cont_skillspace.networks.contant_uniform import ConstantUniformMultiDim
 
-from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
+from mode_disent_no_ssm.utils.parse_args import parse_args
 
-from seqwise_cont_skillspace.networks.bi_rnn_stepwise_seq_singledims_cont_output import \
-    BiRnnStepwiseSeqWiseClassifierSingleDimsContOutput
+from seqwise_cont_skillspace.networks.bi_rnn_stepwise_seq_singledims_cont_output \
+    import BiRnnStepwiseSeqWiseClassifierSingleDimsContOutput
 
-def experiment(variant, args):
-    expl_env = NormalizedBoxEnvWrapper(gym_id=args.env)
+def experiment(variant,
+               config,
+               config_path_name,
+               ):
+    expl_env = NormalizedBoxEnvWrapper(gym_id=variant['env_id'])
     eval_env = copy.deepcopy(expl_env)
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-    seq_len = 70
-    skill_dim = 2
-    hidden_size_rnn = 5
-    used_obs_dims_df = (0, 1)
-    used_obs_dims_policy = tuple(i for i in range(0, obs_dim))
+    seq_len = config.seq_len
+    skill_dim = config.skill_dim
+    hidden_size_rnn = config.hidden_size_rnn
+    used_obs_dims_df = config.obs_dims_used_df
+    used_obs_dims_policy = tuple(i for i in range(obs_dim))
     variant['algorithm_kwargs']['batch_size'] //= seq_len
+
+    test_script_path_name = config.test_script_path \
+        if "test_script_path" in config.keys() \
+        else None
 
     sep_str = " | "
     run_comment = sep_str
@@ -92,14 +96,15 @@ def experiment(variant, args):
         input_size=obs_dim,
         skill_dim=skill_dim,
         hidden_size_rnn=hidden_size_rnn,
-        feature_size=10,
-        hidden_sizes_classifier_seq=[M, M],
-        hidden_sizes_classifier_step=[M, M],
-        hidden_size_feature_dim_matcher=[M,],
+        feature_size=config.feature_size,
+        hidden_sizes_classifier_seq=config.hidden_sizes_classifier_seq,
+        hidden_sizes_classifier_step=config.hidden_sizes_classifier_step,
+        hidden_size_feature_dim_matcher=config.hidden_size_feature_dim_matcher,
         seq_len=seq_len,
-        pos_encoder_variant='transformer',
-        dropout=0.5,
+        pos_encoder_variant=config.pos_encoder_variant,
+        dropout=config.dropout,
         obs_dims_used=used_obs_dims_df,
+        bidirectional=config.rnn_bidirectional,
     )
     policy = SkillTanhGaussianPolicyRevisedObsSelect(
         obs_dim=len(used_obs_dims_policy),
@@ -142,8 +147,7 @@ def experiment(variant, args):
         env=expl_env,
     )
     info_loss_fun = GuidedInfoLoss(
-        alpha=1,
-        lamda=0.75,
+        **config.info_loss
     ).loss
     trainer = ContSkillTrainerSeqwiseStepwiseSingleDims(
         skill_prior_dist=skill_prior,
@@ -165,7 +169,10 @@ def experiment(variant, args):
     )
     diagno_writer = DiagnosticsWriter(
         writer=writer,
-        log_interval=1
+        log_interval=1,
+        config=config,
+        config_path_name=config_path_name,
+        test_script_path_name=test_script_path_name,
     )
 
     algorithm = SeqwiseAlgoRevisedContSkillsHighDim(
@@ -188,47 +195,24 @@ def experiment(variant, args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--env',
-                        type=str,
-                        default="MountainCarContinuous-v0",
-                        help='environment'
-                        )
-    parser.add_argument('--skill_dim',
-                        type=int,
-                        default=10,
-                        help='skill dimension'
-                        )
-    args = parser.parse_args()
+    config, config_path_name = parse_args(
+        default="config/mountaincar/mountaincar_guided_params_v1.yaml",
+        return_config_path_name=True,
+    )
 
     # noinspection PyTypeChecker
     variant = dict(
-        algorithm="Cont skill space guided",
-        version="normal",
-        layer_size=256,
-        replay_buffer_size=int(1E4),
-        algorithm_kwargs=dict(
-            num_epochs=300,
-            num_eval_steps_per_epoch=1000,
-            num_trains_per_train_loop=20,
-            num_expl_steps_per_train_loop=20,
-            min_num_steps_before_training=1000,
-            max_path_length=1000,
-            batch_size=500,
-        ),
-        trainer_kwargs=dict(
-            discount=0.99,
-            soft_target_tau=5e-3,
-            target_update_period=1,
-            policy_lr=3E-4,
-            qf_lr=3E-4,
-            reward_scale=1,
-            use_automatic_entropy_tuning=True,
-            df_lr_step=1E-3,
-            df_lr_seq=1E-3,
-        ),
+        env_id='MountainCarContinuous-v0',
+        algorithm=config.algorithm,
+        version=config.version,
+        layer_size=config.layer_size,
+        replay_buffer_size=config.replay_buffer_size,
+        algorithm_kwargs=config.algorithm_kwargs,
+        trainer_kwargs=config.trainer_kwargs,
     )
-    setup_logger('Cont skill space guided'
-                 + str(args.skill_dim) + '_' + args.env, variant=variant)
+    setup_logger('Cont skill space guided' + str(config.skill_dim), variant=variant)
     ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
-    experiment(variant, args)
+
+    experiment(variant,
+               config,
+               config_path_name)
