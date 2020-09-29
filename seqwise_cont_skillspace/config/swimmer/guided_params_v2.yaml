@@ -24,12 +24,12 @@ trainer_kwargs:
   df_lr_step: 0.001
   df_lr_seq: 0.001
 
-seq_len: 60
+seq_len: 50
 skill_dim: 2
 
 hidden_size_rnn: 5
-hidden_sizes_classifier_seq: [256, 256]
-hidden_sizes_classifier_step: [50, 50]
+hidden_sizes_classifier_seq: [40, 40]
+hidden_sizes_classifier_step: [30, 30]
 hidden_size_feature_dim_matcher: [50,]
 rnn_bidirectional: False
 dropout: 0.4

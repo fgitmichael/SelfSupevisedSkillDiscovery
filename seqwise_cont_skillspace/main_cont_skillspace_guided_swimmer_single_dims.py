@@ -207,7 +207,7 @@ def experiment(variant,
 
 if __name__ == "__main__":
     config, config_path_name = parse_args(
-        default="config/halfcheetah/halfcheetah_guided_params_v5.yaml",
+        default="config/swimmer/guided_params_v1.yaml",
         return_config_path_name=True,
     )
 

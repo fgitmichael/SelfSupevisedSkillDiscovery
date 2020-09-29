@@ -54,8 +54,3 @@ class SeqCollectorRevisedOptionalId(SeqCollectorRevised):
             paths_with_id.append(with_id)
 
         return paths_with_id
-
-
-
-
-
