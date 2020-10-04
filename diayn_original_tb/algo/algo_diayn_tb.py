@@ -123,7 +123,8 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
                     obs[0], obs[1],
                     tb_str="ModeInfluence All Skills in One Plot Scatter/With Limits",
                     step=epoch,
-                    labels=["skill {}".format(path.skill_id.squeeze()[0]) for path in paths],
+                    labels=["skill {}".format(
+                        path.skill_id.squeeze()[0]) for path in paths],
                     x_lim=[-2, 2],
                     y_lim=[-2, 2]
                 )
@@ -132,7 +133,8 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
                     obs[0], obs[1],
                     tb_str="ModeInfluence All Skills in One Plot Scatter/Without Limits",
                     step=epoch,
-                    labels=["skill {}".format(path.skill_id.squeeze()[0]) for path in paths],
+                    labels=["skill {}".format(
+                        path.skill_id.squeeze()[0]) for path in paths],
                 )
 
     def _write_mode_influence(self,
