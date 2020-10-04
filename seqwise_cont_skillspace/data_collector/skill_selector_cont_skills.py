@@ -8,14 +8,14 @@ from diayn_seq_code_revised.base.skill_selector_base import \
 
 import rlkit.torch.pytorch_util as ptu
 
-from diayn_seq_code_revised.networks.my_gaussian import MyGaussian
+from diayn_seq_code_revised.networks.my_gaussian import ConstantGaussianMultiDim
 from diayn_no_oh.utils.hardcoded_grid_two_dim import NoohGridCreator
 
 
 class SkillSelectorContinous(SkillSelectorBase):
 
     def __init__(self,
-                 prior_skill_dist: MyGaussian,
+                 prior_skill_dist: ConstantGaussianMultiDim,
                  grid_radius_factor=1.,
                  ):
         self.skill_prior = prior_skill_dist

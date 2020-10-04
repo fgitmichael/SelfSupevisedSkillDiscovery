@@ -21,8 +21,7 @@ trainer_kwargs:
   qf_lr: 0.0003
   reward_scale: 1
   use_automatic_entropy_tuning: True
-  df_lr_step: 0.001
-  df_lr_seq: 0.001
+  df_lr: 0.001
 
 seq_len: 20
 horizon_len: 100
