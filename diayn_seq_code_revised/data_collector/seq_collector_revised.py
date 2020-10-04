@@ -14,6 +14,7 @@ from diayn_seq_code_revised.policies.skill_policy import \
 from diayn_seq_code_revised.data_collector.rollouter_revised import RollouterRevised
 from diayn_seq_code_revised.base.skill_selector_base import SkillSelectorBase
 from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDiscrete
+from diayn_seq_code_revised.base.rollouter_base import RollouterBase
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.samplers.rollout_functions import rollout
@@ -48,7 +49,7 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
             self,
             env,
             policy,
-    ):
+    ) -> RollouterBase:
         return RollouterRevised(
             env=env,
             policy=policy,
