@@ -37,3 +37,4 @@ hidden_units_classifier: [256, 256]
 leaky_slope_classifier: 0.2
 
 test_script_path: /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py
+log_folder: logsmountaincar

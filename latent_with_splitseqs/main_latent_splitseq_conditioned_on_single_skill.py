@@ -30,6 +30,8 @@ from latent_with_splitseqs.networks.seqwise_splitseq_classifier \
     import SeqwiseSplitseqClassifierSlacLatent
 from latent_with_splitseqs.networks.slac_latent_net \
     import SlacLatentNetConditionedOnSingleSkill
+from latent_with_splitseqs.networks.slac_latent_conditioned_on_skill_seq \
+    import SlacLatentNetConditionedOnSkillSeq
 from latent_with_splitseqs.trainer.latent_with_splitseqs_trainer \
     import URLTrainerLatentWithSplitseqs
 
@@ -58,7 +60,7 @@ def experiment(variant,
     run_comment += "gused_obs_dimsuided latent loss"
     run_comment += "single dims"
 
-    log_folder="logsmountaincar"
+    log_folder=config.log_folder
     seed = 0
     torch.manual_seed = seed
     expl_env.seed(seed)
