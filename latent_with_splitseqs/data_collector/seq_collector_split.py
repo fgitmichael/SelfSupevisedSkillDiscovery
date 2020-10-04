@@ -5,6 +5,11 @@ import self_supervised.utils.typed_dicts as td
 
 from diayn_seq_code_revised.data_collector.seq_collector_revised import SeqCollectorRevised
 
+import self_supervised.utils.typed_dicts as td
+
+import rlkit.torch.pytorch_util as ptu
+
+
 class SeqCollectorSplitSeq(SeqCollectorRevised):
 
     def collect_new_paths(
@@ -13,6 +18,8 @@ class SeqCollectorSplitSeq(SeqCollectorRevised):
             num_seqs,
             horizon_len: int = None,
             discard_incomplete_paths=None,
+            skill_id: int = None,
+
     ):
         paths = self._collect_new_paths(
             seq_len=seq_len,
@@ -22,7 +29,41 @@ class SeqCollectorSplitSeq(SeqCollectorRevised):
         self._check_path(paths[0], seq_len)
 
         prepared_paths = self.prepare_paths_before_save(paths, seq_len)
-        self._epoch_paths.extend(prepared_paths)
+
+        if skill_id is not None:
+            paths_to_save = self._extend_with_skillid(
+                seq_len=seq_len,
+                skill_id=skill_id,
+                paths=prepared_paths,
+            )
+            self._epoch_paths.extend(paths_to_save)
+
+        else:
+            self._epoch_paths.extend(prepared_paths)
+
+    def _extend_with_skillid(self,
+                             seq_len,
+                             skill_id,
+                             paths: List[td.TransitionModeMapping]) \
+        -> List[td.TransitonModeMappingDiscreteSkills]:
+        seq_dim = 0
+
+        skill_id = np.array([skill_id])
+        skill_id_seq = np.stack(
+            [skill_id] * seq_len,
+            axis=seq_dim,
+        )
+        assert skill_id_seq.shape == (seq_len, 1)
+
+        paths_with_skill_id = []
+        for idx, path in enumerate(paths):
+            with_skill_id = td.TransitonModeMappingDiscreteSkills(
+                **path,
+                skill_id=skill_id_seq,
+            )
+            paths_with_skill_id.append(with_skill_id)
+
+        return paths_with_skill_id
 
     def _collect_new_paths(
             self,
