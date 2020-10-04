@@ -68,7 +68,8 @@ class TwoDimNavigationEnv(gym.Env):
 
         self.state = self.state + action
         self.state = self.map_back(self.state)
-        assert self.state in self.observation_space
+        #assert self.state in self.observation_space
+        assert self.observation_space.contains(self.state)
         self.check_state(self.state)
         reward = 0.
         done = False

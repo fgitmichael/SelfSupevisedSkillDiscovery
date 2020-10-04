@@ -11,7 +11,6 @@ from self_supervised.network.flatten_mlp import FlattenMlp as \
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 from latent_with_splitseqs.memory.replay_buffer_for_latent import LatentReplayBuffer
-from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 
 from diayn_seq_code_revised.policies.skill_policy import \
     MakeDeterministicRevised
@@ -25,6 +24,8 @@ from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
 from mode_disent_no_ssm.utils.parse_args import parse_args
 
 from latent_with_splitseqs.algo.algo_latent_splitseqs import SeqwiseAlgoRevisedSplitSeqs
+from latent_with_splitseqs.algo.algo_latent_splitseqs_with_eval \
+    import SeqwiseAlgoRevisedSplitSeqsEval
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier \
     import SeqwiseSplitseqClassifierSlacLatent
@@ -35,11 +36,13 @@ from latent_with_splitseqs.networks.slac_latent_conditioned_on_skill_seq \
 from latent_with_splitseqs.trainer.latent_with_splitseqs_trainer \
     import URLTrainerLatentWithSplitseqs
 
+from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
+
 def experiment(variant,
                config,
                config_path_name,
                ):
-    expl_env = NormalizedBoxEnvWrapper(gym_id=variant['env_id'])
+    expl_env = TwoDimNavigationEnv()
     eval_env = copy.deepcopy(expl_env)
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
@@ -60,7 +63,7 @@ def experiment(variant,
     run_comment += "gused_obs_dimsuided latent loss"
     run_comment += "single dims"
 
-    log_folder="logsmountaincar"
+    log_folder=config.log_folder
     seed = 0
     torch.manual_seed = seed
     expl_env.seed(seed)
@@ -88,7 +91,7 @@ def experiment(variant,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    latent_net = SlacLatentNetConditionedOnSkillSeq(
+    latent_net = SlacLatentNetConditionedOnSingleSkill(
         obs_dim=obs_dim,
         skill_dim=skill_dim,
         latent1_dim=config.latent1_dim,
@@ -170,7 +173,7 @@ def experiment(variant,
         test_script_path_name=test_script_path_name,
     )
 
-    algorithm = SeqwiseAlgoRevisedSplitSeqs(
+    algorithm = SeqwiseAlgoRevisedSplitSeqsEval(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
@@ -184,6 +187,8 @@ def experiment(variant,
         diagnostic_writer=diagno_writer,
         seq_eval_collector=seq_eval_collector,
 
+        seq_eval_len=config.seq_eval_len,
+
         **variant['algorithm_kwargs']
     )
     algorithm.to(ptu.device)
@@ -192,7 +197,7 @@ def experiment(variant,
 
 if __name__ == "__main__":
     config, config_path_name = parse_args(
-        default="config/mountaincar/config_latent_splitseq_single_obs_conditioned.yaml",
+        default="config/2dnavigation/config_latent_splitseq.yaml",
         return_config_path_name=True,
     )
 

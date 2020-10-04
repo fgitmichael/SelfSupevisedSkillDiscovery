@@ -173,15 +173,18 @@ class SlacLatentNetConditionedOnSkillSeq(BaseNetwork):
 
                 # q(z2(0) | z1(0))
                 latent2_dist = self.latent2_init_posterior(latent1_sample)
-                latent2_sample = latent2_dist
+                latent2_sample = latent2_dist.rsample()
 
             else:
                 # q(z1(t) | z2(t-1), obs(t-1))
-                latent1_dist = self.latend1_posterior(
-                    [skill,
-                     latent2_samples[t-1],
-                     obs_seq_seqdim_first[t-1]]
-                )
+                try:
+                    latent1_dist = self.latent1_posterior(
+                        [skill,
+                         latent2_samples[t-1],
+                         obs_seq_seqdim_first[t-1]]
+                    )
+                except:
+                    raise ValueError
                 latent1_sample = latent1_dist.rsample()
 
                 # q(z2(t) | z1(t), z2(t-1), obs(t-1))
@@ -190,7 +193,7 @@ class SlacLatentNetConditionedOnSkillSeq(BaseNetwork):
                      latent2_samples[t-1],
                      obs_seq_seqdim_first[t-1]]
                 )
-                latent2_sample = latent2_dist
+                latent2_sample = latent2_dist.rsample()
 
             latent1_samples.append(latent1_sample)
             latent2_samples.append(latent2_sample)
