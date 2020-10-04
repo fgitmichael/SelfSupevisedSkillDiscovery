@@ -12,9 +12,11 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
     def __init__(self,
                  *args,
                  horizon_len,
+                 mode_influence_plotting=False,
                  **kwargs):
         super(SeqwiseAlgoRevisedSplitSeqs, self).__init__(*args, **kwargs)
         self.horizon_len = horizon_len
+        self.mode_influence_plotting = mode_influence_plotting
 
     def set_next_skill(self, data_collector: SeqCollectorSplitSeq):
         data_collector.skill_reset()
@@ -104,5 +106,5 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
         self.training_mode(False)
 
     def write_mode_influence_and_log(self, epoch):
-        # TODO: Implement
-        pass
+        if self.mode_influence_plotting:
+            super(SeqwiseAlgoRevisedSplitSeqs, self).write_mode_influence_and_log(epoch)
