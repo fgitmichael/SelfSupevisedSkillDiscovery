@@ -1,7 +1,6 @@
 from typing import List
 import numpy as np
-
-import self_supervised.utils.typed_dicts as td
+from warnings import warn
 
 from diayn_seq_code_revised.data_collector.seq_collector_revised import SeqCollectorRevised
 
@@ -74,7 +73,7 @@ class SeqCollectorSplitSeq(SeqCollectorRevised):
     ):
         if horizon_len is not None:
             # Sanity check
-            assert horizon_len > seq_len
+            assert horizon_len >= seq_len
             assert horizon_len % seq_len == 0
 
             # Collect seqs
