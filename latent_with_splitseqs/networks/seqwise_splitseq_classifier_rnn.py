@@ -76,7 +76,7 @@ class SeqwiseSplitseqClassifierRnn(BaseNetwork):
     def train_forwardpass(self,
                           obs_seq,
                           skill,):
-        _, hidden_seq = self.rnn(obs_seq)
+        hidden_seq, _ = self.rnn(obs_seq)
         skill_recon_dist = self.classifier(hidden_seq[:, -1, :])
 
         return dict(
