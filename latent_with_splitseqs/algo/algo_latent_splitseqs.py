@@ -1,7 +1,8 @@
 import gtimer as gt
 from typing import List
 
-from diayn_original_tb.algo.algo_diayn_tb_own_fun import DIAYNTorchOnlineRLAlgorithmOwnFun
+from diayn_original_tb.algo.algo_diayn_tb_own_fun \
+    import DIAYNTorchOnlineRLAlgorithmOwnFun
 
 from latent_with_splitseqs.memory.replay_buffer_for_latent import LatentReplayBuffer
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
