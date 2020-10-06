@@ -149,10 +149,11 @@ class InfoLoss:
         dist_key = self.dist_key
         sample_key = self.sample_key
 
-        if not data.is_contiguous():
-            data = data.contiguous()
-        data = data.view(-1, data.size(-1))
-        assert data.shape == recon[dist_key].batch_shape
+        if data is not None:
+            if not data.is_contiguous():
+                data = data.contiguous()
+            data = data.view(-1, data.size(-1))
+            assert data.shape == recon[dist_key].batch_shape
 
         batch_dim = 0
         assert pri[dist_key].batch_shape \
