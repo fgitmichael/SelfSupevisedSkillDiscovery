@@ -163,8 +163,9 @@ class InfoLoss:
         batch_size = post[dist_key].batch_shape[batch_dim]
         assert pri[dist_key].batch_shape == post[dist_key].batch_shape
 
-        assert recon[dist_key].batch_shape \
-               == recon[sample_key].shape \
+        if recon is not None:
+            assert recon[dist_key].batch_shape \
+                   == recon[sample_key].shape \
 
 
 class GuidedInfoLoss(InfoLoss):

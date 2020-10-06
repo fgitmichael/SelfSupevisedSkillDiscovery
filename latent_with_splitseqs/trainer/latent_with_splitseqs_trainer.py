@@ -19,10 +19,14 @@ from rlkit.core.eval_util import create_stats_ordered_dict
 
 import self_supervised.utils.my_pytorch_util as my_ptu
 
+from seqwise_cont_skillspace.utils.info_loss import InfoLoss, GuidedInfoLoss
+
 class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
 
     def __init__(self,
                  *args,
+                 skill_prior_dist,
+                 loss_fun=GuidedInfoLoss.loss,
                  train_sac_in_feature_space=False,
                  **kwargs
                  ):
@@ -32,6 +36,9 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         )
         self.train_sac_in_feature_space = train_sac_in_feature_space
         self.df_criterion = None
+
+        self.skill_prior_dist = skill_prior_dist
+        self.loss_fun = loss_fun
 
         self.initial_check = True
 
@@ -168,14 +175,27 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         assert recon.batch_shape \
                == skill.shape \
                == torch.Size((batch_size, skill_dim))
-        log_likelihood = recon.log_prob(skill).mean(dim=batch_dim).sum()
+        #log_likelihood = recon.log_prob(skill).mean(dim=batch_dim).sum()
+        recon_loss, log_dict = self.loss_fun(
+            pri=dict(
+                dist=self.skill_prior_dist,
+                sample=self.skill_prior_dist.sample()
+            ),
+            post=dict(
+                dist=recon,
+                sample=recon.sample(),
+            ),
+            recon=None,
+            guide=skill,
+            data=None,
+        )
 
-        latent_loss = kld_loss - log_likelihood
+        latent_loss = kld_loss + recon_loss
 
         return dict(
             latent_loss=latent_loss,
             kld_loss=kld_loss,
-            log_likelihood=log_likelihood,
+            log_likelihood=recon_loss,
         )
 
     def train_from_torch(self, batch):
@@ -251,8 +271,12 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
             skill=skill,
         )
         skill_recon_dist = classifier_eval_dict['skill_recon_dist']
+        skill_prior_dist = self.skill_prior_dist(skill_recon_dist.sample())
         feature_seq = classifier_eval_dict['feature_seq']
         rewards = skill_recon_dist.log_prob(skill).sum(
+            dim=data_dim,
+            keepdim=True,
+        ) - skill_prior_dist.log_prob(skill).sum(
             dim=data_dim,
             keepdim=True,
         )

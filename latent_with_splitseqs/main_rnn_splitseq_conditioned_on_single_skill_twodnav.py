@@ -20,6 +20,7 @@ from diayn_seq_code_revised.networks.my_gaussian import ConstantGaussianMultiDim
 
 from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
+from seqwise_cont_skillspace.utils.info_loss import GuidedInfoLoss
 
 from mode_disent_no_ssm.utils.parse_args import parse_args
 
@@ -135,8 +136,12 @@ def experiment(variant,
         mode_dim=skill_dim,
         env=expl_env,
     )
+    loss_fun = GuidedInfoLoss(
+        alpha=config.info_loss.alpha,
+        lamda=config.info_loss.lamda,
+    ).loss
     trainer = URLTrainerLatentWithSplitseqsRnn(
-        #skill_prior_dist=skill_prior,
+        skill_prior_dist=skill_prior,
         env=eval_env,
         policy=policy,
         qf1=qf1,
@@ -144,6 +149,7 @@ def experiment(variant,
         df=df,
         target_qf1=target_qf1,
         target_qf2=target_qf2,
+        loss_fun=loss_fun,
         **variant['trainer_kwargs']
     )
 
