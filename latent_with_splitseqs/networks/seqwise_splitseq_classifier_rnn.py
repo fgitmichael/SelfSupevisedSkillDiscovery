@@ -2,8 +2,9 @@ import torch
 import torch.nn as nn
 
 from code_slac.network.base import BaseNetwork
-from code_slac.network.latent import Gaussian
+#from code_slac.network.latent import Gaussian
 
+from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
 class SeqwiseSplitseqClassifierRnn(BaseNetwork):
 
@@ -14,6 +15,7 @@ class SeqwiseSplitseqClassifierRnn(BaseNetwork):
                  hidden_units_classifier=(256, 256),
                  hidden_size_rnn=10,
                  leaky_slope_classifier=0.2,
+                 dropout=0.3,
                  ):
         super(SeqwiseSplitseqClassifierRnn, self).__init__()
 
@@ -29,6 +31,7 @@ class SeqwiseSplitseqClassifierRnn(BaseNetwork):
             output_dim=skill_dim,
             hidden_units=hidden_units_classifier,
             leaky_slope=leaky_slope_classifier,
+            dropout=dropout,
         )
 
         self.obs_dim = obs_dim
@@ -46,7 +49,7 @@ class SeqwiseSplitseqClassifierRnn(BaseNetwork):
             assert skill.size(batch_dim) == obs_seq.size(batch_dim)
             assert skill.size(data_dim) == self.skill_dim
             assert len(skill.shape) == 2
-        assert obs_seq.size(seq_dim) == self.seq_len
+        #assert obs_seq.size(seq_dim) == self.seq_len
         assert len(obs_seq.shape) == 3
 
         if self.training:

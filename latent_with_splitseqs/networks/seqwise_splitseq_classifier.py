@@ -87,7 +87,7 @@ class SeqwiseSplitseqClassifierSlacLatent(BaseNetwork):
 
         return dict(
             skill_recon_dist=skill_recon_dist,
-            latent_post_seq=latent_seq,
+            feature_seq=latent_seq,
         )
 
     def train_forwardpass(self,

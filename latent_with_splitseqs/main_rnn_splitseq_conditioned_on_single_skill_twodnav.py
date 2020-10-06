@@ -181,6 +181,7 @@ def experiment(variant,
         seq_eval_collector=seq_eval_collector,
 
         seq_eval_len=config.seq_eval_len,
+        horizon_eval_len=config.horizon_eval_len,
 
         **variant['algorithm_kwargs']
     )
