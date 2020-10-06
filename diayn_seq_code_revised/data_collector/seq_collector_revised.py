@@ -45,6 +45,10 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
         self._num_steps_total = 0
         self._num_paths_total = 0
 
+    @property
+    def maxlen(self):
+        return self._epoch_paths.maxlen
+
     def create_rollouter(
             self,
             env,
