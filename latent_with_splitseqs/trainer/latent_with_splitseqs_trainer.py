@@ -23,12 +23,14 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
 
     def __init__(self,
                  *args,
+                 train_sac_in_feature_space=False,
                  **kwargs
                  ):
         super(URLTrainerLatentWithSplitseqs, self).__init__(
             *args,
             **kwargs,
         )
+        self.train_sac_in_feature_space = train_sac_in_feature_space
         self.df_criterion = None
 
         self.initial_check = True
@@ -239,34 +241,42 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         batch_size = terminals.size(batch_dim)
         seq_len = terminals.size(seq_dim)
 
-        # Intrinsic Reward
+        """
+        Calculate intrinsic Reward
+        """
         skill = skills[:, 0, :]
-        assert isinstance(self.df, SeqwiseSplitseqClassifierSlacLatent)
-        # TODO: invesitgate if prior or posterior sampling works better
-        # Maybe use latent net where every posterior step uses skill?
         classifier_eval_dict = my_ptu.eval(
             module=self.df,
             obs_seq=next_obs,
             skill=skill,
         )
         skill_recon_dist = classifier_eval_dict['skill_recon_dist']
+        feature_seq = classifier_eval_dict['feature_seq']
         rewards = skill_recon_dist.log_prob(skill).sum(
             dim=data_dim,
             keepdim=True,
         )
         assert rewards.shape == torch.Size((batch_size, 1))
 
+        """
+        Define variables for SAC optimization
+        """
         obs = obs[:, -1, :]
         next_obs = next_obs[:, -1, :]
         terminals = terminals[:, -1, :]
         actions = actions[:, -1, :]
         skills = skills[:, -1, :]
+        feature = feature_seq[:, -2, :]
+        next_feature = feature_seq[:, -1, :]
 
         """                                              
         Policy and Alpha Loss                            
         """
         policy_ret_dict = self._policy_alpha_loss(
-            obs=obs,
+            obs_feature=dict(
+                obs=obs,
+                feature=feature,
+            ),
             skills=skills
         )
 
@@ -293,7 +303,10 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         """
         qf_ret_dict = self._qf_loss(
             actions=actions,
-            next_obs=next_obs,
+            next_obs_next_feature=dict(
+                next_obs=next_obs,
+                next_feature=next_feature,
+            ),
             alpha=alpha,
             rewards=rewards,
             terminals=terminals,
@@ -344,6 +357,102 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
             alpha=alpha,
             alpha_loss=alpha_loss
         )
+
+    def _policy_alpha_loss(self,
+                           obs_feature,
+                           skills,
+                           ):
+        obs = obs_feature['obs']
+        feature = obs_feature['feature']
+
+        if self.train_sac_in_feature_space:
+            new_obs_actions, policy_mean, policy_log_std, log_pi, *_ = self.policy(
+                obs, skill_vec=skills, reparameterize=True, return_log_prob=True,
+            )
+            if self.use_automatic_entropy_tuning:
+                alpha_loss = -(self.log_alpha *
+                               (log_pi + self.target_entropy).detach()).mean()
+                self.alpha_optimizer.zero_grad()
+                alpha_loss.backward()
+                self.alpha_optimizer.step()
+                alpha = self.log_alpha.exp()
+            else:
+                alpha_loss = 0
+                alpha = self.entropy_reg_alpha
+
+            feature_skills = torch.cat((feature, skills), dim=1)
+            q_new_actions = torch.min(
+                self.qf1(feature_skills, new_obs_actions),
+                self.qf2(feature_skills, new_obs_actions),
+            )
+            policy_loss = (alpha * log_pi - q_new_actions).mean()
+
+            return dict(
+                policy_loss=policy_loss,
+                alpha_loss=alpha_loss,
+                alpha=alpha,
+                q_new_actions=q_new_actions,
+                policy_mean=policy_mean,
+                policy_log_std=policy_log_std,
+                log_pi=log_pi,
+                obs_skills=feature_skills,
+            )
+
+        else:
+            return super(URLTrainerLatentWithSplitseqs, self)._policy_alpha_loss(
+                obs=obs,
+                skills=skills,
+            )
+
+    def _qf_loss(self,
+                 actions,
+                 next_obs_next_feature,
+                 alpha,
+                 rewards,
+                 terminals,
+                 skills,
+                 obs_skills,
+                 ):
+        next_obs = next_obs_next_feature['next_obs']
+        next_feature = next_obs_next_feature['next_feature']
+
+        if self.train_sac_in_feature_space:
+            q1_pred = self.qf1(obs_skills, actions)
+            q2_pred = self.qf2(obs_skills, actions)
+            # Make sure policy accounts for squashing functions like tanh correctly!
+            with torch.no_grad():
+                new_next_actions, _, _, new_log_pi, *_ = self.policy(
+                    next_obs, skill_vec = skills, reparameterize=True, return_log_prob=True,
+                )
+                next_feature_skills = torch.cat((next_feature, skills), dim=1)
+                target_q_values = torch.min(
+                    self.target_qf1(next_feature_skills, new_next_actions),
+                    self.target_qf2(next_feature_skills, new_next_actions),
+                ) - alpha * new_log_pi
+
+                q_target = self.reward_scale * rewards \
+                           + (1. - terminals) * self.discount * target_q_values
+            qf1_loss = self.qf_criterion(q1_pred, q_target.detach())
+            qf2_loss = self.qf_criterion(q2_pred, q_target.detach())
+
+            return dict(
+                qf1_loss=qf1_loss,
+                qf2_loss=qf2_loss,
+                q1_pred=q1_pred,
+                q2_pred=q2_pred,
+                q_target=q_target,
+            )
+
+        else:
+            return super(URLTrainerLatentWithSplitseqs, self)._qf_loss(
+                actions=actions,
+                next_obs=next_obs,
+                alpha=alpha,
+                rewards=rewards,
+                terminals=terminals,
+                skills=skills,
+                obs_skills=obs_skills,
+            )
 
     def _update_networks(self,
                          df_loss,
