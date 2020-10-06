@@ -10,9 +10,9 @@ algorithm_kwargs:
   num_eval_steps_per_epoch: 1000
   num_trains_per_train_loop: 10
   num_expl_steps_per_train_loop: 10
-  min_num_steps_before_training: 1000
+  min_num_steps_before_training: 200
   max_path_length: 1000
-  batch_size: 350
+  batch_size: 500
 
 trainer_kwargs:
   discount: 0.99
@@ -24,15 +24,20 @@ trainer_kwargs:
   use_automatic_entropy_tuning: True
   df_lr: 0.001
 
-seq_len: 30
+seq_len: 10
 horizon_len: 60
-seq_eval_len: 30
+seq_eval_len: 10
 horizon_eval_len: 60
 skill_dim: 2
 
+info_loss:
+  alpha: 0.95
+  lamda: 0.3
+
 obs_dims_used_df: null
+classifier_dropout: 0.4
 hidden_units_latent: [256, 256]
-hidden_size_rnn: 100
+hidden_size_rnn: 10
 leaky_slope_latent: 0.2
 
 hidden_units_classifier: [256, 256]
