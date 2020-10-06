@@ -82,7 +82,7 @@ class SeqwiseAlgoRevisedSplitSeqsEval(SeqwiseAlgoRevisedSplitSeqs):
     def write_mode_influence_and_log(self, epoch):
         paths = self._get_paths_mode_influence_test(
             rollout_seqlengths_dict=dict(
-                seq_len=self.seq_eval_len,
+                seq_len=self.horizon_eval_len,
                 horizon_len=self.horizon_eval_len,
             )
         )

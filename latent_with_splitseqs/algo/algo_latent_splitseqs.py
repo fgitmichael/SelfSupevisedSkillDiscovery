@@ -44,7 +44,7 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
             for train_loop in range(self.num_train_loops_per_epoch):
                 for expl_step in range(self.num_expl_steps_per_train_loop):
                     self._explore()
-                    for train in range(num_trains_per_expl_step * self.seq_len):
+                    for train in range(num_trains_per_expl_step * self.horizon_len):
                         self._train_sac_latent()
 
             self._store_expl_data()
