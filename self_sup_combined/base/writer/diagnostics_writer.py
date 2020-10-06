@@ -68,10 +68,11 @@ class DiagnosticsWriter:
     def create_test_script_symlink(self, test_script_path_name):
         if test_script_path_name is not None:
             sym_link_path = os.path.join(self.writer.model_dir, "test_script.py")
-            os.symlink(
-                src=test_script_path_name,
-                dst=sym_link_path
-            )
+            if not os.path.exists(sym_link_path):
+                os.symlink(
+                    src=test_script_path_name,
+                    dst=sym_link_path
+                )
 
         else:
             print("No testscript symlink created")
