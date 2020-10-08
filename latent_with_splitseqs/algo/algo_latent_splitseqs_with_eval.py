@@ -80,16 +80,17 @@ class SeqwiseAlgoRevisedSplitSeqsEval(SeqwiseAlgoRevisedSplitSeqs):
                         add_histogram(f'{k + name}.grad', weight.grad, epoch)
 
     def write_mode_influence_and_log(self, epoch):
-        paths = self._get_paths_mode_influence_test(
-            rollout_seqlengths_dict=dict(
-                seq_len=self.horizon_eval_len,
-                horizon_len=self.horizon_eval_len,
+        if self.expl_env.observation_space.shape[0] == 2:
+            paths = self._get_paths_mode_influence_test(
+                rollout_seqlengths_dict=dict(
+                    seq_len=self.horizon_eval_len,
+                    horizon_len=self.horizon_eval_len,
+                )
             )
-        )
-        self._write_mode_influence_and_log(
-            paths=paths,
-            epoch=epoch,
-        )
+            self._write_mode_influence_and_log(
+                paths=paths,
+                epoch=epoch,
+            )
 
     @torch.no_grad()
     def _end_epoch(self, epoch):
