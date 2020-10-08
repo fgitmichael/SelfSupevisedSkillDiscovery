@@ -27,7 +27,7 @@ class URLTrainerLatentWithSplitseqsRnn(URLTrainerLatentWithSplitseqs):
             ),
             post=dict(
                 dist=skill_recon_dist,
-                sample=skill_recon_dist.sample(),
+                sample=skill_recon_dist.rsample(),
             ),
             recon=None,
             guide=skill,
