@@ -153,7 +153,6 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
             next_obs                    : (N, S, obs_dim) tensor
         Returns:
             df_loss                     : scalar tensor
-            rewards                     : (N, hier oder erst später?:w
         """
         batch_dim = 0
         seq_dim = 1
