@@ -291,7 +291,7 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         classifier_eval_dict = my_ptu.eval(
             module=self.df,
             obs_seq=next_obs,
-            skill=skill,
+            #skill=skill,
         )
         skill_recon_dist = classifier_eval_dict['skill_recon_dist']
         skill_prior_dist = self.skill_prior_dist(skill_recon_dist.sample())
