@@ -118,6 +118,32 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
                                   next_obs):
         raise NotImplementedError
 
+    def _check_latent_outputs(
+            self,
+            latent_pri: dict,
+            latent_post: dict,
+            skill: torch.Tensor,
+            recon: torch_dist.Distribution,
+            seq_len: int,
+            batch_size: int,
+            skill_dim: int,
+    ):
+        batch_dim = 0
+        seq_dim = 1
+        data_dim = -1
+        assert len(latent_post['latent1_dists']) \
+               == len(latent_pri['latent1_dists']) \
+               == latent_post['latent1_samples'].size(seq_dim) \
+               == latent_pri['latent1_samples'].size(seq_dim) \
+               == seq_len + 1
+        assert latent_pri['latent1_dists'][0].batch_shape[batch_dim] \
+               == latent_post['latent1_dists'][0].batch_shape[batch_dim] \
+               == latent_pri['latent1_samples'].size(batch_dim) \
+               == latent_post['latent1_samples'].size(batch_dim) \
+               == skill.size(batch_dim) \
+               == recon.batch_shape[batch_dim] \
+               == batch_size
+
     def _latent_loss(self,
                      skills,
                      next_obs):
