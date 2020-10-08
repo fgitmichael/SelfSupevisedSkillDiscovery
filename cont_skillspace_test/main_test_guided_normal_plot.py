@@ -3,14 +3,24 @@
 # logsmountaincar/mode_disent0-20200905-1302 | seq_len: 70 | continous skill space
 # | hidden rnn_dim: 20 | guided latent loss/model
 import torch
+import argparse
 
 from cont_skillspace_test.visualization_fun.env_viz_plot import \
     EnvVisualizationPlotGuided
 
 import rlkit.torch.pytorch_util as ptu
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--epoch',
+                    type=int,
+                    default=100,
+                    help="epoch to test",
+                    )
+args = parser.parse_args()
+
 ptu.set_gpu_mode(False)
-epoch = 140
+epoch = args.epoch
+
 extension = ".pkl"
 policy_net_name = "policy_net_epoch{}".format(epoch) + extension
 env_name = "env" + extension
