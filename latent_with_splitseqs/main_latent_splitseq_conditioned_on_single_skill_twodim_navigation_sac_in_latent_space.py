@@ -48,6 +48,8 @@ def experiment(variant,
     eval_env = copy.deepcopy(expl_env)
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
+    feature_dim = config.latent1_dim + config.latent2_dim
+
 
     seq_len = config.seq_len
     skill_dim = config.skill_dim
@@ -75,22 +77,22 @@ def experiment(variant,
 
     M = variant['layer_size']
     qf1 = MyFlattenMlp(
-        input_size=obs_dim + action_dim + skill_dim,
+        input_size=feature_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
     qf2 = MyFlattenMlp(
-        input_size=obs_dim + action_dim + skill_dim,
+        input_size=feature_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
     target_qf1 = MyFlattenMlp(
-        input_size=obs_dim + action_dim + skill_dim,
+        input_size=feature_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
     target_qf2 = MyFlattenMlp(
-        input_size=obs_dim + action_dim + skill_dim,
+        input_size=feature_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
@@ -102,6 +104,7 @@ def experiment(variant,
         hidden_units=config.hidden_units_latent,
         leaky_slope=config.leaky_slope_latent,
         dropout=config.latent_dropout,
+        beta_anneal=config.latent_beta_anneal,
     )
     df = SeqwiseSplitseqClassifierSlacLatent(
         seq_len=seq_len,
@@ -167,6 +170,7 @@ def experiment(variant,
         target_qf1=target_qf1,
         target_qf2=target_qf2,
         loss_fun=loss_fun,
+        train_sac_in_feature_space=True,
         **variant['trainer_kwargs']
     )
 

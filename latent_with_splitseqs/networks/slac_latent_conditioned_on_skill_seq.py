@@ -56,21 +56,42 @@ class SlacLatentNetConditionedOnSkillSeq(BaseNetwork):
             input_dim=latent2_dim + obs_dim + skill_dim,
             output_dim=latent1_dim,
             hidden_units=hidden_units,
-            leaky_slope=leaky_slope
+            leaky_slope=leaky_slope,
+            dropout=dropout,
         )
         # q(z2(t+1) | z1(t+1), z2(t), a(t)) = p(z2(t+1) | z1(t+1), z2(t), a(t))
         self.latent2_posterior = self.latent2_prior
 
-        # p(skill | z1(end), z2(end))
-        self.classifier = Gaussian(
-            input_dim=latent1_dim + latent2_dim,
-            output_dim=skill_dim,
-            hidden_units=hidden_units,
-            leaky_slope=leaky_slope,
-        )
-
         self.latent1_dim = latent1_dim
         self.latent2_dim = latent2_dim
+
+        self.beta_anneal = beta_anneal
+        if beta_anneal is not None:
+            self._check_beta_anneal(beta_anneal)
+            self.beta = self.beta_anneal['start']
+
+    def anneal_beta(self):
+        if self.beta_anneal is not None:
+            if self.beta_anneal['beta'] < self.beta_anneal['end']:
+                self.beta += self.beta_anneal['add']
+                if self.beta > self.beta_anneal['end']:
+                    self.beta = self.beta_anneal['end']
+
+    @property
+    def beta(self):
+        if self.beta_anneal is None:
+            return 1.
+        else:
+            return self.beta_anneal['beta']
+
+    @beta.setter
+    def beta(self, val):
+        self.beta_anneal['beta'] = val
+
+    def _check_beta_anneal(self, beta_anneal: dict):
+        assert 'start' in beta_anneal.keys()
+        assert 'add' in beta_anneal.keys()
+        assert 'end' in beta_anneal.keys()
 
     def sample_prior(self,
                      obs_seq,
