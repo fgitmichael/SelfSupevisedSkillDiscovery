@@ -2,7 +2,8 @@ import torch
 import torch.distributions as torch_dist
 from operator import itemgetter
 from code_slac.network.base import BaseNetwork
-from code_slac.network.latent import Gaussian
+
+from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
 from latent_with_splitseqs.networks.slac_latent_net \
     import SlacLatentNetConditionedOnSingleSkill
@@ -16,6 +17,7 @@ class SeqwiseSplitseqClassifierSlacLatent(BaseNetwork):
                  latent_net: SlacLatentNetConditionedOnSingleSkill,
                  hidden_units_classifier=(256, 256),
                  leaky_slope_classifier=0.2,
+                 classifier_dropout=0.3,
                  ):
         super(SeqwiseSplitseqClassifierSlacLatent, self).__init__()
 
@@ -26,6 +28,7 @@ class SeqwiseSplitseqClassifierSlacLatent(BaseNetwork):
             output_dim=skill_dim,
             hidden_units=hidden_units_classifier,
             leaky_slope=leaky_slope_classifier,
+            dropout=classifier_dropout,
         )
 
         self.obs_dim = obs_dim
