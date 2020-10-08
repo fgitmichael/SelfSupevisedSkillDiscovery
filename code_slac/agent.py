@@ -345,6 +345,8 @@ class SlacAgent:
             self.writer.add_scalar(
                 'stats/reward_reconst_error', reward_reconst_error,
                 self.learning_steps)
+            self.writer.add_scalar(
+                'stats/kld', kld_loss, self.learning_steps)
 
         if self.learning_steps % (100 * self.learning_log_interval) == 0:
             gt_images = images_seq[0].detach().cpu()
