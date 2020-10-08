@@ -16,7 +16,7 @@ parser.add_argument('--epoch',
                     )
 args = parser.parse_args()
 
-ptu.set_gpu_mode(True)
+ptu.set_gpu_mode(False)
 epoch = args.epoch
 extension = ".pkl"
 policy_net_name = "policy_net_epoch{}".format(epoch) + extension
