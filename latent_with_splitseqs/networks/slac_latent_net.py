@@ -1,22 +1,28 @@
 import torch
 from code_slac.network.base import BaseNetwork
-from code_slac.network.latent import ConstantGaussian, Gaussian
+from code_slac.network.latent import ConstantGaussian
+
+from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
 from self_supervised.utils.my_pytorch_util import tensor_equality
 
+from latent_with_splitseqs.base.latent_base import StochasticLatentNetBase
 
 # Adaption of the SLAC latent network architecture
-class SlacLatentNetConditionedOnSingleSkill(BaseNetwork):
+class SlacLatentNetConditionedOnSingleSkill(StochasticLatentNetBase):
 
     def __init__(self,
+                 *args,
                  obs_dim,
                  skill_dim,
                  latent1_dim=32,
                  latent2_dim=256,
                  hidden_units=(256, 256),
                  leaky_slope=0.2,
+                 dropout=0.,
+                 **kwargs
                  ):
-        super(SlacLatentNetConditionedOnSingleSkill, self).__init__()
+        super(SlacLatentNetConditionedOnSingleSkill, self).__init__(*args, **kwargs)
         # We use the observations as actions for this model
         # and the infered skill as observaton
 

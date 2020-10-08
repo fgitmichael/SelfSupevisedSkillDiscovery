@@ -5,20 +5,23 @@ from code_slac.network.latent import ConstantGaussian
 
 from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
+from latent_with_splitseqs.base.latent_base import StochasticLatentNetBase
 
-class SlacLatentNetConditionedOnSkillSeq(BaseNetwork):
+
+class SlacLatentNetConditionedOnSkillSeq(StochasticLatentNetBase):
 
     def __init__(self,
+                 *args,
                  obs_dim,
                  skill_dim,
-                 beta_anneal: dict = None,
                  latent1_dim=32,
                  latent2_dim=256,
                  hidden_units=(256, 256),
                  leaky_slope=0.2,
                  dropout=0.,
+                 **kwargs,
                  ):
-        super(SlacLatentNetConditionedOnSkillSeq, self).__init__()
+        super(SlacLatentNetConditionedOnSkillSeq, self).__init__(*args, **kwargs)
         # We use the observations as actions for this model
         # and the infered skill as observaton
 
@@ -72,34 +75,6 @@ class SlacLatentNetConditionedOnSkillSeq(BaseNetwork):
 
         self.latent1_dim = latent1_dim
         self.latent2_dim = latent2_dim
-
-        self.beta_anneal = beta_anneal
-        if beta_anneal is not None:
-            self._check_beta_anneal(beta_anneal)
-            self.beta = self.beta_anneal['start']
-
-    def anneal_beta(self):
-        if self.beta_anneal is not None:
-            if self.beta_anneal['beta'] < self.beta_anneal['end']:
-                self.beta += self.beta_anneal['add']
-                if self.beta > self.beta_anneal['end']:
-                    self.beta = self.beta_anneal['end']
-
-    @property
-    def beta(self):
-        if self.beta_anneal is None:
-            return 1.
-        else:
-            return self.beta_anneal['beta']
-
-    @beta.setter
-    def beta(self, val):
-        self.beta_anneal['beta'] = val
-
-    def _check_beta_anneal(self, beta_anneal: dict):
-        assert 'start' in beta_anneal.keys()
-        assert 'add' in beta_anneal.keys()
-        assert 'end' in beta_anneal.keys()
 
     def sample_prior(self,
                      obs_seq,
@@ -235,33 +210,3 @@ class SlacLatentNetConditionedOnSkillSeq(BaseNetwork):
             'latent1_dists': latent1_dists,
             'latent2_dists': latent2_dists,
         }
-
-    def forward(self, skill, obs_seq):
-        """
-        Args:
-            skill                   : (N, skill_dim) tensor (skill batch)
-            obs_seq                 : (N, S, obs_dim) tensor (sequence batch)
-        Return:
-            pri
-                latent1_samples     : (N, S+1, L1) tensor of sampled latent vectors
-                latent2_samples     : (N, S+1, L2) tensor of sampled latent vectors
-                latent1_dists       : (S+1) length list of (N, L1) distributions
-                latent2_dists       : (S+1) length list of (N, L2) distributions
-            post
-                latent1_samples     : (N, S+1, L1) tensor of sampled latent vectors
-                latent2_samples     : (N, S+1, L2) tensor of sampled latent vectors
-                latent1_dists       : (S+1) length list of (N, L1) distributions
-                latent2_dists       : (S+1) length list of (N, L2) distributions
-        """
-        pri = self.sample_prior(
-            obs_seq=obs_seq,
-        )
-        post = self.sample_posterior(
-            obs_seq=obs_seq,
-            skill=skill,
-        )
-
-        return dict(
-            pri=pri,
-            post=post,
-        )
