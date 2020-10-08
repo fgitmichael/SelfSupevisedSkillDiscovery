@@ -413,8 +413,15 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         feature = obs_feature['feature']
 
         if self.train_sac_in_feature_space:
-            new_obs_actions, policy_mean, policy_log_std, log_pi, *_ = self.policy(
-                obs, skill_vec=skills, reparameterize=True, return_log_prob=True,
+            new_obs_actions, \
+            policy_mean, \
+            policy_log_std, \
+            log_pi, \
+            *_ = self.policy(
+                obs,
+                skill_vec=skills,
+                reparameterize=True,
+                return_log_prob=True,
             )
             if self.use_automatic_entropy_tuning:
                 alpha_loss = -(self.log_alpha *
@@ -468,8 +475,15 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
             q2_pred = self.qf2(obs_skills, actions)
             # Make sure policy accounts for squashing functions like tanh correctly!
             with torch.no_grad():
-                new_next_actions, _, _, new_log_pi, *_ = self.policy(
-                    next_obs, skill_vec = skills, reparameterize=True, return_log_prob=True,
+                new_next_actions, \
+                _, \
+                _, \
+                new_log_pi, \
+                *_ = self.policy(
+                    next_obs,
+                    skill_vec = skills,
+                    reparameterize=True,
+                    return_log_prob=True,
                 )
                 next_feature_skills = torch.cat((next_feature, skills), dim=1)
                 target_q_values = torch.min(
