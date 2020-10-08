@@ -33,21 +33,24 @@ class SlacLatentNetConditionedOnSingleSkill(StochasticLatentNetBase):
             input_dim=latent1_dim,
             output_dim=latent2_dim,
             hidden_units=hidden_units,
-            leaky_slope=leaky_slope
+            leaky_slope=leaky_slope,
+            dropout=dropout,
         )
         # p(z1(t+1) | z2(t), a(t))
         self.latent1_prior = Gaussian(
             input_dim=latent2_dim + obs_dim,
             output_dim=latent1_dim,
             hidden_units=hidden_units,
-            leaky_slope=leaky_slope
+            leaky_slope=leaky_slope,
+            dropout=dropout,
         )
         # p(z2(t+1) | z1(t+1), z2(t), a(t))
         self.latent2_prior = Gaussian(
             input_dim=latent1_dim + latent2_dim + obs_dim,
             output_dim=latent2_dim,
             hidden_units=hidden_units,
-            leaky_slope=leaky_slope
+            leaky_slope=leaky_slope,
+            dropout=dropout,
         )
 
         # q(z1(0) | feat(0))
@@ -55,7 +58,8 @@ class SlacLatentNetConditionedOnSingleSkill(StochasticLatentNetBase):
             input_dim=obs_dim,
             output_dim=latent1_dim,
             hidden_units=hidden_units,
-            leaky_slope=leaky_slope
+            leaky_slope=leaky_slope,
+            dropout=dropout,
         )
         # q(z2(0) | z1(0)) = p(z2(0) | z1(0))
         self.latent2_init_posterior = self.latent2_init_prior
@@ -64,7 +68,8 @@ class SlacLatentNetConditionedOnSingleSkill(StochasticLatentNetBase):
             input_dim=latent2_dim + obs_dim,
             output_dim=latent1_dim,
             hidden_units=hidden_units,
-            leaky_slope=leaky_slope
+            leaky_slope=leaky_slope,
+            dropout=dropout,
         )
         # q(z2(t+1) | z1(t+1), z2(t), a(t)) = p(z2(t+1) | z1(t+1), z2(t), a(t))
         self.latent2_posterior = self.latent2_prior
@@ -74,6 +79,7 @@ class SlacLatentNetConditionedOnSingleSkill(StochasticLatentNetBase):
             output_dim=latent1_dim,
             hidden_units=hidden_units,
             leaky_slope=leaky_slope,
+            dropout=dropout,
         )
 
         ## p(skill | z1(end), z2(end))
@@ -242,35 +248,3 @@ class SlacLatentNetConditionedOnSingleSkill(StochasticLatentNetBase):
             'latent1_dists': latent1_dists,
             'latent2_dists': latent2_dists,
         }
-
-    def forward(self, skill, obs_seq):
-        """
-        Args:
-            skill                   : (N, skill_dim) tensor (skill batch)
-            obs_seq                 : (N, S, obs_dim) tensor (sequence batch)
-        Return:
-            pri
-                latent1_samples     : (N, S+1, L1) tensor of sampled latent vectors
-                latent2_samples     : (N, S+1, L2) tensor of sampled latent vectors
-                latent1_dists       : (S+1) length list of (N, L1) distributions
-                latent2_dists       : (S+1) length list of (N, L2) distributions
-            post
-                latent1_samples     : (N, S+1, L1) tensor of sampled latent vectors
-                latent2_samples     : (N, S+1, L2) tensor of sampled latent vectors
-                latent1_dists       : (S+1) length list of (N, L1) distributions
-                latent2_dists       : (S+1) length list of (N, L2) distributions
-        """
-        pri = self.sample_prior(
-            obs_seq=obs_seq,
-        )
-        post = self.sample_posterior(
-            obs_seq=obs_seq,
-            skill=skill,
-        )
-
-        return dict(
-            pri=pri,
-            post=post,
-        )
-
-
