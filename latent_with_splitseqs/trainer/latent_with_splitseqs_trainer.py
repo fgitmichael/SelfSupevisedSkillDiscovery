@@ -192,25 +192,28 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         )/seq_len
 
         assert isinstance(recon, torch_dist.Distribution)
-        assert recon.batch_shape \
-               == skill.shape \
-               == torch.Size((batch_size, skill_dim))
-        #log_likelihood = recon.log_prob(skill).mean(dim=batch_dim).sum()
+        skill_prior_dist = self.skill_prior_dist(recon.sample())
         recon_loss, log_dict = self.loss_fun(
             pri=dict(
-                dist=self.skill_prior_dist,
-                sample=self.skill_prior_dist.sample()
+                dist=skill_prior_dist,
+                sample=skill_prior_dist.sample()
             ),
             post=dict(
                 dist=recon,
-                sample=recon.sample(),
+                sample=recon.rsample(),
             ),
             recon=None,
             guide=skill,
             data=None,
         )
 
-        latent_loss = kld_loss + recon_loss
+        if self.df.latent_net.beta is not None:
+            self.df.latent_net.anneal_beta()
+            beta = self.df.latent_net.beta
+
+        else:
+            beta = 1.
+        latent_loss = beta * kld_loss + recon_loss
 
         return dict(
             latent_loss=latent_loss,
