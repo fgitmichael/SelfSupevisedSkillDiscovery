@@ -20,10 +20,10 @@ from diayn_seq_code_revised.networks.my_gaussian import ConstantGaussianMultiDim
 
 from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
+from seqwise_cont_skillspace.utils.info_loss import GuidedInfoLoss
 
 from mode_disent_no_ssm.utils.parse_args import parse_args
 
-from latent_with_splitseqs.algo.algo_latent_splitseqs import SeqwiseAlgoRevisedSplitSeqs
 from latent_with_splitseqs.algo.algo_latent_splitseqs_with_eval \
     import SeqwiseAlgoRevisedSplitSeqsEval
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
@@ -35,6 +35,8 @@ from latent_with_splitseqs.networks.slac_latent_conditioned_on_skill_seq \
     import SlacLatentNetConditionedOnSkillSeq
 from latent_with_splitseqs.trainer.latent_with_splitseqs_trainer \
     import URLTrainerLatentWithSplitseqs
+from latent_with_splitseqs.trainer.latent_with_splitseq_full_seq_recon_loss_trainer \
+    import URLTrainerLatentWithSplitseqsFullSeqReconLoss
 
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
@@ -60,8 +62,9 @@ def experiment(variant,
     run_comment = sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
     run_comment += "continous skill space" + sep_str
-    run_comment += "gused_obs_dimsuided latent loss"
-    run_comment += "single dims"
+    run_comment += "gused_obs_dimsuided latent loss" + sep_str
+    run_comment += "single dims" + sep_str
+    run_comment += "slac model" + sep_str
 
     log_folder=config.log_folder
     seed = 0
@@ -91,13 +94,14 @@ def experiment(variant,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    latent_net = SlacLatentNetConditionedOnSingleSkill(
+    latent_net = SlacLatentNetConditionedOnSkillSeq(
         obs_dim=obs_dim,
         skill_dim=skill_dim,
         latent1_dim=config.latent1_dim,
         latent2_dim=config.latent2_dim,
         hidden_units=config.hidden_units_latent,
         leaky_slope=config.leaky_slope_latent,
+        dropout=config.latent_dropout,
     )
     df = SeqwiseSplitseqClassifierSlacLatent(
         seq_len=seq_len,
@@ -106,6 +110,7 @@ def experiment(variant,
         latent_net=latent_net,
         hidden_units_classifier=config.hidden_units_classifier,
         leaky_slope_classifier=config.leaky_slope_classifier,
+        classifier_dropout=config.classifier_dropout,
     )
     policy = SkillTanhGaussianPolicyRevisedObsSelect(
         obs_dim=len(used_obs_dims_policy),
@@ -138,7 +143,7 @@ def experiment(variant,
     seq_eval_collector = SeqCollectorSplitSeq(
         env=eval_env,
         policy=eval_policy,
-        max_seqs=50,
+        max_seqs=10000,
         skill_selector=skill_selector
     )
 
@@ -148,8 +153,12 @@ def experiment(variant,
         mode_dim=skill_dim,
         env=expl_env,
     )
-    trainer = URLTrainerLatentWithSplitseqs(
-        #skill_prior_dist=skill_prior,
+    loss_fun = GuidedInfoLoss(
+        alpha=config.info_loss.alpha,
+        lamda=config.info_loss.lamda,
+    ).loss
+    trainer = URLTrainerLatentWithSplitseqsFullSeqReconLoss(
+        skill_prior_dist=skill_prior,
         env=eval_env,
         policy=policy,
         qf1=qf1,
@@ -157,6 +166,7 @@ def experiment(variant,
         df=df,
         target_qf1=target_qf1,
         target_qf2=target_qf2,
+        loss_fun=loss_fun,
         **variant['trainer_kwargs']
     )
 
@@ -167,7 +177,7 @@ def experiment(variant,
     )
     diagno_writer = DiagnosticsWriter(
         writer=writer,
-        log_interval=1,
+        log_interval=config.log_interval,
         config=config,
         config_path_name=config_path_name,
         test_script_path_name=test_script_path_name,
@@ -188,6 +198,7 @@ def experiment(variant,
         seq_eval_collector=seq_eval_collector,
 
         seq_eval_len=config.seq_eval_len,
+        horizon_eval_len=config.horizon_eval_len,
 
         **variant['algorithm_kwargs']
     )
