@@ -113,8 +113,8 @@ class URLTrainerLatentWithSplitseqsFullSeqReconLoss(URLTrainerLatentWithSplitseq
             beta = 1.
         latent_loss = beta * kld_loss + recon_loss
 
-        return dict(
-            latent_loss=latent_loss,
-            kld_loss=kld_loss,
-            log_likelihood=recon_loss,
+        return latent_loss, dict(
+            kld_loss=kld_loss.item(),
+            log_likelihood=recon_loss.item(),
+            beta=beta,
         )
