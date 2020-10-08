@@ -90,6 +90,8 @@ class SeqwiseSplitseqClassifierSlacLatent(BaseNetwork):
              latent['latent2_samples']],
             dim=data_dim)
         skill_recon_dist = self.classifier(latent_seq[:, -1, :])
+        assert skill_recon_dist.batch_shape[batch_dim] == batch_size
+        assert len(skill_recon_dist.batch_shape) == 2
 
         return dict(
             skill_recon_dist=skill_recon_dist,
