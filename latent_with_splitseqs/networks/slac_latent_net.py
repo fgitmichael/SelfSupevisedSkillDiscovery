@@ -70,13 +70,13 @@ class SlacLatentNetConditionedOnSingleSkill(BaseNetwork):
             leaky_slope=leaky_slope,
         )
 
-        # p(skill | z1(end), z2(end))
-        self.classifier = Gaussian(
-            input_dim=latent1_dim + latent2_dim,
-            output_dim=skill_dim,
-            hidden_units=hidden_units,
-            leaky_slope=leaky_slope,
-        )
+        ## p(skill | z1(end), z2(end))
+        #self.classifier = Gaussian(
+        #    input_dim=latent1_dim + latent2_dim,
+        #    output_dim=skill_dim,
+        #    hidden_units=hidden_units,
+        #    leaky_slope=leaky_slope,
+        #)
 
         self.latent1_dim = latent1_dim
         self.latent2_dim = latent2_dim

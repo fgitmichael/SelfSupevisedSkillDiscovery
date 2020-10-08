@@ -69,7 +69,11 @@ class SeqwiseSplitseqClassifierSlacLatent(BaseNetwork):
     def eval_forwardpass(self,
                          obs_seq,
                          skill=None):
+        batch_dim = 0
+        seq_dim = 1
         data_dim = -1
+        batch_size = obs_seq.size(batch_dim)
+        seq_len = obs_seq.size(seq_dim)
 
         if skill is None:
             latent = self.latent_net.sample_prior(
@@ -81,7 +85,6 @@ class SeqwiseSplitseqClassifierSlacLatent(BaseNetwork):
                 skill=skill,
                 obs_seq=obs_seq,
             )
-
         latent_seq = torch.cat(
             [latent['latent1_samples'],
              latent['latent2_samples']],
@@ -96,21 +99,34 @@ class SeqwiseSplitseqClassifierSlacLatent(BaseNetwork):
     def train_forwardpass(self,
                           obs_seq,
                           skill,):
+        batch_dim = 0
+        seq_dim = 1
+        data_dim = -1
+        batch_size = obs_seq.size(batch_dim)
+        seq_len = obs_seq.size(seq_dim)
+
         pri_post_dict = self.latent_net(
             skill=skill,
             obs_seq=obs_seq,
         )
-        pri, post = itemgetter('pri',
-                               'post')(pri_post_dict)
 
-        post_latent1_samples, post_latent2_samples = itemgetter(
-            'latent1_samples',
-            'latent2_samples'
-        )(post)
-        skill_recon_dist = self.classifier(
-            [post_latent1_samples[:, -1, :],
-             post_latent2_samples[:, -1, :]]
+        pri = pri_post_dict['pri']
+        post = pri_post_dict['post']
+        latent_seq = torch.cat(
+            [post['latent1_samples'],
+             post['latent2_samples']],
+            dim=data_dim
         )
+
+        skill_recon_dist = self.classifier(
+            latent_seq[:, 1:, :].reshape(
+                batch_size * seq_len,
+                latent_seq.size(data_dim)
+            )
+        )
+        assert skill_recon_dist.batch_shape[:data_dim] \
+               == torch.Size((batch_size * seq_len,))
+        assert skill_recon_dist.batch_shape[data_dim] == skill.shape[data_dim]
 
         return dict(
             latent_pri=pri,

@@ -1,7 +1,9 @@
 import torch
 
 from code_slac.network.base import BaseNetwork
-from code_slac.network.latent import ConstantGaussian, Gaussian
+from code_slac.network.latent import ConstantGaussian
+
+from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
 
 class SlacLatentNetConditionedOnSkillSeq(BaseNetwork):
@@ -9,10 +11,12 @@ class SlacLatentNetConditionedOnSkillSeq(BaseNetwork):
     def __init__(self,
                  obs_dim,
                  skill_dim,
+                 beta_anneal: dict = None,
                  latent1_dim=32,
                  latent2_dim=256,
                  hidden_units=(256, 256),
                  leaky_slope=0.2,
+                 dropout=0.,
                  ):
         super(SlacLatentNetConditionedOnSkillSeq, self).__init__()
         # We use the observations as actions for this model
@@ -25,21 +29,24 @@ class SlacLatentNetConditionedOnSkillSeq(BaseNetwork):
             input_dim=latent1_dim,
             output_dim=latent2_dim,
             hidden_units=hidden_units,
-            leaky_slope=leaky_slope
+            leaky_slope=leaky_slope,
+            dropout=dropout,
         )
         # p(z1(t+1) | z2(t), a(t))
         self.latent1_prior = Gaussian(
             input_dim=latent2_dim + obs_dim,
             output_dim=latent1_dim,
             hidden_units=hidden_units,
-            leaky_slope=leaky_slope
+            leaky_slope=leaky_slope,
+            dropout=dropout,
         )
         # p(z2(t+1) | z1(t+1), z2(t), a(t))
         self.latent2_prior = Gaussian(
             input_dim=latent1_dim + latent2_dim + obs_dim,
             output_dim=latent2_dim,
             hidden_units=hidden_units,
-            leaky_slope=leaky_slope
+            leaky_slope=leaky_slope,
+            dropout=dropout,
         )
 
         # q(z1(0) | feat(0))
@@ -47,7 +54,8 @@ class SlacLatentNetConditionedOnSkillSeq(BaseNetwork):
             input_dim=obs_dim,
             output_dim=latent1_dim,
             hidden_units=hidden_units,
-            leaky_slope=leaky_slope
+            leaky_slope=leaky_slope,
+            dropout=dropout,
         )
         # q(z2(0) | z1(0)) = p(z2(0) | z1(0))
         self.latent2_init_posterior = self.latent2_init_prior
@@ -198,14 +206,11 @@ class SlacLatentNetConditionedOnSkillSeq(BaseNetwork):
 
             else:
                 # q(z1(t) | z2(t-1), obs(t-1))
-                try:
-                    latent1_dist = self.latent1_posterior(
-                        [skill,
-                         latent2_samples[t-1],
-                         obs_seq_seqdim_first[t-1]]
-                    )
-                except:
-                    raise ValueError
+                latent1_dist = self.latent1_posterior(
+                    [skill,
+                     latent2_samples[t-1],
+                     obs_seq_seqdim_first[t-1]]
+                )
                 latent1_sample = latent1_dist.rsample()
 
                 # q(z2(t) | z1(t), z2(t-1), obs(t-1))
