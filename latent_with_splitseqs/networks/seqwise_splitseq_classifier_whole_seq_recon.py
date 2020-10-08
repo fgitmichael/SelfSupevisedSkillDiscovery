@@ -8,7 +8,7 @@ from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 from latent_with_splitseqs.networks.slac_latent_net \
     import SlacLatentNetConditionedOnSingleSkill
 
-class SeqwiseSplitseqClassifierSlacLatent(BaseNetwork):
+class SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon(BaseNetwork):
 
     def __init__(self,
                  seq_len: int,
@@ -19,7 +19,7 @@ class SeqwiseSplitseqClassifierSlacLatent(BaseNetwork):
                  leaky_slope_classifier=0.2,
                  classifier_dropout=0.3,
                  ):
-        super(SeqwiseSplitseqClassifierSlacLatent, self).__init__()
+        super(SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon, self).__init__()
 
         self.latent_net = latent_net
         self.classifier = Gaussian(
