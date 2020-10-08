@@ -5,6 +5,7 @@ import copy
 import rlkit.torch.pytorch_util as ptu
 from rlkit.launchers.launcher_util import setup_logger
 
+from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.utils.writer import MyWriterWithActivation
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
@@ -38,11 +39,13 @@ def experiment(variant,
                config,
                config_path_name,
                ):
-    expl_env = TwoDimNavigationEnv()
+    expl_env = NormalizedBoxEnvWrapper(gym_id=variant['env_id'])
     eval_env = copy.deepcopy(expl_env)
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
-    feature_dim_or_obs_dim = config.hidden_size_rnn
+    feature_dim_or_obs_dim = config.hidden_size_rnn \
+        if variant['trainer_kwargs']['train_sac_in_feature_space'] \
+        else obs_dim
 
     seq_len = config.seq_len
     skill_dim = config.skill_dim
@@ -56,9 +59,8 @@ def experiment(variant,
     sep_str = " | "
     run_comment = sep_str
     run_comment += "seq_len: {}".format(seq_len) + sep_str
-    run_comment += "continous skill space" + sep_str
-    run_comment += "gused_obs_dimsuided latent loss"
-    run_comment += "single dims"
+    run_comment += config.algorithm + sep_str
+    run_comment += config.version + sep_str
 
     log_folder=config.log_folder
     seed = 0
@@ -69,22 +71,22 @@ def experiment(variant,
 
     M = variant['layer_size']
     qf1 = MyFlattenMlp(
-        input_size=feature_dim + action_dim + skill_dim,
+        input_size=feature_dim_or_obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
     qf2 = MyFlattenMlp(
-        input_size=feature_dim + action_dim + skill_dim,
+        input_size=feature_dim_or_obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
     target_qf1 = MyFlattenMlp(
-        input_size=feature_dim + action_dim + skill_dim,
+        input_size=feature_dim_or_obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
     target_qf2 = MyFlattenMlp(
-        input_size=feature_dim + action_dim + skill_dim,
+        input_size=feature_dim_or_obs_dim + action_dim + skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
@@ -151,7 +153,6 @@ def experiment(variant,
         df=df,
         target_qf1=target_qf1,
         target_qf2=target_qf2,
-        train_sac_in_feature_space=True,
         loss_fun=loss_fun,
         skill_prior_dist=skill_prior,
         **variant['trainer_kwargs']
@@ -195,13 +196,13 @@ def experiment(variant,
 
 if __name__ == "__main__":
     config, config_path_name = parse_args(
-        default="config/2dnavigation/config_latent_splitseq_rnn.yaml",
+        default="config/standard_gym_env_id/ant_rnn_sac_in_latent_space.yaml",
         return_config_path_name=True,
     )
 
     # noinspection PyTypeChecker
     variant = dict(
-        env_id='MountainCarContinuous-v0',
+        env_id=config.env_id,
         algorithm=config.algorithm,
         version=config.version,
         layer_size=config.layer_size,
@@ -209,7 +210,9 @@ if __name__ == "__main__":
         algorithm_kwargs=config.algorithm_kwargs,
         trainer_kwargs=config.trainer_kwargs,
     )
-    setup_logger('Cont skill space guided' + str(config.skill_dim), variant=variant)
+    setup_logger(config.algorithm
+                 + config.version
+                 + str(config.skill_dim), variant=variant)
     ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
 
     experiment(variant,
