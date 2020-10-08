@@ -159,8 +159,10 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         data_dim = -1
 
         seq_len = next_obs.size(seq_dim)
+        batch_size = next_obs.size(batch_dim)
         obs_dim = next_obs.size(data_dim)
         skill = skills[:, 0, :]
+        skill_dim = skill.size(data_dim)
 
         df_ret_dict = self.df(
             obs_seq=next_obs,
@@ -174,22 +176,15 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
             'recon',
         )(df_ret_dict)
 
-        batch_dim = 0
-        seq_dim = 1
-        data_dim = -1
-        assert len(latent_post['latent1_dists']) \
-               == len(latent_pri['latent1_dists']) \
-               == latent_post['latent1_samples'].size(seq_dim) \
-               == latent_pri['latent1_samples'].size(seq_dim)
-        seq_len = len(latent_pri['latent1_dists'])
-        assert latent_pri['latent1_dists'][0].batch_shape[batch_dim] \
-               == latent_post['latent1_dists'][0].batch_shape[batch_dim] \
-               == latent_pri['latent1_samples'].size(batch_dim) \
-               == latent_post['latent1_samples'].size(batch_dim) \
-               == skill.size(batch_dim) \
-               == recon.batch_shape[batch_dim]
-        batch_size = latent_post['latent1_samples'].size(batch_dim)
-        skill_dim = skill.size(data_dim)
+        self._check_latent_outputs(
+            latent_pri=latent_pri,
+            latent_post=latent_post,
+            skill=skill,
+            recon=recon,
+            seq_len=seq_len,
+            batch_size=batch_size,
+            skill_dim=skill_dim,
+        )
 
         kld_loss = calc_kl_divergence(
             latent_post['latent1_dists'],
