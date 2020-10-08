@@ -8,9 +8,6 @@ from self_supervised.utils.my_pytorch_util import tensor_equality
 from diayn_with_rnn_classifier.trainer.diayn_trainer_modularized \
     import DIAYNTrainerModularized
 
-from latent_with_splitseqs.networks.seqwise_splitseq_classifier \
-    import SeqwiseSplitseqClassifierSlacLatent
-
 from code_slac.utils import calc_kl_divergence
 
 from rlkit.torch.core import np_to_pytorch_batch
@@ -189,7 +186,7 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         kld_loss = calc_kl_divergence(
             latent_post['latent1_dists'],
             latent_pri['latent1_dists']
-        )/seq_len
+        )
 
         assert isinstance(recon, torch_dist.Distribution)
         skill_prior_dist = self.skill_prior_dist(recon.sample())
@@ -215,10 +212,10 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
             beta = 1.
         latent_loss = beta * kld_loss + recon_loss
 
-        return dict(
-            latent_loss=latent_loss,
-            kld_loss=kld_loss,
-            log_likelihood=recon_loss,
+        return latent_loss, dict(
+            kld_loss=kld_loss.item(),
+            log_likelihood=recon_loss.item(),
+            beta=beta,
         )
 
     def train_from_torch(self, batch):
@@ -235,19 +232,12 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         self._check_latent_batch(batch)
 
         # Calc loss
-        next_obs, \
-        skills = itemgetter(
-            'next_obs',
-            'mode')(batch)
-        df_loss_dict = self._latent_loss(
+        next_obs = batch['next_obs']
+        skills = batch['mode']
+        df_loss, log_dict = self._latent_loss(
             next_obs=next_obs,
             skills=skills,
         )
-        df_loss, \
-        kld, \
-        log_likelyhood = itemgetter('latent_loss',
-                         'kld_loss',
-                         'log_likelihood')(df_loss_dict)
 
         # Update network
         self.df_optimizer.zero_grad()
@@ -257,8 +247,8 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         # Stats
         if self._need_to_update_eval_statistics:
             self.eval_statistics['latent/df_loss'] = df_loss.item()
-            self.eval_statistics['latent/kld'] = kld.item()
-            self.eval_statistics['latent/log_likelyhood'] = log_likelyhood.item()
+            for k, v in log_dict.items():
+                self.eval_statistics['latent/' + k] = v
 
     def train_sac_from_torch(self, batch):
         """
