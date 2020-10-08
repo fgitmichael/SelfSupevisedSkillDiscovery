@@ -3,7 +3,6 @@ algorithm: "Continuous Skill Space"
 version: "latent split seq"
 layer_size: 256
 replay_buffer_size: 10000
-log_interval: 10
 
 algorithm_kwargs:
   num_epochs: 1000
@@ -32,12 +31,12 @@ skill_dim: 2
 
 info_loss:
   alpha: 0.95
-  lamda: 0.3
+  lamda: 0.2
 
 obs_dims_used_df: null
 classifier_dropout: 0.4
 hidden_units_latent: [256, 256]
-hidden_size_rnn: 10
+hidden_size_rnn: 2
 leaky_slope_latent: 0.2
 
 hidden_units_classifier: [256, 256]
@@ -45,4 +44,4 @@ leaky_slope_classifier: 0.2
 
 test_script_path: /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py
 log_folder: logstwodimnavigation
-
+log_interval: 10
