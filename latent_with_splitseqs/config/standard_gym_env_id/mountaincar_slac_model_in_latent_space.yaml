@@ -1,0 +1,54 @@
+---
+algorithm: "Continuous Skill Space"
+version: "latent split seq"
+layer_size: 256
+replay_buffer_size: 10000
+
+algorithm_kwargs:
+  num_epochs: 1000
+  num_eval_steps_per_epoch: 1000
+  num_trains_per_train_loop: 100
+  num_expl_steps_per_train_loop: 10
+  min_num_steps_before_training: 200
+  max_path_length: 1000
+  batch_size: 500
+
+trainer_kwargs:
+  discount: 0.99
+  soft_target_tau: 0.005
+  target_update_period: 1
+  policy_lr: 0.0003
+  qf_lr: 0.0003
+  reward_scale: 1
+  use_automatic_entropy_tuning: True
+  df_lr: 0.001
+
+seq_len: 5
+seq_eval_len: 5
+horizon_len: 60
+horizon_eval_len: 60
+skill_dim: 2
+
+info_loss:
+  alpha: 0.95
+  lamda: 0.05
+
+obs_dims_used_df: null
+classifier_dropout: 0.5
+latent_dropout: 0.1
+latent1_dim: 4
+latent2_dim: 16
+hidden_units_latent: [256, 256]
+leaky_slope_latent: 0.2
+
+latent_beta_anneal:
+  start: 0.2
+  add: 0.00003
+  end: 1
+
+hidden_units_classifier: [256, 256]
+leaky_slope_classifier: 0.2
+
+test_script_path: /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py
+log_folder: logstwodimnavigation_slacmodel
+log_interval: 10
