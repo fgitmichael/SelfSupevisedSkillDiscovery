@@ -14,7 +14,7 @@ class SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon(BaseNetwork):
                  seq_len: int,
                  obs_dim: int,
                  skill_dim: int,
-                 latent_net: SlacLatentNetConditionedOnSingleSkill,
+                 latent_net: SlacLatentNetConditionedOnSkillSeq,
                  hidden_units_classifier=(256, 256),
                  leaky_slope_classifier=0.2,
                  classifier_dropout=0.3,
