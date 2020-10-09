@@ -5,8 +5,8 @@ from code_slac.network.base import BaseNetwork
 
 from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
-from latent_with_splitseqs.networks.slac_latent_net \
-    import SlacLatentNetConditionedOnSingleSkill
+from latent_with_splitseqs.networks.slac_latent_conditioned_on_skill_seq \
+    import SlacLatentNetConditionedOnSkillSeq
 
 class SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon(BaseNetwork):
 
