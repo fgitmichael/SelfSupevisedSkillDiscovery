@@ -27,9 +27,9 @@ from mode_disent_no_ssm.utils.parse_args import parse_args
 from latent_with_splitseqs.algo.algo_latent_splitseqs_with_eval \
     import SeqwiseAlgoRevisedSplitSeqsEval
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
-from latent_with_splitseqs.networks.seqwise_splitseq_classifier \
-    import SeqwiseSplitseqClassifierSlacLatent
-from latent_with_splitseqs.networks.slac_latent_net \
+from latent_with_splitseqs.networks.seqwise_splitseq_classifier_seq_end_recon \
+    import SeqwiseSplitseqClassifierSlacLatentSeqEndOnlyRecon
+from latent_with_splitseqs.networks.slac_latent_net_conditioned_on_single_skill \
     import SlacLatentNetConditionedOnSingleSkill
 from latent_with_splitseqs.networks.slac_latent_conditioned_on_skill_seq \
     import SlacLatentNetConditionedOnSkillSeq
@@ -103,7 +103,7 @@ def experiment(variant,
         leaky_slope=config.leaky_slope_latent,
         dropout=config.latent_dropout,
     )
-    df = SeqwiseSplitseqClassifierSlacLatent(
+    df = SeqwiseSplitseqClassifierSlacLatentSeqEndOnlyRecon(
         seq_len=seq_len,
         obs_dim=obs_dim,
         skill_dim=skill_dim,
