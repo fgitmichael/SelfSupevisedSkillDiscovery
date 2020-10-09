@@ -53,7 +53,7 @@ def open_yaml(path_name):
                 # Unsafe option if tags are in the file
                 #config_args_dict = yaml.load(config_file, Loader=yaml.Loader)
         else:
-            print("Add a config file using \'--config file_name.json\'",
+            print("Add a config file using \'--config file_name.yaml\'",
                   file=sys.stderr)
             exit(1)
 
