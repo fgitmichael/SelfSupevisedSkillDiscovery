@@ -204,7 +204,7 @@ def experiment(variant,
 
 if __name__ == "__main__":
     config, config_path_name = parse_args(
-        default="config/standard_gym_env_id/mountaincar_slac_model_in_latent_space.yaml",
+        default="config/standard_gym_env_id/mountaincar_slac_model_in_latent_space_v3.yaml",
         return_config_path_name=True,
     )
 
