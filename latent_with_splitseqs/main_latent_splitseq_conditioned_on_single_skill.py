@@ -26,11 +26,11 @@ from mode_disent_no_ssm.utils.parse_args import parse_args
 
 from latent_with_splitseqs.algo.algo_latent_splitseqs import SeqwiseAlgoRevisedSplitSeqs
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
-from latent_with_splitseqs.networks.seqwise_splitseq_classifier \
-    import SeqwiseSplitseqClassifierSlacLatent
-from latent_with_splitseqs.networks.slac_latent_net \
+from latent_with_splitseqs.networks.seqwise_splitseq_classifier_seq_end_recon \
+    import SeqwiseSplitseqClassifierSlacLatentSeqEndOnlyRecon
+from latent_with_splitseqs.latent.slac_latent_net_conditioned_on_single_skill \
     import SlacLatentNetConditionedOnSingleSkill
-from latent_with_splitseqs.networks.slac_latent_conditioned_on_skill_seq \
+from latent_with_splitseqs.latent.slac_latent_conditioned_on_skill_seq \
     import SlacLatentNetConditionedOnSkillSeq
 from latent_with_splitseqs.trainer.latent_with_splitseqs_trainer \
     import URLTrainerLatentWithSplitseqs
@@ -96,7 +96,7 @@ def experiment(variant,
         hidden_units=config.hidden_units_latent,
         leaky_slope=config.leaky_slope_latent,
     )
-    df = SeqwiseSplitseqClassifierSlacLatent(
+    df = SeqwiseSplitseqClassifierSlacLatentSeqEndOnlyRecon(
         seq_len=seq_len,
         obs_dim=obs_dim,
         skill_dim=skill_dim,

@@ -29,12 +29,8 @@ from latent_with_splitseqs.algo.algo_latent_splitseqs_with_eval \
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier_seq_end_recon \
     import SeqwiseSplitseqClassifierSlacLatentSeqEndOnlyRecon
-from latent_with_splitseqs.networks.slac_latent_net_conditioned_on_single_skill \
-    import SlacLatentNetConditionedOnSingleSkill
-from latent_with_splitseqs.networks.slac_latent_conditioned_on_skill_seq \
+from latent_with_splitseqs.latent.slac_latent_conditioned_on_skill_seq \
     import SlacLatentNetConditionedOnSkillSeq
-from latent_with_splitseqs.trainer.latent_with_splitseqs_trainer \
-    import URLTrainerLatentWithSplitseqs
 from latent_with_splitseqs.trainer.latent_with_splitseq_full_seq_recon_loss_trainer \
     import URLTrainerLatentWithSplitseqsFullSeqReconLoss
 
