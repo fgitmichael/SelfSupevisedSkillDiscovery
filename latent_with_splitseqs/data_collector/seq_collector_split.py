@@ -71,10 +71,11 @@ class SeqCollectorSplitSeq(SeqCollectorRevised):
             horizon_len: int = None,
             **kwargs,
     ):
+        # Sanity check
         if horizon_len is not None:
-            # Sanity check
             assert horizon_len >= seq_len
-            assert horizon_len % seq_len == 0
+            if horizon_len % seq_len != 0:
+                horizon_len = seq_len * (horizon_len//seq_len + 1)
 
             # Collect seqs
             paths = super(SeqCollectorSplitSeq, self)._collect_new_paths(
