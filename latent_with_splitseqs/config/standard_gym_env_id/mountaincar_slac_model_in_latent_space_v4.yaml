@@ -32,7 +32,7 @@ horizon_eval_len: 100
 skill_dim: 2
 
 info_loss:
-  alpha: 0.95
+  alpha: 0.999
   lamda: 0.05
 
 obs_dims_used_df: null

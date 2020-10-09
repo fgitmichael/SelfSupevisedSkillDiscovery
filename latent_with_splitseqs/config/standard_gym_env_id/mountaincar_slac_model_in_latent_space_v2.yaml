@@ -6,9 +6,9 @@ layer_size: 256
 replay_buffer_size: 10000
 
 algorithm_kwargs:
-  num_epochs: 1000
+  num_epochs: 400
   num_eval_steps_per_epoch: 1000
-  num_trains_per_train_loop: 500
+  num_trains_per_train_loop: 100
   num_expl_steps_per_train_loop: 10
   min_num_steps_before_training: 400
   max_path_length: 1000
@@ -25,9 +25,9 @@ trainer_kwargs:
   df_lr: 0.001
   train_sac_in_feature_space: True
 
-seq_len: 20
-horizon_len: 100
-seq_eval_len: 20
+seq_len: 30
+horizon_len: 120
+seq_eval_len: 30
 horizon_eval_len: 100
 skill_dim: 2
 
@@ -38,13 +38,13 @@ info_loss:
 obs_dims_used_df: null
 
 classifier:
-  dropout: 0.5
+  dropout: 0.1
   hidden_units: [256, 256]
   leaky_slope: 0.2
 
 latent_model:
-  latent1_dim: 4
-  latent2_dim: 16
+  latent1_dim: 8
+  latent2_dim: 64
   hidden_units: [256, 256]
   dropout: 0.1
   leaky_slope: 0.2
