@@ -13,11 +13,16 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
     def __init__(self,
                  *args,
                  horizon_len,
+                 batch_size_latent=None,
                  mode_influence_plotting=False,
                  **kwargs):
         super(SeqwiseAlgoRevisedSplitSeqs, self).__init__(*args, **kwargs)
         self.horizon_len = horizon_len
         self.mode_influence_plotting = mode_influence_plotting
+
+        self.batch_size_latent = batch_size_latent \
+            if batch_size_latent is not None \
+            else self.batch_size
 
     def set_next_skill(self, data_collector: SeqCollectorSplitSeq):
         data_collector.skill_reset()
@@ -61,7 +66,9 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
 
     def _sample_batch_for_latent_training_from_buffer(self):
         assert isinstance(self.replay_buffer, LatentReplayBuffer)
-        train_data = self.replay_buffer.random_batch_latent_training(self.batch_size)
+        train_data = self.replay_buffer.random_batch_latent_training(
+            self.batch_size_latent
+        )
 
         batch_dim = 0
         data_dim = 1
