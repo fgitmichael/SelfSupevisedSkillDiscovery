@@ -28,7 +28,7 @@ from latent_with_splitseqs.algo.algo_latent_splitseqs_with_eval \
     import SeqwiseAlgoRevisedSplitSeqsEval
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn_end_recon_only \
-    import SeqwiseSplitseqClassifierRnn
+    import SeqwiseSplitseqClassifierRnnEndReconOnly
 from latent_with_splitseqs.trainer.rnn_with_splitseqs_trainer_end_recon_only \
     import URLTrainerRnnWithSplitseqsEndReconOnly
 
@@ -87,7 +87,7 @@ def experiment(variant,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = SeqwiseSplitseqClassifierRnn(
+    df = SeqwiseSplitseqClassifierRnnEndReconOnly(
         seq_len=seq_len,
         obs_dim=obs_dim,
         skill_dim=skill_dim,

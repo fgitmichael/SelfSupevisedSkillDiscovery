@@ -6,7 +6,7 @@ from code_slac.network.base import BaseNetwork
 
 from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
-class SeqwiseSplitseqClassifierRnn(BaseNetwork):
+class SeqwiseSplitseqClassifierRnnEndReconOnly(BaseNetwork):
 
     def __init__(self,
                  seq_len,
@@ -17,7 +17,7 @@ class SeqwiseSplitseqClassifierRnn(BaseNetwork):
                  leaky_slope_classifier=0.2,
                  dropout=0.3,
                  ):
-        super(SeqwiseSplitseqClassifierRnn, self).__init__()
+        super(SeqwiseSplitseqClassifierRnnEndReconOnly, self).__init__()
 
         self.rnn = nn.GRU(
             input_size=obs_dim,
