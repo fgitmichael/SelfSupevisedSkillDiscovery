@@ -29,8 +29,8 @@ from latent_with_splitseqs.algo.algo_latent_splitseqs_with_eval \
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn_end_recon_only \
     import SeqwiseSplitseqClassifierRnn
-from latent_with_splitseqs.trainer.latent_with_splitseqs_trainer_rnn_end_recon_only \
-    import URLTrainerLatentWithSplitseqsRnnEndReconOnly
+from latent_with_splitseqs.trainer.rnn_with_splitseqs_trainer_end_recon_only \
+    import URLTrainerRnnWithSplitseqsEndReconOnly
 
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
