@@ -28,10 +28,10 @@ from mode_disent_no_ssm.utils.parse_args import parse_args
 from latent_with_splitseqs.algo.algo_latent_splitseqs_with_eval \
     import SeqwiseAlgoRevisedSplitSeqsEval
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
-from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn_end_recon_only \
-    import SeqwiseSplitseqClassifierRnnEndReconOnly
-from latent_with_splitseqs.trainer.rnn_with_splitseqs_trainer_end_recon_only \
-    import URLTrainerRnnWithSplitseqsEndReconOnly
+from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn_whole_seq_recon \
+    import SeqwiseSplitseqClassifierRnnWholeSeqRecon
+from latent_with_splitseqs.trainer.rnn_with_splitseqs_trainer_whole_seq_recon import \
+    URLTrainerRnnWithSplitseqsWholeSeqRecon
 
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
@@ -90,7 +90,7 @@ def experiment(variant,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    df = SeqwiseSplitseqClassifierRnnEndReconOnly(
+    df = SeqwiseSplitseqClassifierRnnWholeSeqRecon(
         seq_len=seq_len,
         obs_dim=obs_dim,
         skill_dim=skill_dim,
@@ -144,7 +144,7 @@ def experiment(variant,
         alpha=config.info_loss.alpha,
         lamda=config.info_loss.lamda,
     ).loss
-    trainer = URLTrainerLatentWithSplitseqsRnnEndReconOnly(
+    trainer = URLTrainerRnnWithSplitseqsWholeSeqRecon(
         #skill_prior_dist=skill_prior,
         env=eval_env,
         policy=policy,
