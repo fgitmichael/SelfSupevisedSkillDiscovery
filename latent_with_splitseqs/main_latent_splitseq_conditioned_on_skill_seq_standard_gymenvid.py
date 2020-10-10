@@ -30,10 +30,10 @@ from latent_with_splitseqs.algo.algo_latent_splitseqs_with_eval \
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 from latent_with_splitseqs.latent.slac_latent_conditioned_on_skill_seq \
     import SlacLatentNetConditionedOnSkillSeq
-from latent_with_splitseqs.trainer.latent_with_splitseqs_trainer \
-    import URLTrainerLatentWithSplitseqs
-from latent_with_splitseqs.networks.seqwise_splitseq_classifier_latent_seq_end_recon \
-    import SeqwiseSplitseqClassifierSlacLatentSeqEndOnlyRecon
+from latent_with_splitseqs.trainer.latent_with_splitseq_full_seq_recon_loss_trainer \
+    import URLTrainerLatentWithSplitseqsFullSeqReconLoss
+from latent_with_splitseqs.networks.seqwise_splitseq_classifier_latent_whole_seq_recon \
+    import SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon
 
 
 def experiment(variant,
@@ -54,6 +54,7 @@ def experiment(variant,
     skill_dim = config.skill_dim
     used_obs_dims_policy = tuple(i for i in range(obs_dim))
     variant['algorithm_kwargs']['batch_size'] //= seq_len
+    variant['algorithm_kwargs']['batch_size_latent'] //= seq_len
 
     test_script_path_name = config.test_script_path \
         if "test_script_path" in config.keys() \
@@ -98,7 +99,7 @@ def experiment(variant,
         skill_dim=skill_dim,
         **config.latent_model,
     )
-    df = SeqwiseSplitseqClassifierSlacLatentSeqEndOnlyRecon(
+    df = SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon(
         seq_len=seq_len,
         obs_dim=obs_dim,
         skill_dim=skill_dim,
@@ -152,7 +153,7 @@ def experiment(variant,
         alpha=config.info_loss.alpha,
         lamda=config.info_loss.lamda,
     ).loss
-    trainer = URLTrainerLatentWithSplitseqs(
+    trainer = URLTrainerLatentWithSplitseqsFullSeqReconLoss(
         skill_prior_dist=skill_prior,
         env=eval_env,
         policy=policy,
@@ -203,7 +204,8 @@ def experiment(variant,
 
 if __name__ == "__main__":
     config, config_path_name = parse_args(
-        default="config/standard_gym_env_id/mountaincar_slac_model_in_latent_space_v3.yaml",
+        default="config/standard_gym_env_id/"
+                "mountaincar_slac_model_in_latent_space_v3.yaml",
         return_config_path_name=True,
     )
 
