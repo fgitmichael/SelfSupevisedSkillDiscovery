@@ -54,7 +54,7 @@ class SlacLatentNetConditionedOnSkillSeq(StochasticLatentNetBase):
 
         # q(z1(0) | feat(0))
         self.latent1_init_posterior = Gaussian(
-            input_dim=obs_dim,
+            input_dim=skill_dim,
             output_dim=latent1_dim,
             hidden_units=hidden_units,
             leaky_slope=leaky_slope,
@@ -172,7 +172,7 @@ class SlacLatentNetConditionedOnSkillSeq(StochasticLatentNetBase):
                 # q(z1(0))
                 # sample from normal dist
                 # (observation is only used for batchsize and device)
-                latent1_dist = self.latent1_init_posterior(obs_seq_seqdim_first[t])
+                latent1_dist = self.latent1_init_posterior(skill)
                 latent1_sample = latent1_dist.rsample()
 
                 # q(z2(0) | z1(0))
