@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.distributions import Normal
 
 from code_slac.network.latent import Gaussian, ConstantGaussian
@@ -11,6 +12,7 @@ class MyGaussian(Gaussian):
     def __init__(self,
                  input_dim,
                  output_dim,
+                 calc_log_std=False,
                  hidden_units=None,
                  std=None,
                  leaky_slope=0.2,
@@ -43,6 +45,8 @@ class MyGaussian(Gaussian):
             layer_norm=layer_norm,
         )
 
+        self.calc_log_std = calc_log_std
+
     @property
     def output_size(self):
         if self.std is None:
@@ -52,6 +56,25 @@ class MyGaussian(Gaussian):
             if self.std is None \
             else self.net.output_size
         return _output_size
+
+    def forward(self, x) -> Normal:
+        if isinstance(x, list) or isinstance(x, tuple):
+            x = torch.cat(x, dim=-1)
+
+        x = self.net(x)
+        if self.std:
+            mean = x
+            std = torch.ones_like(mean) * self.std
+
+        elif not self.calc_log_std:
+            mean, std = torch.chunk(x, 2, dim=-1)
+            std = F.softplus(std) + 1e-5
+
+        else:
+            mean, log_std = torch.chunk(x, 2, dim=-1)
+            std = torch.exp(log_std)
+
+        return Normal(loc=mean, scale=std)
 
 
 class ConstantGaussianMultiDim(ConstantGaussian):
