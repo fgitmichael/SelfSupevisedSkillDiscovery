@@ -30,8 +30,8 @@ from latent_with_splitseqs.algo.algo_latent_splitseqs_with_eval \
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn_end_recon_only \
     import SeqwiseSplitseqClassifierRnn
-from latent_with_splitseqs.trainer.latent_with_splitseqs_trainer_rnn \
-    import URLTrainerLatentWithSplitseqsRnn
+from latent_with_splitseqs.trainer.latent_with_splitseqs_trainer_rnn_end_recon_only \
+    import URLTrainerLatentWithSplitseqsRnnEndReconOnly
 
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
@@ -144,7 +144,7 @@ def experiment(variant,
         alpha=config.info_loss.alpha,
         lamda=config.info_loss.lamda,
     ).loss
-    trainer = URLTrainerLatentWithSplitseqsRnn(
+    trainer = URLTrainerLatentWithSplitseqsRnnEndReconOnly(
         #skill_prior_dist=skill_prior,
         env=eval_env,
         policy=policy,

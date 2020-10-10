@@ -2,7 +2,7 @@ from latent_with_splitseqs.trainer.latent_with_splitseqs_trainer \
     import URLTrainerLatentWithSplitseqs
 
 
-class URLTrainerLatentWithSplitseqsRnn(URLTrainerLatentWithSplitseqs):
+class URLTrainerLatentWithSplitseqsRnnEndReconOnly(URLTrainerLatentWithSplitseqs):
 
     def train_latent_from_torch(self, batch):
         self._check_latent_batch(batch)
