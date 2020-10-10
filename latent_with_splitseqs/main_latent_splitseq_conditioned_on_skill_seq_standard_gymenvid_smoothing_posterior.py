@@ -28,8 +28,9 @@ from mode_disent_no_ssm.utils.parse_args import parse_args
 from latent_with_splitseqs.algo.algo_latent_splitseqs_with_eval \
     import SeqwiseAlgoRevisedSplitSeqsEval
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
-from latent_with_splitseqs.latent.slac_latent_conditioned_on_skill_seq_smoothing_posterior \
-    import SlacLatentNetConditionedOnSkillSeqSmoothingPosterior
+from latent_with_splitseqs.latent.\
+    slac_latent_conditioned_on_skill_seq_smoothing_posterior import \
+    SlacLatentNetConditionedOnSkillSeqSmoothingPosterior
 from latent_with_splitseqs.trainer.latent_with_splitseq_full_seq_recon_loss_trainer \
     import URLTrainerLatentWithSplitseqsFullSeqReconLoss
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier_latent_whole_seq_recon \
@@ -203,7 +204,8 @@ def experiment(variant,
 
 if __name__ == "__main__":
     config, config_path_name = parse_args(
-        default="config/standard_gym_env_id/mountaincar_slac_model_in_latent_space_smoothing_post_v3.yaml",
+        default="config/standard_gym_env_id/"
+                "mountaincar_slac_model_in_latent_space_smoothing_post_v3.yaml",
         return_config_path_name=True,
     )
 

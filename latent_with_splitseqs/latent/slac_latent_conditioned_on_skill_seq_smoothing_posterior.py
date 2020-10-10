@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.distributions as torch_dist
 
 from latent_with_splitseqs.latent.slac_latent_conditioned_on_skill_seq \
     import SlacLatentNetConditionedOnSkillSeq
@@ -18,6 +19,7 @@ class SlacLatentNetConditionedOnSkillSeqSmoothingPosterior(
                  dropout,
                  leaky_slope,
                  smoothing_rnn_hidden_size: int,
+                 res_q_posterior=True,
                  **kwargs
                  ):
         super(SlacLatentNetConditionedOnSkillSeqSmoothingPosterior, self).__init__(
@@ -46,6 +48,8 @@ class SlacLatentNetConditionedOnSkillSeqSmoothingPosterior(
             leaky_slope=leaky_slope,
             dropout=dropout,
         )
+
+        self.res_q_posterior = res_q_posterior
 
     def sample_posterior(self, skill, obs_seq):
         """
@@ -99,12 +103,29 @@ class SlacLatentNetConditionedOnSkillSeqSmoothingPosterior(
                 latent2_sample = latent2_dist.rsample()
 
             else:
-                # q(z1(t) | z2(t-1), h(t))
-                latent1_dist = self.latent1_posterior(
-                    [latent2_samples[t-1],
-                     hidden_rnn_seqdim_first[t-1]]
-                )
-                latent1_sample = latent1_dist.rsample()
+                if self.res_q_posterior:
+                    # q(z1(t) | z2(t-1), h(t))
+                    latent1_dist_residual = self.latent1_posterior(
+                        [latent2_samples[t-1],
+                         hidden_rnn_seqdim_first[t-1]]
+                    )
+                    latent1_dist_prior = self.latent1_prior(
+                        [latent2_samples[t-1],
+                         obs_seq_seqdim_first[t-1]]
+                    )
+                    latent1_dist = torch_dist.Normal(
+                        loc=latent1_dist_residual.loc + latent1_dist_prior.loc,
+                        scale=latent1_dist_residual.scale,
+                    )
+                    latent1_sample = latent1_dist.rsample()
+
+                else:
+                    # q(z1(t) | z2(t-1), h(t))
+                    latent1_dist = self.latent1_posterior(
+                        [latent2_samples[t - 1],
+                         hidden_rnn_seqdim_first[t - 1]]
+                    )
+                    latent1_sample = latent1_dist.rsample()
 
                 # q(z2(t) | z1(t), z2(t-1), obs(t-1))
                 latent2_dist = self.latent2_posterior(
