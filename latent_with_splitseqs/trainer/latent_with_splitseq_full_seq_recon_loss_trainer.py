@@ -116,5 +116,5 @@ class URLTrainerLatentWithSplitseqsFullSeqReconLoss(URLTrainerLatentWithSplitseq
             kld_loss=kld_loss.item(),
             recon_info_loss=recon_loss.item(),
             beta=beta,
-            **log_dict,
+            **{'rocon' + k: el.item() for k, el in log_dict.items()}
         )

@@ -213,10 +213,10 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         latent_loss = beta * kld_loss + recon_loss
 
         return latent_loss, dict(
-            kld_loss=kld_loss.item(),
+            kld_loss_latent_net=kld_loss.item(),
             recon_info_loss=recon_loss.item(),
             beta=beta,
-            **log_dict,
+            **{'rocon' + k: el.item() for k, el in log_dict.items()}
         )
 
     def train_from_torch(self, batch):

@@ -13,6 +13,7 @@ algorithm_kwargs:
   min_num_steps_before_training: 400
   max_path_length: 1000
   batch_size: 500
+  batch_size_latent: 300
 
 trainer_kwargs:
   discount: 0.99
