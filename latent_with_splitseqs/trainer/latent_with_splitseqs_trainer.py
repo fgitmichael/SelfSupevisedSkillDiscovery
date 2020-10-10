@@ -216,6 +216,7 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
             kld_loss=kld_loss.item(),
             recon_info_loss=recon_loss.item(),
             beta=beta,
+            **log_dict,
         )
 
     def train_from_torch(self, batch):

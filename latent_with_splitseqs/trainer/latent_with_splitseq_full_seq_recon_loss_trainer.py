@@ -50,7 +50,6 @@ class URLTrainerLatentWithSplitseqsFullSeqReconLoss(URLTrainerLatentWithSplitseq
             next_obs                    : (N, S, obs_dim) tensor
         Returns:
             df_loss                     : scalar tensor
-            rewards                     : (N, hier oder erst später?:w
         """
         batch_dim = 0
         seq_dim = 1
@@ -117,4 +116,5 @@ class URLTrainerLatentWithSplitseqsFullSeqReconLoss(URLTrainerLatentWithSplitseq
             kld_loss=kld_loss.item(),
             recon_info_loss=recon_loss.item(),
             beta=beta,
+            **log_dict,
         )

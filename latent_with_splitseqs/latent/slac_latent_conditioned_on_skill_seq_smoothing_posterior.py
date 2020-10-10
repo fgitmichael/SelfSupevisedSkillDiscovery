@@ -12,16 +12,21 @@ class SlacLatentNetConditionedOnSkillSeqSmoothingPosterior(
 
     def __init__(self,
                  *args,
-                 leaky_slope,
-                 hidden_units,
                  obs_dim,
                  skill_dim,
+                 hidden_units,
                  dropout,
+                 leaky_slope,
                  smoothing_rnn_hidden_size: int,
                  **kwargs
                  ):
         super(SlacLatentNetConditionedOnSkillSeqSmoothingPosterior, self).__init__(
             *args,
+            obs_dim=obs_dim,
+            skill_dim=skill_dim,
+            hidden_units=hidden_units,
+            dropout=dropout,
+            leaky_slope=leaky_slope,
             **kwargs
         )
 
@@ -58,11 +63,11 @@ class SlacLatentNetConditionedOnSkillSeqSmoothingPosterior(
         batch_dim = 0
         seq_dim = 1
         data_dim = -1
-        seq_len = obs_seq.size(seq_dim) + 1
+        seq_len = obs_seq.size(seq_dim)
 
         # Run smoothing rnn backward in time
         skill_seq = torch.stack(
-            [skill] * seq_len,
+            [skill] * obs_seq.size(seq_dim),
             dim=seq_dim
         )
         obs_skill_seq = torch.cat(

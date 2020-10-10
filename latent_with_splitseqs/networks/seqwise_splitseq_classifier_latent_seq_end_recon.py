@@ -1,6 +1,6 @@
 import torch
 
-from latent_with_splitseqs.networks.seqwise_splitseq_classifier_whole_seq_recon \
+from latent_with_splitseqs.networks.seqwise_splitseq_classifier_latent_whole_seq_recon \
     import SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon
 
 
