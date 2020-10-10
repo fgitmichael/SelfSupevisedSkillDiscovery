@@ -32,7 +32,7 @@ from latent_with_splitseqs.latent.slac_latent_conditioned_on_skill_seq \
     import SlacLatentNetConditionedOnSkillSeq
 from latent_with_splitseqs.trainer.latent_with_splitseqs_trainer \
     import URLTrainerLatentWithSplitseqs
-from latent_with_splitseqs.networks.seqwise_splitseq_classifier_seq_end_recon \
+from latent_with_splitseqs.networks.seqwise_splitseq_classifier_latent_seq_end_recon \
     import SeqwiseSplitseqClassifierSlacLatentSeqEndOnlyRecon
 
 

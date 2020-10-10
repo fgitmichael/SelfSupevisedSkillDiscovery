@@ -27,7 +27,7 @@ from mode_disent_no_ssm.utils.parse_args import parse_args
 from latent_with_splitseqs.algo.algo_latent_splitseqs_with_eval \
     import SeqwiseAlgoRevisedSplitSeqsEval
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
-from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn \
+from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn_end_recon_only \
     import SeqwiseSplitseqClassifierRnn
 from latent_with_splitseqs.trainer.latent_with_splitseqs_trainer_rnn \
     import URLTrainerLatentWithSplitseqsRnn
