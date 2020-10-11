@@ -6,9 +6,12 @@ from code_slac.network.base import BaseNetwork
 
 from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
-class SeqwiseSplitseqClassifierRnnEndReconOnly(BaseNetwork):
+from latent_with_splitseqs.base.classifier_base import SplitSeqClassifierBase
+
+class SeqwiseSplitseqClassifierRnnEndReconOnly(SplitSeqClassifierBase):
 
     def __init__(self,
+                 *args,
                  seq_len,
                  obs_dim,
                  skill_dim,
@@ -16,8 +19,13 @@ class SeqwiseSplitseqClassifierRnnEndReconOnly(BaseNetwork):
                  hidden_size_rnn=10,
                  leaky_slope_classifier=0.2,
                  dropout=0.3,
+                 **kwargs
                  ):
-        super(SeqwiseSplitseqClassifierRnnEndReconOnly, self).__init__()
+        super(SeqwiseSplitseqClassifierRnnEndReconOnly, self).__init__(
+            *args,
+            obs_dim=obs_dim,
+            **kwargs
+        )
 
         self.rnn = nn.GRU(
             input_size=obs_dim,

@@ -5,10 +5,13 @@ from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
 from latent_with_splitseqs.latent.slac_latent_conditioned_on_skill_seq \
     import SlacLatentNetConditionedOnSkillSeq
+from latent_with_splitseqs.base.classifier_base import SplitSeqClassifierBase
 
-class SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon(BaseNetwork):
+
+class SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon(SplitSeqClassifierBase):
 
     def __init__(self,
+                 *args,
                  seq_len: int,
                  obs_dim: int,
                  skill_dim: int,
@@ -16,8 +19,13 @@ class SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon(BaseNetwork):
                  hidden_units_classifier=(256, 256),
                  leaky_slope_classifier=0.2,
                  classifier_dropout=0.3,
+                 **kwargs
                  ):
-        super(SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon, self).__init__()
+        super(SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon, self).__init__(
+            *args,
+            obs_dim=obs_dim,
+            **kwargs,
+        )
 
         self.latent_net = latent_net
         self.classifier = Gaussian(
