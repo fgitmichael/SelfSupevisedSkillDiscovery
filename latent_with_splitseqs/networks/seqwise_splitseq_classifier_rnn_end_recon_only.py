@@ -15,6 +15,7 @@ class SeqwiseSplitseqClassifierRnnEndReconOnly(SplitSeqClassifierBase):
                  seq_len,
                  obs_dim,
                  skill_dim,
+                 rnn: nn.Module,
                  hidden_units_classifier=(256, 256),
                  hidden_size_rnn=10,
                  leaky_slope_classifier=0.2,
@@ -27,12 +28,13 @@ class SeqwiseSplitseqClassifierRnnEndReconOnly(SplitSeqClassifierBase):
             **kwargs
         )
 
-        self.rnn = nn.GRU(
-            input_size=obs_dim,
-            hidden_size=hidden_size_rnn,
-            batch_first=True,
-            bidirectional=False,
-        )
+        #self.rnn = nn.GRU(
+        #    input_size=obs_dim,
+        #    hidden_size=hidden_size_rnn,
+        #    batch_first=True,
+        #    bidirectional=False,
+        #)
+        self.rnn = rnn
 
         self.classifier = Gaussian(
             input_dim=self.rnn.hidden_size,

@@ -11,9 +11,15 @@ def get_obs_dims_used_policy(
     """
     key = 'obs_dims_used_policy'
     if key in config.keys():
-        assert isinstance(config[key], list) or \
-               isinstance(config[key], tuple)
-        return config[key]
+        if config[key] is not None:
+            assert isinstance(config[key], list) or \
+                   isinstance(config[key], tuple)
+            obs_dims_used_policy = config[key]
+
+        else:
+            obs_dims_used_policy = [i for i in range(obs_dim)]
 
     else:
-        return [i for i in range(obs_dim)]
+        obs_dims_used_policy = [i for i in range(obs_dim)]
+
+    return obs_dims_used_policy

@@ -8,14 +8,14 @@ class SplitSeqClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
 
     def __init__(self,
                  obs_dim,
-                 used_dims=None
+                 obs_dims_used=None
                  ):
         super(SplitSeqClassifierBase, self).__init__()
 
-        if used_dims is not None:
-            assert isinstance(used_dims, list) \
-                   or isinstance(used_dims, tuple)
-            self.used_dims = used_dims
+        if obs_dims_used is not None:
+            assert isinstance(obs_dims_used, list) \
+                   or isinstance(obs_dims_used, tuple)
+            self.used_dims = obs_dims_used
         else:
             self.used_dims = [i for i in range(obs_dim)]
 

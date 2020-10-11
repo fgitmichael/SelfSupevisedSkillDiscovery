@@ -23,6 +23,27 @@ from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn_end_recon_on
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier_latent_whole_seq_recon \
     import SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon
 
+df_type_keys = dict(
+    feature_extractor='feature_extractor',
+    recon='recon',
+    rnn_type='rnn_type',
+)
+
+feature_extractor_types = dict(
+    rnn='rnn',
+    latent='latent'
+)
+
+recon_types = dict(
+    whole_seq='whole_seq',
+    end_only='end_only'
+)
+
+rnn_types = dict(
+    normal='normal',
+    dim_wise='dim_wise',
+)
+
 
 def get_df(
         obs_dim,
@@ -31,34 +52,32 @@ def get_df(
         df_kwargs,
         df_type,
 ):
-    keys = dict(
-        feature_extractor='feature_extractor',
-        recon='recon',
-        rnn_type='rnn_type',
-    )
+    """
+    Args:
+        obs_dim                     : observation dimensionality
+        seq_len                     : sequence length
+        skill_dim                   : skill dimensionality
+        df_kwargs
+            obs_dims_used_df        : list or tuple
+            dropout                 : float
+            hidden_size_rnn         : int
+            leaky_slop_classifier   : float
+            hidden_units_classifier : list or tuple
+        df_type
+            feature_extractor       : which method to extract sequential features
+            recon                   : full seq reconstruction or end reconstruction
 
-    feature_extractor_types = dict(
-        rnn='rnn',
-        latent='latent'
-    )
+    """
+    global df_type_keys
+    global feature_extractor_types
+    global recon_types
+    global rnn_types
 
-    recon_types = dict(
-        whole_seq='whole_seq',
-        end_only='end_only'
-    )
-
-    rnn_type = dict(
-        normal='normal',
-        dim_wise='dim_wise',
-    )
-
-    assert keys['feature_extractor'] in df_kwargs[keys['type']].keys()
-
-    if df_type[keys['feature_extractor']] \
+    if df_type[df_type_keys['feature_extractor']] \
         == feature_extractor_types['rnn']:
 
         # RNN type
-        if df_type[keys['type']][keys['rnn_type']] == rnn_type['normal']:
+        if df_type[df_type_keys['rnn_type']] == rnn_types['normal']:
             rnn = nn.GRU(
                 input_size=obs_dim,
                 hidden_size=df_kwargs['hidden_size_rnn'],
@@ -66,7 +85,7 @@ def get_df(
                 bidirectional=False,
             )
 
-        elif df_type[keys['rnn_type']] == rnn_type['dim_wise']:
+        elif df_type[df_type_keys['rnn_type']] == rnn_types['dim_wise']:
             rnn = GRUDimwise(
                 input_size=obs_dim,
                 hidden_size=df_kwargs['hidden_size_rnn'],
@@ -79,7 +98,7 @@ def get_df(
             raise NotImplementedError
 
         # Classifier using rnn from above
-        if df_type[keys['recon']] == recon_types['whole_seq']:
+        if df_type[df_type_keys['recon']] == recon_types['whole_seq']:
             df = SeqwiseSplitseqClassifierRnnWholeSeqRecon(
                 seq_len=seq_len,
                 obs_dim=obs_dim,
@@ -88,7 +107,7 @@ def get_df(
                 **df_kwargs,
             )
 
-        elif df_type[keys['recon']] == recon_types['end_only']:
+        elif df_type[df_type_keys['recon']] == recon_types['end_only']:
             df = SeqwiseSplitseqClassifierRnnEndReconOnly(
                 seq_len=seq_len,
                 obs_dim=obs_dim,
@@ -101,8 +120,13 @@ def get_df(
             raise NotImplementedError
 
 
-    elif df_type[keys['type']] == feature_extractor_types['latent']:
+    elif df_type[df_type_keys['type']] == feature_extractor_types['latent']:
         raise NotImplementedError
+
+    else:
+        raise NotImplementedError
+
+    return df
 
 
 
