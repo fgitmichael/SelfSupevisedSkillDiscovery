@@ -58,7 +58,7 @@ def experiment(variant,
         config=config,
     )
     used_obs_dims_policy = get_obs_dims_used_policy(
-        obs_dim=obs_dim,
+        obs_dim=feature_dim_or_obs_dim,
         config=config,
     )
     variant['algorithm_kwargs']['batch_size'] //= seq_len

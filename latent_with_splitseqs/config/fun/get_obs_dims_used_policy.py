@@ -14,6 +14,7 @@ def get_obs_dims_used_policy(
         if config[key] is not None:
             assert isinstance(config[key], list) or \
                    isinstance(config[key], tuple)
+            assert  config.trainer_kwargs.train_sac_in_feature_space is False
             obs_dims_used_policy = config[key]
 
         else:
