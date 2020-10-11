@@ -144,7 +144,7 @@ def experiment(variant,
         alpha=config.info_loss.alpha,
         lamda=config.info_loss.lamda,
     ).loss
-    trainer = URLTrainerLatentWithSplitseqsRnnEndReconOnly(
+    trainer = URLTrainerRnnWithSplitseqsEndReconOnly(
         #skill_prior_dist=skill_prior,
         env=eval_env,
         policy=policy,
