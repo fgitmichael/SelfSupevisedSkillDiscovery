@@ -37,5 +37,3 @@ class SeqwiseSplitseqClassifierSlacLatentSeqEndOnlyRecon(
             latent_post=post,
             recon=skill_recon_dist,
         )
-
-
