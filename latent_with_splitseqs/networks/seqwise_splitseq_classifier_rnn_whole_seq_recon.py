@@ -1,6 +1,8 @@
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn_end_recon_only import \
     SeqwiseSplitseqClassifierRnnEndReconOnly
 
+from self_supervised.utils.my_pytorch_util import tensor_equality
+
 
 class SeqwiseSplitseqClassifierRnnWholeSeqRecon(
     SeqwiseSplitseqClassifierRnnEndReconOnly):
@@ -14,17 +16,15 @@ class SeqwiseSplitseqClassifierRnnWholeSeqRecon(
         batch_size, seq_len, obs_dim = obs_seq.shape
 
         hidden_seq, _ = self.rnn(obs_seq)
+        hidden_seq_reshaped = hidden_seq.reshape(
+            batch_size * seq_len,
+            hidden_seq.size(data_dim)
+        )
         skill_recon_dist = self.classifier(
-            hidden_seq.reshape(
-                batch_size * seq_len,
-                obs_dim,
-            )
+            hidden_seq_reshaped
         )
         # TODO: delete assertion
-        assert hidden_seq.reshape(
-            batch_size * seq_len,
-            obs_dim,
-        )[0] == hidden_seq[0, 0, :]
+        assert tensor_equality(hidden_seq_reshaped[0], hidden_seq[0, 0, :])
 
         return dict(
             skill_recon_dist=skill_recon_dist
