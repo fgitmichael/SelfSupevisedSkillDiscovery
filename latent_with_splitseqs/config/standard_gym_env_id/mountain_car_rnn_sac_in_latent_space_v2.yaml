@@ -33,12 +33,12 @@ skill_dim: 2
 
 info_loss:
   alpha: 0.999
-  lamda: 0.2
+  lamda: 0.001
 
 obs_dims_used_df: null
 classifier_dropout: 0.4
 hidden_units_latent: [256, 256]
-hidden_size_rnn: 10
+hidden_size_rnn: 30
 leaky_slope_latent: 0.2
 
 hidden_units_classifier: [256, 256]
