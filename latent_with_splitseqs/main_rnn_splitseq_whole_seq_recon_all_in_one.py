@@ -24,9 +24,9 @@ from seqwise_cont_skillspace.utils.info_loss import GuidedInfoLoss
 
 from mode_disent_no_ssm.utils.parse_args import parse_args
 
-from latent_with_splitseqs.algo.algo_latent_splitseqs_with_eval \
-    import SeqwiseAlgoRevisedSplitSeqsEval
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
+from latent_with_splitseqs.algo.algo_latent_splitseq_with_eval_on_used_obsdim \
+    import SeqwiseAlgoRevisedSplitSeqsEvalOnUsedObsDim
 
 from latent_with_splitseqs.config.fun.get_env import get_env
 from latent_with_splitseqs.config.fun.get_obs_dims_used_policy \
@@ -179,7 +179,7 @@ def experiment(variant,
         test_script_path_name=test_script_path_name,
     )
 
-    algorithm = SeqwiseAlgoRevisedSplitSeqsEval(
+    algorithm = SeqwiseAlgoRevisedSplitSeqsEvalOnUsedObsDim(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
