@@ -103,9 +103,12 @@ def get_df_and_trainer(
         == feature_extractor_types['rnn']:
 
         # RNN type
+        obs_dim_rnn = len(df_kwargs_rnn.obs_dims_used) \
+            if df_kwargs_rnn.obs_dims_used is not None \
+            else obs_dim
         if df_type[df_type_keys['rnn_type']] == rnn_types['normal']:
             rnn = nn.GRU(
-                input_size=obs_dim,
+                input_size=obs_dim_rnn,
                 hidden_size=rnn_kwargs['hidden_size_rnn'],
                 batch_first=True,
                 bidirectional=False,
@@ -113,7 +116,7 @@ def get_df_and_trainer(
 
         elif df_type[df_type_keys['rnn_type']] == rnn_types['dim_wise']:
             rnn = GRUDimwise(
-                input_size=obs_dim,
+                input_size=obs_dim_rnn,
                 hidden_size=rnn_kwargs['hidden_size_rnn'],
                 batch_first=True,
                 bidirectional=False,
@@ -160,23 +163,26 @@ def get_df_and_trainer(
     elif df_type[df_type_keys['feature_extractor']] == feature_extractor_types['latent']:
 
         # Latent type
+        obs_dim_latent = len(df_kwargs_latent.obs_dims_used) \
+            if df_kwargs_latent.obs_dims_used is not None \
+            else obs_dim
         if df_type[df_type_keys['latent_type']] == latent_types['single_skill']:
             latent_model = SlacLatentNetConditionedOnSingleSkill(
-                obs_dim=obs_dim,
+                obs_dim=obs_dim_latent,
                 skill_dim=skill_dim,
                 **latent_kwargs,
             )
 
         elif df_type[df_type_keys['latent_type']] == latent_types['full_seq']:
             latent_model = SlacLatentNetConditionedOnSkillSeq(
-                obs_dim=obs_dim,
+                obs_dim=obs_dim_latent,
                 skill_dim=skill_dim,
                 **latent_kwargs,
             )
 
         elif df_type[df_type_keys['latent_type']] == latent_types['smoothing']:
             latent_model = SlacLatentNetConditionedOnSkillSeqSmoothingPosterior(
-                obs_dim=obs_dim,
+                obs_dim=obs_dim_latent,
                 skill_dim=skill_dim,
                 **latent_kwargs_smoothing,
             )
