@@ -38,7 +38,7 @@ def get_env(**env_kwargs):
             = env_kwargs[exclude_current_positions_key]
 
     else:
-        exclude_current_positions_from_observation = None
+        exclude_current_positions_from_observation = True
 
     # Return Environment
     gym_id = env_kwargs[gym_id_key]

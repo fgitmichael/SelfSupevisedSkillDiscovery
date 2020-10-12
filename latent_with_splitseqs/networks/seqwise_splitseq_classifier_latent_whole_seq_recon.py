@@ -19,6 +19,7 @@ class SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon(SplitSeqClassifierBase):
                  hidden_units_classifier=(256, 256),
                  leaky_slope_classifier=0.2,
                  classifier_dropout=0.3,
+                 classifier_std=None,
                  **kwargs
                  ):
         super(SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon, self).__init__(
@@ -35,6 +36,7 @@ class SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon(SplitSeqClassifierBase):
             hidden_units=hidden_units_classifier,
             leaky_slope=leaky_slope_classifier,
             dropout=classifier_dropout,
+            std=classifier_std,
         )
 
         self.obs_dim = obs_dim

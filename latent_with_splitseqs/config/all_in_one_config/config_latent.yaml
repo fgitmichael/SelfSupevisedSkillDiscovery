@@ -5,10 +5,10 @@ layer_size: 256
 replay_buffer_size: 10000
 
 env_kwargs:
-  env_id: MountainCarContinuous-v0
-  exclude_current_positions_from_observation: null
+  env_id: halfcheetah
+  exclude_current_positions_from_observation: False
 
-obs_dims_used_policy: null
+obs_dims_used_policy_all_except: [0]
 
 algorithm_kwargs:
   num_epochs: 1000
@@ -41,8 +41,8 @@ info_loss:
   lamda: 0.2
 
 df_type:
-  feature_extractor: latent
-  rnn_type: null
+  feature_extractor: rnn
+  rnn_type: normal
   latent_type: full_seq
   recon: whole_seq
 
@@ -73,18 +73,19 @@ rnn_kwargs:
   hidden_size_rnn: 10
 
 df_kwargs_rnn:
-  obs_dims_used: null
+  obs_dims_used: [0, 1]
   dropout: 0.4
-  hidden_size_rnn: 10
   leaky_slope_classifier: 0.2
   hidden_units_classifier: [256, 256]
+  classifier_std: null
 
 df_kwargs_latent:
   obs_dims_used: null
   hidden_units_classifier: [256, 256]
   leaky_slope_classifier: 0.2
   classifier_dropout: 0.3
+  classifier_std: null
 
 test_script_path: /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py
-log_folder: logsmountaincar
+log_folder: logshalfcheetah
 log_interval: 10

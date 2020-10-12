@@ -9,14 +9,13 @@ def get_obs_dims_used_policy(
     Returns:
         obs_dims_used_policy    : tuple
     """
-    key = 'obs_dims_used_policy'
+    key = 'obs_dims_used_policy_all_except'
     default = [i for i in range(obs_dim)]
     if key in config.keys():
         if config[key] is not None:
             assert isinstance(config[key], list) or \
                    isinstance(config[key], tuple)
-            assert  config.trainer_kwargs.train_sac_in_feature_space is False
-            obs_dims_used_policy = config[key]
+            obs_dims_used_policy = [i for i in default if i not in config[key]]
 
         else:
             obs_dims_used_policy = default

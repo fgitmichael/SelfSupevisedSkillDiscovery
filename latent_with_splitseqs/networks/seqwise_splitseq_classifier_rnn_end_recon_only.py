@@ -18,6 +18,7 @@ class SeqwiseSplitseqClassifierRnnEndReconOnly(SplitSeqClassifierBase):
                  rnn: nn.Module,
                  hidden_units_classifier=(256, 256),
                  leaky_slope_classifier=0.2,
+                 std_classifier=None,
                  dropout=0.3,
                  **kwargs
                  ):
@@ -41,6 +42,7 @@ class SeqwiseSplitseqClassifierRnnEndReconOnly(SplitSeqClassifierBase):
             hidden_units=hidden_units_classifier,
             leaky_slope=leaky_slope_classifier,
             dropout=dropout,
+            std=std_classifier,
         )
 
         self.obs_dim = obs_dim
