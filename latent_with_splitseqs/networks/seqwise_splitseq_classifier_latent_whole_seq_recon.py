@@ -43,36 +43,6 @@ class SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon(SplitSeqClassifierBase):
         self.seq_len = seq_len
         self.skill_dim = skill_dim
 
-    def forward(self,
-                obs_seq,
-                skill=None):
-        """
-        Args:
-            skill                   : (N, skill_dim) tensor (skill batch)
-            obs_seq                 : (N, S, obs_dim) tensor (sequence batch)
-        """
-        batch_dim = 0
-        seq_dim = 1
-        data_dim = -1
-        if skill is not None:
-            assert skill.size(batch_dim) == obs_seq.size(batch_dim)
-            assert skill.size(data_dim) == self.skill_dim
-            assert len(skill.shape) == 2
-        assert obs_seq.size(seq_dim) == self.seq_len
-        assert len(obs_seq.shape) == 3
-
-        if self.training:
-            return self.train_forwardpass(
-                obs_seq=obs_seq,
-                skill=skill,
-            )
-
-        else:
-            return self.eval_forwardpass(
-                obs_seq=obs_seq,
-                skill=skill,
-            )
-
     @torch.no_grad()
     def eval_forwardpass(self,
                          obs_seq,
