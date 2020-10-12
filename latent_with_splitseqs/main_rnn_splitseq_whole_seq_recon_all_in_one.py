@@ -1,12 +1,10 @@
 import torch
-import torch.nn as nn
 import numpy as np
 import copy
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.launchers.launcher_util import setup_logger
 
-from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.utils.writer import MyWriterWithActivation
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
@@ -29,10 +27,6 @@ from mode_disent_no_ssm.utils.parse_args import parse_args
 from latent_with_splitseqs.algo.algo_latent_splitseqs_with_eval \
     import SeqwiseAlgoRevisedSplitSeqsEval
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
-from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn_whole_seq_recon \
-    import SeqwiseSplitseqClassifierRnnWholeSeqRecon
-from latent_with_splitseqs.trainer.rnn_with_splitseqs_trainer_whole_seq_recon import \
-    URLTrainerRnnWithSplitseqsWholeSeqRecon
 
 from latent_with_splitseqs.config.fun.get_env import get_env
 from latent_with_splitseqs.config.fun.get_obs_dims_used_policy \
@@ -102,15 +96,6 @@ def experiment(variant,
         output_size=1,
         hidden_sizes=[M, M],
     )
-    #df = SeqwiseSplitseqClassifierRnnWholeSeqRecon(
-    #    seq_len=seq_len,
-    #    obs_dim=obs_dim,
-    #    skill_dim=skill_dim,
-    #    hidden_units_classifier=config.hidden_units_classifier,
-    #    hidden_size_rnn=config.hidden_size_rnn,
-    #    leaky_slope_classifier=config.leaky_slope_classifier,
-    #    dropout=config.classifier_dropout,
-    #)
     policy = SkillTanhGaussianPolicyRevisedObsSelect(
         obs_dim=len(used_obs_dims_policy),
         action_dim=action_dim,
