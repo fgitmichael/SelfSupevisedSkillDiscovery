@@ -22,7 +22,7 @@ class PltCreator(object, metaclass=abc.ABCMeta):
 
     def _plot_lines(self,
                     legend_str: Union[List[str], str],
-                   arrays_to_plot: Union[List[np.ndarray], np.ndarray]):
+                    arrays_to_plot: Union[List[np.ndarray], np.ndarray]):
         if isinstance(arrays_to_plot, list):
             assert len(legend_str) == len(arrays_to_plot)
 
