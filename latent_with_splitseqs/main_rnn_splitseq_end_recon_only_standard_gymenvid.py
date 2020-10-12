@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import numpy as np
 import copy
 
@@ -90,12 +91,18 @@ def experiment(variant,
         output_size=1,
         hidden_sizes=[M, M],
     )
+    rnn = nn.GRU(
+        input_size=obs_dim,
+        hidden_size=config.hidden_size_rnn,
+        batch_first=True,
+        bidirectional=False
+    )
     df = SeqwiseSplitseqClassifierRnnEndReconOnly(
         seq_len=seq_len,
         obs_dim=obs_dim,
         skill_dim=skill_dim,
         hidden_units_classifier=config.hidden_units_classifier,
-        hidden_size_rnn=config.hidden_size_rnn,
+        rnn=rnn,
         leaky_slope_classifier=config.leaky_slope_classifier,
         dropout=config.classifier_dropout,
     )
