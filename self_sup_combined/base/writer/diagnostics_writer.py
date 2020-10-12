@@ -67,15 +67,29 @@ class DiagnosticsWriter:
 
     def create_test_script_symlink(self, test_script_path_name):
         if test_script_path_name is not None:
-            sym_link_path = os.path.join(self.writer.model_dir, "test_script.py")
-            if not os.path.exists(sym_link_path):
-                os.symlink(
-                    src=test_script_path_name,
-                    dst=sym_link_path
-                )
+            if isinstance(test_script_path_name, list) or \
+                isinstance(test_script_path_name, tuple):
+                for path_name in test_script_path_name:
+                    self._create_test_script_symlin(
+                        path_name,
+                        link_name=os.path.basename(path_name)
+                    )
+            else:
+                self._create_test_script_symlin(test_script_path_name)
 
         else:
             print("No testscript symlink created")
+
+    def _create_test_script_symlin(self, test_script_path_name, link_name=None):
+        if link_name is None:
+            link_name = "test_script.py"
+
+        sym_link_path = os.path.join(self.writer.model_dir, link_name)
+        if not os.path.exists(sym_link_path):
+            os.symlink(
+                src=test_script_path_name,
+                dst=sym_link_path
+            )
 
     def save_hparams(self, hparams: edict):
         if hparams is not None:

@@ -77,7 +77,7 @@ df_kwargs_rnn:
   dropout: 0.4
   leaky_slope_classifier: 0.2
   hidden_units_classifier: [256, 256]
-  classifier_std: null
+  std_classifier: null
 
 df_kwargs_latent:
   obs_dims_used: null
@@ -86,6 +86,7 @@ df_kwargs_latent:
   classifier_dropout: 0.3
   classifier_std: null
 
-test_script_path: /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py
+test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
+                   /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
 log_folder: logshalfcheetah
 log_interval: 10
