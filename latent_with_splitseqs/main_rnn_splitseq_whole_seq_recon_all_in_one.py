@@ -36,7 +36,7 @@ from latent_with_splitseqs.trainer.rnn_with_splitseqs_trainer_whole_seq_recon im
 from latent_with_splitseqs.config.fun.get_env import get_env
 from latent_with_splitseqs.config.fun.get_obs_dims_used_policy \
     import get_obs_dims_used_policy
-from latent_with_splitseqs.config.fun.get_df import get_df
+from latent_with_splitseqs.config.fun.get_df_and_trainer import get_df_and_trainer
 from latent_with_splitseqs.config.fun.get_feature_dim_obs_dim \
     import get_feature_dim_obs_dim
 
@@ -58,7 +58,7 @@ def experiment(variant,
         config=config,
     )
     used_obs_dims_policy = get_obs_dims_used_policy(
-        obs_dim=feature_dim_or_obs_dim,
+        obs_dim=obs_dim,
         config=config,
     )
     variant['algorithm_kwargs']['batch_size'] //= seq_len
@@ -110,13 +110,6 @@ def experiment(variant,
     #    leaky_slope_classifier=config.leaky_slope_classifier,
     #    dropout=config.classifier_dropout,
     #)
-    df = get_df(
-        obs_dim=obs_dim,
-        seq_len=seq_len,
-        skill_dim=skill_dim,
-        df_kwargs=config.df_kwargs,
-        df_type=config.df_type,
-    )
     policy = SkillTanhGaussianPolicyRevisedObsSelect(
         obs_dim=len(used_obs_dims_policy),
         action_dim=action_dim,
@@ -151,29 +144,40 @@ def experiment(variant,
         max_seqs=1000,
         skill_selector=skill_selector
     )
+    loss_fun = GuidedInfoLoss(
+        alpha=config.info_loss.alpha,
+        lamda=config.info_loss.lamda,
+    ).loss
+    trainer_init_kwargs = dict(
+        #skill_prior_dist=skill_prior,
+        env=eval_env,
+        policy=policy,
+        qf1=qf1,
+        qf2=qf2,
+        target_qf1=target_qf1,
+        target_qf2=target_qf2,
+        loss_fun=loss_fun,
+        skill_prior_dist=skill_prior,
+        **variant['trainer_kwargs']
+    )
+    df, trainer = get_df_and_trainer(
+        obs_dim=obs_dim,
+        seq_len=seq_len,
+        skill_dim=skill_dim,
+        rnn_kwargs=config.rnn_kwargs,
+        df_kwargs_rnn=config.df_kwargs_rnn,
+        latent_kwargs=config.latent_kwargs,
+        latent_kwargs_smoothing=config.latent_kwargs_smoothing,
+        df_kwargs_latent=config.df_kwargs_latent,
+        df_type=config.df_type,
+        trainer_init_kwargs=trainer_init_kwargs,
+    )
 
     replay_buffer = LatentReplayBuffer(
         max_replay_buffer_size=variant['replay_buffer_size'],
         seq_len=seq_len,
         mode_dim=skill_dim,
         env=expl_env,
-    )
-    loss_fun = GuidedInfoLoss(
-        alpha=config.info_loss.alpha,
-        lamda=config.info_loss.lamda,
-    ).loss
-    trainer = URLTrainerRnnWithSplitseqsWholeSeqRecon(
-        #skill_prior_dist=skill_prior,
-        env=eval_env,
-        policy=policy,
-        qf1=qf1,
-        qf2=qf2,
-        df=df,
-        target_qf1=target_qf1,
-        target_qf2=target_qf2,
-        loss_fun=loss_fun,
-        skill_prior_dist=skill_prior,
-        **variant['trainer_kwargs']
     )
 
     writer = MyWriterWithActivation(
@@ -214,7 +218,7 @@ def experiment(variant,
 
 if __name__ == "__main__":
     config, config_path_name = parse_args(
-        default="config/all_in_one_config/config.yaml",
+        default="config/all_in_one_config/config_latent.yaml",
         return_config_path_name=True,
     )
 
