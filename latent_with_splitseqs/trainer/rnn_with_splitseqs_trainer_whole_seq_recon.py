@@ -18,6 +18,7 @@ class URLTrainerRnnWithSplitseqsWholeSeqRecon(
             skill_dim
         )
 
+        # Skill is not needed as posterior coincides with prior
         df_ret_dict = self.df(
             obs_seq=next_obs,
             skill=None,

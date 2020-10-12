@@ -17,7 +17,6 @@ class SeqwiseSplitseqClassifierRnnEndReconOnly(SplitSeqClassifierBase):
                  skill_dim,
                  rnn: nn.Module,
                  hidden_units_classifier=(256, 256),
-                 hidden_size_rnn=10,
                  leaky_slope_classifier=0.2,
                  dropout=0.3,
                  **kwargs
