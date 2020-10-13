@@ -34,6 +34,10 @@ class GRUDimwise(BaseNetwork):
 
         self.log_softmax_output = log_softmax_output
 
+    @property
+    def hidden_size(self):
+        return self.feature_size_matcher.output_size
+
     def forward(self, seq):
         """
         Args:
