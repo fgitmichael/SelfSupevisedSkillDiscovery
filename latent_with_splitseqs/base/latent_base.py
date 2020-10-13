@@ -18,9 +18,10 @@ class StochasticLatentNetBase(BaseNetwork, metaclass=abc.ABCMeta):
     def anneal_beta(self):
         if self.beta_anneal is not None:
             if self.beta_anneal['beta'] < self.beta_anneal['end']:
-                self.beta += self.beta_anneal['add']
+                beta = self.beta + self.beta_anneal['add']
                 if self.beta > self.beta_anneal['end']:
-                    self.beta = self.beta_anneal['end']
+                    beta = self.beta_anneal['end']
+                self.beta = beta
 
     @property
     def beta(self):
