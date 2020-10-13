@@ -157,6 +157,7 @@ def experiment(variant,
         df_kwargs_latent=config.df_kwargs_latent,
         df_type=config.df_type,
         trainer_init_kwargs=trainer_init_kwargs,
+        latent_single_layer_kwargs=config.latent_single_layer_kwargs,
     )
 
     replay_buffer = LatentReplayBuffer(

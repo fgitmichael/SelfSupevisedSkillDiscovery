@@ -63,6 +63,7 @@ class SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon(SplitSeqClassifierBase):
                 skill=skill,
                 obs_seq=obs_seq,
             )
+
         latent_seq = torch.cat(
             [latent['latent1_samples'],
              latent['latent2_samples']],

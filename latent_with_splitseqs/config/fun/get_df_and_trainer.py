@@ -14,11 +14,16 @@ from latent_with_splitseqs.latent.slac_latent_conditioned_on_skill_seq \
 from latent_with_splitseqs.latent.\
     slac_latent_conditioned_on_skill_seq_smoothing_posterior \
     import SlacLatentNetConditionedOnSkillSeqSmoothingPosterior
+from latent_with_splitseqs.latent.one_stochlayered_latent_conditioned_on_skill_seq \
+    import OneLayeredStochasticLatent
 
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier_latent_seq_end_recon \
     import SeqwiseSplitseqClassifierSlacLatentSeqEndOnlyRecon
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier_latent_whole_seq_recon \
     import SeqwiseSplitseqClassifierSlacLatentWholeSeqRecon
+from latent_with_splitseqs.networks.\
+    seqwise_splitseq_classifier_latent_singlelayer_whole_seq_recon \
+    import SeqwiseSplitseqClassifierSingleLayeredWholeSeqRecon
 
 from latent_with_splitseqs.trainer.latent_with_splitseq_full_seq_recon_loss_trainer \
     import URLTrainerLatentWithSplitseqsFullSeqReconLoss
@@ -29,6 +34,8 @@ from latent_with_splitseqs.trainer.rnn_with_splitseqs_trainer_whole_seq_recon \
     import URLTrainerRnnWithSplitseqsWholeSeqRecon
 from latent_with_splitseqs.trainer.rnn_with_splitseqs_trainer_end_recon_only \
     import URLTrainerRnnWithSplitseqsEndReconOnly
+from latent_with_splitseqs.trainer.latent_single_layered_full_seq_recon_trainer \
+    import URLTrainerLatentWithSplitseqsFullSeqReconLossSingleLayer
 
 
 df_type_keys = dict(
@@ -36,11 +43,13 @@ df_type_keys = dict(
     recon='recon',
     rnn_type='rnn_type',
     latent_type='latent_type',
+    latent_single_layer_type='latent_single_layer_type'
 )
 
 feature_extractor_types = dict(
     rnn='rnn',
-    latent='latent'
+    latent_slac='latent_slac',
+    latent_single_layer='latent_single_layer'
 )
 
 recon_types = dict(
@@ -64,12 +73,13 @@ def get_df_and_trainer(
         obs_dim,
         seq_len,
         skill_dim,
+        df_type,
         df_kwargs_rnn,
         rnn_kwargs,
         df_kwargs_latent,
         latent_kwargs,
+        latent_single_layer_kwargs,
         latent_kwargs_smoothing,
-        df_type,
         trainer_init_kwargs,
 ):
     """
@@ -160,7 +170,8 @@ def get_df_and_trainer(
             raise NotImplementedError
 
 
-    elif df_type[df_type_keys['feature_extractor']] == feature_extractor_types['latent']:
+    elif df_type[df_type_keys['feature_extractor']] \
+            == feature_extractor_types['latent_slac']:
 
         # Latent type
         obs_dim_latent = len(df_kwargs_latent.obs_dims_used) \
@@ -222,6 +233,45 @@ def get_df_and_trainer(
 
         else:
             raise NotImplementedError
+
+    elif df_type[df_type_keys['feature_extractor']] \
+        == feature_extractor_types['latent_single_layer']:
+
+        # Latent type
+        obs_dim_latent = len(df_kwargs_latent.obs_dims_used) \
+            if df_kwargs_latent.obs_dims_used is not None \
+            else obs_dim
+
+        if df_type[df_type_keys['latent_type']] == latent_types['single_skill']:
+            raise NotImplementedError
+
+        elif df_type[df_type_keys['latent_type']] == latent_types['full_seq']:
+            latent_model = OneLayeredStochasticLatent(
+                obs_dim=obs_dim_latent,
+                skill_dim=skill_dim,
+                **latent_single_layer_kwargs,
+            )
+
+        elif df_type[df_type_keys['latent_type']] == latent_types['smoothing']:
+            raise NotImplementedError
+
+        else:
+            raise NotImplementedError
+
+        # Classifier using latent model above
+        # Trainer
+        df = SeqwiseSplitseqClassifierSingleLayeredWholeSeqRecon(
+            seq_len=seq_len,
+            obs_dim=obs_dim,
+            skill_dim=skill_dim,
+            latent_net=latent_model,
+            **df_kwargs_latent
+        )
+
+        trainer = URLTrainerLatentWithSplitseqsFullSeqReconLossSingleLayer(
+            df=df,
+            **trainer_init_kwargs
+        )
 
     else:
         raise NotImplementedError
