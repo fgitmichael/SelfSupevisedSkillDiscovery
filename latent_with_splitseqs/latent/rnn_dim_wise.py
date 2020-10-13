@@ -27,7 +27,7 @@ class GRUDimwise(BaseNetwork):
         )
 
         self.feature_size_matcher = MlpWithDropout(
-            input_size=input_size,
+            input_size=input_size * hidden_size,
             output_size=out_feature_size,
             dropout=dropout,
         )
@@ -53,15 +53,16 @@ class GRUDimwise(BaseNetwork):
         hidden_out = []
         for one_dimenional_seq in seq_permuted:
             one_dimenional_seq = one_dimenional_seq.unsqueeze(data_dim)
-            hidden_out.append(self.rnn(one_dimenional_seq))
+            hidden_seq, _ = self.rnn(one_dimenional_seq)
+            hidden_out.append(hidden_seq)
         hidden_out_seq = torch.cat(hidden_out, dim=data_dim)
-        assert hidden_out_seq.shape[:-1] == seq.shape[:-1]
+        assert hidden_out_seq.shape[:data_dim] == seq.shape[:-1]
         assert hidden_out_seq.shape[-1] == self.rnn.hidden_size * seq.size(data_dim)
 
         matched_features = self.feature_size_matcher(hidden_out_seq)
 
         if self.log_softmax_output:
-            return F.log_softmax(matched_features, dim=data_dim)
+            return F.log_softmax(matched_features, dim=data_dim), None
 
         else:
-            return matched_features
+            return matched_features, None
