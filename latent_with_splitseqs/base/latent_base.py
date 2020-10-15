@@ -7,13 +7,19 @@ from code_slac.network.base import BaseNetwork
 class StochasticLatentNetBase(BaseNetwork, metaclass=abc.ABCMeta):
 
     def __init__(self,
-                 beta_anneal):
+                 *args,
+                 beta_anneal,
+                 **kwargs
+                 ):
         super(StochasticLatentNetBase, self).__init__()
 
         self.beta_anneal = beta_anneal
         if beta_anneal is not None:
             self._check_beta_anneal(beta_anneal)
             self.beta = self.beta_anneal['start']
+
+        else:
+            print('No beta annealing is used!')
 
     def anneal_beta(self):
         if self.beta_anneal is not None:
@@ -32,7 +38,8 @@ class StochasticLatentNetBase(BaseNetwork, metaclass=abc.ABCMeta):
 
     @beta.setter
     def beta(self, val):
-        self.beta_anneal['beta'] = val
+        if self.beta_anneal is not None:
+            self.beta_anneal['beta'] = val
 
     def _check_beta_anneal(self, beta_anneal: dict):
         assert 'start' in beta_anneal.keys()
@@ -45,6 +52,32 @@ class StochasticLatentNetBase(BaseNetwork, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def sample_posterior(self, skill, obs_seq):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def sample_posterior_samples_cat(self, *args, **kwargs):
+        """
+        Returns:
+            latent_samples
+            latent_dists
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def sample_prior_samples_cat(self, *args, **kwargs):
+        """
+        Returns:
+            latent_samples
+            latent_dists
+        """
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def latent_dim(self):
+        """
+        Property to return dimension of latent vector
+        """
         raise NotImplementedError
 
     def forward(self, skill, obs_seq):
