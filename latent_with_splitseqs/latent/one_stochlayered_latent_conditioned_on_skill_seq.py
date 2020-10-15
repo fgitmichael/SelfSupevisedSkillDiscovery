@@ -38,7 +38,11 @@ class OneLayeredStochasticLatent(StochasticLatentNetBase):
             dropout=dropout,
         )
 
-        self.latent_dim = latent_dim
+        self._latent_dim = latent_dim
+
+    @property
+    def latent_dim(self):
+        return self._latent_dim
 
     def sample_prior(self,
                      obs_seq):
@@ -129,4 +133,20 @@ class OneLayeredStochasticLatent(StochasticLatentNetBase):
         return dict(
             samples=latent_samples_stacked,
             dists=latent_dists,
+        )
+
+    def sample_prior_samples_cat(self, *args, **kwargs):
+        pri_dict = self.sample_prior(*args, **kwargs)
+
+        return dict(
+            latent_samples=pri_dict['samples'],
+            latent_dists=pri_dict['dists'],
+        )
+
+    def sample_posterior_samples_cat(self, *args, **kwargs):
+        post_dict = self.sample_posterior(*args, **kwargs)
+
+        return dict(
+            latent_samples=post_dict['samples'],
+            latent_dists=post_dict['dists'],
         )
