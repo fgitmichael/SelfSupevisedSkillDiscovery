@@ -1,14 +1,13 @@
 import torch
 
-from code_slac.network.base import BaseNetwork
 from code_slac.network.latent import ConstantGaussian
 
 from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
-from latent_with_splitseqs.base.latent_base import StochasticLatentNetBase
+from latent_with_splitseqs.base.slac_latent_base import SlacLatentBase
 
 
-class SlacLatentNetConditionedOnSkillSeq(StochasticLatentNetBase):
+class SlacLatentNetConditionedOnSkillSeq(SlacLatentBase):
 
     def __init__(self,
                  *args,
@@ -21,7 +20,12 @@ class SlacLatentNetConditionedOnSkillSeq(StochasticLatentNetBase):
                  dropout=0.,
                  **kwargs,
                  ):
-        super(SlacLatentNetConditionedOnSkillSeq, self).__init__(*args, **kwargs)
+        super(SlacLatentNetConditionedOnSkillSeq, self).__init__(
+            *args,
+            latent1_dim=latent1_dim,
+            latent2_dim=latent2_dim,
+            **kwargs
+        )
         # We use the observations as actions for this model
         # and the infered skill as observaton
 
@@ -72,9 +76,6 @@ class SlacLatentNetConditionedOnSkillSeq(StochasticLatentNetBase):
         )
         # q(z2(t+1) | z1(t+1), z2(t), a(t)) = p(z2(t+1) | z1(t+1), z2(t), a(t))
         self.latent2_posterior = self.latent2_prior
-
-        self.latent1_dim = latent1_dim
-        self.latent2_dim = latent2_dim
 
     def sample_prior(self,
                      obs_seq,
