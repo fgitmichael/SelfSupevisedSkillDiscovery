@@ -9,6 +9,7 @@ from code_slac.network.base import BaseNetwork
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
 
+
 class SRNNLatentConditionedOnSkillSeq(BaseNetwork):
 
     def __init__(self,
@@ -38,6 +39,7 @@ class SRNNLatentConditionedOnSkillSeq(BaseNetwork):
 
         self.stoch_latent = stochastic_latent_net_class(
             obs_dim=self.det_latent_dim,
+            skill_dim=skill_dim,
             **stochastic_latent_net_class_params,
         )
         self.stoch_latent_dim = self.stoch_latent.latent_dim
@@ -85,7 +87,9 @@ class SRNNLatentConditionedOnSkillSeq(BaseNetwork):
         pri_dict = self.stoch_latent.sample_prior_samples_cat(
             obs_seq=det_latent_samples
         )
-        stoch_latent_samples = pri_dict['latent_samples'][:, seq_len:, :]
+        seq_idx_start = pri_dict['latent_samples'].size(seq_dim) - seq_len
+        assert seq_idx_start >= 0
+        stoch_latent_samples = pri_dict['latent_samples'][:, seq_idx_start:, :]
         assert stoch_latent_samples.shape[:-1] == det_latent_samples.shape[:-1]
 
         latent_samples = torch.cat(
@@ -116,8 +120,10 @@ class SRNNLatentConditionedOnSkillSeq(BaseNetwork):
         seq_len = obs_seq.size(seq_dim)
 
         det_latent_samples, _ = self.det_latent(obs_seq)
+        skill_seq = torch.stack([skill] * seq_len, dim=seq_dim)
         pre_filtered = self.pre_filter_net(
-            [det_latent_samples, skill]
+            det_latent_samples,
+            skill_seq,
         )
 
         post_dict = self.stoch_latent.sample_posterior_samples_cat(

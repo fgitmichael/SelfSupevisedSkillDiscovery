@@ -28,7 +28,7 @@ class URLTrainerLatentSplitSeqsSRNNFullSeqRecon(URLTrainerLatentWithSplitseqs):
             obs_seq=next_obs,
             skill=skill,
         )
-        skill_recon_dist = df_ret_dict['skill_recon_dist']
+        skill_recon_dist = df_ret_dict['recon']
 
         pri_dist = self.skill_prior_dist(skills_reshaped)
         df_loss, log_dict = self.loss_fun(

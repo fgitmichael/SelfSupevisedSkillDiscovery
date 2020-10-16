@@ -6,6 +6,8 @@ from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
 from latent_with_splitseqs.base.slac_latent_base import SlacLatentBase
 
+import rlkit.torch.pytorch_util as ptu
+
 
 class SlacLatentNetConditionedOnSkillSeq(SlacLatentBase):
 
@@ -211,3 +213,104 @@ class SlacLatentNetConditionedOnSkillSeq(SlacLatentBase):
             'latent1_dists': latent1_dists,
             'latent2_dists': latent2_dists,
         }
+
+    # TODO: Find way to put this into the real posterior sampling method
+    def sample_posterior_with_skill_seq(self, skill_seq, obs_seq):
+        batch_dim = 0
+        seq_dim = 1
+        data_dim = -1
+        batch_size, seq_len, obs_dim = obs_seq.shape
+        assert skill_seq.shape[:data_dim] == obs_seq.shape[:data_dim]
+
+        skills_seqdim_first = torch.transpose(skill_seq, batch_dim, seq_dim)
+        obs_seqdim_first = torch.transpose(obs_seq, batch_dim, seq_dim)
+
+        latent1_samples = []
+        latent2_samples = []
+        latent1_dists = []
+        latent2_dists = []
+
+        for t in range(seq_len):
+            if t == 0:
+                # q(z1(t) | z2(t-1), obs(t-1))
+                latent1_dist = self.latent1_posterior(
+                    [skills_seqdim_first[t],
+                     ptu.zeros(batch_size, self.latent2_dim),
+                     obs_seqdim_first[t]]
+                )
+                latent1_sample = latent1_dist.rsample()
+
+                # q(z2(t) | z1(t), z2(t-1), obs(t-1))
+                latent2_dist = self.latent2_posterior(
+                    [latent1_sample,
+                     ptu.zeros(batch_size, self.latent2_dim),
+                     obs_seqdim_first[t]]
+                )
+                latent2_sample = latent2_dist.rsample()
+
+            else:
+                # q(z1(t) | z2(t-1), obs(t-1))
+                latent1_dist = self.latent1_posterior(
+                    [skills_seqdim_first[t],
+                     latent2_samples[t-1],
+                     obs_seqdim_first[t]]
+                )
+                latent1_sample = latent1_dist.rsample()
+
+                # q(z2(t) | z1(t), z2(t-1), obs(t-1))
+                latent2_dist = self.latent2_posterior(
+                    [latent1_sample,
+                     latent2_samples[t-1],
+                     obs_seqdim_first[t]]
+                )
+                latent2_sample = latent2_dist.rsample()
+
+            latent1_samples.append(latent1_sample)
+            latent2_samples.append(latent2_sample)
+            latent1_dists.append(latent1_dist)
+            latent2_dists.append(latent2_dist)
+
+        latent1_samples_stacked = torch.stack(latent1_samples, dim=seq_dim)
+        latent2_samples_stacked = torch.stack(latent2_samples, dim=seq_dim)
+
+        return {
+            'latent1_samples': latent1_samples_stacked,
+            'latent2_samples': latent2_samples_stacked,
+            'latent1_dists': latent1_dists,
+            'latent2_dists': latent2_dists,
+        }
+
+    def sample_posterior_samples_cat(self,
+                                     skill,
+                                     obs_seq
+                                    ):
+        data_dim = -1
+
+        if len(skill.shape) == 2:
+            post_dict = self.sample_posterior(
+                skill=skill,
+                obs_seq=obs_seq
+            )
+
+        elif len(skill.shape) == 3:
+            # Treat skill as sequence
+            post_dict = self.sample_posterior_with_skill_seq(
+                skill_seq=skill,
+                obs_seq=obs_seq,
+            )
+
+        else:
+            raise NotImplementedError
+
+        latent1_samples = post_dict.pop('latent1_samples')
+        latent2_samples = post_dict.pop('latent2_samples')
+        latent_samples = torch.cat(
+            [latent1_samples,
+             latent2_samples],
+            dim=data_dim
+        )
+
+        return dict(
+            latent_dists=post_dict['latent1_dists'],
+            latent_samples=latent_samples
+        )
