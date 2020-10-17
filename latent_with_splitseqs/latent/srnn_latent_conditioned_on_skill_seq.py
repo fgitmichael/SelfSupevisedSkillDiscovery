@@ -128,7 +128,7 @@ class SRNNLatentConditionedOnSkillSeq(BaseNetwork):
 
         post_dict = self.stoch_latent.sample_posterior_samples_cat(
             obs_seq=pre_filtered[..., :self.det_latent_dim],
-            skill=pre_filtered[..., self.det_latent_dim:],
+            skill_seq=pre_filtered[..., self.det_latent_dim:],
         )
         stoch_latent_samples = post_dict['latent_samples']
 

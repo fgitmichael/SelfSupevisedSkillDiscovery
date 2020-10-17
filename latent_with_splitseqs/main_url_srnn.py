@@ -37,7 +37,7 @@ from latent_with_splitseqs.networks.seqwise_splitseq_classifier_srnn_whole_seq_r
 from latent_with_splitseqs.trainer.latent_srnn_full_seq_recon_trainer \
     import URLTrainerLatentSplitSeqsSRNNFullSeqRecon
 from latent_with_splitseqs.latent.slac_latent_conditioned_on_skill_seq \
-    import SlacLatentNetConditionedOnSkillSeq
+    import SlacLatentNetConditionedOnSkillSeq, SlacLatentNetConditionedOnSkillSeqForSRNN
 
 
 def experiment(variant,
@@ -51,9 +51,9 @@ def experiment(variant,
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-    latent1_dim = 8
-    latent2_dim = 32
-    hidden_size_rnn = 10
+    latent1_dim = config.srnn_kwargs.stoch_latent_kwargs.latent1_dim
+    latent2_dim = config.srnn_kwargs.stoch_latent_kwargs.latent2_dim
+    hidden_size_rnn = config.srnn_kwargs.det_latent_kwargs.hidden_size_rnn
 
     seq_len = config.seq_len
     skill_dim = config.skill_dim
@@ -139,8 +139,32 @@ def experiment(variant,
         alpha=config.info_loss.alpha,
         lamda=config.info_loss.lamda,
     ).loss
-    trainer_init_kwargs = dict(
-        #skill_prior_dist=skill_prior,
+
+    latent_model_det = nn.GRU(
+        input_size=obs_dim,
+        hidden_size=hidden_size_rnn,
+        batch_first=True,
+        bidirectional=False,
+    )
+    latent_model_class_stoch = SlacLatentNetConditionedOnSkillSeqForSRNN
+    srnn_model = SRNNLatentConditionedOnSkillSeq(
+        obs_dim=obs_dim,
+        skill_dim=skill_dim,
+        filter_net_params=config.srnn_kwargs.filter_net_params,
+        deterministic_latent_net=latent_model_det,
+        stochastic_latent_net_class=latent_model_class_stoch,
+        stochastic_latent_net_class_params=config.srnn_kwargs.stoch_latent_kwargs,
+    )
+    df = SplitSeqClassifierSRNNWholeSeqRecon(
+        seq_len=seq_len,
+        obs_dim=obs_dim,
+        skill_dim=skill_dim,
+        latent_net=srnn_model,
+        **config.df_kwargs,
+    )
+
+    trainer = URLTrainerLatentSplitSeqsSRNNFullSeqRecon(
+        df=df,
         env=eval_env,
         policy=policy,
         qf1=qf1,
@@ -149,49 +173,7 @@ def experiment(variant,
         target_qf2=target_qf2,
         loss_fun=loss_fun,
         skill_prior_dist=skill_prior,
-        **variant['trainer_kwargs']
-    )
-    latent_model_class_stoch = SlacLatentNetConditionedOnSkillSeq
-    latent_model_det = nn.GRU(
-        input_size=obs_dim,
-        hidden_size=hidden_size_rnn,
-        batch_first=True,
-        bidirectional=False,
-    )
-    filter_net_params = dict(
-        hidden_sizes=(256, 256),
-        leaky_relu=0.2,
-    )
-    stochastic_latent_net_class_params = dict(
-        latent1_dim=8,
-        latent2_dim=32,
-        dropout=0.1,
-        beta_anneal=dict(
-            start=0.2,
-            add=0.0003,
-            end=1,
-        )
-    )
-
-    srnn_model = SRNNLatentConditionedOnSkillSeq(
-        obs_dim=obs_dim,
-        skill_dim=skill_dim,
-        filter_net_params=filter_net_params,
-        deterministic_latent_net=latent_model_det,
-        stochastic_latent_net_class=latent_model_class_stoch,
-        stochastic_latent_net_class_params=stochastic_latent_net_class_params,
-    )
-    df = SplitSeqClassifierSRNNWholeSeqRecon(
-        seq_len=seq_len,
-        obs_dim=obs_dim,
-        skill_dim=skill_dim,
-        latent_net=srnn_model,
-        dropout_classifier=0.5,
-        std_classifier=None,
-    )
-    trainer = URLTrainerLatentSplitSeqsSRNNFullSeqRecon(
-        df=df,
-        **trainer_init_kwargs
+        **variant['trainer_kwargs'],
     )
 
     replay_buffer = LatentReplayBuffer(

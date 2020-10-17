@@ -11,38 +11,13 @@ from code_slac.utils import update_params,calc_kl_divergence
 class URLTrainerLatentSplitSeqsSRNNFullSeqRecon(URLTrainerLatentWithSplitseqs):
 
     def train_latent_from_torch(self, batch):
-
         self._check_latent_batch(batch)
-
         next_obs = batch['next_obs']
         skills = batch['mode']
-        batch_size, seq_len, skill_dim = skills.shape
-        skills_reshaped = skills.reshape(
-            batch_size * seq_len,
-            skill_dim
-        )
 
-        # Skill is not needed as posterior coincides with prior
-        skill = skills[:, 0, :]
-        df_ret_dict = self.df(
-            obs_seq=next_obs,
-            skill=skill,
-        )
-        skill_recon_dist = df_ret_dict['recon']
-
-        pri_dist = self.skill_prior_dist(skills_reshaped)
-        df_loss, log_dict = self.loss_fun(
-            pri=dict(
-                dist=pri_dist,
-                sample=pri_dist.sample(),
-            ),
-            post=dict(
-                dist=skill_recon_dist,
-                sample=skill_recon_dist.rsample()
-            ),
-            recon=None,
-            guide=skills_reshaped,
-            data=None,
+        df_loss, log_dict = self._latent_loss(
+            skills=skills,
+            next_obs=next_obs,
         )
 
         update_params(
@@ -50,6 +25,11 @@ class URLTrainerLatentSplitSeqsSRNNFullSeqRecon(URLTrainerLatentWithSplitseqs):
             network=self.df,
             loss=df_loss,
         )
+
+        if self._need_to_update_eval_statistics:
+            self.eval_statistics['latent/df_loss'] = df_loss.item()
+            for k, v in log_dict.items():
+                self.eval_statistics['latent/' + k] = v
 
     def _check_latent_outputs(
             self,
@@ -65,20 +45,20 @@ class URLTrainerLatentSplitSeqsSRNNFullSeqRecon(URLTrainerLatentWithSplitseqs):
         batch_dim = 0
         seq_dim = 1
         data_dim = -1
+        assert latent_pri['latent_samples'].shape == latent_post['latent_samples'].shape
         assert len(latent_post['latent_dists']) \
                == len(latent_pri['latent_dists']) \
-               == latent_post['latent_samples'].size(seq_dim) \
                == latent_pri['latent_samples'].size(seq_dim) \
-               == seq_len + 1
+               == seq_len
         assert latent_pri['latent_dists'][0].batch_shape[batch_dim] \
                == latent_post['latent_dists'][0].batch_shape[batch_dim] \
-               == latent_pri['latent_samples'].size(batch_dim) \
                == latent_post['latent_samples'].size(batch_dim) \
                == skill.size(batch_dim) \
-               == recon.batch_shape[batch_dim] \
                == batch_size
         assert latent_post['latent_dists'][0].batch_shape \
                == latent_pri['latent_dists'][0].batch_shape
+        assert np.product(latent_pri['latent_samples'].shape[:data_dim]) \
+               == recon.batch_shape[batch_dim]
 
     def _latent_loss(self,
                      skills,

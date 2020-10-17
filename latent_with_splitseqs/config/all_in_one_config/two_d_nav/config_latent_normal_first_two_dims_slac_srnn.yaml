@@ -30,6 +30,27 @@ trainer_kwargs:
   df_lr: 0.001
   train_sac_in_feature_space: True
 
+srnn_kwargs:
+  stoch_latent_kwargs:
+    latent1_dim: 2
+    latent2_dim: 8
+    dropout: 0.
+    beta_anneal:
+      start: 0.2
+      add: 0.0003
+      end: 1
+
+  det_latent_kwargs:
+    hidden_size_rnn: 10
+
+  filter_net_params:
+    hidden_sizes: [256, 256]
+    leaky_relu: 0.2
+
+df_kwargs:
+  std_classifier: 1.
+  dropout_classifier: 0.5
+
 seq_len: 5
 horizon_len: 60
 seq_eval_len: 5
