@@ -41,3 +41,8 @@ def eval(module: torch.nn.Module, *args, **kwargs):
     ret_val = module(*args, **kwargs)
     module.train(train_mode_before)
     return ret_val
+
+def set_gpu_mode(mode: bool):
+    if mode:
+        assert torch.cuda.is_available()
+    ptu.set_gpu_mode(mode)

@@ -10,6 +10,7 @@ from self_supervised.utils.writer import MyWriterWithActivation
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
+import self_supervised.utils.my_pytorch_util as my_ptu
 
 from latent_with_splitseqs.memory.replay_buffer_for_latent import LatentReplayBuffer
 
@@ -238,7 +239,7 @@ if __name__ == "__main__":
     setup_logger(config.algorithm
                  + config.version
                  + str(config.skill_dim), variant=variant)
-    ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
+    my_ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
 
     experiment(variant,
                config,
