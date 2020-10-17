@@ -10,11 +10,10 @@ class IaVisualization:
     def __init__(self,
                  reset_fun,
                  set_next_skill_fun,
+                 slider_abs_width=3.8,
                  ):
         self.reset_fun = reset_fun
         self.set_next_skill_fun = set_next_skill_fun
-
-        width = 3
 
         bottom = 0.05
         widget_height = 0.05
@@ -22,11 +21,26 @@ class IaVisualization:
         self.ax_slid2 = plt.axes([0.25, bottom + 2 * widget_height, 0.65, 0.03])
         self.ax_start_button = plt.axes([0.25, bottom + widget_height, 0.65, 0.03])
 
-        self.slid1 = Slider(self.ax_slid1, 'x_pos', -width, width,
-                            valinit=0.5, valstep=0.01)
-        self.slid2 = Slider(self.ax_slid2, 'y_pos', -width, width,
-                            valinit=0.5, valstep=0.01)
-        self.reset_button = Button(self.ax_start_button, label='Reset')
+        self.slid1 = Slider(
+            self.ax_slid1,
+            'x_pos',
+            -slider_abs_width,
+            slider_abs_width,
+            valinit=0.0,
+            valstep=0.001,
+        )
+        self.slid2 = Slider(
+            self.ax_slid2,
+            'y_pos',
+            -slider_abs_width,
+            slider_abs_width,
+            valinit=0.0,
+            valstep=0.001,
+        )
+        self.reset_button = Button(
+            self.ax_start_button,
+            label='Reset',
+        )
 
         self.slid1.on_changed(self._slider_callback)
         self.slid2.on_changed(self._slider_callback)
