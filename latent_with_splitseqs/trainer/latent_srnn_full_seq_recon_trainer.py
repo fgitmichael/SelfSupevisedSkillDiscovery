@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 import torch.distributions as torch_dist
 from operator import itemgetter
 
