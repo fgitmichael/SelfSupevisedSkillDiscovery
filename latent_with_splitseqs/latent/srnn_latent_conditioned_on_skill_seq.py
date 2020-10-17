@@ -6,8 +6,10 @@ from latent_with_splitseqs.base.latent_base import StochasticLatentNetBase
 
 from code_slac.network.base import BaseNetwork
 
-from self_supervised.network.flatten_mlp import FlattenMlp as \
-    MyFlattenMlp
+from self_supervised.network.flatten_mlp import FlattenMlpDropout as \
+    MyFlattenMlpDropout
+
+from my_utils.networks.flatten_empty import FlattenEmpty
 
 
 class SRNNLatentConditionedOnSkillSeq(BaseNetwork):
@@ -15,10 +17,10 @@ class SRNNLatentConditionedOnSkillSeq(BaseNetwork):
     def __init__(self,
                  obs_dim,
                  skill_dim,
-                 filter_net_params,
                  deterministic_latent_net: nn.GRU,
                  stochastic_latent_net_class: Type[StochasticLatentNetBase],
                  stochastic_latent_net_class_params,
+                 filter_net_params=None,
                  ):
         """
         Args:
@@ -45,13 +47,17 @@ class SRNNLatentConditionedOnSkillSeq(BaseNetwork):
         self.stoch_latent_dim = self.stoch_latent.latent_dim
 
         # a = g(d_t, skill)
-        activation = nn.LeakyReLU(filter_net_params.pop('leaky_relu'))
-        self.pre_filter_net = MyFlattenMlp(
-            input_size=self.det_latent_dim + skill_dim,
-            output_size=self.det_latent_dim + skill_dim,
-            hidden_activation=activation,
-            **filter_net_params,
-        )
+        if filter_net_params is None:
+            self.pre_filter_net = FlattenEmpty()
+
+        else:
+            activation = nn.LeakyReLU(filter_net_params.pop('leaky_relu'))
+            self.pre_filter_net = MyFlattenMlpDropout(
+                input_size=self.det_latent_dim + skill_dim,
+                output_size=self.det_latent_dim + skill_dim,
+                hidden_activation=activation,
+                **filter_net_params,
+            )
 
     @property
     def latent_dim(self):
