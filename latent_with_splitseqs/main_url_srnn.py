@@ -24,7 +24,7 @@ from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
 from seqwise_cont_skillspace.utils.info_loss import GuidedInfoLoss
 
-from mode_disent_no_ssm.utils.parse_args import parse_args
+from mode_disent_no_ssm.utils.parse_args import parse_args, parse_args_hptuning
 
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 from latent_with_splitseqs.algo.algo_latent_splitseq_with_eval_on_used_obsdim \
@@ -37,8 +37,12 @@ from latent_with_splitseqs.networks.seqwise_splitseq_classifier_srnn_whole_seq_r
     import SplitSeqClassifierSRNNWholeSeqRecon
 from latent_with_splitseqs.trainer.latent_srnn_full_seq_recon_trainer \
     import URLTrainerLatentSplitSeqsSRNNFullSeqRecon
-from latent_with_splitseqs.latent.slac_latent_conditioned_on_skill_seq \
-    import SlacLatentNetConditionedOnSkillSeq, SlacLatentNetConditionedOnSkillSeqForSRNN
+from latent_with_splitseqs.latent.slac_latent_conditioned_on_skill_seq import \
+    SlacLatentNetConditionedOnSkillSeq, \
+    SlacLatentNetConditionedOnSkillSeqForSRNN, \
+    SlacLatentNetConditionedOnSkillSeqForSRNNSmoothing
+from latent_with_splitseqs.latent.one_stochlayered_latent_conditioned_on_skill_seq \
+    import OneLayeredStochasticLatentForSRNN
 
 
 def experiment(variant,
@@ -221,11 +225,30 @@ def experiment(variant,
 
 
 if __name__ == "__main__":
-    config, config_path_name = parse_args(
+    config, config_path_name = parse_args_hptuning(
         default="config/all_in_one_config/two_d_nav/"
                 "config_latent_normal_first_two_dims_slac_srnn.yaml",
+        default_min="config/all_in_one_config/mountaincar/srnn_hp_search/"
+                    "min_config_gru_slac_srnn_halfcheetah.yaml",
+        default_max="config/all_in_one_config/mountaincar/srnn_hp_search/"
+                    "max_config_gru_slac_srnn_halfcheetah.yaml",
+        default_hp_tuning=True,
         return_config_path_name=True,
     )
+
+    if config.random_hp_tuning:
+        config.srnn_kwargs.stoch_latent_kwargs.latent2_dim = \
+            config.srnn_kwargs.stoch_latent_kwargs.latent1_dim * 8
+        config.algorithm_kwargs.num_epochs = \
+            (config.algorithm_kwargs.num_trains_per_train_loop *
+             config.algorithm_kwargs.batch_size) // 3000 + 1
+        config.seq_eval_len = config.seq_len
+        config.horizon_eval_len = config.horizon_len
+
+        if np.random.choice([True, False]):
+            config.df_kwargs.std_classifier = None
+
+        config_path_name = None
 
     # noinspection PyTypeChecker
     variant = dict(
