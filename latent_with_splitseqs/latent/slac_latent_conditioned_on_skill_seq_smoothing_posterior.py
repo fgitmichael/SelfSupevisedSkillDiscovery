@@ -109,12 +109,13 @@ class SlacLatentNetConditionedOnSkillSeqSmoothingPosterior(
                         [latent2_samples[t-1],
                          hidden_rnn_seqdim_first[t-1]]
                     )
-                    latent1_dist_prior = self.latent1_prior(
-                        [latent2_samples[t-1],
-                         obs_seq_seqdim_first[t-1]]
-                    )
+                    with torch.no_grad():
+                        latent1_dist_prior = self.latent1_prior(
+                            [latent2_samples[t-1],
+                             obs_seq_seqdim_first[t-1]]
+                        )
                     latent1_dist = torch_dist.Normal(
-                        loc=latent1_dist_residual.loc + latent1_dist_prior.loc,
+                        loc=latent1_dist_residual.loc + latent1_dist_prior.loc.detach(),
                         scale=latent1_dist_residual.scale,
                     )
                     latent1_sample = latent1_dist.rsample()
