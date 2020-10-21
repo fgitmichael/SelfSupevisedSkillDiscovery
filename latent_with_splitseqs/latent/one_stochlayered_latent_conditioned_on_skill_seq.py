@@ -1,4 +1,5 @@
 import torch
+import torch.distributions as torch_dist
 
 from code_slac.network.latent import ConstantGaussian
 
@@ -19,6 +20,7 @@ class OneLayeredStochasticLatent(StochasticLatentNetBase):
                  hidden_units=(256, 256),
                  leaky_slope=0.2,
                  dropout=0.,
+                 res_q_posterior=False,
                  **kwargs):
         super(OneLayeredStochasticLatent, self).__init__(*args, **kwargs)
 
@@ -39,6 +41,8 @@ class OneLayeredStochasticLatent(StochasticLatentNetBase):
         )
 
         self._latent_dim = latent_dim
+
+        self.res_q_posterior = res_q_posterior
 
     @property
     def latent_dim(self):
@@ -116,6 +120,17 @@ class OneLayeredStochasticLatent(StochasticLatentNetBase):
                      obs_seq_seqdim_first[t],
                      skill]
                 )
+                if self.res_q_posterior:
+                    latent_dist_residual = latent_dist
+                    with torch.no_grad():
+                        latent_dist_prior = self.latent_prior(
+                            [ptu.zeros(batch_size, self.latent_dim),
+                             obs_seq_seqdim_first[t]]
+                        )
+                    latent_dist = self._get_resq_dist(
+                        pri_dist=latent_dist_prior,
+                        residual=latent_dist_residual
+                    )
                 latent_sample = latent_dist.rsample()
 
             else:
@@ -124,6 +139,17 @@ class OneLayeredStochasticLatent(StochasticLatentNetBase):
                      obs_seq_seqdim_first[t],
                      skill]
                 )
+                if self.res_q_posterior:
+                    latent_dist_residual = latent_dist
+                    with torch.no_grad():
+                        latent_dist_prior = self.latent_prior(
+                            [latent_samples[t - 1],
+                             obs_seq_seqdim_first[t - 1]]
+                        )
+                    latent_dist = self._get_resq_dist(
+                        pri_dist=latent_dist_prior,
+                        residual=latent_dist_residual
+                    )
                 latent_sample = latent_dist.rsample()
 
             latent_dists.append(latent_dist)
@@ -141,6 +167,14 @@ class OneLayeredStochasticLatent(StochasticLatentNetBase):
         return dict(
             latent_samples=pri_dict['samples'],
             latent_dists=pri_dict['dists'],
+        )
+
+    def _get_resq_dist(self,
+                       residual: torch_dist.Normal,
+                       pri_dist: torch_dist.Normal) -> torch_dist.Normal:
+        return torch_dist.Normal(
+            loc=residual.loc + pri_dist.loc.detach(),
+            scale=residual.scale,
         )
 
     def sample_posterior_samples_cat(self, *args, **kwargs):
