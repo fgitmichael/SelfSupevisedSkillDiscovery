@@ -70,7 +70,7 @@ class BiRnnStepwiseSeqWiseClassifierSingleDims(BaseNetwork):
             hidden_sizes=hidden_size_feature_dim_matcher,
         )
 
-        pos_enc_ret_dict =  create_pos_encoder(
+        pos_enc_ret_dict = create_pos_encoder(
             feature_dim=feature_size,
             seq_len=seq_len,
             pos_encoder_variant=pos_encoder_variant,
