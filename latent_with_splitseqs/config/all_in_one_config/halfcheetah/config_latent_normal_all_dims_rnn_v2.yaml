@@ -3,21 +3,22 @@ algorithm: "Continuous Skill Space"
 version: "latent split seq | guided | sac in feature space | rnn only"
 layer_size: 256
 replay_buffer_size: 10000
+random_hp_tuning: False
 
 env_kwargs:
   env_id: halfcheetah
-  exclude_current_positions_from_observation: null
+  exclude_current_positions_from_observation: True
 
 obs_dims_used_policy_all_except: null
 
 algorithm_kwargs:
-  num_epochs: 120
+  num_epochs: 10000
   num_eval_steps_per_epoch: 1000
   num_trains_per_train_loop: 500
   num_expl_steps_per_train_loop: 10
   min_num_steps_before_training: 400
   max_path_length: 1000
-  batch_size: 350
+  batch_size: 1000
 
 trainer_kwargs:
   discount: 0.99
@@ -30,21 +31,21 @@ trainer_kwargs:
   df_lr: 0.001
   train_sac_in_feature_space: True
 
-seq_len: 20
-horizon_len: 100
-seq_eval_len: 20
-horizon_eval_len: 100
+seq_len: 200
+horizon_len: 5000
+seq_eval_len: 200
+horizon_eval_len: 5000
 skill_dim: 2
 
 info_loss:
-  alpha: 0.9
-  lamda: 0.2
+  alpha: 1.0
+  lamda: 0.0
 
 df_type:
   feature_extractor: rnn
   rnn_type: normal
   latent_type: full_seq
-  recon: whole_seq
+  recon: end_only
 
 latent_kwargs:
   None: null
@@ -57,6 +58,7 @@ latent_single_layer_kwargs:
 
 rnn_kwargs:
   hidden_size_rnn: 10
+  bidirectional: False
 
 df_kwargs_rnn:
   obs_dims_used: null

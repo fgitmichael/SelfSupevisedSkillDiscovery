@@ -11,7 +11,7 @@ env_kwargs:
 obs_dims_used_policy_all_except: null
 
 algorithm_kwargs:
-  num_epochs: 1000
+  num_epochs: 120
   num_eval_steps_per_epoch: 1000
   num_trains_per_train_loop: 500
   num_expl_steps_per_train_loop: 10
@@ -44,7 +44,7 @@ df_type:
   feature_extractor: rnn
   rnn_type: normal
   latent_type: full_seq
-  recon: whole_seq
+  recon: end_only
 
 latent_kwargs:
   None: null
