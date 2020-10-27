@@ -23,6 +23,7 @@ class SplitSeqClassifierSRNNWholeSeqRecon(SplitSeqClassifierBase):
         super(SplitSeqClassifierSRNNWholeSeqRecon, self).__init__(
             *args,
             obs_dim=obs_dim,
+            seq_len=seq_len,
             **kwargs
         )
 
@@ -37,7 +38,6 @@ class SplitSeqClassifierSRNNWholeSeqRecon(SplitSeqClassifierBase):
         )
 
         self.obs_dim = obs_dim
-        self.seq_len = seq_len
         self.skill_dim = skill_dim
 
     @torch.no_grad()
