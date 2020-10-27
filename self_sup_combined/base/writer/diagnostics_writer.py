@@ -7,7 +7,7 @@ from easydict import EasyDict as edict
 
 from self_supervised.utils.writer import MyWriterWithActivation
 
-from mode_disent_no_ssm.utils.parse_args import yaml_save_hyperparameters
+from mode_disent_no_ssm.utils.parse_args import yaml_save, json_save
 
 
 class DiagnosticsWriter:
@@ -94,9 +94,9 @@ class DiagnosticsWriter:
     def save_hparams(self, hparams: edict):
         if hparams is not None:
             save_path = os.path.join(self.writer.summary_dir, 'hparams.yaml')
-            yaml_save_hyperparameters(
+            json_save(
                 path_name=save_path,
-                hparams=hparams,
+                file=hparams,
             )
 
         else:

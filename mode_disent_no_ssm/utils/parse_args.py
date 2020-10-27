@@ -177,12 +177,14 @@ def open_json(path_name):
 
 def json_save(file, path_name):
     with open(path_name, 'w') as outfile:
-        json.dump(file, outfile)
+        json.dump(
+            file,
+            outfile,
+            indent=4,
+            separators=(',', ': '),
+        )
 
 
-def yaml_save_hyperparameters(hparams: edict, path_name):
+def yaml_save(file: edict, path_name):
     with open(path_name, 'w') as hparamfile:
-        yaml.dump(hparams, hparamfile)
-
-
-
+        yaml.dump(file, hparamfile)

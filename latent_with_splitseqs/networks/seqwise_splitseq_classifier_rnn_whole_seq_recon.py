@@ -23,8 +23,6 @@ class SeqwiseSplitseqClassifierRnnWholeSeqRecon(
         skill_recon_dist = self.classifier(
             hidden_seq_reshaped
         )
-        # TODO: delete assertion
-        assert tensor_equality(hidden_seq_reshaped[0], hidden_seq[0, 0, :])
 
         return dict(
             skill_recon_dist=skill_recon_dist

@@ -152,11 +152,13 @@ class SeqwiseAlgoRevisedSplitSeqsEval(SeqwiseAlgoRevisedSplitSeqs):
 
         return df_accuracy_eval
 
-    def classifier_perf_eval(self):
+    def classifier_perf_eval(self, seq_eval_len=None):
+        if seq_eval_len is None:
+            seq_eval_len = self.seq_eval_len
         eval_paths = self._get_paths_mode_influence_test(
             num_paths=4,
             rollout_seqlengths_dict=dict(
-                seq_len=self.seq_eval_len,
+                seq_len=seq_eval_len,
                 horizon_len=self.horizon_eval_len,
             )
         )
@@ -184,7 +186,7 @@ class SeqwiseAlgoRevisedSplitSeqsEval(SeqwiseAlgoRevisedSplitSeqs):
         ).transpose(-1, -2)
 
         assert next_obs.shape \
-               == torch.Size((len(eval_paths), self.seq_eval_len, obs_dim))
+               == torch.Size((len(eval_paths), seq_eval_len, obs_dim))
 
         ret_dict = my_ptu.eval(self.trainer.df, obs_seq=next_obs)
         skill_recon_dist = ret_dict['skill_recon_dist']
