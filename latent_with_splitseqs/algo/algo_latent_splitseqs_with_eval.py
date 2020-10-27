@@ -35,8 +35,12 @@ class SeqwiseAlgoRevisedSplitSeqsEval(SeqwiseAlgoRevisedSplitSeqs):
             mode_influence_plotting=mode_influence_plotting,
             **kwargs
         )
-        self.seq_eval_len = seq_eval_len
+        self._seq_eval_len = seq_eval_len
         self.horizon_eval_len = horizon_eval_len
+
+    @property
+    def seq_eval_len(self):
+        return self._seq_eval_len
 
     def _get_paths_mode_influence_test(self,
                                        num_paths=1,
