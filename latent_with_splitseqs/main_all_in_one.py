@@ -115,19 +115,19 @@ def experiment(variant,
     eval_path_collector = SeqCollectorSplitSeq(
         eval_env,
         eval_policy,
-        max_seqs=1000,
+        max_seqs=5000,
         skill_selector=skill_selector
     )
     expl_step_collector = SeqCollectorSplitSeq(
         expl_env,
         policy,
-        max_seqs=1000,
+        max_seqs=5000,
         skill_selector=skill_selector
     )
     seq_eval_collector = SeqCollectorSplitSeq(
         env=eval_env,
         policy=eval_policy,
-        max_seqs=1000,
+        max_seqs=5000,
         skill_selector=skill_selector
     )
     loss_fun = GuidedInfoLoss(
