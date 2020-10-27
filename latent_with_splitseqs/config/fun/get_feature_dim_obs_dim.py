@@ -6,7 +6,10 @@ def get_feature_dim_obs_dim(
         config
 ):
     if config.df_type[df_type_keys['feature_extractor']] == feature_extractor_types['rnn']:
-        feature_dim_or_obs_dim = config.rnn_kwargs.hidden_size_rnn \
+        hidden_size = 2 * config.rnn_kwargs.hidden_size_rnn \
+            if config.rnn_kwargs.bidirectional \
+            else config.rnn_kwargs.hidden_size_rnn
+        feature_dim_or_obs_dim = hidden_size \
             if config['trainer_kwargs']['train_sac_in_feature_space'] \
             else obs_dim
 

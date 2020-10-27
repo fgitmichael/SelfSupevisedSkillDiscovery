@@ -8,6 +8,7 @@ class SplitSeqClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
 
     def __init__(self,
                  obs_dim,
+                 seq_len,
                  obs_dims_used=None
                  ):
         super(SplitSeqClassifierBase, self).__init__()
@@ -18,6 +19,12 @@ class SplitSeqClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
             self.used_dims = obs_dims_used
         else:
             self.used_dims = [i for i in range(obs_dim)]
+
+        self._seq_len = seq_len
+
+    @property
+    def seq_len(self):
+        return self._seq_len
 
     def _check_inputs(self, obs_seq, skill):
         batch_dim = 0
@@ -69,5 +76,6 @@ class SplitSeqClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
             self,
             obs_seq,
             skill,
+            **kwargs,
     ):
         raise NotImplementedError

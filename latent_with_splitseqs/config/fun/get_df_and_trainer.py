@@ -6,7 +6,8 @@ from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn_whole_seq_re
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn_end_recon_only \
     import SeqwiseSplitseqClassifierRnnEndReconOnly
 
-from latent_with_splitseqs.latent.rnn_dim_wise import GRUDimwise
+from latent_with_splitseqs.latent.rnn_dim_wise import GRUDimwise, GRUDimwisePosenc
+from latent_with_splitseqs.latent.rnn_pos_encoded import GRUPosenc
 from latent_with_splitseqs.latent.slac_latent_net_conditioned_on_single_skill \
     import SlacLatentNetConditionedOnSingleSkill
 from latent_with_splitseqs.latent.slac_latent_conditioned_on_skill_seq \
@@ -60,6 +61,8 @@ recon_types = dict(
 rnn_types = dict(
     normal='normal',
     dim_wise='dim_wise',
+    normal_posenc='normal_posenc',
+    dimwise_posenc='dimwise_posenc',
 )
 
 latent_types = dict(
@@ -121,7 +124,7 @@ def get_df_and_trainer(
                 input_size=obs_dim_rnn,
                 hidden_size=rnn_kwargs['hidden_size_rnn'],
                 batch_first=True,
-                bidirectional=False,
+                bidirectional=rnn_kwargs['bidirectional'],
             )
 
         elif df_type[df_type_keys['rnn_type']] == rnn_types['dim_wise']:
@@ -129,8 +132,27 @@ def get_df_and_trainer(
                 input_size=obs_dim_rnn,
                 hidden_size=rnn_kwargs['hidden_size_rnn'],
                 batch_first=True,
-                bidirectional=False,
+                bidirectional=rnn_kwargs['bidirectional'],
                 out_feature_size=rnn_kwargs['hidden_size_rnn']
+            )
+
+        elif df_type[df_type_keys['rnn_type']] == rnn_types['normal_posenc']:
+            rnn = GRUPosenc(
+                input_size=obs_dim_rnn,
+                hidden_size=rnn_kwargs['hidden_size_rnn'],
+                batch_first=True,
+                bidirectional=rnn_kwargs['bidirectional'],
+            )
+
+        elif df_type[df_type_keys['rnn_type']] == rnn_types['dimwise_posenc']:
+            rnn = GRUDimwisePosenc(
+                input_size=obs_dim_rnn,
+                hidden_size=rnn_kwargs['hidden_size_rnn'],
+                batch_first=True,
+                bidirectional=rnn_kwargs['bidirectional'],
+                out_feature_size=rnn_kwargs['hidden_size_rnn'] * 2 \
+                    if rnn_kwargs['bidirectional'] \
+                    else rnn_kwargs['hidden_size_rnn']
             )
 
         else:

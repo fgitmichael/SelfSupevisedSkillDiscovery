@@ -44,8 +44,9 @@ def get_env(**env_kwargs):
     gym_id = env_kwargs[gym_id_key]
     if gym_id in gym_envs_version_three.keys():
         env = gym_envs_version_three[gym_id](
-            exclude_current_positions_from_observation= \
-            exclude_current_positions_from_observation
+            exclude_current_positions_from_observation=True
+            if exclude_current_positions_from_observation is None
+            else False
         )
 
     elif gym_id in gym_envs_normal.keys():
