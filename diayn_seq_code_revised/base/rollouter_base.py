@@ -1,9 +1,19 @@
 import abc
+import gym
+from typing import Union
+
+from diayn_seq_code_revised.policies.skill_policy import \
+    SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
 
 import self_supervised.utils.typed_dicts as td
 
 
 class RollouterBase(object, metaclass=abc.ABCMeta):
+
+    def __init__(self,
+                 env: gym.Env,
+                 ):
+        self.env = env
 
     @abc.abstractmethod
     def do_rollout(

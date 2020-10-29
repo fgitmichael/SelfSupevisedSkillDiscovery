@@ -43,14 +43,15 @@ class RlkitRolloutSamplerWrapper(object):
 class RollouterRevised(RollouterBase):
 
     def __init__(self,
-                 env: gym.Env,
+                 *args,
                  policy: Union[SkillTanhGaussianPolicyRevised,
                                MakeDeterministicRevised],
                  rollout_fun=rollout,
+                 **kwargs
                  ):
-        self.env = env
-        self.policy = policy
+        super(RollouterRevised, self).__init__(*args, **kwargs)
 
+        self.policy = policy
         self.rollout_wrapper = RlkitRolloutSamplerWrapper(rollout_fun)
 
     def do_rollout(self,

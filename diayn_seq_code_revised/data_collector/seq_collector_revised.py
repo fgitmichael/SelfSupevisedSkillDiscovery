@@ -77,7 +77,8 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
 
     def _collect_new_paths(self,
                            num_seqs: int,
-                           seq_len: int) -> List[td.TransitionMapping]:
+                           seq_len: int,
+                           obs_dim_to_select: list) -> List[td.TransitionMapping]:
         paths = []
         num_steps_collected = 0
 
@@ -85,8 +86,14 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
             path = self._rollouter.do_rollout(
                 seq_len=seq_len
             )
-            self._check_paths(path=path,
-                              seq_len=seq_len)
+            self._check_paths(path=path, seq_len=seq_len)
+
+            if obs_dim_to_select is not None:
+                path = self.select_obs_dims(
+                    path,
+                    obs_dims_to_select=obs_dim_to_select
+                )
+
             num_steps_collected += seq_len
             paths.append(path)
 
@@ -103,10 +110,12 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
             seq_len,
             num_seqs,
             discard_incomplete_paths=None,
+            obs_dim_to_select=None,
     ):
         paths = self._collect_new_paths(
             seq_len=seq_len,
-            num_seqs=num_seqs
+            num_seqs=num_seqs,
+            obs_dim_to_select=obs_dim_to_select
         )
         self._check_path(paths[0], seq_len)
 
@@ -132,6 +141,21 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
             paths_with_skills.append(with_skill)
 
         return paths_with_skills
+
+    def select_obs_dims(
+            self,
+            paths: td.TransitionMapping,
+            obs_dims_to_select: Union[list, tuple],
+    ) -> td.TransitionMapping:
+        data_dim = -1
+        assert paths.obs.shape[data_dim] == self.obs_dim
+        assert isinstance(obs_dims_to_select, list) \
+               or isinstance(obs_dims_to_select, tuple)
+
+        paths.obs = paths.obs[..., obs_dims_to_select]
+        paths.next_obs = paths.next_obs[..., obs_dims_to_select]
+
+        return paths
 
     @property
     def obs_dim(self):

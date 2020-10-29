@@ -56,11 +56,13 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
             self,
             seq_len,
             num_seqs,
+            obs_dim_to_select: Union[list, tuple] = None,
             **kwargs
     ):
         paths = self._collect_new_paths(
             seq_len=seq_len,
-            num_seqs=num_seqs
+            num_seqs=num_seqs,
+            obs_dim_to_select=obs_dim_to_select,
         )
         self._check_path(paths[0], seq_len)
         prepared_paths = self.prepare_paths_before_save(paths, seq_len)

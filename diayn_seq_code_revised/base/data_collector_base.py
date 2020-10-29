@@ -12,3 +12,16 @@ class PathCollectorRevisedBase(PathCollector, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def reset(self):
         pass
+
+    @abc.abstractmethod
+    def collect_new_paths(
+            self,
+            seq_len,
+            num_seqs,
+            **kwargs,
+    ):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def skill_reset(self):
+        raise NotImplementedError

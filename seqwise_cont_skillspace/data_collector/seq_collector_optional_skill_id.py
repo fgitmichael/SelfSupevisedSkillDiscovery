@@ -17,13 +17,28 @@ class SeqCollectorRevisedOptionalSkillId(SeqCollectorRevised):
             seq_len,
             num_seqs,
             skill_id=None,
-            discard_incomplete_paths=None
+            discard_incomplete_paths=None,
+            obs_dim_to_select=None,
     ):
         paths = self._collect_new_paths(
             num_seqs=num_seqs,
-            seq_len=seq_len
+            seq_len=seq_len,
+            obs_dim_to_select=obs_dim_to_select,
         )
 
+        prepared_paths = self.prepare_paths_before_save(
+            paths,
+            seq_len,
+            skill_id=skill_id
+        )
+        self._epoch_paths.extend(prepared_paths)
+
+    def prepare_paths_before_save(
+            self,
+            paths,
+            seq_len,
+            skill_id=None
+    ) -> List[td.TransitionModeMapping]:
         if skill_id is not None:
             # Optionally extend to TransitionModeMappingDiscreteSkills
             assert type(skill_id) is int
@@ -40,7 +55,7 @@ class SeqCollectorRevisedOptionalSkillId(SeqCollectorRevised):
                 paths
             )
 
-        self._epoch_paths.extend(paths_to_save)
+        return paths_to_save
 
     def _extent_paths_with_skill(self, seq_len, paths) -> List[td.TransitionModeMapping]:
         # Extend to TransitionModeMapping

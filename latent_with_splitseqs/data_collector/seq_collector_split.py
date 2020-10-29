@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 import numpy as np
 from warnings import warn
 
@@ -21,6 +21,7 @@ class SeqCollectorSplitSeq(SeqCollectorRevised):
             horizon_len: int = None,
             discard_incomplete_paths=None,
             skill_id: int = None,
+            obs_dim_to_select=None,
 
     ):
         paths = self._collect_new_paths(
@@ -72,6 +73,7 @@ class SeqCollectorSplitSeq(SeqCollectorRevised):
             seq_len,
             num_seqs,
             horizon_len: int = None,
+            obs_dim_to_select: Union[list, tuple] = None,
             **kwargs,
     ):
         # Sanity check
@@ -84,25 +86,25 @@ class SeqCollectorSplitSeq(SeqCollectorRevised):
             paths = super(SeqCollectorSplitSeq, self)._collect_new_paths(
                 seq_len=horizon_len,
                 num_seqs=num_seqs,
+                obs_dim_to_select=obs_dim_to_select,
             )
 
             # Split paths
-            split_paths = self._split_paths(
+            paths = self._split_paths(
                 split_seq_len=seq_len,
                 horizon_len=horizon_len,
                 paths_to_split=paths,
             )
-
-            return split_paths
 
         else:
             # Do not split
             paths = super(SeqCollectorSplitSeq, self)._collect_new_paths(
                 seq_len=seq_len,
                 num_seqs=num_seqs,
+                obs_dim_to_select=obs_dim_to_select,
             )
 
-            return paths
+        return paths
 
     def _split_paths(self,
                      split_seq_len,
