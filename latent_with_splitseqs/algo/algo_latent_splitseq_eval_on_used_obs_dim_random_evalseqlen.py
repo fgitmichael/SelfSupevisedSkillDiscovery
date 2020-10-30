@@ -42,31 +42,35 @@ class SeqwiseAlgoRevisedSplitSeqsEvalOnUsedObsDimRandomSeqevalLen(
         )
         gt.stamp('exploration sampling', unique=False)
 
-    def _get_paths_mode_influence_test(self,
-                                       num_paths=1,
-                                       rollout_seqlengths_dict=None) \
-        -> List[td.TransitionModeMapping]:
-        assert isinstance(self.seq_eval_collector, SeqCollectorRevisedOptionalSkillId)
-
-        seq_len = rollout_seqlengths_dict['seq_len']
-
-        for skill_id, skill in enumerate(
-                self.seq_eval_collector.skill_selector.get_skill_grid()):
-
-            self.seq_eval_collector.skill = skill
-            self.seq_eval_collector.collect_new_paths(
-                seq_len=seq_len,
-                num_seqs=num_paths,
-                skill_id=skill_id # Use the Option to assign skill id
-            )
-
-        mode_influence_eval_paths = self.seq_eval_collector.get_epoch_paths()
-        assert type(mode_influence_eval_paths) is list
-        assert type(mode_influence_eval_paths[0]) \
-               is td.TransitonModeMappingDiscreteSkills
-        assert len(mode_influence_eval_paths) < self.seq_eval_collector.maxlen
-
-        return mode_influence_eval_paths
+#    def _get_paths_mode_influence_test(self,
+#                                       num_paths=1,
+#                                       rollout_seqlengths_dict=None) \
+#        -> List[td.TransitionModeMapping]:
+#        assert isinstance(self.seq_eval_collector, SeqCollectorRevisedOptionalSkillId)
+#
+#        if rollout_seqlengths_dict is not None:
+#            seq_len = rollout_seqlengths_dict['horizon_len']
+#
+#        else:
+#            raise NotImplementedError
+#
+#        for skill_id, skill in enumerate(
+#                self.seq_eval_collector.skill_selector.get_skill_grid()):
+#
+#            self.seq_eval_collector.skill = skill
+#            self.seq_eval_collector.collect_new_paths(
+#                seq_len=seq_len,
+#                num_seqs=num_paths,
+#                skill_id=skill_id # Use the Option to assign skill id
+#            )
+#
+#        mode_influence_eval_paths = self.seq_eval_collector.get_epoch_paths()
+#        assert type(mode_influence_eval_paths) is list
+#        assert type(mode_influence_eval_paths[0]) \
+#               is td.TransitonModeMappingDiscreteSkills
+#        assert len(mode_influence_eval_paths) < self.seq_eval_collector.maxlen
+#
+#        return mode_influence_eval_paths
 
     def classifier_perf_eval_log(self, epoch):
         # Get random seq_eval_len (each time different)
