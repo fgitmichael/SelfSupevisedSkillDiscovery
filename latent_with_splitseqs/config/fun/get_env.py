@@ -3,6 +3,8 @@ from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from gym.envs.mujoco.swimmer_v3 import SwimmerEnv as SwimmerVersionThreeEnv
 from gym.envs.mujoco.half_cheetah_v3 import HalfCheetahEnv as HalfCheetahVersionThreeEnv
 from gym.envs.mujoco.ant_v3 import AntEnv as AntVersionThreeEnv
+from gym.envs.mujoco.hopper_v3 import HopperEnv as HopperVersionThreeEnv
+from gym.envs.mujoco.walker2d_v3 import Walker2dEnv as Walker2dVersionThreeEnv
 
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
@@ -10,6 +12,8 @@ gym_envs_version_three = dict(
     swimmer=SwimmerVersionThreeEnv,
     halfcheetah=HalfCheetahVersionThreeEnv,
     ant=AntVersionThreeEnv,
+    hopper=HopperVersionThreeEnv,
+    walker=Walker2dVersionThreeEnv,
 )
 
 gym_envs_normal = dict(
