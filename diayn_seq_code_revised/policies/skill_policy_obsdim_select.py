@@ -33,6 +33,7 @@ class SkillTanhGaussianPolicyRevisedObsSelect(
                           ) -> np.ndarray:
         action_tensor = self.forward(
             obs=obs_skill_cat,
+            deterministic=deterministic,
         )[0]
 
         return ptu.get_numpy(action_tensor)
