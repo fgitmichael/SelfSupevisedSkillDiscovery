@@ -62,7 +62,8 @@ def experiment(variant,
 
     seq_len = config.seq_len
     skill_dim = config.skill_dim
-    feature_dim_or_obs_dim = latent1_dim + latent2_dim + hidden_size_rnn
+    #feature_dim_or_obs_dim = latent1_dim + latent2_dim + hidden_size_rnn
+    feature_dim_or_obs_dim = obs_dim
 
     used_obs_dims_policy = tuple([i for i in range(obs_dim)])
 
@@ -120,7 +121,7 @@ def experiment(variant,
     )
     skill_selector = SkillSelectorContinous(
         prior_skill_dist=skill_prior,
-        grid_radius_factor=1.,
+        grid_radius_factor=2.,
     )
     eval_path_collector = SeqCollectorSplitSeq(
         eval_env,
@@ -226,13 +227,13 @@ def experiment(variant,
 
 if __name__ == "__main__":
     config, config_path_name = parse_args_hptuning(
-        default="config/all_in_one_config/two_d_nav/"
-                "config_latent_normal_first_two_dims_slac_srnn.yaml",
+        default="config/all_in_one_config/swimmer/"
+                "config_latent_normal_first_two_dims_slac_srnn_v1.yaml",
         default_min="config/all_in_one_config/mountaincar/srnn_hp_search/"
                     "min_config_gru_slac_srnn_halfcheetah.yaml",
         default_max="config/all_in_one_config/mountaincar/srnn_hp_search/"
                     "max_config_gru_slac_srnn_halfcheetah.yaml",
-        default_hp_tuning=True,
+        default_hp_tuning=False,
         return_config_path_name=True,
     )
 
