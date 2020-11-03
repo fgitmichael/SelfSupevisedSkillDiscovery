@@ -52,8 +52,11 @@ latent_kwargs:
 latent_kwargs_smoothing:
   None: null
 
+latent_single_layer_kwargs:
+  None: null
+
 rnn_kwargs:
-  hidden_size_rnn: 30
+  hidden_size_rnn: 60
 
 df_kwargs_rnn:
   obs_dims_used: null
@@ -67,5 +70,5 @@ df_kwargs_latent:
 
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
-log_folder: logshalfcheetah
+log_folder: logsant
 log_interval: 10
