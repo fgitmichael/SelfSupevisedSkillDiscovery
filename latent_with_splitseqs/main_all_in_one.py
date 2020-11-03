@@ -218,6 +218,38 @@ if __name__ == "__main__":
         return_config_path_name=True,
     )
 
+    if config.random_hp_tuning:
+        #config.latent_kwargs.latent2_dim = config.latent_kwargs.latent1_dim * 8
+
+        config.seq_eval_len = config.seq_len
+        config.horizon_len = max(500,
+                                 np.random.randint(7, 30) * config.seq_len)
+        config.horizon_eval_len = config.horizon_len
+
+        classifier_layer_size = np.random.randint(32, 256)
+        config.df_kwargs_rnn.hidden_units_classifier = [classifier_layer_size,
+                                                        classifier_layer_size]
+
+        #if np.random.choice([True, False]):
+        #    config.df_type.feature_extractor = 'rnn'
+        #    config.df_type.latent_type = None
+
+        #else:
+        #    config.df_type.feature_extractor = 'latent_slac'
+        #    config.df_type.rnn_type = None
+        #    if np.random.choice([True, False]):
+        #        config.df_type.latent_type = 'single_skill'
+        #    else:
+        #        config.df_type.latent_type = 'full_seq'
+
+        #if np.random.choice([True, False]):
+        #    config.algorithm_kwargs.train_sac_in_feature_space = False
+
+        config_path_name = None
+
+        if np.random.choice([True, False]):
+            config.df_kwargs_rnn.std_classifier = np.random.rand() + 0.3
+
     # noinspection PyTypeChecker
     variant = dict(
         algorithm=config.algorithm,
