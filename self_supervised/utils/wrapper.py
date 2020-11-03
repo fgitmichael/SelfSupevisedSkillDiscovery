@@ -19,7 +19,7 @@ class SkillTanhGaussianPolicyRlkitBehaviour():
             self,
             obs_np: np.ndarray,
             skill: torch.Tensor = None,
-            deterministic: bool = None) -> Tuple[np.ndarray, dict]:
+            deterministic: bool = False) -> Tuple[np.ndarray, dict]:
         action_mapping = self.policy.get_action(
                 obs_np=obs_np,
                 skill=skill,
