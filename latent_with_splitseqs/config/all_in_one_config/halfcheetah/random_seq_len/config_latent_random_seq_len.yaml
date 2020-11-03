@@ -9,15 +9,16 @@ env_kwargs:
   env_id: halfcheetah
   exclude_current_positions_from_observation: False
 
-obs_dims_used_policy_all_except: [0, 1]
+obs_dims_used_policy_all_except: [0,]
 
 algorithm_kwargs:
-  num_epochs: 10000
+  num_epochs: 500
   num_eval_steps_per_epoch: 1000
   num_trains_per_train_loop: 300
   num_expl_steps_per_train_loop: 10
   min_num_steps_before_training: 400
   max_path_length: 1000
+  obs_dims_to_log: [0, 1, 2]
   batch_size: 1000
 
 trainer_kwargs:
@@ -29,18 +30,18 @@ trainer_kwargs:
   reward_scale: 1
   use_automatic_entropy_tuning: True
   df_lr: 0.001
-  train_sac_in_feature_space: False
+  train_sac_in_feature_space: True
 
 seq_len: 400
 horizon_len: 400
-min_sample_seq_len: 20
-max_sample_seq_len: 100
+min_sample_seq_len: 41
+max_sample_seq_len: 42
 horizon_eval_len: null
 skill_dim: 2
 
 info_loss:
-  alpha: 0.99
-  lamda: 0.01
+  alpha: 0.999
+  lamda: 0.0
 
 df_type:
   feature_extractor: rnn
@@ -58,11 +59,11 @@ latent_single_layer_kwargs:
   None: null
 
 rnn_kwargs:
-  hidden_size_rnn: 10
+  hidden_size_rnn: 20
   bidirectional: False
 
 df_kwargs_rnn:
-  obs_dims_used: [0, 1]
+  obs_dims_used: [0, 1, 2,]
   dropout: 0.4
   leaky_slope_classifier: 0.2
   hidden_units_classifier: [256, 256]
@@ -74,4 +75,4 @@ df_kwargs_latent:
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
 log_folder: logshalfcheetah
-log_interval: 15
+log_interval: 25

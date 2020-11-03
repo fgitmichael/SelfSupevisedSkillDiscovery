@@ -40,7 +40,7 @@ horizon_eval_len: null
 skill_dim: 2
 
 info_loss:
-  alpha: 0.999
+  alpha: 1.0
   lamda: 0.0
 
 df_type:
@@ -63,7 +63,7 @@ rnn_kwargs:
   bidirectional: False
 
 df_kwargs_rnn:
-  obs_dims_used: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  obs_dims_used: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
   dropout: 0.4
   leaky_slope_classifier: 0.2
   hidden_units_classifier: [256, 256]
@@ -75,4 +75,4 @@ df_kwargs_latent:
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
 log_folder: logshalfcheetah
-log_interval: 15
+log_interval: 25
