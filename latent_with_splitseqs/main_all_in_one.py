@@ -18,11 +18,12 @@ from diayn_seq_code_revised.networks.my_gaussian import ConstantGaussianMultiDim
 from diayn_seq_code_revised.policies.skill_policy_obsdim_select \
     import SkillTanhGaussianPolicyRevisedObsSelect
 
+from seqwise_cont_skillspace.networks.contant_uniform import ConstantUniformMultiDim
 from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
 from seqwise_cont_skillspace.utils.info_loss import GuidedInfoLoss
 
-from mode_disent_no_ssm.utils.parse_args import parse_args
+from mode_disent_no_ssm.utils.parse_args import parse_args, parse_args_hptuning
 
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 from latent_with_splitseqs.algo.algo_latent_splitseq_with_eval_on_used_obsdim \
@@ -34,6 +35,7 @@ from latent_with_splitseqs.config.fun.get_obs_dims_used_policy \
 from latent_with_splitseqs.config.fun.get_df_and_trainer import get_df_and_trainer
 from latent_with_splitseqs.config.fun.get_feature_dim_obs_dim \
     import get_feature_dim_obs_dim
+from latent_with_splitseqs.utils.loglikelihoodloss import GuidedKldLogOnlyLoss
 
 def experiment(variant,
                config,
@@ -105,7 +107,10 @@ def experiment(variant,
         obs_dim_real=obs_dim,
     )
     eval_policy = MakeDeterministicRevised(policy)
-    skill_prior = ConstantGaussianMultiDim(
+    skill_prior_for_loss = ConstantGaussianMultiDim(
+        output_dim=skill_dim,
+    )
+    skill_prior = ConstantUniformMultiDim(
         output_dim=skill_dim,
     )
     skill_selector = SkillSelectorContinous(
@@ -130,7 +135,7 @@ def experiment(variant,
         max_seqs=5000,
         skill_selector=skill_selector
     )
-    loss_fun = GuidedInfoLoss(
+    loss_fun = GuidedKldLogOnlyLoss(
         alpha=config.info_loss.alpha,
         lamda=config.info_loss.lamda,
     ).loss
@@ -143,7 +148,7 @@ def experiment(variant,
         target_qf1=target_qf1,
         target_qf2=target_qf2,
         loss_fun=loss_fun,
-        skill_prior_dist=skill_prior,
+        skill_prior_dist=skill_prior_for_loss,
         **variant['trainer_kwargs']
     )
     df, trainer = get_df_and_trainer(
