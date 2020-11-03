@@ -37,8 +37,8 @@ horizon_eval_len: 80
 skill_dim: 2
 
 info_loss:
-  alpha: 0.99
-  lamda: 1.1
+  alpha: 0.8
+  lamda: 0.1
 
 df_type:
   feature_extractor: latent_slac

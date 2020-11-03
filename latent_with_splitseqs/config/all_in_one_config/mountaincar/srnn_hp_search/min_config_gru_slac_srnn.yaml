@@ -14,11 +14,11 @@ obs_dims_used_policy_all_except: null
 algorithm_kwargs:
   num_epochs: 200
   num_eval_steps_per_epoch: 1000
-  num_trains_per_train_loop: 300
+  num_trains_per_train_loop: 500
   num_expl_steps_per_train_loop: 10
   min_num_steps_before_training: 200
   max_path_length: 1000
-  batch_size: 200
+  batch_size: 500
 
 trainer_kwargs:
   discount: 0.99
@@ -35,7 +35,7 @@ srnn_kwargs:
   stoch_latent_kwargs:
     latent1_dim: 2
     latent2_dim: null
-    dropout: 0.2
+    dropout: 0.0
     beta_anneal:
       start: 0.2
       add: 0.00001
@@ -55,7 +55,7 @@ horizon_eval_len: 90
 skill_dim: 2
 
 info_loss:
-  alpha: 0.9
+  alpha: 0.7
   lamda: 0.1
 
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,

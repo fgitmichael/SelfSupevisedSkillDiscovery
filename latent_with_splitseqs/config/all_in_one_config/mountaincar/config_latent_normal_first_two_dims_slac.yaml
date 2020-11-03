@@ -30,14 +30,14 @@ trainer_kwargs:
   df_lr: 0.001
   train_sac_in_feature_space: True
 
-seq_len: 5
-horizon_len: 60
-seq_eval_len: 5
-horizon_eval_len: 60
+seq_len: 20
+horizon_len: 80
+seq_eval_len: 20
+horizon_eval_len: 80
 skill_dim: 2
 
 info_loss:
-  alpha: 0.8
+  alpha: 0.99
   lamda: 0.1
 
 df_type:
@@ -78,5 +78,5 @@ df_kwargs_latent:
 
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
-log_folder: logstwodnav
+log_folder: logsmountaincar
 log_interval: 10

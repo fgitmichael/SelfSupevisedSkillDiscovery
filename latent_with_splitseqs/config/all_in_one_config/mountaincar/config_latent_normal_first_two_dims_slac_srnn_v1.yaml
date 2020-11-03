@@ -32,25 +32,25 @@ trainer_kwargs:
 
 srnn_kwargs:
   stoch_latent_kwargs:
-    latent1_dim: 2
-    latent2_dim: 4
-    dropout: 0.2
+    latent1_dim: 10
+    latent2_dim: 80
+    dropout: 0.3
     beta_anneal:
       start: 0.2
       add: 0.0001
       end: 1
   det_latent_kwargs:
-    hidden_size_rnn: 3
+    hidden_size_rnn: 11
   filter_net_params: null
 
 df_kwargs:
   std_classifier: 1.0
   dropout_classifier: 0.2
 
-seq_len: 5
-horizon_len: 60
-seq_eval_len: 5
-horizon_eval_len: 60
+seq_len: 20
+horizon_len: 100
+seq_eval_len: 20
+horizon_eval_len: 100
 skill_dim: 2
 
 info_loss:
@@ -59,5 +59,5 @@ info_loss:
 
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
-log_folder: logstwodnav_srnn
+log_folder: logsmountaincar_srnn
 log_interval: 2
