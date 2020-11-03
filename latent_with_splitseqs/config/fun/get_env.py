@@ -38,19 +38,20 @@ def get_env(**env_kwargs):
     assert exclude_current_positions_key in env_kwargs.keys()
 
     if exclude_current_positions_key in env_kwargs.keys():
-        exclude_current_positions_from_observation \
-            = env_kwargs[exclude_current_positions_key]
+        exclude_current_pos = True \
+            if env_kwargs[exclude_current_positions_key] is None or \
+               env_kwargs[exclude_current_positions_key] is True \
+            else False
 
     else:
-        exclude_current_positions_from_observation = True
+        exclude_current_pos = True
 
     # Return Environment
     gym_id = env_kwargs[gym_id_key]
     if gym_id in gym_envs_version_three.keys():
         env = gym_envs_version_three[gym_id](
-            exclude_current_positions_from_observation=True
-            if exclude_current_positions_from_observation is None
-            else False
+            exclude_current_positions_from_observation=\
+                exclude_current_pos
         )
 
     elif gym_id in gym_envs_normal.keys():

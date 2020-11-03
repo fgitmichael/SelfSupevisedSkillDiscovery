@@ -3,22 +3,24 @@ import torch
 
 from code_slac.network.base import BaseNetwork
 
+from latent_with_splitseqs.config.fun.get_obs_dims_used_df import get_obs_dims_used_df
+
 
 class SplitSeqClassifierBase(BaseNetwork, metaclass=abc.ABCMeta):
 
     def __init__(self,
                  obs_dim,
                  seq_len,
-                 obs_dims_used=None
+                 obs_dims_used=None,
+                 obs_dims_used_except=None,
                  ):
         super(SplitSeqClassifierBase, self).__init__()
 
-        if obs_dims_used is not None:
-            assert isinstance(obs_dims_used, list) \
-                   or isinstance(obs_dims_used, tuple)
-            self.used_dims = obs_dims_used
-        else:
-            self.used_dims = [i for i in range(obs_dim)]
+        self.used_dims = get_obs_dims_used_df(
+            obs_dim=obs_dim,
+            obs_dims_used=obs_dims_used,
+            obs_dims_used_except=obs_dims_used_except,
+        )
 
         self._seq_len = seq_len
 

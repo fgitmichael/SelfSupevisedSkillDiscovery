@@ -38,6 +38,8 @@ from latent_with_splitseqs.trainer.rnn_with_splitseqs_trainer_end_recon_only \
 from latent_with_splitseqs.trainer.latent_single_layered_full_seq_recon_trainer \
     import URLTrainerLatentWithSplitseqsFullSeqReconLossSingleLayer
 
+from latent_with_splitseqs.config.fun.get_obs_dims_used_df import get_obs_dims_used_df
+
 
 df_type_keys = dict(
     feature_extractor='feature_extractor',
@@ -116,9 +118,13 @@ def get_df_and_trainer(
         == feature_extractor_types['rnn']:
 
         # RNN type
-        obs_dim_rnn = len(df_kwargs_rnn.obs_dims_used) \
-            if df_kwargs_rnn.obs_dims_used is not None \
-            else obs_dim
+        obs_dims_used_df = get_obs_dims_used_df(
+            obs_dim=obs_dim,
+            obs_dims_used=df_kwargs_rnn.obs_dims_used,
+            obs_dims_used_except=df_kwargs_rnn.obs_dims_used_except \
+                if 'obs_dims_used_except' in df_kwargs_rnn else None,
+        )
+        obs_dim_rnn = len(obs_dims_used_df)
         if df_type[df_type_keys['rnn_type']] == rnn_types['normal']:
             rnn = nn.GRU(
                 input_size=obs_dim_rnn,
