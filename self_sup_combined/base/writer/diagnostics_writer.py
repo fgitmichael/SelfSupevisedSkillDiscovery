@@ -35,6 +35,9 @@ class DiagnosticsWriter:
         if step % log_interval == 0:
             return True
 
+        else:
+            return False
+
     def save_object(self,
                     obj,
                     save_name: str,
