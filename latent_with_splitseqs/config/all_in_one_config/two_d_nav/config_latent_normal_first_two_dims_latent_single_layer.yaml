@@ -13,7 +13,7 @@ obs_dims_used_policy_all_except: null
 algorithm_kwargs:
   num_epochs: 1000
   num_eval_steps_per_epoch: 1000
-  num_trains_per_train_loop: 500
+  num_trains_per_train_loop: 600
   num_expl_steps_per_train_loop: 10
   min_num_steps_before_training: 200
   max_path_length: 1000
@@ -37,8 +37,8 @@ horizon_eval_len: 60
 skill_dim: 2
 
 info_loss:
-  alpha: 0.95
-  lamda: 0.05
+  alpha: 0.8
+  lamda: 0.1
 
 df_type:
   feature_extractor: latent_single_layer
@@ -47,7 +47,7 @@ df_type:
   recon: whole_seq
 
 latent_single_layer_kwargs:
-  latent_dim: 4
+  latent_dim: 20
   hidden_units: [256, 256]
   leaky_slope: 0.2
   dropout: 0.1

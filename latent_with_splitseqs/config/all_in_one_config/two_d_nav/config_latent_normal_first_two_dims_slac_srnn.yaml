@@ -11,7 +11,7 @@ env_kwargs:
 obs_dims_used_policy_all_except: null
 
 algorithm_kwargs:
-  num_epochs: 1000
+  num_epochs: 300
   num_eval_steps_per_epoch: 1000
   num_trains_per_train_loop: 300
   num_expl_steps_per_train_loop: 10
