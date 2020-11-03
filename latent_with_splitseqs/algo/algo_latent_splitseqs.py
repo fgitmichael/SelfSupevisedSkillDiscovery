@@ -7,16 +7,22 @@ from diayn_original_tb.algo.algo_diayn_tb_own_fun \
 from latent_with_splitseqs.memory.replay_buffer_for_latent import LatentReplayBuffer
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 
+from diayn_seq_code_revised.base.data_collector_base import PathCollectorRevisedBase
 
 class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
 
     def __init__(self,
                  *args,
                  horizon_len,
+                 exploration_data_collector: SeqCollectorSplitSeq,
                  batch_size_latent=None,
                  mode_influence_plotting=False,
                  **kwargs):
-        super(SeqwiseAlgoRevisedSplitSeqs, self).__init__(*args, **kwargs)
+        super(SeqwiseAlgoRevisedSplitSeqs, self).__init__(
+            *args,
+            exploration_data_collector=exploration_data_collector,
+            **kwargs
+        )
         self.horizon_len = horizon_len
         self.mode_influence_plotting = mode_influence_plotting
 
@@ -24,7 +30,7 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
             if batch_size_latent is not None \
             else self.batch_size
 
-    def set_next_skill(self, data_collector: SeqCollectorSplitSeq):
+    def set_next_skill(self, data_collector: PathCollectorRevisedBase):
         data_collector.skill_reset()
 
     def _train(self):
