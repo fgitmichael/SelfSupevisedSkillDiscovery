@@ -209,9 +209,12 @@ def experiment(variant,
 
 
 if __name__ == "__main__":
-    config, config_path_name = parse_args(
-        default="config/all_in_one_config/two_d_nav/"
-                "config_latent_normal_first_two_dims_slac.yaml",
+    config, config_path_name = parse_args_hptuning(
+        default="config/all_in_one_config/halfcheetah/"
+                "config_rnn_all_in_one_rnn_v2.yaml",
+        default_min="./config/all_in_one_config/hopper/rand_param_search/config_rnn_all_in_one_v0_min.yaml",
+        default_max="./config/all_in_one_config/hopper/rand_param_search/config_rnn_all_in_one_v0_max.yaml",
+        default_hp_tuning=False,
         return_config_path_name=True,
     )
 
