@@ -38,15 +38,15 @@ class LatentReplayBufferSplitSeqSampling(LatentReplayBuffer):
             TransitionModeMapping      : consisting of (N, data_dim, S) tensors
         """
         sample_seq_len = np.random.randint(**self.sample_seq_len_dict)
-        batch_size_adjusted = batch_size * self.horizon_len//sample_seq_len
+        batch_size = (batch_size * self.horizon_len) // sample_seq_len
         batch_horizon = super(LatentReplayBufferSplitSeqSampling, self).random_batch(
-            batch_size=batch_size_adjusted,
+            batch_size=batch_size,
         )
 
         start_idx = np.random.randint(
             low=0,
             high=self.horizon_len - sample_seq_len,
-            size=(batch_size_adjusted,)
+            size=(batch_size,)
         )
 
         batch_dim = 0
