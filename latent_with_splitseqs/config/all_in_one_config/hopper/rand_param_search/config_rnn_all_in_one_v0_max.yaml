@@ -32,7 +32,7 @@ trainer_kwargs:
   df_lr: 0.001
   train_sac_in_feature_space: True
 
-seq_len: 80
+seq_len: 250
 horizon_len: null
 seq_eval_len: null
 horizon_eval_len: null
@@ -58,7 +58,7 @@ latent_single_layer_kwargs:
   None: null
 
 rnn_kwargs:
-  hidden_size_rnn: 10
+  hidden_size_rnn: 50
   bidirectional: False
 
 df_kwargs_rnn:

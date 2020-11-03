@@ -14,8 +14,8 @@ obs_dims_used_policy_all_except: [0, ]
 algorithm_kwargs:
   num_epochs: 500
   num_eval_steps_per_epoch: 1000
-  num_trains_per_train_loop: 500
-  num_expl_steps_per_train_loop: 10
+  num_trains_per_train_loop: 241
+  num_expl_steps_per_train_loop: 11
   min_num_steps_before_training: 400
   max_path_length: 1000
   obs_dims_to_log: [0, 1, 2]
@@ -32,14 +32,14 @@ trainer_kwargs:
   df_lr: 0.001
   train_sac_in_feature_space: True
 
-seq_len: 20
-horizon_len: 800
-seq_eval_len: 20
-horizon_eval_len: 800
+seq_len: 65
+horizon_len: 1430
+seq_eval_len: 65
+horizon_eval_len: 1430
 skill_dim: 2
 
 info_loss:
-  alpha: 0.95
+  alpha: 0.87288
   lamda: 0.0
 
 df_type:
@@ -58,15 +58,15 @@ latent_single_layer_kwargs:
   None: null
 
 rnn_kwargs:
-  hidden_size_rnn: 10
+  hidden_size_rnn: 29
   bidirectional: False
 
 df_kwargs_rnn:
-  obs_dims_used: [0, ]
-  obs_dims_used_except: null
-  dropout: 0.4
-  leaky_slope_classifier: 0.2
-  hidden_units_classifier: [256, 256]
+  obs_dims_used: null
+  obs_dims_used_except: [0, ]
+  dropout: 0.5
+  leaky_slope_classifier: 0.24365
+  hidden_units_classifier: [128, 128]
   std_classifier: null
 
 df_kwargs_latent:
@@ -75,4 +75,4 @@ df_kwargs_latent:
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
 log_folder: logshopper
-log_interval: 50
+log_interval: 5

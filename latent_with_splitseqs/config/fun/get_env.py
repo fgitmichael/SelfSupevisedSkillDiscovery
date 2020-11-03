@@ -8,6 +8,7 @@ from gym.envs.mujoco.walker2d_v3 import Walker2dEnv as Walker2dVersionThreeEnv
 
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
+
 gym_envs_version_three = dict(
     swimmer=SwimmerVersionThreeEnv,
     halfcheetah=HalfCheetahVersionThreeEnv,
@@ -34,6 +35,7 @@ def get_env(**env_kwargs):
     # Keys
     gym_id_key = 'env_id'
     exclude_current_positions_key = 'exclude_current_positions_from_observation'
+    pos_only_key = 'pos_only'
     assert gym_id_key in env_kwargs.keys()
     assert exclude_current_positions_key in env_kwargs.keys()
 

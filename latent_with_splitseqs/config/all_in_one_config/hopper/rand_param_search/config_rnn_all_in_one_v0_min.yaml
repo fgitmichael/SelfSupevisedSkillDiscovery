@@ -58,7 +58,7 @@ latent_single_layer_kwargs:
   None: null
 
 rnn_kwargs:
-  hidden_size_rnn: 10
+  hidden_size_rnn: 1
   bidirectional: False
 
 df_kwargs_rnn:
@@ -75,4 +75,4 @@ df_kwargs_latent:
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
 log_folder: logshopper
-log_interval: 50
+log_interval: 5

@@ -12,7 +12,7 @@ env_kwargs:
 obs_dims_used_policy_all_except: [0, 1]
 
 algorithm_kwargs:
-  num_epochs: 10000
+  num_epochs: 500
   num_eval_steps_per_epoch: 1000
   num_trains_per_train_loop: 300
   num_expl_steps_per_train_loop: 10
@@ -63,7 +63,7 @@ rnn_kwargs:
   bidirectional: False
 
 df_kwargs_rnn:
-  obs_dims_used: [0, 1, 2,]
+  obs_dims_used: [2, 3, 4, 5,]
   dropout: 0.4
   leaky_slope_classifier: 0.2
   hidden_units_classifier: [256, 256]
@@ -75,4 +75,4 @@ df_kwargs_latent:
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
 log_folder: logsswimmer
-log_interval: 15
+log_interval: 25
