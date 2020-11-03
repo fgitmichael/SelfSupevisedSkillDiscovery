@@ -5,9 +5,10 @@ import gtimer as gt
 
 import rlkit.torch.pytorch_util as ptu
 
-from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
+from diayn_original_tb.algo.algo_diayn_tb_eval import DIAYNTorchOnlineRLAlgorithmTbEval
 
-class DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently(DIAYNTorchOnlineRLAlgorithmTb):
+
+class DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently(DIAYNTorchOnlineRLAlgorithmTbEval):
     # Saves one evaluation sampling loop from env compared to
     # DIAYNTorchOnlineRLAlgorithmTbPerfLogging (can be found below for comparison)
     def _classifier_perf_eval(self, eval_paths):
@@ -108,7 +109,7 @@ class DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently(DIAYNTorchOnlineRLAlgori
             epoch=epoch,
         )
 
-class DIAYNTorchOnlineRLAlgorithmTbPerfLogging(DIAYNTorchOnlineRLAlgorithmTb):
+class DIAYNTorchOnlineRLAlgorithmTbPerfLogging(DIAYNTorchOnlineRLAlgorithmTbEval):
 
     def _end_epoch(self, epoch):
         super()._end_epoch(epoch)

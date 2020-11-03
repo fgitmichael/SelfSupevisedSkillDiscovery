@@ -17,10 +17,10 @@ from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills
     TransitonModeMappingDiscreteSkills
 
 from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
-from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
+from diayn_original_tb.algo.algo_diayn_tb_eval import DIAYNTorchOnlineRLAlgorithmTbEval
 
 
-class DIAYNTorchOnlineRLAlgorithmTbNoOH(DIAYNTorchOnlineRLAlgorithmTb):
+class DIAYNTorchOnlineRLAlgorithmTbNoOH(DIAYNTorchOnlineRLAlgorithmTbEval):
 
     def _get_paths_mode_influence_test(self,
                                        num_paths=1,
