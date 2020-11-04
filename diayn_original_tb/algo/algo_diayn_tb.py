@@ -7,6 +7,9 @@ from rlkit.torch.sac.diayn.diayn_torch_online_rl_algorithm import \
 from rlkit.core.rl_algorithm import _get_epoch_timings
 from rlkit.core import logger
 
+from self_supervised.memory.self_sup_replay_buffer \
+    import SelfSupervisedEnvSequenceReplayBuffer
+
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
@@ -19,6 +22,7 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
 
     def __init__(self,
                  *args,
+                 replay_buffer: SelfSupervisedEnvSequenceReplayBuffer,
                  diagnostic_writer: DiagnosticsWriter,
                  seq_eval_collector: Union[SeqCollector,
                                            SeqCollectorRevised],
@@ -26,7 +30,11 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
                  mode_influence_paths_obs_lim: tuple=None,
                  **kwargs
                  ):
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            *args,
+            replay_buffer=replay_buffer,
+            **kwargs
+        )
 
         self.diagnostic_writer = diagnostic_writer
         self.seq_eval_collector = seq_eval_collector
