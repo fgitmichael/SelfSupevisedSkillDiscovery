@@ -15,7 +15,7 @@ from self_sup_comb_discrete_skills.memory.replay_buffer_discrete_skills import \
     SelfSupervisedEnvSequenceReplayBufferDiscreteSkills
 
 from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
-from diayn_original_tb.algo.algo_diayn_tb_eval import DIAYNTorchOnlineRLAlgorithmTbEval
+from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 
 from diayn_with_rnn_classifier.trainer.diayn_trainer_with_rnn_classifier import \
     DIAYNTrainerRnnClassifierExtension
@@ -65,7 +65,7 @@ from seqwise_cont_highdimusingvae.trainer.seqwise_cont_hduvae_single_dims_traine
     import ContSkillTrainerSeqwiseStepwiseHighdimusingvaeSingleDims
 
 
-class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTbEval):
+class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
 
     def __init__(self,
                  trainer: Union[

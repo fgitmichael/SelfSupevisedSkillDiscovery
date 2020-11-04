@@ -13,6 +13,7 @@ class DIAYNTorchOnlineRLAlgorithmTbEval(DIAYNTorchOnlineRLAlgorithmTb):
 
     def __init__(self, *args, **kwargs):
         super(DIAYNTorchOnlineRLAlgorithmTbEval, self).__init__(*args, **kwargs)
+
         self.post_epoch_funcs.append(self.save_objects)
         self.post_epoch_funcs.append(self.write_mode_influence_and_log)
 
