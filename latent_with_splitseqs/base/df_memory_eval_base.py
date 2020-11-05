@@ -3,7 +3,7 @@ import abc
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 
-class DfMemoryEvalBase(object, metaclass=abc.ABCMeta):
+class MemoryEvalBase(object, metaclass=abc.ABCMeta):
 
     def __init__(self,
                  replay_buffer,

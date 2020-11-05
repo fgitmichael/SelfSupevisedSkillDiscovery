@@ -4,7 +4,7 @@ from typing import Union
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 
-class EvaluationBase(object, metaclass=abc.ABCMeta):
+class EnvEvaluationBase(object, metaclass=abc.ABCMeta):
 
     def __init__(
             self,
