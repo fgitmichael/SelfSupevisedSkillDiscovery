@@ -1,11 +1,12 @@
 from typing import List
-
 import gtimer as gt
 import numpy as np
-from rlkit.torch import pytorch_util as ptu
 from torch.nn import functional as F
 
+from rlkit.torch import pytorch_util as ptu
+
 from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
+
 from self_supervised.utils import typed_dicts as td
 
 
