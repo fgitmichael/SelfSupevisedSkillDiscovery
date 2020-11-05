@@ -16,6 +16,8 @@ def is_log(log_interval=None):
             assert isinstance(self, SeqwiseAlgoRevisedSplitSeqs)
 
             if self.diagnostic_writer.is_log(epoch, log_interval=log_interval):
-                return func(self, epoch=epoch,)
+                return func(self, epoch=epoch, is_log=True)
+            else:
+                return func(self, epoch=epoch, is_log=False)
         return new_fun
     return check_is_log

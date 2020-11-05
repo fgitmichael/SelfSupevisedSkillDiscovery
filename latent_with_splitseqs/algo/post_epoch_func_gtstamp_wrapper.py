@@ -2,6 +2,7 @@ import gtimer as gt
 
 from functools import wraps
 
+
 def post_epoch_func_wrapper(gt_stamp_name):
     def real_dec(func):
         if gt_stamp_name is not None:

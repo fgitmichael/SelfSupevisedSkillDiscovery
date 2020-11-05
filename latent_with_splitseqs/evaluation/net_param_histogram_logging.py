@@ -3,8 +3,11 @@ import warnings
 from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 from self_sup_combined.base.writer.is_log import is_log
 
+from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper import post_epoch_func_wrapper
+
 
 @is_log()
+@post_epoch_func_wrapper(gt_stamp_name="net parameter histogram logging")
 def _log_net_param_hist(self: DIAYNTorchOnlineRLAlgorithmTb, epoch):
     assert isinstance(self, DIAYNTorchOnlineRLAlgorithmTb)
 
