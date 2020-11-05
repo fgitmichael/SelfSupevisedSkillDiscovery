@@ -11,14 +11,11 @@ def is_log(log_interval=None):
         @wraps(func)
         def new_fun(
                 self,
-                *args,
-                **kwargs
+                epoch,
         ):
-            assert 'epoch' in kwargs.keys()
             assert isinstance(self, SeqwiseAlgoRevisedSplitSeqs)
 
-            epoch = kwargs['epoch']
             if self.diagnostic_writer.is_log(epoch, log_interval=log_interval):
-                return func(*args, **kwargs)
+                return func(self, epoch=epoch,)
         return new_fun
     return check_is_log

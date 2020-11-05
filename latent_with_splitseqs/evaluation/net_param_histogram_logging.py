@@ -4,7 +4,7 @@ from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 from self_sup_combined.base.writer.is_log import is_log
 
 
-@is_log
+@is_log()
 def _log_net_param_hist(self: DIAYNTorchOnlineRLAlgorithmTb, epoch):
     assert isinstance(self, DIAYNTorchOnlineRLAlgorithmTb)
 
