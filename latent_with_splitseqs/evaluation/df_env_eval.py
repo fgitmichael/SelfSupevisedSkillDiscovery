@@ -1,3 +1,4 @@
+import torch
 from typing import Union, List
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,6 +9,8 @@ from latent_with_splitseqs.base.df_env_evaluation_base import EnvEvaluationBase
 from latent_with_splitseqs.data_collector.seq_collector_split \
     import SeqCollectorSplitSeq
 from latent_with_splitseqs.base.classifier_base import SplitSeqClassifierBase
+from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
+    import post_epoch_func_wrapper
 
 import self_supervised.utils.typed_dicts as td
 import self_supervised.utils.my_pytorch_util as my_ptu
@@ -16,8 +19,10 @@ import rlkit.torch.pytorch_util as ptu
 
 from seqwise_cont_skillspace.utils.get_colors import get_colors
 
+from self_sup_combined.base.writer.is_log import is_log
 
-class LatentSplitSeqEvaluation(EnvEvaluationBase):
+
+class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
 
     def __init__(
             self,
@@ -29,7 +34,7 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
             num_paths_per_skill=1,
             **kwargs
     ):
-        super(LatentSplitSeqEvaluation, self).__init__(
+        super(DfEnvEvaluationSplitSeq, self).__init__(
             *args,
             seq_collector=seq_collector,
             df_to_evaluate=df_to_evaluate,
@@ -38,6 +43,11 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
         self.seq_eval_len = seq_eval_len
         self.horizon_eval_len = horizon_eval_len
         self.num_paths_per_skill = num_paths_per_skill
+
+    @is_log()
+    @post_epoch_func_wrapper(gt_stamp_name="df evaluation memory")
+    def __call__(self, *args, **kwargs):
+        super(DfEnvEvaluationSplitSeq, self).__call__(*args, **kwargs)
 
     def collect_skill_influence_paths(self) -> dict:
         """
@@ -52,58 +62,73 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
                 self.seq_collector.skill_selector.get_skill_grid()):
             self.seq_collector.skill = skill
             self.seq_collector.collect_new_paths(
-                seq_len=self.seq_eval_len,
+                seq_len=self.horizon_eval_len, # No splits
                 horizon_len=self.horizon_eval_len,
                 num_seqs=self.num_paths_per_skill,
                 skill_id=skill_id,
             )
-        skill_influence_paths = self.seq_collector.get_epoch_paths()
+        skill_influence_paths = self.seq_collector.get_epoch_paths(transpose=False)
         self._check_skill_influence_paths(skill_influence_paths)
         
-        skill_influence_paths_stacked_bsd = self.prepare_paths(skill_influence_paths)
+        skill_influence_paths_stacked_dict_bsd = self.prepare_paths(skill_influence_paths)
         return dict(
-            skill_influence_paths=skill_influence_paths_stacked_bsd,
+            **skill_influence_paths_stacked_dict_bsd
         )
 
     def prepare_paths(
             self,
             skill_influence_paths: List[td.TransitonModeMappingDiscreteSkills]
-    ) -> td.TransitonModeMappingDiscreteSkills:
+    ) -> dict:
         """
-        Transpose paths and stack them
+        Stack sequences to one numpy array and split paths
         Args:
             skill_influence_paths   : list of (D, S) paths
         Return:
             stacked_paths           : numpy array of dimension (B, S, D),
                                       where B denotes the number of paths
         """
-        # Transpose to (seq_dim, data_dim) list of paths
-        transposed_paths = []
-        for path in skill_influence_paths:
-            transposed_paths.append(self._transpose_path(path))
+        # Stack whole paths
+        whole_paths_stacked = self._stack_paths(skill_influence_paths)
+        whole_paths_stacked = td.TransitonModeMappingDiscreteSkills(
+            **whole_paths_stacked
+        )
 
-        # Stack to one numpy array
-        stacked_paths = {}
-        for key, el in skill_influence_paths[0].items():
-            stacked_paths[key] = np.stack(
-                [path[key] for path in transposed_paths],
-                axis=0
-            )
-        stacked_paths = td.TransitonModeMappingDiscreteSkills(**stacked_paths)
+        # Split paths and stack them
+        split_paths = self.seq_collector.split_paths(
+            split_seq_len=self.seq_eval_len,
+            horizon_len=self.horizon_eval_len,
+            paths_to_split=skill_influence_paths,
+        )
+        split_paths_stacked = self._stack_paths(split_paths)
+        split_paths_stacked = td.TransitonModeMappingDiscreteSkills(
+            **split_paths_stacked
+        )
 
-        return stacked_paths
+        return dict(
+            skill_influence_whole_paths=whole_paths_stacked,
+            skill_influence_split_paths=split_paths_stacked,
+        )
 
-    def plot_mode_influence_paths(self, epoch, skill_influence_paths):
+    def plot_mode_influence_paths(
+            self,
+            *args,
+            epoch,
+            skill_influence_whole_paths,
+            **kwargs
+    ):
         seq_dim = 1
         data_dim = -1
-        assert isinstance(skill_influence_paths, td.TransitonModeMappingDiscreteSkills)
-        assert skill_influence_paths.obs.shape[seq_dim] == self.seq_eval_len
-        assert skill_influence_paths.obs.shape[data_dim] == self.seq_collector.obs_dim
+        assert isinstance(skill_influence_whole_paths,
+                          td.TransitonModeMappingDiscreteSkills)
+        assert skill_influence_whole_paths.obs.shape[seq_dim] \
+               == self.horizon_eval_len
+        assert skill_influence_whole_paths.obs.shape[data_dim] \
+               == self.seq_collector.obs_dim
 
-        # Extract relevant dimensions
-        obs = skill_influence_paths.next_obs[..., self.obs_dims_to_log]
-        action = skill_influence_paths.action[..., self.action_dims_to_log]
-        skill_id = skill_influence_paths.skill_id.squeeze()[0]
+        # Extract relevant dimensions and cat split seqs back to whole seqs
+        obs = skill_influence_whole_paths.next_obs[..., self.obs_dims_to_log]
+        action = skill_influence_whole_paths.action[..., self.action_dims_to_log]
+        skill_id = skill_influence_whole_paths.skill_id.squeeze()[..., 0]
 
         # Observations
         if self.plot_skill_influence['obs']:
@@ -129,10 +154,11 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
                 skill_id=skill_id,
             )
 
-    def apply_df(self, skill_influence_paths) -> dict:
-        next_obs = ptu.from_numpy(skill_influence_paths.next_obs)
-        skill = ptu.from_numpy(skill_influence_paths.mode)
-        skill_id = ptu.from_numpy(skill_influence_paths.skill_id)
+    @torch.no_grad()
+    def apply_df(self, *args, skill_influence_split_paths, **kwargs) -> dict:
+        next_obs = ptu.from_numpy(skill_influence_split_paths.next_obs)
+        skill = ptu.from_numpy(skill_influence_split_paths.mode)
+        skill_id = ptu.from_numpy(skill_influence_split_paths.skill_id)
 
         data_dim = -1
         assert next_obs.shape[:data_dim] \
@@ -148,26 +174,29 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
             *args,
             epoch,
             skill_recon_dist,
-            skill_influence_paths,
+            skill_influence_split_paths,
             **kwargs):
-        assert isinstance(skill_influence_paths, td.TransitonModeMappingDiscreteSkills)
+        assert isinstance(
+            skill_influence_split_paths,
+            td.TransitonModeMappingDiscreteSkills
+        )
 
-        skills = skill_influence_paths.mode
-        skill_id = skill_influence_paths.skill_id
+        skills = skill_influence_split_paths.mode
+        skill_id = skill_influence_split_paths.skill_id
         assert skill_recon_dist.batch_shape == skills[:, 0, :].shape
 
-        skill_id_np = ptu.get_numpy(skill_id[:, 0]).astype(np.int)
-        skill_id_unique_np = np.unique(ptu.get_numpy(skill_id[:, 0])).astype(np.int)
+        skill_id_squeezed = skill_id.squeeze().astype(np.int)
+        skill_id_unique_np = np.unique(skill_id_squeezed).astype(np.int)
         color_array = get_colors()
 
         # Without Limits
         plt.clf()
         plt.interactive(False)
         _, axes = plt.subplots()
-        for id in skill_id_unique_np:
+        for _id in skill_id_unique_np:
             self._scatter_post_skill(
-                skill_id_np=skill_id_np,
-                id=id,
+                skill_id_np=skill_id_squeezed,
+                id=_id,
                 skill_recon_dist=skill_recon_dist,
                 color_array=color_array,
                 skills=skills,
@@ -179,10 +208,10 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
 
         # With Limits
         _, axes = plt.subplots()
-        for id in skill_id_unique_np:
+        for _id in skill_id_unique_np:
             self._scatter_post_skill(
-                skill_id_np=skill_id_np,
-                id=id,
+                skill_id_np=skill_id,
+                id=_id,
                 skill_recon_dist=skill_recon_dist,
                 color_array=color_array,
                 skills=skills,
@@ -200,7 +229,7 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
             no_lim=fig_without_lim,
             lim=fig_with_lim,
         )
-        for key, fig in figs:
+        for key, fig in figs.items():
             self.diagno_writer.writer.writer.add_figure(
                 tag="Skill Posterior Plot Eval/{}".format(key),
                 figure=fig,
@@ -212,12 +241,10 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
             *args,
             epoch,
             skill_recon_dist,
-            skill_influence_paths,
+            skill_influence_split_paths,
             **kwargs
     ):
-        next_obs = ptu.from_numpy(skill_influence_paths.next_obs)
-        skill = ptu.from_numpy(skill_influence_paths.mode)
-        skill_id = ptu.from_numpy(skill_influence_paths.skill_id)
+        skill = ptu.from_numpy(skill_influence_split_paths.mode)
         df_accuracy_eval = F.mse_loss(skill_recon_dist.loc, skill[:, 0, :])
 
         self.diagno_writer.writer.writer.add_scalar(
@@ -225,6 +252,18 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
             scalar_value=df_accuracy_eval,
             global_step=epoch,
         )
+
+    def _stack_paths(self, paths: List[td.TransitionMapping]):
+        # Stack to one numpy array
+        stacked_paths = {}
+        for key, el in paths[0].items():
+            stacked_paths[key] = np.stack(
+                [path[key] for path in paths],
+                axis=0
+            )
+        stacked_paths = td.TransitonModeMappingDiscreteSkills(**stacked_paths)
+
+        return stacked_paths
 
     def _check_skill_influence_paths(
             self,
@@ -245,7 +284,7 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
         batch_dim = 0
         seq_dim = 1
         data_dim = -1
-        assert obs.shape[:data_dim] == skill_id.shape[:data_dim]
+        assert len(skill_id) == obs.shape[batch_dim]
         assert len(obs.shape) == 3
         num_obs_dims_used = obs.shape[data_dim]
         assert num_obs_dims_used == len(self.obs_dims_to_log)
@@ -253,7 +292,7 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
         for obs_seq in obs:
             obs_seq_data_dim_first = np.transpose(obs_seq, axes=(1, 0))
             assert obs_seq_data_dim_first.shape[0] == num_obs_dims_used
-            self.diagno_writer.writer.writer.plot_lines(
+            self.diagno_writer.writer.plot_lines(
                 legend_str=["dim {}".format(i) for i in range(num_obs_dims_used)],
                 tb_str="Mode Influence Test: Obs/Skill {}".format(skill_id),
                 arrays_to_plot=obs_seq_data_dim_first,
@@ -274,7 +313,7 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
                 y=[-2.2, 2.2],
             )
         self.diagno_writer.writer.plot(
-            obs[..., :2],
+            obs[..., 0], obs[..., 1],
             tb_str="State Space Behaviour/Skill {}".format(skill_id),
             step=epoch,
             x_lim=lim['x'],
@@ -291,31 +330,22 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
         batch_dim = 0
         seq_dim = 1
         data_dim = -1
-        assert action.shape[:data_dim] == skill_id.shape[:data_dim]
+        assert action.shape[batch_dim] == skill_id.shape[0]
         assert len(action.shape) == 3
+        assert len(skill_id.shape) == 1
         num_action_dims_used = action.shape[data_dim]
         assert num_action_dims_used == len(self.action_dims_to_log)
 
-        for action_seq in action:
+        for idx, action_seq in enumerate(action):
             action_seq_data_dim_first = np.transpose(action_seq, axes=(1, 0))
             assert action_seq_data_dim_first.shape[0] == num_action_dims_used
-            self.diagno_writer.writer.writer.plot_lines(
+            self.diagno_writer.writer.plot_lines(
                 legend_str=["dim {}".format(i) for i in range(num_action_dims_used)],
-                tb_str="Mode Influence Test: Action/Skill {}".format(skill_id),
+                tb_str="Mode Influence Test: Action/Skill {}".format(skill_id[idx]),
                 arrays_to_plot=action_seq_data_dim_first,
                 step=epoch,
                 y_lim=lim,
             )
-
-    def _transpose_path(self, path: td.TransitonModeMappingDiscreteSkills):
-        transposed_path = {}
-        seq_dim_now = 0
-        data_dim_now = 1
-        for key, el in path:
-            if isinstance(el, np.ndarray):
-                transposed_path[key] = np.transpose(el, axes=(data_dim_now, seq_dim_now))
-
-        return transposed_path
 
     def _scatter_post_skill(
             self,
@@ -325,7 +355,10 @@ class LatentSplitSeqEvaluation(EnvEvaluationBase):
             color_array,
             skills,
     ):
-        id_idx = skill_id_np == id
+        """
+        skill_id_np         : (N, S) array of skill_id
+        """
+        id_idx = np.unique(skill_id_np, axis=1) == id
         assert isinstance(id_idx, np.ndarray)
         id_idx = id_idx.squeeze()
 

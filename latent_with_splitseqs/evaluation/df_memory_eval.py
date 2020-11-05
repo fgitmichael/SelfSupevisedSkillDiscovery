@@ -8,7 +8,8 @@ from latent_with_splitseqs.base.classifier_base import SplitSeqClassifierBase
 from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
     import post_epoch_func_wrapper
 
-from self_supervised.memory.self_sup_replay_buffer import SelfSupervisedEnvSequenceReplayBuffer
+from self_supervised.memory.self_sup_replay_buffer \
+    import SelfSupervisedEnvSequenceReplayBuffer
 import self_supervised.utils.my_pytorch_util as my_ptu
 
 import self_supervised.utils.typed_dicts as td
@@ -40,7 +41,7 @@ class DfMemoryEvalSplitSeq(MemoryEvalBase):
         self.batch_size = batch_size
 
     @is_log()
-    @post_epoch_func_wrapper(gt_stamp_name="df evaluation memory")
+    @post_epoch_func_wrapper(gt_stamp_name="df evaluation env")
     def __call__(self, *args, **kwargs):
         super(DfMemoryEvalSplitSeq, self).__call__(*args, **kwargs)
 
@@ -59,6 +60,7 @@ class DfMemoryEvalSplitSeq(MemoryEvalBase):
 
     def calc_classifier_performance(
             self,
+            *args,
             epoch,
             skill_recon_dist,
             memory_paths: td.TransitionModeMapping,

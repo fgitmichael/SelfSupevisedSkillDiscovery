@@ -17,7 +17,7 @@ class MemoryEvalBase(object, metaclass=abc.ABCMeta):
     def __call__(self, *args, epoch, **kwargs):
         memory_paths_dict = self.sample_paths_from_replay_buffer()
         df_ret_dict = self.apply_df(**memory_paths_dict)
-        self.calc_classifier_performance(epoch, **df_ret_dict, **memory_paths_dict)
+        self.calc_classifier_performance(epoch=epoch, **df_ret_dict, **memory_paths_dict)
 
     @abc.abstractmethod
     def sample_paths_from_replay_buffer(self):

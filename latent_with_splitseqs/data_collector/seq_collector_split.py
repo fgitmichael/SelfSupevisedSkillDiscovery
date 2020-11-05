@@ -90,7 +90,7 @@ class SeqCollectorSplitSeq(SeqCollectorRevised):
             )
 
             # Split paths
-            paths = self._split_paths(
+            paths = self.split_paths(
                 split_seq_len=seq_len,
                 horizon_len=horizon_len,
                 paths_to_split=paths,
@@ -106,10 +106,10 @@ class SeqCollectorSplitSeq(SeqCollectorRevised):
 
         return paths
 
-    def _split_paths(self,
-                     split_seq_len,
-                     horizon_len,
-                     paths_to_split: List[td.TransitionMapping]) \
+    def split_paths(self,
+                    split_seq_len,
+                    horizon_len,
+                    paths_to_split: List[td.TransitionMapping]) \
             -> List[td.TransitionMapping]:
         return_paths = []
 
@@ -125,11 +125,12 @@ class SeqCollectorSplitSeq(SeqCollectorRevised):
 
         return return_paths
 
-    def _split_path(self,
-                    split_seq_len: int,
-                    horizon_len: int,
-                    path_to_split: td.TransitionMapping) \
-            -> List[td.TransitionMapping]:
+    @staticmethod
+    def _split_path(
+            split_seq_len: int,
+            horizon_len: int,
+            path_to_split: td.TransitionMapping
+    ) -> List[td.TransitionMapping]:
         split_path_dicts = split_path(
             split_seq_len=split_seq_len,
             horizon_len=horizon_len,

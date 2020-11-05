@@ -35,7 +35,7 @@ class EnvEvaluationBase(object, metaclass=abc.ABCMeta):
         else:
             self.action_dims_to_log = action_dims_to_log
 
-    def __call__(self, epoch):
+    def __call__(self, *args, epoch, **kwargs):
         eval_paths_dict = self.collect_skill_influence_paths()
 
         self.plot_mode_influence_paths(
