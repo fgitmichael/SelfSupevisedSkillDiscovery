@@ -255,4 +255,4 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
     def _store_expl_data(self):
         new_expl_paths = self.expl_data_collector.get_epoch_paths()
         self.replay_buffer.add_self_sup_paths(new_expl_paths)
-        gt.stamp('exploratation data storing', unique=False)
+        gt.stamp('exploration data storing', unique=False)
