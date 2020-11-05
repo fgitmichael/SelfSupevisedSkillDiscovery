@@ -6,7 +6,7 @@ replay_buffer_size: 100000
 random_hp_tuning: False
 
 env_kwargs:
-  env_id: halfcheetah
+  env_id: two_d_nav
   exclude_current_positions_from_observation: False
 
 obs_dims_used_policy_all_except: [0,]

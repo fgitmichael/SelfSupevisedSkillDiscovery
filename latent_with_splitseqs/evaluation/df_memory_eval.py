@@ -41,7 +41,7 @@ class DfMemoryEvalSplitSeq(MemoryEvalBase):
         self.batch_size = batch_size
 
     @is_log()
-    @post_epoch_func_wrapper(gt_stamp_name="df evaluation env")
+    @post_epoch_func_wrapper(gt_stamp_name="df evaluation memory")
     def __call__(self, *args, **kwargs):
         super(DfMemoryEvalSplitSeq, self).__call__(*args, **kwargs)
 
