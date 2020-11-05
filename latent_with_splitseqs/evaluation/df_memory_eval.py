@@ -17,6 +17,7 @@ import rlkit.torch.pytorch_util as ptu
 
 from self_sup_combined.base.writer.is_log import is_log
 
+
 class DfMemoryEvalSplitSeq(MemoryEvalBase):
 
     def __init__(self,
