@@ -42,6 +42,23 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         self.mode_influence_one_plot_scatter = mode_influence_one_plot_scatter
         self.mode_influence_path_obs_lim = mode_influence_paths_obs_lim
 
+    def _end_epoch(self, epoch):
+        """
+        Change order compared to base method
+        """
+        self.expl_data_collector.end_epoch(epoch)
+        self.eval_data_collector.end_epoch(epoch)
+        self.replay_buffer.end_epoch(epoch)
+        self.trainer.end_epoch(epoch)
+
+        for post_epoch_func in self.post_epoch_funcs:
+            post_epoch_func(self, epoch)
+
+        snapshot = self._get_snapshot()
+        logger.save_itr_params(epoch, snapshot)
+        gt.stamp('saving')
+        self._log_stats(epoch)
+
     def _log_stats(self, epoch):
         logger.log("Epoch {} finished".format(epoch), with_timestamp=True)
 
