@@ -161,6 +161,10 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
     def obs_dim(self):
         return self._rollouter.env.observation_space.shape[-1]
 
+    @property
+    def action_dim(self):
+        return self._rollouter.env.action_space.shape[-1]
+
     def _check_paths(self,
                      seq_len,
                      path: td.TransitionMapping):
