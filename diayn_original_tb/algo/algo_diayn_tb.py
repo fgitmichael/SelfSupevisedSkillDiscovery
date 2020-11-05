@@ -52,7 +52,7 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         self.trainer.end_epoch(epoch)
 
         for post_epoch_func in self.post_epoch_funcs:
-            post_epoch_func(self, epoch)
+            post_epoch_func(self, epoch=epoch)
 
         snapshot = self._get_snapshot()
         logger.save_itr_params(epoch, snapshot)
