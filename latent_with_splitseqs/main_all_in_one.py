@@ -26,9 +26,6 @@ from seqwise_cont_skillspace.utils.info_loss import GuidedInfoLoss
 from mode_disent_no_ssm.utils.parse_args import parse_args, parse_args_hptuning
 
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
-from latent_with_splitseqs.algo.algo_latent_splitseq_with_eval_on_used_obsdim \
-    import SeqwiseAlgoRevisedSplitSeqsEvalOnUsedObsDim
-
 from latent_with_splitseqs.config.fun.get_env import get_env
 from latent_with_splitseqs.config.fun.get_obs_dims_used_policy \
     import get_obs_dims_used_policy
@@ -36,6 +33,13 @@ from latent_with_splitseqs.config.fun.get_df_and_trainer import get_df_and_train
 from latent_with_splitseqs.config.fun.get_feature_dim_obs_dim \
     import get_feature_dim_obs_dim
 from latent_with_splitseqs.utils.loglikelihoodloss import GuidedKldLogOnlyLoss
+from latent_with_splitseqs.evaluation.df_memory_eval import DfMemoryEvalSplitSeq
+from latent_with_splitseqs.algo.add_post_epoch_func import add_post_epoch_funcs
+from latent_with_splitseqs.evaluation.net_param_histogram_logging \
+    import log_net_param_histograms
+from latent_with_splitseqs.algo.algo_latent_splitseqs import \
+    SeqwiseAlgoRevisedSplitSeqs
+from latent_with_splitseqs.evaluation.df_env_eval import DfEnvEvaluationSplitSeq
 
 def experiment(variant,
                config,
@@ -140,7 +144,6 @@ def experiment(variant,
         lamda=config.info_loss.lamda,
     ).loss
     trainer_init_kwargs = dict(
-        #skill_prior_dist=skill_prior,
         env=eval_env,
         policy=policy,
         qf1=qf1,
@@ -185,7 +188,24 @@ def experiment(variant,
         test_script_path_name=test_script_path_name,
     )
 
-    algorithm = SeqwiseAlgoRevisedSplitSeqsEvalOnUsedObsDim(
+    df_eval_memory = DfMemoryEvalSplitSeq(
+        replay_buffer=replay_buffer,
+        df_to_evaluate=df,
+        diagnostics_writer=diagno_writer,
+        **config.df_evaluation_memory
+    )
+    df_eval_env = DfEnvEvaluationSplitSeq(
+        seq_collector=seq_eval_collector,
+        df_to_evaluate=df,
+        diagnostics_writer=diagno_writer,
+        **config.df_evaluation_env,
+    )
+    algo_class = add_post_epoch_funcs([
+        log_net_param_histograms,
+        df_eval_env,
+        df_eval_memory,
+    ])(SeqwiseAlgoRevisedSplitSeqs)
+    algorithm = algo_class(
         trainer=trainer,
         exploration_env=expl_env,
         evaluation_env=eval_env,
@@ -199,9 +219,6 @@ def experiment(variant,
         diagnostic_writer=diagno_writer,
         seq_eval_collector=seq_eval_collector,
 
-        seq_eval_len=config.seq_eval_len,
-        horizon_eval_len=config.horizon_eval_len,
-
         **variant['algorithm_kwargs']
     )
     algorithm.to(ptu.device)
@@ -210,8 +227,8 @@ def experiment(variant,
 
 if __name__ == "__main__":
     config, config_path_name = parse_args_hptuning(
-        default="config/all_in_one_config/halfcheetah/"
-                "config_rnn_all_in_one_rnn_v2.yaml",
+        default="config/all_in_one_config/two_d_nav/"
+                "config_rnn_all_in_one_rnn_v1.yaml",
         default_min="./config/all_in_one_config/hopper/rand_param_search/config_rnn_all_in_one_v0_min.yaml",
         default_max="./config/all_in_one_config/hopper/rand_param_search/config_rnn_all_in_one_v0_max.yaml",
         default_hp_tuning=False,
@@ -221,10 +238,10 @@ if __name__ == "__main__":
     if config.random_hp_tuning:
         #config.latent_kwargs.latent2_dim = config.latent_kwargs.latent1_dim * 8
 
-        config.seq_eval_len = config.seq_len
+        config.df_evaluation_env.seq_eval_len = config.seq_len
         config.horizon_len = max(500,
                                  np.random.randint(7, 30) * config.seq_len)
-        config.horizon_eval_len = config.horizon_len
+        config.df_evaluation_env.horizon_eval_len = config.horizon_len
 
         classifier_layer_size = np.random.randint(32, 256)
         config.df_kwargs_rnn.hidden_units_classifier = [classifier_layer_size,
