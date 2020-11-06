@@ -71,9 +71,8 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
         self._check_skill_influence_paths(skill_influence_paths)
         
         skill_influence_paths_stacked_dict_bsd = self.prepare_paths(skill_influence_paths)
-        return dict(
-            **skill_influence_paths_stacked_dict_bsd
-        )
+        return skill_influence_paths_stacked_dict_bsd
+
 
     def prepare_paths(
             self,
@@ -126,9 +125,11 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
                == self.seq_collector.obs_dim
 
         # Extract relevant dimensions and cat split seqs back to whole seqs
-        obs = skill_influence_whole_paths.next_obs[..., self.obs_dims_to_log]
+        seq_dim = 1
+        obs = skill_influence_whole_paths.obs[..., self.obs_dims_to_log]
         action = skill_influence_whole_paths.action[..., self.action_dims_to_log]
-        skill_id = skill_influence_whole_paths.skill_id.squeeze()[..., 0]
+        skill = np.unique(skill_influence_whole_paths.mode, axis=seq_dim).squeeze()
+        skill_id = np.unique(skill_influence_whole_paths.skill_id, axis=seq_dim).squeeze()
 
         # Observations
         if self.plot_skill_influence['obs']:
@@ -144,6 +145,7 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
                 epoch=epoch,
                 obs=obs,
                 skill_id=skill_id,
+                skill=skill,
             )
 
         # Actions
@@ -289,12 +291,12 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
         num_obs_dims_used = obs.shape[data_dim]
         assert num_obs_dims_used == len(self.obs_dims_to_log)
 
-        for obs_seq in obs:
+        for _skill_id, obs_seq in zip(skill_id, obs):
             obs_seq_data_dim_first = np.transpose(obs_seq, axes=(1, 0))
             assert obs_seq_data_dim_first.shape[0] == num_obs_dims_used
             self.diagno_writer.writer.plot_lines(
                 legend_str=["dim {}".format(i) for i in range(num_obs_dims_used)],
-                tb_str="Mode Influence Test: Obs/Skill {}".format(skill_id),
+                tb_str="Mode Influence Test: Obs/Skill {}".format(_skill_id),
                 arrays_to_plot=obs_seq_data_dim_first,
                 step=epoch,
                 y_lim=obs_lim,
@@ -305,6 +307,7 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
             epoch,
             obs,
             skill_id,
+            skill,
             lim=None,
     ):
         if lim is None:
@@ -312,12 +315,25 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
                 x=[-2.2, 2.2],
                 y=[-2.2, 2.2],
             )
+        batch_dim = 0
+        seq_dim = 1
+        data_dim = -1
+        obs_dsb = np.transpose(obs, axes=(data_dim, seq_dim, batch_dim))
+        labels = ["skill {} ({})".format(_skill_id, _skill) \
+                  for _skill_id, _skill in zip(skill_id, skill)]
         self.diagno_writer.writer.plot(
-            obs[..., 0], obs[..., 1],
-            tb_str="State Space Behaviour/Skill {}".format(skill_id),
+            obs_dsb[0], obs_dsb[1],
+            tb_str="Mode-Influence all skills in one plot/With limits",
             step=epoch,
+            labels=labels,
             x_lim=lim['x'],
             y_lim=lim['y'],
+        )
+        self.diagno_writer.writer.plot(
+            obs_dsb[0], obs_dsb[1],
+            tb_str="Mode-Influence all skills in one plot/Without limits",
+            step=epoch,
+            labels=labels,
         )
 
     def _plot_action_mode_influence(
