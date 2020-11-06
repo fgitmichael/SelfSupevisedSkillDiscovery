@@ -3,18 +3,23 @@ from typing import Union
 
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
+from latent_with_splitseqs.base.evaluation_base import EvaluationBase
 
-class EnvEvaluationBase(object, metaclass=abc.ABCMeta):
+
+class EnvEvaluationBase(EvaluationBase, metaclass=abc.ABCMeta):
 
     def __init__(
             self,
+            *args,
             seq_collector,
             df_to_evaluate,
             obs_dims_to_log: Union[list, tuple],
             diagnostics_writer: DiagnosticsWriter,
             plot_skill_influence: dict = None,
             action_dims_to_log: Union[list, tuple] = None,
+            **kwargs
     ):
+        super(EnvEvaluationBase, self).__init__(*args, **kwargs)
         self.seq_collector = seq_collector
         self.diagno_writer = diagnostics_writer
         self.obs_dims_to_log = obs_dims_to_log
@@ -63,13 +68,6 @@ class EnvEvaluationBase(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def plot_mode_influence_paths(self, *args, **kwargs):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def apply_df(self, *args, **kwargs) -> dict:
-        """
-        Return: df_ret_dict
-        """
         raise NotImplementedError
 
     @abc.abstractmethod

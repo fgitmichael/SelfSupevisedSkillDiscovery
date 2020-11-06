@@ -58,7 +58,7 @@ class DfMemoryEvalSplitSeq(MemoryEvalBase):
         df_ret_dict = my_ptu.eval(self.df_to_evaluate, obs_seq=next_obs)
         return df_ret_dict
 
-    def calc_classifier_performance(
+    def classifier_evaluation(
             self,
             *args,
             epoch,
@@ -72,7 +72,7 @@ class DfMemoryEvalSplitSeq(MemoryEvalBase):
         )
 
         self.diagno_writer.writer.writer.add_scalar(
-            tag="Classifier Performance/Memory",
+            tag=self.get_log_string("Classifier Performance/Memory"),
             scalar_value=df_accuracy_memory,
             global_step=epoch
         )

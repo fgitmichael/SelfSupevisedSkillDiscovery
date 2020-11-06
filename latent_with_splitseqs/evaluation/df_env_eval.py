@@ -233,7 +233,9 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
         )
         for key, fig in figs.items():
             self.diagno_writer.writer.writer.add_figure(
-                tag="Skill Posterior Plot Eval/{}".format(key),
+                tag=self.get_log_string(
+                    "Skill Posterior Plot Eval/{}".format(key)
+                ),
                 figure=fig,
                 global_step=epoch,
             )
@@ -250,7 +252,7 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
         df_accuracy_eval = F.mse_loss(skill_recon_dist.loc, skill[:, 0, :])
 
         self.diagno_writer.writer.writer.add_scalar(
-            tag="Classifier Performance/Eval",
+            tag=self.get_log_string("Classifier Performance/Eval"),
             scalar_value=df_accuracy_eval,
             global_step=epoch,
         )
@@ -296,7 +298,9 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
             assert obs_seq_data_dim_first.shape[0] == num_obs_dims_used
             self.diagno_writer.writer.plot_lines(
                 legend_str=["dim {}".format(i) for i in range(num_obs_dims_used)],
-                tb_str="Mode Influence Test: Obs/Skill {}".format(_skill_id),
+                tb_str=self.get_log_string(
+                    "Mode Influence Test: Obs/Skill {}".format(_skill_id)
+                ),
                 arrays_to_plot=obs_seq_data_dim_first,
                 step=epoch,
                 y_lim=obs_lim,
@@ -323,7 +327,9 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
                   for _skill_id, _skill in zip(skill_id, skill)]
         self.diagno_writer.writer.plot(
             obs_dsb[0], obs_dsb[1],
-            tb_str="Mode-Influence all skills in one plot/With limits",
+            tb_str=self.get_log_string(
+                "Mode-Influence all skills in one plot/With limits"
+            ),
             step=epoch,
             labels=labels,
             x_lim=lim['x'],
@@ -331,7 +337,9 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
         )
         self.diagno_writer.writer.plot(
             obs_dsb[0], obs_dsb[1],
-            tb_str="Mode-Influence all skills in one plot/Without limits",
+            tb_str=self.get_log_string(
+                "Mode-Influence all skills in one plot/Without limits"
+            ),
             step=epoch,
             labels=labels,
         )
@@ -357,7 +365,9 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
             assert action_seq_data_dim_first.shape[0] == num_action_dims_used
             self.diagno_writer.writer.plot_lines(
                 legend_str=["dim {}".format(i) for i in range(num_action_dims_used)],
-                tb_str="Mode Influence Test: Action/Skill {}".format(skill_id[idx]),
+                tb_str=self.get_log_string(
+                    "Mode Influence Test: Action/Skill {}".format(skill_id[idx])
+                ),
                 arrays_to_plot=action_seq_data_dim_first,
                 step=epoch,
                 y_lim=lim,
