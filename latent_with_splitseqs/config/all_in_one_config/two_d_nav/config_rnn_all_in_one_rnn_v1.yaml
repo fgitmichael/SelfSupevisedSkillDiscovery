@@ -9,12 +9,12 @@ env_kwargs:
   env_id: two_d_nav
   exclude_current_positions_from_observation: False
 
-obs_dims_used_policy_all_except: [0,]
+obs_dims_used_policy_all_except: null
 
 algorithm_kwargs:
   num_epochs: 500
   num_eval_steps_per_epoch: 1000
-  num_trains_per_train_loop: 400
+  num_trains_per_train_loop: 200
   num_expl_steps_per_train_loop: 10
   min_num_steps_before_training: 400
   max_path_length: 1000
@@ -31,15 +31,15 @@ trainer_kwargs:
   df_lr: 0.001
   train_sac_in_feature_space: True
 
-seq_len: 40
-horizon_len: 400
-seq_eval_len: 40
-horizon_eval_len: 400
-obs_dims_to_log: [0, 1, 2]
+seq_len: 10
+horizon_len: 40
+seq_eval_len: 10
+horizon_eval_len: 40
+obs_dims_to_log: null
 skill_dim: 2
 
 info_loss:
-  alpha: 0.8
+  alpha: 0.7
   lamda: 0.0
 
 df_type:
@@ -62,7 +62,7 @@ rnn_kwargs:
   bidirectional: False
 
 df_kwargs_rnn:
-  obs_dims_used: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  obs_dims_used: null
   obs_dims_used_except: null
   dropout: 0.4
   leaky_slope_classifier: 0.2
