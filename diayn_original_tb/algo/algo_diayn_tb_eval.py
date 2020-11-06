@@ -16,18 +16,21 @@ class DIAYNTorchOnlineRLAlgorithmTbEval(DIAYNTorchOnlineRLAlgorithmTb):
         super(DIAYNTorchOnlineRLAlgorithmTbEval, self).__init__(*args, **kwargs)
 
         self.post_epoch_funcs.append(self.save_objects)
-        self.post_epoch_funcs.append(self.write_mode_influence_and_log)
 
-    def save_objects(self, epoch):
+    def save_objects(self, *args, epoch):
         self.diagnostic_writer.save_object(
             obj=self.policy,
             save_name="policy_net",
             epoch=epoch,
             log_interval=20,
         )
-
         if epoch == 0:
             self.diagnostic_writer.save_env(self.expl_env)
+
+    def _end_epoch(self, epoch):
+        super()._end_epoch(epoch)
+        if self.diagnostic_writer.is_log(epoch):
+            self.write_mode_influence_and_log(epoch)
 
     def write_mode_influence_and_log(self, epoch):
         if self.diagnostic_writer.is_log(epoch):
