@@ -18,7 +18,6 @@ algorithm_kwargs:
   num_expl_steps_per_train_loop: 10
   min_num_steps_before_training: 400
   max_path_length: 1000
-  obs_dims_to_log: [0, 1, 2]
   batch_size: 1000
 
 trainer_kwargs:
@@ -32,11 +31,25 @@ trainer_kwargs:
   df_lr: 0.001
   train_sac_in_feature_space: True
 
-seq_len: 41
+seq_len: 40
 horizon_len: 400
-seq_eval_len: 41
-horizon_eval_len: 400
 skill_dim: 2
+
+df_evaluation_env:
+  obs_dims_to_log: [0, 1]
+  action_dims_to_log: [0, 1]
+  seq_eval_len: 40
+  horizon_eval_len: 400
+  plot_skill_influence:
+    obs: True
+    action: True
+    obs_one_plot: True
+    plot_post: True
+
+df_evaluation_memory:
+  seq_eval_len: 40
+  horizon_eval_len: 400
+  batch_size: 100
 
 info_loss:
   alpha: 0.95
