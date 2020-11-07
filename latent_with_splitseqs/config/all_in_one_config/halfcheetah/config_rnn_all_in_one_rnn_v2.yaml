@@ -39,8 +39,8 @@ skill_dim: 2
 df_evaluation_env:
   obs_dims_to_log: [0, 1]
   action_dims_to_log: [0, 1]
-  seq_eval_len: 40
-  horizon_eval_len: 400
+  seq_len: 40
+  horizon_len: 400
   plot_skill_influence:
     obs: True
     action: True

@@ -6,10 +6,10 @@ replay_buffer_size: 100000
 random_hp_tuning: False
 
 env_kwargs:
-  env_id: halfcheetah
+  env_id: MountainCarContinuous-v0
   exclude_current_positions_from_observation: False
 
-obs_dims_used_policy_all_except: [0,]
+obs_dims_used_policy_all_except: null
 
 algorithm_kwargs:
   num_epochs: 500
@@ -38,8 +38,8 @@ skill_dim: 2
 df_evaluation_env:
   obs_dims_to_log: [0, 1]
   action_dims_to_log: [0, 1]
-  seq_eval_len: 40
-  horizon_eval_len: 400
+  seq_len: 40
+  horizon_len: 400
   plot_skill_influence:
     obs: True
     action: True
@@ -75,7 +75,7 @@ rnn_kwargs:
   bidirectional: False
 
 df_kwargs_rnn:
-  obs_dims_used: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  obs_dims_used: null
   obs_dims_used_except: null
   dropout: 0.4
   leaky_slope_classifier: 0.2
