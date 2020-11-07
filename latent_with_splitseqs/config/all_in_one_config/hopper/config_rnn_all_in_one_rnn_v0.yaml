@@ -38,8 +38,8 @@ skill_dim: 2
 df_evaluation_env:
   obs_dims_to_log: [0, 1]
   action_dims_to_log: [0, 1]
-  seq_len: 40
-  horizon_len: 400
+  seq_len: 80
+  horizon_len: 800
   plot_skill_influence:
     obs: True
     action: True
@@ -48,8 +48,8 @@ df_evaluation_env:
 
 df_evaluation_memory:
   seq_eval_len: 40
-  horizon_eval_len: 400
-  batch_size: 100
+  horizon_eval_len: 80
+  batch_size: 800
 
 info_loss:
   alpha: 0.7
