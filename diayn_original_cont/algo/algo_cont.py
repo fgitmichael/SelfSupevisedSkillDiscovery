@@ -126,7 +126,7 @@ class DIAYNContAlgo(DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently):
 
         return df_accuracy
     
-    def _classfier_perf_on_memory(self):
+    def _classifier_perf_on_memory(self):
         len_memory = self.batch_size
 
         batch_size = len_memory

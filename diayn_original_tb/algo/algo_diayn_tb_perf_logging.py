@@ -54,7 +54,7 @@ class DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently(DIAYNTorchOnlineRLAlgori
             global_step=epoch
         )
 
-    def _classfier_perf_on_memory(self):
+    def _classifier_perf_on_memory(self):
         len_memory = self.batch_size
 
         batch_size = len_memory
@@ -79,7 +79,7 @@ class DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently(DIAYNTorchOnlineRLAlgori
         return df_accuracy
 
     def log_classifier_perf_on_memory(self, epoch):
-        classfier_accuracy_memory = self._classfier_perf_on_memory()
+        classfier_accuracy_memory = self._classifier_perf_on_memory()
         self.diagnostic_writer.writer.writer.add_scalar(
             tag="Debug/Classfier accuracy replay buffer",
             scalar_value=classfier_accuracy_memory,
