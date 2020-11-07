@@ -23,8 +23,8 @@ class DfMemoryEvalSplitSeq(MemoryEvalBase):
 
     def __init__(self,
                  *args,
-                 seq_eval_len: int,
-                 horizon_eval_len: int,
+                 seq_len: int,
+                 horizon_len: int,
                  replay_buffer: SelfSupervisedEnvSequenceReplayBuffer,
                  df_to_evaluate: SplitSeqClassifierBase,
                  batch_size = 64,
@@ -36,8 +36,8 @@ class DfMemoryEvalSplitSeq(MemoryEvalBase):
             df_to_evaluate=df_to_evaluate,
             **kwargs
         )
-        self.seq_eval_len = seq_eval_len
-        self.horizon_eval_len = horizon_eval_len
+        self.seq_eval_len = seq_len
+        self.horizon_eval_len = horizon_len
         self.batch_size = batch_size
 
     def __call__(self, *args, **kwargs):

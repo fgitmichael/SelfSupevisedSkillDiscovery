@@ -27,8 +27,8 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
     def __init__(
             self,
             *args,
-            seq_eval_len: int,
-            horizon_eval_len: int,
+            seq_len: int,
+            horizon_len: int,
             seq_collector: SeqCollectorSplitSeq,
             df_to_evaluate: SplitSeqClassifierBase,
             num_paths_per_skill=1,
@@ -40,8 +40,8 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
             df_to_evaluate=df_to_evaluate,
             **kwargs
         )
-        self.seq_eval_len = seq_eval_len
-        self.horizon_eval_len = horizon_eval_len
+        self.seq_eval_len = seq_len
+        self.horizon_eval_len = horizon_len
         self.num_paths_per_skill = num_paths_per_skill
 
     def __call__(self, *args, **kwargs):
