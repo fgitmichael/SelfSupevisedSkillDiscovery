@@ -5,11 +5,14 @@ import torch.optim as optim
 from torch import nn as nn
 import torch.nn.functional as F
 from collections import OrderedDict
+from typing import Iterable
 from operator import itemgetter
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
 from rlkit.core.eval_util import create_stats_ordered_dict
+
+from my_utils.iterables.len_iterable import len_iterable
 
 
 class DIAYNTrainerModularized(DIAYNTrainer):
@@ -340,15 +343,5 @@ class DIAYNTrainerModularized(DIAYNTrainer):
                 self.eval_statistics['Alpha Loss'] = alpha_loss.item()
         self._n_train_steps_total += 1
 
-    @property
-    def network_dict(self):
-        network = self.networks
-        snapshot = self.get_snapshot()
-
-        assert len(network) == len(snapshot.keys())
-
-        ret_dict = {}
-        for idx, k in enumerate(snapshot):
-            ret_dict[k] = network[idx]
-
-        return ret_dict
+    def get_snapshot(self) -> dict:
+        return super(DIAYNTrainerModularized, self).get_snapshot()

@@ -76,7 +76,7 @@ class SeqwiseAlgoRevisedSplitSeqsEval(SeqwiseAlgoRevisedSplitSeqs):
         return mode_influence_eval_paths
 
     def _log_net_param_hist(self, epoch):
-        for k, net in self.trainer.network_dict.items():
+        for k, net in self.trainer.get_snapshot().items():
             for name, weight in net.named_parameters():
                 try:
                     self.diagnostic_writer.writer.writer. \
