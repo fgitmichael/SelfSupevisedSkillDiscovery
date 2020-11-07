@@ -36,10 +36,12 @@ from latent_with_splitseqs.utils.loglikelihoodloss import GuidedKldLogOnlyLoss
 from latent_with_splitseqs.evaluation.df_memory_eval import DfMemoryEvalSplitSeq
 from latent_with_splitseqs.algo.add_post_epoch_func import add_post_epoch_funcs
 from latent_with_splitseqs.evaluation.net_param_histogram_logging \
-    import log_net_param_histograms
+    import NetParamHistogramLogger
 from latent_with_splitseqs.algo.algo_latent_splitseqs import \
     SeqwiseAlgoRevisedSplitSeqs
 from latent_with_splitseqs.evaluation.df_env_eval import DfEnvEvaluationSplitSeq
+from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
+    import post_epoch_func_wrapper
 
 def experiment(variant,
                config,
@@ -188,22 +190,29 @@ def experiment(variant,
         test_script_path_name=test_script_path_name,
     )
 
-    df_eval_memory = DfMemoryEvalSplitSeq(
+    df_memory_eval = DfMemoryEvalSplitSeq(
         replay_buffer=replay_buffer,
         df_to_evaluate=df,
         diagnostics_writer=diagno_writer,
         **config.df_evaluation_memory
     )
-    df_eval_env = DfEnvEvaluationSplitSeq(
+    df_env_eval = DfEnvEvaluationSplitSeq(
         seq_collector=seq_eval_collector,
         df_to_evaluate=df,
         diagnostics_writer=diagno_writer,
         **config.df_evaluation_env,
     )
+    net_param_hist_logger = NetParamHistogramLogger(
+        diagnostic_writer=diagno_writer,
+        trainer=trainer
+    )
     algo_class = add_post_epoch_funcs([
-        log_net_param_histograms,
-        df_eval_env,
-        df_eval_memory,
+        post_epoch_func_wrapper
+        ('df evaluation on env')(df_env_eval),
+        post_epoch_func_wrapper
+        ('df evaluation on memory')(df_memory_eval),
+        post_epoch_func_wrapper
+        ('net parameter histogram logging')(net_param_hist_logger),
     ])(SeqwiseAlgoRevisedSplitSeqs)
     algorithm = algo_class(
         trainer=trainer,

@@ -2,21 +2,23 @@ import gtimer as gt
 
 from functools import wraps
 
+from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 
-def post_epoch_func_wrapper(gt_stamp_name):
+
+def post_epoch_func_wrapper(gt_stamp_name, log_interval=None):
     def real_dec(func):
-        if gt_stamp_name is not None:
-            @wraps(func)
-            def wrapper(*args, is_log, **kwargs):
-                if is_log:
-                    ret = func(*args, **kwargs)
-                    gt.stamp(gt_stamp_name)
-                else:
-                    ret = None
-                    gt.stamp(gt_stamp_name)
-                return ret
-            return wrapper
+        @wraps(func)
+        def new_func(self, *args, **kwargs):
+            epoch = kwargs['epoch']
+            assert isinstance(self, DIAYNTorchOnlineRLAlgorithmTb)
 
-        else:
-            return func
+            if self.diagnostic_writer.is_log(epoch, log_interval=log_interval):
+                ret = func(*args, **kwargs)
+            else:
+                ret = None
+            gt.stamp(gt_stamp_name)
+
+            return ret
+
+        return new_func
     return real_dec

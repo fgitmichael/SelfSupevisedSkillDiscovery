@@ -1,18 +1,36 @@
 import warnings
+from typing import Union
 
 from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
-from self_sup_combined.base.writer.is_log import is_log
 
-from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
-    import post_epoch_func_wrapper
+from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
+
+from rlkit.torch.torch_rl_algorithm import TorchTrainer
 
 
-@is_log()
-@post_epoch_func_wrapper(gt_stamp_name="net parameter histogram logging")
-def log_net_param_histograms(self: DIAYNTorchOnlineRLAlgorithmTb, epoch):
-    assert isinstance(self, DIAYNTorchOnlineRLAlgorithmTb)
+class NetParamHistogramLogger(object):
 
-    for k, net in self.trainer.network_dict.items():
+    def __init__(self,
+                 trainer: TorchTrainer,
+                 diagnostic_writer: DiagnosticsWriter):
+        self.trainer = trainer
+        self.diagnostic_writer = diagnostic_writer
+
+    def __call__(self, *args, epoch, **kwargs):
+        log_net_param_histograms(self, epoch)
+
+
+def log_net_param_histograms(
+        self: Union[
+            DIAYNTorchOnlineRLAlgorithmTb,
+            NetParamHistogramLogger
+        ],
+        epoch,
+):
+    assert isinstance(self.trainer, TorchTrainer)
+    assert isinstance(self.diagnostic_writer, DiagnosticsWriter)
+
+    for k, net in self.trainer.get_snapshot().items():
         for name, weight in net.named_parameters():
             try:
                 self.diagnostic_writer.writer.writer. \

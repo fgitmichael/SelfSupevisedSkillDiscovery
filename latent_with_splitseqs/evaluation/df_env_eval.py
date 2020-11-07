@@ -44,8 +44,6 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
         self.horizon_eval_len = horizon_eval_len
         self.num_paths_per_skill = num_paths_per_skill
 
-    @is_log()
-    @post_epoch_func_wrapper(gt_stamp_name="df evaluation env")
     def __call__(self, *args, **kwargs):
         super(DfEnvEvaluationSplitSeq, self).__call__(*args, **kwargs)
 
