@@ -232,13 +232,19 @@ def experiment(variant,
     algorithm.to(ptu.device)
     algorithm.train()
 
+    diagno_writer.close()
+
 
 if __name__ == "__main__":
     config, config_path_name = parse_args_hptuning(
-        default="config/all_in_one_config/two_d_nav/"
-                "config_rnn_all_in_one_rnn_v1.yaml",
-        default_min="./config/all_in_one_config/hopper/rand_param_search/config_rnn_all_in_one_v0_min.yaml",
-        default_max="./config/all_in_one_config/hopper/rand_param_search/config_rnn_all_in_one_v0_max.yaml",
+        default="config/all_in_one_config/mountaincar/"
+                "config_latent_normal_first_two_dims_slac.yaml",
+        default_min="./config/all_in_one_config/mountaincar/"
+                    "random_hp_search/"
+                    "srnn_v0_min.yaml",
+        default_max="./config/all_in_one_config/mountaincar/"
+                    "random_hp_search/"
+                    "srnn_v0_max.yaml",
         default_hp_tuning=False,
         return_config_path_name=True,
     )
@@ -246,13 +252,15 @@ if __name__ == "__main__":
     if config.random_hp_tuning:
         #config.latent_kwargs.latent2_dim = config.latent_kwargs.latent1_dim * 8
 
-        config.df_evaluation_env.seq_eval_len = config.seq_len
-        config.horizon_len = max(500,
-                                 np.random.randint(7, 30) * config.seq_len)
-        config.df_evaluation_env.horizon_eval_len = config.horizon_len
+        config.df_evaluation_env.seq_len = config.seq_len
+        config.df_evaluation_memory.seq_len = config.seq_len
+        #config.horizon_len = max(100,
+        #                         np.random.randint(1, 20) * config.seq_len)
+        config.df_evaluation_env.horizon_len = config.horizon_len
+        config.df_evaluation_memory.horizon_len = config.horizon_len
 
         classifier_layer_size = np.random.randint(32, 256)
-        config.df_kwargs_rnn.hidden_units_classifier = [classifier_layer_size,
+        config.df_kwargs_srnn.hidden_units_classifier = [classifier_layer_size,
                                                         classifier_layer_size]
 
         #if np.random.choice([True, False]):
@@ -273,7 +281,11 @@ if __name__ == "__main__":
         config_path_name = None
 
         if np.random.choice([True, False]):
-            config.df_kwargs_rnn.std_classifier = np.random.rand() + 0.3
+            config.df_kwargs_srnn.std_classifier = np.random.rand() + 0.3
+
+    config.horizon_len = (config.horizon_len // config.seq_len) * config.seq_len
+    config.df_evaluation_memory.horizon_len = config.horizon_len
+    config.df_evaluation_env.horizon_len = config.horizon_len
 
     # noinspection PyTypeChecker
     variant = dict(
