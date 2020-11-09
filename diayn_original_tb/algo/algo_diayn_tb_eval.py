@@ -18,7 +18,7 @@ class DIAYNTorchOnlineRLAlgorithmTbEval(DIAYNTorchOnlineRLAlgorithmTb):
         self.post_epoch_funcs.append(self.save_objects)
 
     def save_objects(self, *args, epoch):
-        self.diagnostic_writer.save_object(
+        self.diagnostic_writer.save_object_islog(
             obj=self.policy,
             save_name="policy_net",
             epoch=epoch,

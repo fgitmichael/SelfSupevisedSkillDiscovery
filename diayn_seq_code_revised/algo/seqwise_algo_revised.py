@@ -20,7 +20,7 @@ class SeqwiseAlgoRevised(SeqWiseAlgoClassfierPerfLogging):
 
     def _end_epoch(self, epoch):
         super()._end_epoch(epoch)
-        self.diagnostic_writer.save_object(
+        self.diagnostic_writer.save_object_islog(
             obj=self.seq_eval_collector.skill_selector,
             save_name="skill_selector",
             epoch=epoch,
