@@ -44,11 +44,12 @@ class SeqCollectorSplitSeq(SeqCollectorRevised):
         else:
             self._epoch_paths.extend(prepared_paths)
 
-    def _extend_with_skillid(self,
-                             seq_len,
-                             skill_id,
-                             paths: List[td.TransitionModeMapping]) \
-        -> List[td.TransitonModeMappingDiscreteSkills]:
+    @staticmethod
+    def _extend_with_skillid(
+            seq_len,
+            skill_id,
+            paths: List[td.TransitionModeMapping]
+    ) -> List[td.TransitonModeMappingDiscreteSkills]:
         seq_dim = 0
 
         skill_id = np.array([skill_id])

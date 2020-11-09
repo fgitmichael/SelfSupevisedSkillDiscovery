@@ -42,6 +42,8 @@ from latent_with_splitseqs.algo.algo_latent_splitseqs import \
 from latent_with_splitseqs.evaluation.df_env_eval import DfEnvEvaluationSplitSeq
 from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
     import post_epoch_func_wrapper
+from latent_with_splitseqs.evaluation.net_logging import NetLogger
+from latent_with_splitseqs.config.fun.get_skill_prior import get_skill_prior
 
 def experiment(variant,
                config,
@@ -54,8 +56,6 @@ def experiment(variant,
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
 
-    seq_len = config.seq_len
-    skill_dim = config.skill_dim
     feature_dim_or_obs_dim = get_feature_dim_obs_dim(
         obs_dim=obs_dim,
         config=config,
@@ -64,7 +64,7 @@ def experiment(variant,
         obs_dim=obs_dim,
         config=config,
     )
-    variant['algorithm_kwargs']['batch_size'] //= seq_len
+    variant['algorithm_kwargs']['batch_size'] //= config.seq_len
 
     test_script_path_name = config.test_script_path \
         if "test_script_path" in config.keys() \
@@ -72,7 +72,7 @@ def experiment(variant,
 
     sep_str = " | "
     run_comment = sep_str
-    run_comment += "seq_len: {}".format(seq_len) + sep_str
+    run_comment += "seq_len: {}".format(config.seq_len) + sep_str
     run_comment += config.algorithm + sep_str
     run_comment += config.version + sep_str
 
@@ -85,40 +85,38 @@ def experiment(variant,
 
     M = variant['layer_size']
     qf1 = MyFlattenMlp(
-        input_size=feature_dim_or_obs_dim + action_dim + skill_dim,
+        input_size=feature_dim_or_obs_dim + action_dim + config.skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
     qf2 = MyFlattenMlp(
-        input_size=feature_dim_or_obs_dim + action_dim + skill_dim,
+        input_size=feature_dim_or_obs_dim + action_dim + config.skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
     target_qf1 = MyFlattenMlp(
-        input_size=feature_dim_or_obs_dim + action_dim + skill_dim,
+        input_size=feature_dim_or_obs_dim + action_dim + config.skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
     target_qf2 = MyFlattenMlp(
-        input_size=feature_dim_or_obs_dim + action_dim + skill_dim,
+        input_size=feature_dim_or_obs_dim + action_dim + config.skill_dim,
         output_size=1,
         hidden_sizes=[M, M],
     )
     policy = SkillTanhGaussianPolicyRevisedObsSelect(
         obs_dim=len(used_obs_dims_policy),
         action_dim=action_dim,
-        skill_dim=skill_dim,
+        skill_dim=config.skill_dim,
         hidden_sizes=[M, M],
         obs_dims_selected=used_obs_dims_policy,
         obs_dim_real=obs_dim,
     )
     eval_policy = MakeDeterministicRevised(policy)
     skill_prior_for_loss = ConstantGaussianMultiDim(
-        output_dim=skill_dim,
+        output_dim=config.skill_dim,
     )
-    skill_prior = ConstantUniformMultiDim(
-        output_dim=skill_dim,
-    )
+    skill_prior = get_skill_prior(config)
     skill_selector = SkillSelectorContinous(
         prior_skill_dist=skill_prior,
         grid_radius_factor=1.,
@@ -158,22 +156,14 @@ def experiment(variant,
     )
     df, trainer = get_df_and_trainer(
         obs_dim=obs_dim,
-        seq_len=seq_len,
-        skill_dim=skill_dim,
-        rnn_kwargs=config.rnn_kwargs,
-        df_kwargs_rnn=config.df_kwargs_rnn,
-        latent_kwargs=config.latent_kwargs,
-        latent_kwargs_smoothing=config.latent_kwargs_smoothing,
-        df_kwargs_latent=config.df_kwargs_latent,
-        df_type=config.df_type,
         trainer_init_kwargs=trainer_init_kwargs,
-        latent_single_layer_kwargs=config.latent_single_layer_kwargs,
+        **config
     )
 
     replay_buffer = LatentReplayBuffer(
         max_replay_buffer_size=variant['replay_buffer_size'],
-        seq_len=seq_len,
-        mode_dim=skill_dim,
+        seq_len=config.seq_len,
+        mode_dim=config.skill_dim,
         env=expl_env,
     )
 
@@ -202,6 +192,13 @@ def experiment(variant,
         diagnostics_writer=diagno_writer,
         **config.df_evaluation_env,
     )
+    net_logger = NetLogger(
+        diagnostic_writer=diagno_writer,
+        net_dict=dict(
+            policy_net=policy,
+        ),
+        env=expl_env
+    )
     net_param_hist_logger = NetParamHistogramLogger(
         diagnostic_writer=diagno_writer,
         trainer=trainer
@@ -211,6 +208,8 @@ def experiment(variant,
         ('df evaluation on env')(df_env_eval),
         post_epoch_func_wrapper
         ('df evaluation on memory')(df_memory_eval),
+        post_epoch_func_wrapper
+        ('object saving')(net_logger),
         post_epoch_func_wrapper
         ('net parameter histogram logging')(net_param_hist_logger),
     ])(SeqwiseAlgoRevisedSplitSeqs)
@@ -222,7 +221,7 @@ def experiment(variant,
         evaluation_data_collector=eval_path_collector,
         replay_buffer=replay_buffer,
 
-        seq_len=seq_len,
+        seq_len=config.seq_len,
         horizon_len=config.horizon_len,
 
         diagnostic_writer=diagno_writer,
