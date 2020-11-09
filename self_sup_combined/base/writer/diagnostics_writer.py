@@ -104,3 +104,6 @@ class DiagnosticsWriter:
 
         else:
             print("No config file used")
+
+    def close(self):
+        self.writer.writer.close()

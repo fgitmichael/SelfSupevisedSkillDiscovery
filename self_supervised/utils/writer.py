@@ -54,8 +54,9 @@ class MyWriter(WriterBase):
         self.plt_creator = PltCreator()
 
     def __del__(self):
-        print("Close Writer")
-        self.writer.close()
+        pass
+        #print("Close Writer")
+        #self.writer.close()
 
     def get_run_dir_name(self, run_id, log_dir):
         run_id_try = run_id
