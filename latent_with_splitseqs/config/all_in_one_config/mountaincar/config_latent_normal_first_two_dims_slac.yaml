@@ -2,7 +2,8 @@
 algorithm: "Continuous Skill Space"
 version: "latent split seq | guided | sac in feature space | rnn only"
 layer_size: 256
-replay_buffer_size: 10000
+replay_buffer_size: 100000
+random_hp_tuning: False
 
 env_kwargs:
   env_id: MountainCarContinuous-v0
@@ -11,13 +12,13 @@ env_kwargs:
 obs_dims_used_policy_all_except: null
 
 algorithm_kwargs:
-  num_epochs: 1000
+  num_epochs: 500
   num_eval_steps_per_epoch: 1000
-  num_trains_per_train_loop: 600
+  num_trains_per_train_loop: 200
   num_expl_steps_per_train_loop: 10
-  min_num_steps_before_training: 200
+  min_num_steps_before_training: 400
   max_path_length: 1000
-  batch_size: 350
+  batch_size: 500
 
 trainer_kwargs:
   discount: 0.99
@@ -30,53 +31,61 @@ trainer_kwargs:
   df_lr: 0.001
   train_sac_in_feature_space: True
 
-seq_len: 20
-horizon_len: 80
-seq_eval_len: 20
-horizon_eval_len: 80
+seq_len: 2
+horizon_len: 100
 skill_dim: 2
+skill_prior: gaussian
+
+df_evaluation_env:
+  obs_dims_to_log: [0, 1]
+  action_dims_to_log: [0,]
+  seq_len: 2
+  horizon_len: 100
+  num_paths_per_skill: 3
+  plot_skill_influence:
+    obs: True
+    action: True
+    obs_one_plot: True
+    plot_post: True
+
+df_evaluation_memory:
+  seq_len: 2
+  horizon_len: 100
+  batch_size: 100
 
 info_loss:
-  alpha: 0.99
+  alpha: 0.9
   lamda: 0.1
 
 df_type:
-  feature_extractor: latent_slac
+  feature_extractor: rnn
   rnn_type: dim_wise
   latent_type: full_seq
-  recon: whole_seq
+  recon: end_only
 
 latent_single_layer_kwargs:
   None: null
 
-latent_kwargs:
-  latent1_dim: 4
-  latent2_dim: 16
-  hidden_units: [256, 256]
-  leaky_slope: 0.2
-  dropout: 0.3
-  beta_anneal:
-    start: 0.2
-    add: 0.00003
-    end: 1
+latent_kwargs: null
 
 latent_kwargs_smoothing:
   None: null
 
 rnn_kwargs:
-  None: null
+  hidden_size_rnn: 4
+  bidirectional: False
 
 df_kwargs_rnn:
-  None: null
-
-df_kwargs_latent:
   obs_dims_used: null
-  hidden_units_classifier: [256, 256]
+  obs_dims_used_except: null
+  dropout: 0.4
   leaky_slope_classifier: 0.2
-  classifier_dropout: 0.5
-  classifier_std: null
+  hidden_units_classifier: [256, 256]
+  std_classifier: null
+
+df_kwargs_latent: null
 
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
-log_folder: logsmountaincar
+log_folder: logs/mountaincar
 log_interval: 10

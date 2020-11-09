@@ -6,19 +6,19 @@ replay_buffer_size: 100000
 random_hp_tuning: False
 
 env_kwargs:
-  env_id: halfcheetah
+  env_id: MountainCarContinuous-v0
   exclude_current_positions_from_observation: False
 
-obs_dims_used_policy_all_except: [0,]
+obs_dims_used_policy_all_except: null
 
 algorithm_kwargs:
   num_epochs: 500
   num_eval_steps_per_epoch: 1000
-  num_trains_per_train_loop: 200
-  num_expl_steps_per_train_loop: 10
+  num_trains_per_train_loop: 600
+  num_expl_steps_per_train_loop: 15
   min_num_steps_before_training: 400
   max_path_length: 1000
-  batch_size: 1000
+  batch_size: 350
 
 trainer_kwargs:
   discount: 0.99
@@ -31,15 +31,15 @@ trainer_kwargs:
   df_lr: 0.001
   train_sac_in_feature_space: True
 
-seq_len: 40
-horizon_len: 400
+seq_len: 20
+horizon_len: 80
 skill_dim: 2
 
 df_evaluation_env:
   obs_dims_to_log: [0, 1]
-  action_dims_to_log: [0, 1]
-  seq_len: 40
-  horizon_len: 400
+  action_dims_to_log: [0,]
+  seq_len: 20
+  horizon_len: 100
   plot_skill_influence:
     obs: True
     action: True
@@ -47,19 +47,19 @@ df_evaluation_env:
     plot_post: True
 
 df_evaluation_memory:
-  seq_len: 40
-  horizon_len: 400
+  seq_len: 20
+  horizon_len: 80
   batch_size: 100
 
 info_loss:
-  alpha: 0.7
+  alpha: 0.5
   lamda: 0.0
 
 df_type:
-  feature_extractor: rnn
+  feature_extractor: srnn
   rnn_type: normal
   latent_type: full_seq
-  recon: end_only
+  recon: whole_seq
 
 latent_kwargs:
   None: null
@@ -70,12 +70,28 @@ latent_kwargs_smoothing:
 latent_single_layer_kwargs:
   None: null
 
-rnn_kwargs:
-  hidden_size_rnn: 10
-  bidirectional: False
+rnn_kwargs: null
 
-df_kwargs_rnn:
-  obs_dims_used: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+srnn_kwargs:
+  rnn_kwargs:
+    hidden_size_rnn: 10
+    bidirectional: False
+  stoch_latent_kwargs:
+    latent1_dim: 5
+    latent2_dim: 10
+    hidden_units: [256, 256]
+    leaky_slope: 0.2
+    dropout: 0.3
+    beta_anneal:
+      start: 0.2
+      add: 0.00003
+      end: 1
+  filter_net_params: null
+
+df_kwargs_rnn: null
+
+df_kwargs_srnn:
+  obs_dims_used: null
   obs_dims_used_except: null
   dropout: 0.4
   leaky_slope_classifier: 0.2
@@ -87,5 +103,5 @@ df_kwargs_latent:
 
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
-log_folder: logshalfcheetah
+log_folder: logs/mountaincar
 log_interval: 10
