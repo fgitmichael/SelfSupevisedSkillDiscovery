@@ -38,16 +38,28 @@ class DiagnosticsWriter:
         else:
             return False
 
-    def save_object(self,
-                    obj,
-                    save_name: str,
-                    epoch: int,
-                    log_interval: int
-                    ):
+    def save_object_islog(self,
+                          obj,
+                          save_name: str,
+                          epoch: int,
+                          log_interval: int
+                          ):
         if self.is_log(epoch, log_interval) and epoch > 0:
-            save_name = "{}_epoch{}.pkl".format(save_name, epoch)
-            save_path = os.path.join(self.writer.model_dir, save_name)
-            torch.save(obj, save_path)
+            self.save_object(
+                obj=obj,
+                save_name=save_name,
+                epoch=epoch,
+            )
+
+    def save_object(
+            self,
+            obj,
+            save_name: str,
+            epoch: int,
+    ):
+        save_name = "{}_epoch{}.pkl".format(save_name, epoch)
+        save_path = os.path.join(self.writer.model_dir, save_name)
+        torch.save(obj, save_path)
 
     def save_env(self,
                  env: gym.Env):
