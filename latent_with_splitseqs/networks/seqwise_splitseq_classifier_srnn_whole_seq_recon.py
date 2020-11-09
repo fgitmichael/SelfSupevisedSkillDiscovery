@@ -16,7 +16,7 @@ class SplitSeqClassifierSRNNWholeSeqRecon(SplitSeqClassifierBase):
                  latent_net: SRNNLatentConditionedOnSkillSeq,
                  hidden_units_classifier=(256, 256),
                  leaky_slope_classifier=0.2,
-                 dropout_classifier=0.3,
+                 dropout=0.3,
                  std_classifier=None,
                  **kwargs
                  ):
@@ -33,7 +33,7 @@ class SplitSeqClassifierSRNNWholeSeqRecon(SplitSeqClassifierBase):
             output_dim=skill_dim,
             hidden_units=hidden_units_classifier,
             leaky_slope=leaky_slope_classifier,
-            dropout=dropout_classifier,
+            dropout=dropout,
             std=std_classifier,
         )
 
