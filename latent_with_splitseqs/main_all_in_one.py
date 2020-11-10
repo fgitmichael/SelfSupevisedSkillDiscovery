@@ -205,8 +205,8 @@ def experiment(variant,
 
 if __name__ == "__main__":
     config, config_path_name = parse_args(
-        default="config/all_in_one_config/two_d_nav/"
-                "config_latent_normal_first_two_dims_slac.yaml",
+        default="config/all_in_one_config/mountaincar/"
+                "config_latent_normal_first_two_dims_latent_single_layer.yaml",
         return_config_path_name=True,
     )
 
