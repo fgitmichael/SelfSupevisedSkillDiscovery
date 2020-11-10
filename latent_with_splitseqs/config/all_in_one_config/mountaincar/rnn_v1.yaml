@@ -13,7 +13,7 @@ obs_dims_used_policy_all_except: null
 algorithm_kwargs:
   num_epochs: 1000
   num_eval_steps_per_epoch: 1000
-  num_trains_per_train_loop: 600
+  num_trains_per_train_loop: 800
   num_expl_steps_per_train_loop: 10
   min_num_steps_before_training: 200
   max_path_length: 1000
