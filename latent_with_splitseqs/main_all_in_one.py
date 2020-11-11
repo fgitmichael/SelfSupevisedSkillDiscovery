@@ -44,6 +44,7 @@ from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
     import post_epoch_func_wrapper
 from latent_with_splitseqs.evaluation.net_logging import NetLogger
 from latent_with_splitseqs.config.fun.get_skill_prior import get_skill_prior
+from latent_with_splitseqs.config.fun.get_loss_fun import get_loss_fun
 
 def experiment(variant,
                config,
@@ -139,10 +140,7 @@ def experiment(variant,
         max_seqs=5000,
         skill_selector=skill_selector
     )
-    loss_fun = GuidedKldLogOnlyLoss(
-        alpha=config.info_loss.alpha,
-        lamda=config.info_loss.lamda,
-    ).loss
+    loss_fun = get_loss_fun(config)
     trainer_init_kwargs = dict(
         env=eval_env,
         policy=policy,
@@ -238,7 +236,7 @@ def experiment(variant,
 if __name__ == "__main__":
     config, config_path_name = parse_args_hptuning(
         default="config/all_in_one_config/mountaincar/"
-                "config_latent_normal_first_two_dims_slac.yaml",
+                "rnn_v2.yaml",
         default_min="./config/all_in_one_config/mountaincar/"
                     "random_hp_search/"
                     "srnn_v0_min.yaml",
