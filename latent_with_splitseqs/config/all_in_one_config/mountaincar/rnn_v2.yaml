@@ -14,7 +14,7 @@ obs_dims_used_policy_all_except: null
 algorithm_kwargs:
   num_epochs: 500
   num_eval_steps_per_epoch: 1000
-  num_trains_per_train_loop: 800
+  num_trains_per_train_loop: 600
   num_expl_steps_per_train_loop: 10
   min_num_steps_before_training: 200
   max_path_length: 1000
@@ -33,14 +33,22 @@ trainer_kwargs:
 
 seq_len: 20
 horizon_len: 100
-skill_prior: gaussian
 skill_dim: 2
+
+skill_prior:
+  type: uniform
+  uniform:
+    low: -1.5
+    high: 1.5
+  gaussian:
+    std: 1.
 
 df_evaluation_env:
   obs_dims_to_log: [0, 1]
   action_dims_to_log: [0,]
   seq_len: 20
   horizon_len: 100
+  num_paths_per_skill: 2
   plot_skill_influence:
     obs: True
     action: True
@@ -53,9 +61,9 @@ df_evaluation_memory:
   batch_size: 100
 
 info_loss:
-  alpha: 1.0
+  alpha: 0.8
   lamda: 0.0
-  variant: normal
+  variant: reg_std_only
 
 df_type:
   feature_extractor: rnn
@@ -73,13 +81,13 @@ latent_single_layer_kwargs:
   None: null
 
 rnn_kwargs:
-  hidden_size_rnn: 30
+  hidden_size_rnn: 50
   bidirectional: False
 
 df_kwargs_rnn:
   obs_dims_used: null
   obs_dims_used_except: null
-  dropout: 0.4
+  dropout: 0.3
   leaky_slope_classifier: 0.2
   hidden_units_classifier: [256, 256]
   std_classifier: null

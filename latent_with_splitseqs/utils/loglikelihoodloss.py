@@ -6,6 +6,8 @@ from code_slac.utils import calc_kl_divergence
 
 from diayn_seq_code_revised.networks.my_gaussian import ConstantGaussianMultiDimMeanSpec
 
+import rlkit.torch.pytorch_util as ptu
+
 
 class GuidedKldLogOnlyLoss(GuidedInfoLoss):
     """
@@ -72,6 +74,43 @@ class GuidedKldLogOnlyLoss(GuidedInfoLoss):
 
         log = dict(
             kld=kld,
+            kld_weighted=kld_weighted,
+        )
+
+        return dict(
+            kld_weighted=kld_weighted,
+            log_dict=log,
+        )
+
+
+class GuidedKldLogOnlyLossBounded(GuidedKldLogOnlyLoss):
+
+    def _latent_loss(self, post, pri):
+        # Don't use given prior, use gaussian with specified mean instead
+        pri = None
+        data_dim = -1
+        pri_dist_creator = ConstantGaussianMultiDimMeanSpec(
+            output_dim=post[self.dist_key].batch_shape[data_dim]
+        )
+        pri_dist = pri_dist_creator(mean=post[self.dist_key].loc)
+        kld_real = calc_kl_divergence([post[self.dist_key]],
+                                      [pri_dist_creator(mean=post[self.dist_key].loc)])
+        pri_dist_std = torch.sum(pri_dist.scale, dim=data_dim, )
+        post_dist_std = torch.sum(post[self.dist_key].scale, dim=data_dim, )
+        idx = pri_dist_std > post_dist_std
+        post[self.dist_key].loc, \
+        post[self.dist_key].scale = post[self.dist_key].loc[idx, :], \
+                                    post[self.dist_key].scale[idx, :]
+        kld_bound = calc_kl_divergence([post[self.dist_key]],
+                                       [pri_dist_creator(mean=post[self.dist_key].loc)])
+        if torch.isnan(kld_bound):
+            kld_weighted = ptu.zeros_like(kld_real)
+        else:
+            kld_weighted = (1 - self.alpha) * kld_bound
+
+        log = dict(
+            kld_bound=kld_bound,
+            kld=kld_real,
             kld_weighted=kld_weighted,
         )
 
