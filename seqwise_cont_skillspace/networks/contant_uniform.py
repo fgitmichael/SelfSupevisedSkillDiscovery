@@ -6,7 +6,7 @@ from code_slac.network.base import BaseNetwork
 
 class ConstantUniform(BaseNetwork):
 
-    def __init__(self, output_dim, low=-3., high=3.):
+    def __init__(self, output_dim, low=-2., high=2.):
         super().__init__()
         self.output_dim = output_dim
         self.low = low

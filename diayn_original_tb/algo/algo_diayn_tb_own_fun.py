@@ -109,12 +109,12 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
                  mode_influence_paths_obs_lim=None,
                  ):
         super().__init__(
-            trainer,
-            exploration_env,
-            evaluation_env,
-            exploration_data_collector,
-            evaluation_data_collector,
-            replay_buffer,
+            trainer=trainer,
+            exploration_env=exploration_env,
+            evaluation_env=evaluation_env,
+            exploration_data_collector=exploration_data_collector,
+            evaluation_data_collector=evaluation_data_collector,
+            replay_buffer=replay_buffer,
             diagnostic_writer=diagnostic_writer,
             seq_eval_collector=seq_eval_collector,
             batch_size=batch_size,
@@ -255,4 +255,4 @@ class DIAYNTorchOnlineRLAlgorithmOwnFun(DIAYNTorchOnlineRLAlgorithmTb):
     def _store_expl_data(self):
         new_expl_paths = self.expl_data_collector.get_epoch_paths()
         self.replay_buffer.add_self_sup_paths(new_expl_paths)
-        gt.stamp('data storing', unique=False)
+        gt.stamp('exploration data storing', unique=False)

@@ -56,11 +56,13 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
             self,
             seq_len,
             num_seqs,
+            obs_dim_to_select: Union[list, tuple] = None,
             **kwargs
     ):
         paths = self._collect_new_paths(
             seq_len=seq_len,
-            num_seqs=num_seqs
+            num_seqs=num_seqs,
+            obs_dim_to_select=obs_dim_to_select,
         )
         self._check_path(paths[0], seq_len)
         prepared_paths = self.prepare_paths_before_save(paths, seq_len)
@@ -90,7 +92,7 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
 
         return paths_with_skill_id
 
-    def get_epoch_paths(self, reset=True) -> List[td.TransitonModeMappingDiscreteSkills]:
+    def get_epoch_paths(self, reset=True, transpose=True) -> List[td.TransitonModeMappingDiscreteSkills]:
         """
         Return:
             list of TransistionMapping consisting of (S, data_dim) np.ndarrays
@@ -101,9 +103,10 @@ class SeqCollectorRevisedDiscreteSkills(SeqCollectorRevised):
 
         epoch_paths = list(self._epoch_paths)
 
-        for idx, path in enumerate(epoch_paths):
-            assert len(path.obs.shape) == 2
-            epoch_paths[idx] = path.transpose(1, 0)
+        if transpose:
+            for idx, path in enumerate(epoch_paths):
+                assert len(path.obs.shape) == 2
+                epoch_paths[idx] = path.transpose(1, 0)
 
         if reset:
             self.reset()

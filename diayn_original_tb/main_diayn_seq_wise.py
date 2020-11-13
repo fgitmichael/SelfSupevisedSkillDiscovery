@@ -21,7 +21,7 @@ from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
 from self_supervised.network.flatten_mlp import FlattenMlpDropout
-from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
+from diayn_original_tb.algo.algo_diayn_tb_eval import DIAYNTorchOnlineRLAlgorithmTbEval
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 from self_sup_comb_discrete_skills.data_collector.path_collector_discrete_skills import \
     PathCollectorSelfSupervisedDiscreteSkills

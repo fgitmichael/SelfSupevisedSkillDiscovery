@@ -25,6 +25,7 @@ class SeqwiseSplitseqClassifierRnnEndReconOnly(SplitSeqClassifierBase):
         super(SeqwiseSplitseqClassifierRnnEndReconOnly, self).__init__(
             *args,
             obs_dim=obs_dim,
+            seq_len=seq_len,
             **kwargs
         )
 
@@ -46,8 +47,11 @@ class SeqwiseSplitseqClassifierRnnEndReconOnly(SplitSeqClassifierBase):
         )
 
         self.obs_dim = obs_dim
-        self.seq_len = seq_len
         self.skill_dim = skill_dim
+
+    @property
+    def seq_len(self):
+        return self._seq_len
 
     @torch.no_grad()
     def eval_forwardpass(self,

@@ -8,7 +8,7 @@ from easydict import EasyDict as edict
 
 from mode_disent.env_wrappers.rlkit_wrapper import NormalizedBoxEnvForPytorch
 from mode_disent_no_ssm.agent import DisentTrainerNoSSM
-from mode_disent_no_ssm.utils.parse_args import parse_args, yaml_save_hyperparameters
+from mode_disent_no_ssm.utils.parse_args import parse_args, yaml_save
 from mode_disent_no_ssm.utils.skill_policy_wrapper import DiaynSkillPolicyWrapper
 
 def run():

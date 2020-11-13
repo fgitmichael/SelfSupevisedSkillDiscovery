@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Union
 import numpy as np
 
 from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills import \
@@ -22,7 +22,11 @@ class SeqCollectorRevisedDiscreteSkillsPixel(SeqCollectorRevisedDiscreteSkills):
 
     def _collect_new_paths(self,
                            num_seqs: int,
-                           seq_len: int) -> List[Dict]:
+                           seq_len: int,
+                           obs_dim_to_select: Union[list, tuple]) -> List[Dict]:
+        if obs_dim_to_select is not None:
+            raise ValueError
+
         paths = []
         num_steps_collected = 0
 

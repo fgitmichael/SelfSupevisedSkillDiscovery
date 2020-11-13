@@ -5,8 +5,10 @@ import warnings
 from mode_disent.utils.mmd import compute_mmd_tutorial
 from code_slac.utils import calc_kl_divergence
 
+from seqwise_cont_skillspace.base.loss_fun_base import LossFunBase
 
-class InfoLoss:
+
+class InfoLoss(LossFunBase):
     def __init__(self,
                  alpha: float,
                  lamda: float):

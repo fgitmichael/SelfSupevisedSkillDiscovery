@@ -5,9 +5,10 @@ import gtimer as gt
 
 import rlkit.torch.pytorch_util as ptu
 
-from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
+from diayn_original_tb.algo.algo_diayn_tb_eval import DIAYNTorchOnlineRLAlgorithmTbEval
 
-class DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently(DIAYNTorchOnlineRLAlgorithmTb):
+
+class DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently(DIAYNTorchOnlineRLAlgorithmTbEval):
     # Saves one evaluation sampling loop from env compared to
     # DIAYNTorchOnlineRLAlgorithmTbPerfLogging (can be found below for comparison)
     def _classifier_perf_eval(self, eval_paths):
@@ -53,7 +54,7 @@ class DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently(DIAYNTorchOnlineRLAlgori
             global_step=epoch
         )
 
-    def _classfier_perf_on_memory(self):
+    def _classifier_perf_on_memory(self):
         len_memory = self.batch_size
 
         batch_size = len_memory
@@ -78,7 +79,7 @@ class DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently(DIAYNTorchOnlineRLAlgori
         return df_accuracy
 
     def log_classifier_perf_on_memory(self, epoch):
-        classfier_accuracy_memory = self._classfier_perf_on_memory()
+        classfier_accuracy_memory = self._classifier_perf_on_memory()
         self.diagnostic_writer.writer.writer.add_scalar(
             tag="Debug/Classfier accuracy replay buffer",
             scalar_value=classfier_accuracy_memory,
@@ -108,7 +109,7 @@ class DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently(DIAYNTorchOnlineRLAlgori
             epoch=epoch,
         )
 
-class DIAYNTorchOnlineRLAlgorithmTbPerfLogging(DIAYNTorchOnlineRLAlgorithmTb):
+class DIAYNTorchOnlineRLAlgorithmTbPerfLogging(DIAYNTorchOnlineRLAlgorithmTbEval):
 
     def _end_epoch(self, epoch):
         super()._end_epoch(epoch)

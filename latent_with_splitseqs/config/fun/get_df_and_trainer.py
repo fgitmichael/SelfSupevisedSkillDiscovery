@@ -6,11 +6,12 @@ from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn_whole_seq_re
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier_rnn_end_recon_only \
     import SeqwiseSplitseqClassifierRnnEndReconOnly
 
-from latent_with_splitseqs.latent.rnn_dim_wise import GRUDimwise
+from latent_with_splitseqs.latent.rnn_dim_wise import GRUDimwise, GRUDimwisePosenc
+from latent_with_splitseqs.latent.rnn_pos_encoded import GRUPosenc
 from latent_with_splitseqs.latent.slac_latent_net_conditioned_on_single_skill \
     import SlacLatentNetConditionedOnSingleSkill
 from latent_with_splitseqs.latent.slac_latent_conditioned_on_skill_seq \
-    import SlacLatentNetConditionedOnSkillSeq
+    import SlacLatentNetConditionedOnSkillSeq, SlacLatentNetConditionedOnSkillSeqForSRNN
 from latent_with_splitseqs.latent.\
     slac_latent_conditioned_on_skill_seq_smoothing_posterior \
     import SlacLatentNetConditionedOnSkillSeqSmoothingPosterior
@@ -37,6 +38,19 @@ from latent_with_splitseqs.trainer.rnn_with_splitseqs_trainer_end_recon_only \
 from latent_with_splitseqs.trainer.latent_single_layered_full_seq_recon_trainer \
     import URLTrainerLatentWithSplitseqsFullSeqReconLossSingleLayer
 
+from latent_with_splitseqs.networks.seqwise_splitseq_classifier_srnn_end_recon_only \
+    import SplitSeqClassifierSRNNEndReconOnly
+from latent_with_splitseqs.networks.seqwise_splitseq_classifier_srnn_whole_seq_recon \
+    import SplitSeqClassifierSRNNWholeSeqRecon
+from latent_with_splitseqs.latent.srnn_latent_conditioned_on_skill_seq \
+    import SRNNLatentConditionedOnSkillSeq
+from latent_with_splitseqs.trainer.latent_srnn_end_recon_only_trainer \
+    import URLTrainerLatentSplitSeqsSRNNEndReconOnly
+from latent_with_splitseqs.trainer.latent_srnn_full_seq_recon_trainer \
+    import URLTrainerLatentSplitSeqsSRNNFullSeqRecon
+
+from latent_with_splitseqs.config.fun.get_obs_dims_used_df import get_obs_dims_used_df
+
 
 df_type_keys = dict(
     feature_extractor='feature_extractor',
@@ -49,7 +63,8 @@ df_type_keys = dict(
 feature_extractor_types = dict(
     rnn='rnn',
     latent_slac='latent_slac',
-    latent_single_layer='latent_single_layer'
+    latent_single_layer='latent_single_layer',
+    srnn='srnn',
 )
 
 recon_types = dict(
@@ -60,6 +75,8 @@ recon_types = dict(
 rnn_types = dict(
     normal='normal',
     dim_wise='dim_wise',
+    normal_posenc='normal_posenc',
+    dimwise_posenc='dimwise_posenc',
 )
 
 latent_types = dict(
@@ -81,6 +98,9 @@ def get_df_and_trainer(
         latent_single_layer_kwargs,
         latent_kwargs_smoothing,
         trainer_init_kwargs,
+        srnn_kwargs=None,
+        df_kwargs_srnn=None,
+        **kwargs
 ):
     """
     Args:
@@ -113,15 +133,19 @@ def get_df_and_trainer(
         == feature_extractor_types['rnn']:
 
         # RNN type
-        obs_dim_rnn = len(df_kwargs_rnn.obs_dims_used) \
-            if df_kwargs_rnn.obs_dims_used is not None \
-            else obs_dim
+        obs_dims_used_df = get_obs_dims_used_df(
+            obs_dim=obs_dim,
+            obs_dims_used=df_kwargs_rnn.obs_dims_used,
+            obs_dims_used_except=df_kwargs_rnn.obs_dims_used_except \
+                if 'obs_dims_used_except' in df_kwargs_rnn else None,
+        )
+        obs_dim_rnn = len(obs_dims_used_df)
         if df_type[df_type_keys['rnn_type']] == rnn_types['normal']:
             rnn = nn.GRU(
                 input_size=obs_dim_rnn,
                 hidden_size=rnn_kwargs['hidden_size_rnn'],
                 batch_first=True,
-                bidirectional=False,
+                bidirectional=rnn_kwargs['bidirectional'],
             )
 
         elif df_type[df_type_keys['rnn_type']] == rnn_types['dim_wise']:
@@ -129,8 +153,27 @@ def get_df_and_trainer(
                 input_size=obs_dim_rnn,
                 hidden_size=rnn_kwargs['hidden_size_rnn'],
                 batch_first=True,
-                bidirectional=False,
+                bidirectional=rnn_kwargs['bidirectional'],
                 out_feature_size=rnn_kwargs['hidden_size_rnn']
+            )
+
+        elif df_type[df_type_keys['rnn_type']] == rnn_types['normal_posenc']:
+            rnn = GRUPosenc(
+                input_size=obs_dim_rnn,
+                hidden_size=rnn_kwargs['hidden_size_rnn'],
+                batch_first=True,
+                bidirectional=rnn_kwargs['bidirectional'],
+            )
+
+        elif df_type[df_type_keys['rnn_type']] == rnn_types['dimwise_posenc']:
+            rnn = GRUDimwisePosenc(
+                input_size=obs_dim_rnn,
+                hidden_size=rnn_kwargs['hidden_size_rnn'],
+                batch_first=True,
+                bidirectional=rnn_kwargs['bidirectional'],
+                out_feature_size=rnn_kwargs['hidden_size_rnn'] * 2 \
+                    if rnn_kwargs['bidirectional'] \
+                    else rnn_kwargs['hidden_size_rnn']
             )
 
         else:
@@ -272,6 +315,72 @@ def get_df_and_trainer(
             df=df,
             **trainer_init_kwargs
         )
+
+    elif df_type[df_type_keys['feature_extractor']] \
+        == feature_extractor_types['srnn']:
+        assert srnn_kwargs is not None
+        obs_dim_latent = get_obs_dims_used_df(
+            obs_dim=obs_dim,
+            obs_dims_used=df_kwargs_srnn.obs_dims_used,
+            obs_dims_used_except=df_kwargs_srnn.obs_dims_used_except \
+                if 'obs_dims_used_except' in df_kwargs_srnn else None,
+        )
+        obs_dim_srnn = len(obs_dim_latent)
+
+        if df_type[df_type_keys['rnn_type']] == rnn_types['normal']:
+            rnn = nn.GRU(
+                input_size=obs_dim_srnn,
+                hidden_size=srnn_kwargs.rnn_kwargs['hidden_size_rnn'],
+                batch_first=True,
+                bidirectional=srnn_kwargs.rnn_kwargs['bidirectional'],
+            )
+
+        else:
+            raise NotImplementedError
+
+        if df_type[df_type_keys['latent_type']] == latent_types['full_seq']:
+            latent_model_class_stoch = SlacLatentNetConditionedOnSkillSeqForSRNN
+            srnn_model = SRNNLatentConditionedOnSkillSeq(
+                obs_dim=obs_dim,
+                skill_dim=skill_dim,
+                filter_net_params=srnn_kwargs.filter_net_params,
+                deterministic_latent_net=rnn,
+                stochastic_latent_net_class=latent_model_class_stoch,
+                stochastic_latent_net_class_params=srnn_kwargs.stoch_latent_kwargs,
+            )
+
+        else:
+            raise NotImplementedError
+
+        if df_type[df_type_keys['recon']] == recon_types['end_only']:
+            df = SplitSeqClassifierSRNNEndReconOnly(
+                obs_dim=obs_dim_srnn,
+                skill_dim=skill_dim,
+                seq_len=seq_len,
+                latent_net=srnn_model,
+                **df_kwargs_srnn
+            )
+            trainer = URLTrainerLatentSplitSeqsSRNNEndReconOnly(
+                df=df,
+                **trainer_init_kwargs
+            )
+
+        elif df_type[df_type_keys['recon']] == recon_types['whole_seq']:
+            df = SplitSeqClassifierSRNNWholeSeqRecon(
+                obs_dim=obs_dim_srnn,
+                skill_dim=skill_dim,
+                seq_len=seq_len,
+                latent_net=srnn_model,
+                **df_kwargs_srnn
+            )
+            trainer = URLTrainerLatentSplitSeqsSRNNFullSeqRecon(
+                df=df,
+                **trainer_init_kwargs
+            )
+
+        else:
+            raise NotImplementedError
+
 
     else:
         raise NotImplementedError

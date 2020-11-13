@@ -34,10 +34,18 @@ def tensor_equality(*tensors):
 
     return bool_var
 
-@torch.no_grad()
 def eval(module: torch.nn.Module, *args, **kwargs):
     train_mode_before = module.training
     module.eval()
-    ret_val = module(*args, **kwargs)
+    with torch.no_grad():
+        try:
+            ret_val = module(*args, **kwargs)
+        except:
+            raise ValueError
     module.train(train_mode_before)
     return ret_val
+
+def set_gpu_mode(mode: bool):
+    if mode:
+        assert torch.cuda.is_available()
+    ptu.set_gpu_mode(mode)

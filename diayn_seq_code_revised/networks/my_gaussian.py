@@ -87,3 +87,10 @@ class ConstantGaussianMultiDim(ConstantGaussian):
     @property
     def output_size(self):
         return self.output_dim
+
+
+class ConstantGaussianMultiDimMeanSpec(ConstantGaussianMultiDim):
+
+    def forward(self, mean):
+        std = torch.ones((*mean.shape[:-1], self.output_dim)).to(mean) * self.std
+        return Normal(loc=mean, scale=std)

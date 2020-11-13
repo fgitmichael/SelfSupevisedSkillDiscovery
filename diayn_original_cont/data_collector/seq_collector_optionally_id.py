@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List
+from typing import List, Union
 
 from diayn_seq_code_revised.data_collector.seq_collector_revised import \
     SeqCollectorRevised
@@ -18,6 +18,7 @@ class SeqCollectorRevisedOptionalId(SeqCollectorRevised):
             seq_len,
             num_seqs,
             discard_incomplete_paths=None,
+            obs_dim_to_select: Union[list, tuple] = None,
             id_to_add=None,
     ):
         if id_to_add is not None:
@@ -26,7 +27,7 @@ class SeqCollectorRevisedOptionalId(SeqCollectorRevised):
         super().collect_new_paths(
             seq_len=seq_len,
             num_seqs=num_seqs,
-            discard_incomplete_paths=discard_incomplete_paths,
+            obs_dim_to_select=obs_dim_to_select,
         )
 
     def prepare_paths_before_save(self, paths, seq_len) -> \

@@ -6,10 +6,10 @@ from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
 from self_supervised.utils.my_pytorch_util import tensor_equality
 
-from latent_with_splitseqs.base.latent_base import StochasticLatentNetBase
+from latent_with_splitseqs.base.slac_latent_base import SlacLatentBase
 
 # Adaption of the SLAC latent network architecture
-class SlacLatentNetConditionedOnSingleSkill(StochasticLatentNetBase):
+class SlacLatentNetConditionedOnSingleSkill(SlacLatentBase):
 
     def __init__(self,
                  *args,
@@ -22,7 +22,12 @@ class SlacLatentNetConditionedOnSingleSkill(StochasticLatentNetBase):
                  dropout=0.,
                  **kwargs
                  ):
-        super(SlacLatentNetConditionedOnSingleSkill, self).__init__(*args, **kwargs)
+        super(SlacLatentNetConditionedOnSingleSkill, self).__init__(
+            *args,
+            latent1_dim=latent1_dim,
+            latent2_dim=latent2_dim,
+            **kwargs
+        )
         # We use the observations as actions for this model
         # and the infered skill as observaton
 
@@ -89,9 +94,6 @@ class SlacLatentNetConditionedOnSingleSkill(StochasticLatentNetBase):
         #    hidden_units=hidden_units,
         #    leaky_slope=leaky_slope,
         #)
-
-        self.latent1_dim = latent1_dim
-        self.latent2_dim = latent2_dim
 
     def sample_prior(self,
                      obs_seq,

@@ -5,13 +5,13 @@ layer_size: 256
 replay_buffer_size: 10000
 
 env_kwargs:
-  env_id: ant
-  exclude_current_positions_from_observation: False
+  env_id: halfcheetah
+  exclude_current_positions_from_observation: null
 
-obs_dims_used_policy_all_except: [0]
+obs_dims_used_policy_all_except: null
 
 algorithm_kwargs:
-  num_epochs: 1000
+  num_epochs: 120
   num_eval_steps_per_epoch: 1000
   num_trains_per_train_loop: 500
   num_expl_steps_per_train_loop: 10
@@ -30,21 +30,21 @@ trainer_kwargs:
   df_lr: 0.001
   train_sac_in_feature_space: True
 
-seq_len: 10
+seq_len: 20
 horizon_len: 100
-seq_eval_len: 10
+seq_eval_len: 20
 horizon_eval_len: 100
 skill_dim: 2
 
 info_loss:
-  alpha: 0.99
-  lamda: 0.01
+  alpha: 0.9
+  lamda: 0.2
 
 df_type:
-  feature_extractor: rnn
+  feature_extractor: latent_slac
   rnn_type: normal
-  latent_type: full_seq
-  recon: whole_seq
+  latent_type: single_skill
+  recon: end_only
 
 latent_kwargs:
   latent1_dim: 8
@@ -58,8 +58,8 @@ latent_kwargs:
     end: 1
 
 latent_kwargs_smoothing:
-  latent1_dim: 8
-  latent2_dim: 64
+  latent1_dim: 2
+  latent2_dim: 8
   hidden_units: [256, 256]
   leaky_slope: 0.2
   dropout: 0.3
@@ -69,11 +69,13 @@ latent_kwargs_smoothing:
     end: 1
   smoothing_rnn_hidden_size: 10
 
+latent_single_layer_kwargs: null
+
 rnn_kwargs:
   hidden_size_rnn: 10
 
 df_kwargs_rnn:
-  obs_dims_used: [0, 1]
+  obs_dims_used: null
   dropout: 0.4
   leaky_slope_classifier: 0.2
   hidden_units_classifier: [256, 256]

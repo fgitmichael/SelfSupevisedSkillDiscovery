@@ -35,8 +35,13 @@ class MyWriter(WriterBase):
         run_id = f'mode_disent{seed}-{datetime.now().strftime("%Y%m%d-%H%M")}'
         run_id += run_comment if type(run_comment) is str else ""
 
-        self.model_dir = os.path.join(self.log_dir, str(run_id), 'model')
-        self.summary_dir = os.path.join(self.log_dir, str(run_id), 'summary')
+        self.run_dir = self.get_run_dir_name(
+            log_dir=self.log_dir,
+            run_id=run_id,
+        )
+
+        self.model_dir = os.path.join(self.run_dir, 'model')
+        self.summary_dir = os.path.join(self.run_dir, 'summary')
 
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
@@ -49,8 +54,18 @@ class MyWriter(WriterBase):
         self.plt_creator = PltCreator()
 
     def __del__(self):
-        print("Close Writer")
-        self.writer.close()
+        pass
+        #print("Close Writer")
+        #self.writer.close()
+
+    def get_run_dir_name(self, run_id, log_dir):
+        run_id_try = run_id
+        cnt = 0
+        while os.path.exists(os.path.join(log_dir, str(run_id_try))):
+            cnt += 1
+            run_id_try = run_id + "_try_" + str(cnt)
+
+        return os.path.join(log_dir, str(run_id_try))
 
     def plot(self,
              *args,

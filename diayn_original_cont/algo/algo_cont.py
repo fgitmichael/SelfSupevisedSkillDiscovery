@@ -126,7 +126,7 @@ class DIAYNContAlgo(DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently):
 
         return df_accuracy
     
-    def _classfier_perf_on_memory(self):
+    def _classifier_perf_on_memory(self):
         len_memory = self.batch_size
 
         batch_size = len_memory
@@ -146,7 +146,7 @@ class DIAYNContAlgo(DIAYNTorchOnlineRLAlgorithmTbPerfLoggingEffiently):
         return df_accuracy
 
     def _log_net_param_hist(self, epoch):
-        for k, net in self.trainer.network_dict.items():
+        for k, net in self.trainer.get_snapshot().items():
             for name, weight in net.named_parameters():
                 self.diagnostic_writer.writer.writer. \
                     add_histogram(k + name, weight, epoch)

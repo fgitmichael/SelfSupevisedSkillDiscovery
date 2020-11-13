@@ -5,13 +5,13 @@ layer_size: 256
 replay_buffer_size: 10000
 
 env_kwargs:
-  env_id: ant
+  env_id: halfcheetah
   exclude_current_positions_from_observation: False
 
 obs_dims_used_policy_all_except: [0]
 
 algorithm_kwargs:
-  num_epochs: 1000
+  num_epochs: 120
   num_eval_steps_per_epoch: 1000
   num_trains_per_train_loop: 500
   num_expl_steps_per_train_loop: 10
@@ -37,14 +37,14 @@ horizon_eval_len: 100
 skill_dim: 2
 
 info_loss:
-  alpha: 0.99
+  alpha: 0.9
   lamda: 0.01
 
 df_type:
   feature_extractor: rnn
   rnn_type: normal
   latent_type: full_seq
-  recon: whole_seq
+  recon: end_only
 
 latent_kwargs:
   latent1_dim: 8

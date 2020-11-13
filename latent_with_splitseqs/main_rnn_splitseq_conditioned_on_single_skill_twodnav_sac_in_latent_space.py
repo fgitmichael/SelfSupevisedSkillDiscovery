@@ -99,9 +99,9 @@ def experiment(variant,
         seq_len=seq_len,
         obs_dim=obs_dim,
         skill_dim=skill_dim,
-        hidden_units_classifier=config.hidden_units_classifier,
+        hidden_units=config.hidden_units_classifier,
         rnn=rnn,
-        leaky_slope_classifier=config.leaky_slope_classifier,
+        leaky_slope=config.leaky_slope_classifier,
         dropout=config.classifier_dropout,
     )
     policy = SkillTanhGaussianPolicyRevisedObsSelect(
