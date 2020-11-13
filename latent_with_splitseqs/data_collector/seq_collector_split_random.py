@@ -28,6 +28,7 @@ class SeqCollectorSplitSeqRandom(SeqCollectorSplitSeq):
             self,
             env,
             policy,
+            reset_env_after_collection=False,
     ) -> RollouterBase:
         return RollouterRandom(
             env=env,

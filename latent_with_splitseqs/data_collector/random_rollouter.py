@@ -13,12 +13,15 @@ class RollouterRandom(RollouterBase):
     def __init__(self,
                  env: gym.Env,
                  rollout_fun=rollout,
+                 reset_env_after_collection=False,
                  ):
         self.env = env
         self.random_action_generator = RandomActionGenerator(
             action_space=env.action_space
         )
         self.rollout_fun = rollout_fun
+
+        self.reset_env_after_collection = reset_env_after_collection
 
     def do_rollout(
             self,
@@ -31,6 +34,9 @@ class RollouterRandom(RollouterBase):
         )
         assert len(path['observations'].shape) == 2
         assert path['observations'].shape[-1] == self.env.observation_space.shape[0]
+
+        if self.reset_env_after_collection:
+            self.reset()
 
         return td.TransitionMapping(
             obs=path['observations'],

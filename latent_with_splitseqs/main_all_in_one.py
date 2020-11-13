@@ -65,6 +65,12 @@ def experiment(variant,
         obs_dim=obs_dim,
         config=config,
     )
+
+    reset_env_after_collection_key = "reset_env_after_collection"
+    reset_env_after_collection = config[reset_env_after_collection_key] \
+        if reset_env_after_collection_key in config.keys() \
+        else False
+
     variant['algorithm_kwargs']['batch_size'] //= config.seq_len
 
     test_script_path_name = config.test_script_path \
@@ -126,19 +132,22 @@ def experiment(variant,
         eval_env,
         eval_policy,
         max_seqs=5000,
-        skill_selector=skill_selector
+        skill_selector=skill_selector,
+        reset_env_after_collection=reset_env_after_collection,
     )
     expl_step_collector = SeqCollectorSplitSeq(
         expl_env,
         policy,
         max_seqs=5000,
-        skill_selector=skill_selector
+        skill_selector=skill_selector,
+        reset_env_after_collection=reset_env_after_collection,
     )
     seq_eval_collector = SeqCollectorSplitSeq(
         env=eval_env,
         policy=eval_policy,
         max_seqs=5000,
-        skill_selector=skill_selector
+        skill_selector=skill_selector,
+        reset_env_after_collection=reset_env_after_collection,
     )
     loss_fun = get_loss_fun(config)
     trainer_init_kwargs = dict(

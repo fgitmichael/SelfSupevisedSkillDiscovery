@@ -28,15 +28,15 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
                      SkillTanhGaussianPolicyRevised,
                      MakeDeterministicRevised
                  ],
-                 skill_selector: Union[
-                    SkillSelectorBase,
-                    SkillSelectorDiscrete],
+                 skill_selector: SkillSelectorBase,
                  max_seqs: int,
+                 reset_env_after_collection=False,
                  ):
         self.policy = policy
         self._rollouter = self.create_rollouter(
             env=env,
             policy=self.policy,
+            reset_env_after_collection=reset_env_after_collection,
         )
         self.skill_selector = skill_selector
 
@@ -53,10 +53,12 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
             self,
             env,
             policy,
+            reset_env_after_collection=False,
     ) -> RollouterBase:
         return RollouterRevised(
             env=env,
             policy=policy,
+            reset_env_after_collection=reset_env_after_collection,
         )
 
     @property

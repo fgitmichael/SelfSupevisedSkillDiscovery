@@ -47,12 +47,15 @@ class RollouterRevised(RollouterBase):
                  policy: Union[SkillTanhGaussianPolicyRevised,
                                MakeDeterministicRevised],
                  rollout_fun=rollout,
+                 reset_env_after_collection=False,
                  **kwargs
                  ):
         super(RollouterRevised, self).__init__(*args, **kwargs)
 
         self.policy = policy
         self.rollout_wrapper = RlkitRolloutSamplerWrapper(rollout_fun)
+
+        self.reset_env_after_collection = reset_env_after_collection
 
     def do_rollout(self,
                    seq_len: int=None) -> td.TransitionMapping:
@@ -65,6 +68,9 @@ class RollouterRevised(RollouterBase):
             policy=self.policy,
             seq_len=seq_len,
         )
+
+        if self.reset_env_after_collection:
+            self.reset()
 
         return td.TransitionMapping(
             obs=path['observations'],
