@@ -279,8 +279,8 @@ if __name__ == "__main__":
 
         config_path_name = None
 
-        if np.random.choice([True, False]):
-            config.df_kwargs_srnn.std_classifier = np.random.rand() + 0.3
+        #if np.random.choice([True, False]):
+        #    config.df_kwargs_srnn.std_classifier = np.random.rand() + 0.3
 
     config.horizon_len = (config.horizon_len // config.seq_len) * config.seq_len
     config.df_evaluation_memory.horizon_len = config.horizon_len
