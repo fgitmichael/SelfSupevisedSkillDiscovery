@@ -10,10 +10,15 @@ from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
 
 gym_envs_version_three = dict(
+    # 2d current position
     swimmer=SwimmerVersionThreeEnv,
+    # 1d current position
     halfcheetah=HalfCheetahVersionThreeEnv,
+    # 2d current position
     ant=AntVersionThreeEnv,
+    # 1d current position
     hopper=HopperVersionThreeEnv,
+    # 1d current position
     walker=Walker2dVersionThreeEnv,
 )
 
@@ -52,8 +57,7 @@ def get_env(**env_kwargs):
     gym_id = env_kwargs[gym_id_key]
     if gym_id in gym_envs_version_three.keys():
         env = gym_envs_version_three[gym_id](
-            exclude_current_positions_from_observation=\
-                exclude_current_pos
+            exclude_current_positions_from_observation=exclude_current_pos
         )
 
     elif gym_id in gym_envs_normal.keys():
