@@ -5,21 +5,24 @@ layer_size: 256
 replay_buffer_size: 100000
 random_hp_tuning: False
 
+# Environment
 env_kwargs:
-  env_id: MountainCarContinuous-v0
+  env_id: hopper
   exclude_current_positions_from_observation: False
 
-obs_dims_used_policy_all_except: null
+obs_dims_used_policy_all_except: [0,]
 
+# Algorithm
 algorithm_kwargs:
-  num_epochs: 500
+  num_epochs: 801
   num_eval_steps_per_epoch: 1000
-  num_trains_per_train_loop: 600
-  num_expl_steps_per_train_loop: 10
-  min_num_steps_before_training: 200
+  num_trains_per_train_loop: 500
+  num_expl_steps_per_train_loop: 13
+  min_num_steps_before_training: 400
   max_path_length: 1000
-  batch_size: 500
+  batch_size: 1100
 
+# Trainer
 trainer_kwargs:
   discount: 0.99
   soft_target_tau: 0.005
@@ -28,27 +31,30 @@ trainer_kwargs:
   qf_lr: 0.0003
   reward_scale: 1
   use_automatic_entropy_tuning: True
-  df_lr: 0.001
+  df_lr: 0.0005
   train_sac_in_feature_space: True
 
-seq_len: 20
-horizon_len: 100
+# Sampling
+seq_len: 30
+horizon_len: 300
 skill_dim: 2
 
+# Skill Prior
 skill_prior:
   type: uniform
   uniform:
-    low: -1.5
-    high: 1.5
+    low: -2.5
+    high: 2.5
   gaussian:
     std: 1.
 
+# Evaluation
 df_evaluation_env:
   obs_dims_to_log: [0, 1]
   action_dims_to_log: [0,]
-  seq_len: 20
-  horizon_len: 100
-  num_paths_per_skill: 2
+  seq_len: 30
+  horizon_len: 600
+  num_paths_per_skill: 1
   plot_skill_influence:
     obs: True
     action: True
@@ -56,15 +62,16 @@ df_evaluation_env:
     plot_post: True
 
 df_evaluation_memory:
-  seq_len: 20
-  horizon_len: 100
+  seq_len: 30
+  horizon_len: 600
   batch_size: 100
 
 info_loss:
-  alpha: 0.8
+  alpha: 1.0
   lamda: 0.0
   variant: reg_std_only
 
+# Classifier
 df_type:
   feature_extractor: rnn
   rnn_type: normal
@@ -81,21 +88,22 @@ latent_single_layer_kwargs:
   None: null
 
 rnn_kwargs:
-  hidden_size_rnn: 50
+  hidden_size_rnn: 20
   bidirectional: False
 
 df_kwargs_rnn:
   obs_dims_used: null
-  obs_dims_used_except: null
-  dropout: 0.3
-  leaky_slope_classifier: 0.2
+  obs_dims_used_except: [0, ]
+  dropout: 0.17
+  leaky_slope_classifier: 0.15
   hidden_units_classifier: [256, 256]
   std_classifier: null
 
 df_kwargs_latent:
   None: null
 
+# Logging
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
-log_folder: logs/mountaincar
-log_interval: 10
+log_folder: /media/michael/TOSHIBA EXT/logs/04_latent_splitseq/hopper_rand_param_search
+log_interval: 25
