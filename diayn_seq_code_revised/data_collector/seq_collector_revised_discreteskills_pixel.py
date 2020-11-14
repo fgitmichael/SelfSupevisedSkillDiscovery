@@ -3,8 +3,11 @@ import numpy as np
 
 from diayn_seq_code_revised.data_collector.seq_collector_revised_discrete_skills import \
     SeqCollectorRevisedDiscreteSkills
-from diayn_seq_code_revised.data_collector.rollouter_revised import RollouterRevised
+from diayn_seq_code_revised.data_collector.rollouter_revised import \
+    RollouterRevised, RlkitRolloutSamplerWrapper
 from diayn_seq_code_revised.data_collector.pixel_rollout import pixel_rollout
+
+from rlkit.samplers.rollout_functions import rollout
 
 
 class SeqCollectorRevisedDiscreteSkillsPixel(SeqCollectorRevisedDiscreteSkills):
@@ -13,11 +16,14 @@ class SeqCollectorRevisedDiscreteSkillsPixel(SeqCollectorRevisedDiscreteSkills):
             self,
             env,
             policy,
+            **kwargs,
     ):
+        rollout_wrapper = RlkitRolloutSamplerWrapper(rollout_fun=rollout)
         return RollouterRevised(
             env=env,
             policy=policy,
             rollout_fun=pixel_rollout,
+            rollout_wrapper=rollout_wrapper,
         )
 
     def _collect_new_paths(self,

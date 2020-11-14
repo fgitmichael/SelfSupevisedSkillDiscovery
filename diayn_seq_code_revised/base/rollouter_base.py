@@ -24,3 +24,16 @@ class RollouterBase(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def reset(self):
         pass
+
+
+class RolloutWrapperBase(object, metaclass=abc.ABCMeta):
+
+
+    @abc.abstractmethod
+    def rollout(
+            self,
+            env: gym.Env,
+            policy,
+            **kwargs,
+    ):
+        raise NotImplementedError

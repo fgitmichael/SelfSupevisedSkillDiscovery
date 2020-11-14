@@ -1,14 +1,14 @@
 import numpy as np
 import gym
 
-from diayn_seq_code_revised.base.rollouter_base import RollouterBase
+from diayn_seq_code_revised.base.rollouter_base import RolloutWrapperBase
 
 import self_supervised.utils.typed_dicts as td
 
 from rlkit.samplers.rollout_functions import rollout
 
 
-class RollouterRandom(RollouterBase):
+class RollouterRandom(RolloutWrapperBase):
 
     def __init__(self,
                  env: gym.Env,

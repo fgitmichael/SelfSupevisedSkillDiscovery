@@ -1,13 +1,35 @@
 import abc
+import gym
 
-from rlkit.samplers.data_collector.base import StepCollector
+from diayn_seq_code_revised.base.data_collector_base import DataCollectorRevisedBase
+from diayn_seq_code_revised.base.rollouter_base import RolloutWrapperBase
 
-class (StepCollector, metaclass=abc.ABCMeta):
+class HorizonSplitSeqCollectorBase(DataCollectorRevisedBase, metaclass=abc.ABCMeta):
 
-    def end_epoch(self, epoch):
-        self.reset()
+    def __init__(
+            self,
+            env: gym.Env,
+            policy,
+    ):
+        self._rollouter = self.create_rollouter(
+            env=env,
+            policy=policy,
+        )
 
     @abc.abstractmethod
-    def reset(self):
+    def create_rollouter(
+            self,
+            env,
+            policy,
+            **kwargs
+    ) -> RolloutWrapperBase:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def collect_split_seq(
+            self,
+            seq_len,
+            horizon_len,
+            discard_if_incomplete
+    ):
+        raise NotImplementedError

@@ -4,7 +4,7 @@ import torch
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 from latent_with_splitseqs.data_collector.random_rollouter import RollouterRandom
 
-from diayn_seq_code_revised.base.rollouter_base import RollouterBase
+from diayn_seq_code_revised.base.rollouter_base import RolloutWrapperBase
 
 
 class SeqCollectorSplitSeqRandom(SeqCollectorSplitSeq):

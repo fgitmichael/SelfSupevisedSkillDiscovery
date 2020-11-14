@@ -4,17 +4,16 @@ import numpy as np
 
 from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
-from diayn_seq_code_revised.base.rollouter_base import RollouterBase
+from diayn_seq_code_revised.base.rollouter_base import RolloutWrapperBase, RollouterBase
 
 import self_supervised.utils.typed_dicts as td
 
 from rlkit.samplers.rollout_functions import rollout
 
 
-class RlkitRolloutSamplerWrapper(object):
+class RlkitRolloutSamplerWrapper(RolloutWrapperBase):
 
-    def __init__(self,
-                 rollout_fun=rollout):
+    def __init__(self, rollout_fun=rollout):
         self.rollout_fun = rollout_fun
 
     def rollout(self,
@@ -46,19 +45,19 @@ class RollouterRevised(RollouterBase):
                  *args,
                  policy: Union[SkillTanhGaussianPolicyRevised,
                                MakeDeterministicRevised],
-                 rollout_fun=rollout,
-                 reset_env_after_collection=False,
+                 rollout_wrapper: RolloutWrapperBase,
                  **kwargs
                  ):
         super(RollouterRevised, self).__init__(*args, **kwargs)
 
         self.policy = policy
-        self.rollout_wrapper = RlkitRolloutSamplerWrapper(rollout_fun)
+        self.rollout_wrapper = rollout_wrapper
 
-        self.reset_env_after_collection = reset_env_after_collection
 
-    def do_rollout(self,
-                   seq_len: int=None) -> td.TransitionMapping:
+    def do_rollout(
+            self,
+            seq_len: int = None,
+    ) -> td.TransitionMapping:
         """
         Args:
             seq_len         : if None seq_len is set to inf
@@ -68,9 +67,6 @@ class RollouterRevised(RollouterBase):
             policy=self.policy,
             seq_len=seq_len,
         )
-
-        if self.reset_env_after_collection:
-            self.reset()
 
         return td.TransitionMapping(
             obs=path['observations'],

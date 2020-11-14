@@ -11,10 +11,9 @@ import self_supervised.utils.typed_dicts as td
 from diayn_seq_code_revised.base.data_collector_base import PathCollectorRevisedBase
 from diayn_seq_code_revised.policies.skill_policy import \
     SkillTanhGaussianPolicyRevised, MakeDeterministicRevised
-from diayn_seq_code_revised.data_collector.rollouter_revised import RollouterRevised
+from diayn_seq_code_revised.data_collector.rollouter_revised import \
+    RollouterRevised, RlkitRolloutSamplerWrapper
 from diayn_seq_code_revised.base.skill_selector_base import SkillSelectorBase
-from diayn_seq_code_revised.data_collector.skill_selector import SkillSelectorDiscrete
-from diayn_seq_code_revised.base.rollouter_base import RollouterBase
 
 import rlkit.torch.pytorch_util as ptu
 from rlkit.samplers.rollout_functions import rollout
@@ -30,35 +29,32 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
                  ],
                  skill_selector: SkillSelectorBase,
                  max_seqs: int,
-                 reset_env_after_collection=False,
                  ):
+        super(SeqCollectorRevised, self).__init__()
         self.policy = policy
         self._rollouter = self.create_rollouter(
             env=env,
             policy=self.policy,
-            reset_env_after_collection=reset_env_after_collection,
         )
         self.skill_selector = skill_selector
 
-        self._epoch_paths = deque(maxlen=max_seqs)
+        self._epoch_paths = None
+        self.maxlen = max_seqs
         self._skill = None
         self._num_steps_total = 0
         self._num_paths_total = 0
-
-    @property
-    def maxlen(self):
-        return self._epoch_paths.maxlen
 
     def create_rollouter(
             self,
             env,
             policy,
-            reset_env_after_collection=False,
-    ) -> RollouterBase:
+    ) -> RollouterRevised:
+        rollout_wrapper = RlkitRolloutSamplerWrapper(rollout_fun=rollout)
+
         return RollouterRevised(
             env=env,
             policy=policy,
-            reset_env_after_collection=reset_env_after_collection,
+            rollout_wrapper=rollout_wrapper,
         )
 
     @property
@@ -74,7 +70,7 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
         self.skill = random_skill
 
     def reset(self):
-        self._epoch_paths = deque(maxlen=self._epoch_paths.maxlen)
+        self._epoch_paths = deque(maxlen=self.maxlen)
         self._rollouter.reset()
 
     def _collect_new_paths(self,
