@@ -30,16 +30,15 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
                  skill_selector: SkillSelectorBase,
                  max_seqs: int,
                  ):
-        super(SeqCollectorRevised, self).__init__()
-        self.policy = policy
-        self._rollouter = self.create_rollouter(
+        self.max_seqs = max_seqs
+        super(SeqCollectorRevised, self).__init__(
             env=env,
-            policy=self.policy,
+            policy=policy,
         )
+        self.policy = policy
         self.skill_selector = skill_selector
 
         self._epoch_paths = None
-        self.maxlen = max_seqs
         self._skill = None
         self._num_steps_total = 0
         self._num_paths_total = 0
@@ -48,6 +47,7 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
             self,
             env,
             policy,
+            **kwargs
     ) -> RollouterRevised:
         rollout_wrapper = RlkitRolloutSamplerWrapper(rollout_fun=rollout)
 
@@ -70,13 +70,13 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
         self.skill = random_skill
 
     def reset(self):
-        self._epoch_paths = deque(maxlen=self.maxlen)
+        self._epoch_paths = deque(maxlen=self.max_seqs)
         self._rollouter.reset()
 
     def _collect_new_paths(self,
                            num_seqs: int,
                            seq_len: int,
-                           obs_dim_to_select: list) -> List[td.TransitionMapping]:
+                           obs_dim_to_select: list = None) -> List[td.TransitionMapping]:
         paths = []
         num_steps_collected = 0
 

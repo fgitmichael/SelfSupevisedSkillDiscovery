@@ -38,6 +38,7 @@ trainer_kwargs:
 seq_len: 30
 horizon_len: 300
 skill_dim: 2
+reset_env_after_collection: True
 
 # Skill Prior
 skill_prior:

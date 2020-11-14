@@ -28,6 +28,9 @@ class RollouterBase(object, metaclass=abc.ABCMeta):
 
 class RolloutWrapperBase(object, metaclass=abc.ABCMeta):
 
+    @abc.abstractmethod
+    def reset(self, *args, **kwargs):
+        raise NotImplementedError
 
     @abc.abstractmethod
     def rollout(

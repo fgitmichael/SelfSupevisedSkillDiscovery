@@ -38,6 +38,9 @@ class RlkitRolloutSamplerWrapper(RolloutWrapperBase):
 
         return path
 
+    def reset(self):
+        pass
+
 
 class RollouterRevised(RollouterBase):
 
@@ -76,5 +79,6 @@ class RollouterRevised(RollouterBase):
             terminal=path['terminals'],
         )
 
-    def reset(self):
-        self.env.reset()
+    def reset(self, *args, **kwargs):
+        obs = self.env.reset()
+        self.rollout_wrapper.reset(reset_obs=obs)
