@@ -28,7 +28,7 @@ class CollectSeqOverHorizonWrapper(RolloutWrapperBase):
             max_path_length=seq_len,
             current_observation=self._obs_now,
         )
-        self._obs_now = path['next_observation'][-1]
+        self._obs_now = path['next_observations'][-1]
 
         assert len(path['observations'].shape) == 2
         assert path['observations'].shape[-1] == env.observation_space.shape[0]
