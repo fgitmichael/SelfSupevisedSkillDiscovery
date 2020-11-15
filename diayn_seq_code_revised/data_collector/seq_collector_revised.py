@@ -39,7 +39,6 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
         self.policy = policy
         self.skill_selector = skill_selector
 
-        self._epoch_paths = None
         self._skill = None
         self._num_steps_total = 0
         self._num_paths_total = 0
