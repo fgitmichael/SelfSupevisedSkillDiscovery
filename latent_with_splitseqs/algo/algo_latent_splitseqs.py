@@ -38,6 +38,7 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
 
         if self.min_num_steps_before_training > 0:
             for _ in range(max(self.min_num_steps_before_training//self.horizon_len, 1)):
+                self.set_next_skill(self.expl_data_collector)
                 self._explore()
 
         init_expl_paths = self.expl_data_collector.get_epoch_paths()
