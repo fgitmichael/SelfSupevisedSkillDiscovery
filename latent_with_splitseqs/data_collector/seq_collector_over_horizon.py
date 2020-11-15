@@ -33,6 +33,7 @@ class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
             max_seqs: int = 5000,
     ):
         self.max_seqs = max_seqs
+        self._epoch_split_seqs = None
         super(SeqCollectorHorizon, self).__init__(
             env=env,
             policy=policy,
@@ -59,7 +60,7 @@ class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
         )
 
     def reset(self):
-        self._epoch_split_seqs = deque(maxlen=self._epoch_split_seqs.maxlen)
+        self._epoch_split_seqs = deque(maxlen=self.max_seqs)
         self._rollouter.reset()
 
     def skill_reset(self):
@@ -174,8 +175,11 @@ class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
 
         return seq_with_skill
 
-
-    def get_epoch_seqs(self, reset=True, transpose=True):
+    def get_epoch_paths(
+            self,
+            reset=True,
+            transpose=True) \
+            -> List[td.TransitionModeMapping]:
         """
         Return:
             list of TransistionMapping consisting of (S, data_dim) np.ndarrays
@@ -190,6 +194,8 @@ class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
 
         if reset:
             self.reset()
+
+        return epoch_seqs
 
     def set_skill(self, skill):
         self.skill = skill
