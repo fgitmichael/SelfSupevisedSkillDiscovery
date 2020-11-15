@@ -7,20 +7,20 @@ random_hp_tuning: False
 
 # Environment
 env_kwargs:
-  env_id: hopper
+  env_id: two_d_nav
   exclude_current_positions_from_observation: False
 
-obs_dims_used_policy_all_except: [0,]
+obs_dims_used_policy_all_except: null
 
 # Algorithm
 algorithm_kwargs:
   num_epochs: 801
   num_eval_steps_per_epoch: 1000
-  num_trains_per_train_loop: 500
-  num_expl_steps_per_train_loop: 13
+  num_trains_per_train_loop: 10
+  num_expl_steps_per_train_loop: 25
   min_num_steps_before_training: 400
   max_path_length: 1000
-  batch_size: 1100
+  batch_size: 1000
 
 # Trainer
 trainer_kwargs:
@@ -35,8 +35,8 @@ trainer_kwargs:
   train_sac_in_feature_space: True
 
 # Sampling
-seq_len: 30
-horizon_len: 300
+seq_len: 10
+horizon_len: 40
 skill_dim: 2
 reset_env_after_collection: True
 
@@ -53,8 +53,8 @@ skill_prior:
 df_evaluation_env:
   obs_dims_to_log: [0, 1]
   action_dims_to_log: [0,]
-  seq_len: 30
-  horizon_len: 600
+  seq_len: 10
+  horizon_len: 40
   num_paths_per_skill: 1
   plot_skill_influence:
     obs: True
@@ -63,12 +63,12 @@ df_evaluation_env:
     plot_post: True
 
 df_evaluation_memory:
-  seq_len: 30
-  horizon_len: 600
+  seq_len: 10
+  horizon_len: 40
   batch_size: 100
 
 info_loss:
-  alpha: 1.0
+  alpha: 0.5
   lamda: 0.0
   variant: reg_std_only
 
@@ -89,13 +89,13 @@ latent_single_layer_kwargs:
   None: null
 
 rnn_kwargs:
-  hidden_size_rnn: 20
+  hidden_size_rnn: 100
   bidirectional: False
 
 df_kwargs_rnn:
   obs_dims_used: null
-  obs_dims_used_except: [0, ]
-  dropout: 0.17
+  obs_dims_used_except: null
+  dropout: 0.4
   leaky_slope_classifier: 0.15
   hidden_units_classifier: [256, 256]
   std_classifier: null
@@ -106,5 +106,5 @@ df_kwargs_latent:
 # Logging
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
-log_folder: /media/michael/TOSHIBA EXT/logs/04_latent_splitseq/hopper_rand_param_search
-log_interval: 25
+log_folder: /media/michael/TOSHIBA EXT/logs/04_latent_splitseq/two_d_nav_horizon_expl_collector
+log_interval: 5
