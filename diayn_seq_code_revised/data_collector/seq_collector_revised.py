@@ -31,6 +31,7 @@ class SeqCollectorRevised(PathCollectorRevisedBase):
                  max_seqs: int,
                  ):
         self.max_seqs = max_seqs
+        self._epoch_paths = None
         super(SeqCollectorRevised, self).__init__(
             env=env,
             policy=policy,

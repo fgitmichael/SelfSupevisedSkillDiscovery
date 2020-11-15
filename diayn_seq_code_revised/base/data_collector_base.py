@@ -12,11 +12,11 @@ class DataCollectorRevisedBase(DataCollector, metaclass=abc.ABCMeta):
         env: gym.Env,
         policy,
     ):
-        self.reset()
         self._rollouter = self.create_rollouter(
             env=env,
             policy=policy,
         )
+        self.reset()
 
     def end_epoch(self, epoch):
         super().end_epoch(epoch)

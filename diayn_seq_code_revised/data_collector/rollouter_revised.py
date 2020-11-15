@@ -38,7 +38,7 @@ class RlkitRolloutSamplerWrapper(RolloutWrapperBase):
 
         return path
 
-    def reset(self):
+    def reset(self, *args, **kwargs):
         pass
 
 
