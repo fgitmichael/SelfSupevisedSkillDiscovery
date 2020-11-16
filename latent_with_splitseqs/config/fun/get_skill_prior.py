@@ -16,7 +16,7 @@ def get_skill_prior(config):
                 **config[skill_prior_key]['uniform']
             )
 
-        elif config[skill_prior_key] == "gaussian":
+        elif config[skill_prior_key]['type'] == "gaussian":
             skill_prior = ConstantGaussianMultiDim(
                 output_dim=config.skill_dim,
                 **config[skill_prior_key]['gaussian']
