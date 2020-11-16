@@ -1,4 +1,5 @@
 import torch
+import math
 import numpy as np
 import copy
 
@@ -49,6 +50,7 @@ from latent_with_splitseqs.data_collector.seq_collector_over_horizon \
     import SeqCollectorHorizon
 from latent_with_splitseqs.algo.algo_latent_split_horizon_expl_collection \
     import SeqwiseAlgoSplitHorizonExplCollection
+from latent_with_splitseqs.evaluation.tb_logging import PostEpochTbLogger
 
 
 def experiment(variant,
@@ -192,7 +194,7 @@ def experiment(variant,
     df_env_eval = DfEnvEvaluationSplitSeq(
         seq_collector=seq_eval_collector,
         df_to_evaluate=df,
-        diagnostics_writer=diagno_writer,
+        diagnostic_writer=diagno_writer,
         log_prefix=None,
         **config.df_evaluation_env,
     )
@@ -207,6 +209,11 @@ def experiment(variant,
         diagnostic_writer=diagno_writer,
         trainer=trainer
     )
+    post_epoch_tb_logger = PostEpochTbLogger(
+        diagnostic_writer=diagno_writer,
+        trainer=trainer,
+        replay_buffer=replay_buffer,
+    )
     algo_class = add_post_epoch_funcs([
         post_epoch_func_wrapper
         ('df evaluation on env')(df_env_eval),
@@ -216,6 +223,8 @@ def experiment(variant,
         ('object saving')(net_logger),
         post_epoch_func_wrapper
         ('net parameter histogram logging')(net_param_hist_logger),
+        post_epoch_func_wrapper
+        ('tb logging', log_interval=math.ceil(config.log_interval/4))(post_epoch_tb_logger),
     ])(SeqwiseAlgoSplitHorizonExplCollection)
     algorithm = algo_class(
         trainer=trainer,
