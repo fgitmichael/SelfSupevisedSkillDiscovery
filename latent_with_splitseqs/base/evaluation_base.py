@@ -6,6 +6,7 @@ class EvaluationBase(object, metaclass=abc.ABCMeta):
     def __init__(
             self,
             log_prefix: str = None,
+            **kwargs
     ):
         if log_prefix is None:
             self.log_prefix = ""

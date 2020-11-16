@@ -3,25 +3,26 @@ from typing import Union
 
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
+from latent_with_splitseqs.base.tb_logging_base import PostEpochDiagnoWritingBase
+
 from latent_with_splitseqs.base.evaluation_base import EvaluationBase
 
 
-class EnvEvaluationBase(EvaluationBase, metaclass=abc.ABCMeta):
+class EnvEvaluationBase(PostEpochDiagnoWritingBase, EvaluationBase, metaclass=abc.ABCMeta):
 
     def __init__(
             self,
-            *args,
             seq_collector,
             df_to_evaluate,
             obs_dims_to_log: Union[list, tuple],
-            diagnostics_writer: DiagnosticsWriter,
             plot_skill_influence: dict = None,
             action_dims_to_log: Union[list, tuple] = None,
             **kwargs
     ):
-        super(EnvEvaluationBase, self).__init__(*args, **kwargs)
+        EvaluationBase.__init__(self, **kwargs)
+        PostEpochDiagnoWritingBase.__init__(self, **kwargs)
+
         self.seq_collector = seq_collector
-        self.diagno_writer = diagnostics_writer
         self.obs_dims_to_log = obs_dims_to_log
         self.df_to_evaluate = df_to_evaluate
 

@@ -1,22 +1,24 @@
+from latent_with_splitseqs.base.tb_logging_base import PostEpochDiagnoWritingBase
 
-class NetLogger(object):
+
+class NetLogger(PostEpochDiagnoWritingBase):
 
     def __init__(self,
-                 diagnostic_writer,
                  net_dict: dict,
                  env,
+                 **kwargs
                  ):
-        self.diagnostic_writer = diagnostic_writer
+        super(NetLogger, self).__init__(**kwargs)
         self.net_dict = net_dict
         self.env = env
 
     def __call__(self, *args, epoch, **kwargs):
         for name, net in self.net_dict.items():
-            self.diagnostic_writer.save_object(
+            self.diagno_writer.save_object(
                 obj=net,
                 save_name=name,
                 epoch=epoch,
             )
 
         if epoch == 0:
-            self.diagnostic_writer.save_env(self.env)
+            self.diagno_writer.save_env(self.env)
