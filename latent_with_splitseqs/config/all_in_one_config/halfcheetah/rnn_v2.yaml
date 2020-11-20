@@ -7,20 +7,20 @@ random_hp_tuning: False
 
 # Environment
 env_kwargs:
-  env_id: MountainCarContinuous-v0
+  env_id: halfcheetah
   exclude_current_positions_from_observation: False
 
-obs_dims_used_policy_all_except: null
+obs_dims_used_policy_all_except: [0, ]
 
 # Algorithm
 algorithm_kwargs:
-  num_epochs: 5000
-  num_eval_steps_per_epoch: 1000
-  num_trains_per_train_loop: 20
-  num_expl_steps_per_train_loop: 4
+  num_epochs: 20000
+  num_eval_steps_per_epoch: 10
+  num_trains_per_train_loop: 90
+  num_expl_steps_per_train_loop: 30
   min_num_steps_before_training: 400
   max_path_length: 1000
-  batch_size: 2000
+  batch_size: 1000
 
 # Trainer
 trainer_kwargs:
@@ -35,25 +35,26 @@ trainer_kwargs:
   train_sac_in_feature_space: True
 
 # Sampling
-seq_len: 20
-horizon_len: 100
+seq_len: 10
+horizon_len: 300
 skill_dim: 2
 
 # Skill Prior
 skill_prior:
   type: uniform
   uniform:
-    low: -1.5
-    high: 1.5
+    low: -2.5
+    high: 2.5
   gaussian:
     std: 1.
+  grid_radius_factor: 1.7
 
 # Evaluation
 df_evaluation_env:
   obs_dims_to_log: [0, 1]
   action_dims_to_log: [0,]
-  seq_len: 20
-  horizon_len: 100
+  seq_len: 10
+  horizon_len: 300
   num_paths_per_skill: 1
   plot_skill_influence:
     obs: True
@@ -62,12 +63,12 @@ df_evaluation_env:
     plot_post: True
 
 df_evaluation_memory:
-  seq_len: 20
-  horizon_len: 100
-  batch_size: 100
+  seq_len: 10
+  horizon_len: 300
+  batch_size: 500
 
 info_loss:
-  alpha: 1.0
+  alpha: 0.9
   lamda: 0.0
   variant: reg_std_only
 
@@ -88,12 +89,12 @@ latent_single_layer_kwargs:
   None: null
 
 rnn_kwargs:
-  hidden_size_rnn: 50
+  hidden_size_rnn: 75
   bidirectional: False
 
 df_kwargs_rnn:
   obs_dims_used: null
-  obs_dims_used_except: null
+  obs_dims_used_except: [0, ]
   dropout: 0.4
   leaky_slope_classifier: 0.15
   hidden_units_classifier: [256, 256]
@@ -105,5 +106,5 @@ df_kwargs_latent:
 # Logging
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
-log_folder: /media/michael/TOSHIBA EXT/logs/04_latent_splitseq/mountain_car_horizon
-log_interval: 200
+log_folder: /media/michael/TOSHIBA EXT/logs/04_latent_splitseq/halfcheetah_horizon
+log_interval: 100
