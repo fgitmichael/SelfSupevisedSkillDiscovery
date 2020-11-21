@@ -45,6 +45,7 @@ class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
 
         self._num_steps_total = 0
         self._num_split_seqs_total = 0
+        self._num_split_seqs_current_rollout = 0
 
     def create_rollouter(
             self,
@@ -61,6 +62,7 @@ class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
 
     def reset(self):
         self._epoch_split_seqs = deque(maxlen=self.max_seqs)
+        self._num_split_seqs_current_rollout = 0
         self._rollouter.reset()
 
     def skill_reset(self):
@@ -72,7 +74,7 @@ class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
             seq_len,
             horizon_len,
             discard_incomplete_seq,
-    ):
+    ) -> bool:
         seq = self._rollouter.do_rollout(
             seq_len=seq_len
         )
@@ -86,14 +88,18 @@ class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
         sampled_seq_len = seq.obs.shape[seq_dim]
         self._num_steps_total += sampled_seq_len
         self._num_split_seqs_total += 1
+        self._num_split_seqs_current_rollout += 1
 
         # Reset rollouter
         num_seqs_horizon = horizon_len // seq_len
-        num_split_seqs_current_rollout = self._num_split_seqs_total % num_seqs_horizon
-        if num_split_seqs_current_rollout == 0:
+        horizon_completed = False
+        if self._num_split_seqs_current_rollout == num_seqs_horizon:
             self._rollouter.reset()
+            horizon_completed = True
 
         self._epoch_split_seqs.append(seq_with_skill)
+
+        return horizon_completed
 
     @property
     def skill(self):

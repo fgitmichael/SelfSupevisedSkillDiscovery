@@ -22,9 +22,11 @@ class SeqwiseAlgoSplitHorizonExplCollection(SeqwiseAlgoRevisedSplitSeqs):
 
     def _explore(self):
         assert isinstance(self.expl_data_collector, SeqCollectorHorizon)
-        self.expl_data_collector.collect_split_seq(
+        horizon_complete = self.expl_data_collector.collect_split_seq(
             seq_len=self.seq_len,
             horizon_len=self.horizon_len,
             discard_incomplete_seq=False,
         )
+        if horizon_complete:
+            self.set_next_skill(self.expl_data_collector)
         gt.stamp('exploration sampling', unique=False)
