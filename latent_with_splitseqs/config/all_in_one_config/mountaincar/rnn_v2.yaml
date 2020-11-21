@@ -17,7 +17,7 @@ algorithm_kwargs:
   num_epochs: 5000
   num_eval_steps_per_epoch: 1000
   num_trains_per_train_loop: 20
-  num_expl_steps_per_train_loop: 4
+  num_expl_steps_per_train_loop: 10
   min_num_steps_before_training: 400
   max_path_length: 1000
   batch_size: 2000
@@ -32,7 +32,7 @@ trainer_kwargs:
   reward_scale: 1
   use_automatic_entropy_tuning: True
   df_lr: 0.001
-  train_sac_in_feature_space: True
+  train_sac_in_feature_space: False
 
 # Sampling
 seq_len: 20
@@ -47,6 +47,7 @@ skill_prior:
     high: 1.5
   gaussian:
     std: 1.
+  grid_radius_factor: 1.
 
 # Evaluation
 df_evaluation_env:
@@ -106,4 +107,4 @@ df_kwargs_latent:
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
 log_folder: /media/michael/TOSHIBA EXT/logs/04_latent_splitseq/mountain_car_horizon
-log_interval: 200
+log_interval: 50

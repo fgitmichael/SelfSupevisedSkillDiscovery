@@ -32,7 +32,7 @@ trainer_kwargs:
   reward_scale: 1
   use_automatic_entropy_tuning: True
   df_lr: 0.001
-  train_sac_in_feature_space: True
+  train_sac_in_feature_space: False
 
 # Sampling
 seq_len: 20
