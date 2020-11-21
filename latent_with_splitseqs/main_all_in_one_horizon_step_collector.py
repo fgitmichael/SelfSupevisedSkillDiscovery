@@ -127,7 +127,7 @@ def experiment(variant,
     skill_prior = get_skill_prior(config)
     skill_selector = SkillSelectorContinous(
         prior_skill_dist=skill_prior,
-        grid_radius_factor=1.,
+        grid_radius_factor=config.skill_prior.grid_radius_factor,
     )
     eval_path_collector = SeqCollectorSplitSeq(
         eval_env,
@@ -214,6 +214,7 @@ def experiment(variant,
         trainer=trainer,
         replay_buffer=replay_buffer,
     )
+    tb_log_interval = math.ceil(config.log_interval/4)
     algo_class = add_post_epoch_funcs([
         post_epoch_func_wrapper
         ('df evaluation on env')(df_env_eval),
@@ -222,9 +223,10 @@ def experiment(variant,
         post_epoch_func_wrapper
         ('object saving')(net_logger),
         post_epoch_func_wrapper
-        ('net parameter histogram logging')(net_param_hist_logger),
+        ('net parameter histogram logging',
+         log_interval=tb_log_interval)(net_param_hist_logger),
         post_epoch_func_wrapper
-        ('tb logging', log_interval=math.ceil(config.log_interval/4))(post_epoch_tb_logger),
+        ('tb logging', log_interval=tb_log_interval)(post_epoch_tb_logger),
     ])(SeqwiseAlgoSplitHorizonExplCollection)
     algorithm = algo_class(
         trainer=trainer,
@@ -297,8 +299,6 @@ if __name__ == "__main__":
         #    config.df_kwargs_srnn.std_classifier = np.random.rand() + 0.3
 
     config.horizon_len = (config.horizon_len // config.seq_len) * config.seq_len
-    config.df_evaluation_memory.horizon_len = config.horizon_len
-    config.df_evaluation_env.horizon_len = config.horizon_len
 
     # noinspection PyTypeChecker
     variant = dict(

@@ -187,7 +187,7 @@ def experiment(variant,
     df_env_eval = DfEnvEvaluationSplitSeq(
         seq_collector=seq_eval_collector,
         df_to_evaluate=df,
-        diagnostics_writer=diagno_writer,
+        diagnostic_writer=diagno_writer,
         log_prefix=None,
         **config.df_evaluation_env,
     )
