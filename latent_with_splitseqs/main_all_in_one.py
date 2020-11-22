@@ -212,6 +212,8 @@ def experiment(variant,
         ('object saving')(net_logger),
         post_epoch_func_wrapper
         ('net parameter histogram logging')(net_param_hist_logger),
+        post_epoch_func_wrapper
+        ('algo saving', log_interval=config.log_interval * 4)(save_algo),
     ])(SeqwiseAlgoRevisedSplitSeqs)
     algorithm = algo_class(
         trainer=trainer,

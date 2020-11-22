@@ -241,6 +241,8 @@ def experiment(variant,
          log_interval=tb_log_interval)(net_param_hist_logger),
         post_epoch_func_wrapper
         ('tb logging', log_interval=tb_log_interval)(post_epoch_tb_logger),
+        post_epoch_func_wrapper
+        ('algo saving', log_interval=config.log_interval * 4)(save_algo),
     ])(SeqwiseAlgoSplitHorizonExplCollection)
     algorithm = algo_class(
         trainer=trainer,
