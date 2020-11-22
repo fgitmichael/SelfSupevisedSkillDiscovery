@@ -43,7 +43,6 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         self.mode_influence_path_obs_lim = mode_influence_paths_obs_lim
 
         self._epoch_cnt = 0
-        self.post_epoch_funcs.append(self._update_epoch_cnt)
 
     def _update_epoch_cnt(self, epoch):
         self._epoch_cnt = epoch
@@ -61,6 +60,7 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         self.replay_buffer.end_epoch(epoch)
         self.trainer.end_epoch(epoch)
 
+        self._update_epoch_cnt(epoch)
         for post_epoch_func in self.post_epoch_funcs:
             post_epoch_func(self, epoch=epoch)
 
