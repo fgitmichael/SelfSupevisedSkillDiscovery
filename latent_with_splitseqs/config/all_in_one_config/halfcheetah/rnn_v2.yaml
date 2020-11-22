@@ -106,5 +106,6 @@ df_kwargs_latent:
 # Logging
 test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
                    /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py]
+scripts_to_copy: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/latent_with_splitseqs/continue_algo_training.py]
 log_folder: /media/michael/TOSHIBA EXT/logs/04_latent_splitseq/halfcheetah_horizon
 log_interval: 50

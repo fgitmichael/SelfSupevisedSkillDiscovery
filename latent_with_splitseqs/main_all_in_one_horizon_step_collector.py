@@ -77,6 +77,19 @@ def experiment(variant,
     test_script_path_name = config.test_script_path \
         if "test_script_path" in config.keys() \
         else None
+    scripts_to_copy = config.scripts_to_copy \
+        if "scripts_to_copy" in config.keys() \
+        else None
+
+    if test_script_path_name is not None and scripts_to_copy is not None:
+        if isinstance(test_script_path_name, list):
+            assert isinstance(scripts_to_copy, list)
+            scripts_to_copy.extend(test_script_path_name)
+        else:
+            scripts_to_copy.append(test_script_path_name)
+
+    elif test_script_path_name is not None and scripts_to_copy is None:
+        scripts_to_copy = test_script_path_name
 
     sep_str = " | "
     run_comment = sep_str
@@ -182,7 +195,7 @@ def experiment(variant,
         log_interval=config.log_interval,
         config=config,
         config_path_name=config_path_name,
-        test_script_path_name=test_script_path_name,
+        scripts_to_copy=test_script_path_name,
     )
 
     df_memory_eval = DfMemoryEvalSplitSeq(

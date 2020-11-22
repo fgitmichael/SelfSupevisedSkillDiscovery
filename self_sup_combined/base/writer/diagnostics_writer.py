@@ -16,7 +16,7 @@ class DiagnosticsWriter:
                  writer: MyWriterWithActivation,
                  config: edict = None,
                  config_path_name: str = None,
-                 test_script_path_name: str = None,
+                 scripts_to_copy: str = None,
                  log_interval=None
                  ):
         self.log_interval = log_interval
@@ -26,7 +26,7 @@ class DiagnosticsWriter:
         self.copy_main_script()
         self.save_hparams(config)
         self.copy_config(config_path_name)
-        self.create_test_script_symlink(test_script_path_name)
+        self.create_copy_script_symlinks(scripts_to_copy)
 
     def is_log(self, step, log_interval=None) -> bool:
         if log_interval is None:
@@ -80,17 +80,17 @@ class DiagnosticsWriter:
         else:
             print("No config file copied")
 
-    def create_test_script_symlink(self, test_script_path_name):
-        if test_script_path_name is not None:
-            if isinstance(test_script_path_name, list) or \
-                isinstance(test_script_path_name, tuple):
-                for path_name in test_script_path_name:
+    def create_copy_script_symlinks(self, scripts_to_copy):
+        if scripts_to_copy is not None:
+            if isinstance(scripts_to_copy, list) or \
+                isinstance(scripts_to_copy, tuple):
+                for path_name in scripts_to_copy:
                     self._create_test_script_symlin(
                         path_name,
                         link_name=os.path.basename(path_name)
                     )
             else:
-                self._create_test_script_symlin(test_script_path_name)
+                self._create_test_script_symlin(scripts_to_copy)
 
         else:
             print("No testscript symlink created")

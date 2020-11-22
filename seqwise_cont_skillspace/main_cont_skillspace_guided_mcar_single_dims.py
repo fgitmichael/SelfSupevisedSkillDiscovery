@@ -172,7 +172,7 @@ def experiment(variant,
         log_interval=1,
         config=config,
         config_path_name=config_path_name,
-        test_script_path_name=test_script_path_name,
+        scripts_to_copy=test_script_path_name,
     )
 
     algorithm = SeqwiseAlgoRevisedContSkillsHighDim(
