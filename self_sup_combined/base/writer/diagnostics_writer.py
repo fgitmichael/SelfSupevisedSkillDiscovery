@@ -55,9 +55,13 @@ class DiagnosticsWriter:
             self,
             obj,
             save_name: str,
-            epoch: int,
+            epoch: int = None,
     ):
-        save_name = "{}_epoch{}.pkl".format(save_name, epoch)
+        if epoch is None:
+            save_name = "{}.pkl".format(save_name)
+        else:
+            save_name = "{}_epoch{}.pkl".format(save_name, epoch)
+
         save_path = os.path.join(self.writer.model_dir, save_name)
         torch.save(obj, save_path)
 
