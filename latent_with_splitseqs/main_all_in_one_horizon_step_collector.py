@@ -34,23 +34,24 @@ from latent_with_splitseqs.config.fun.get_df_and_trainer import get_df_and_train
 from latent_with_splitseqs.config.fun.get_feature_dim_obs_dim \
     import get_feature_dim_obs_dim
 from latent_with_splitseqs.utils.loglikelihoodloss import GuidedKldLogOnlyLoss
-from latent_with_splitseqs.evaluation.df_memory_eval import DfMemoryEvalSplitSeq
+from latent_with_splitseqs.post_epoch_funcs.df_memory_eval import DfMemoryEvalSplitSeq
 from latent_with_splitseqs.algo.add_post_epoch_func import add_post_epoch_funcs
-from latent_with_splitseqs.evaluation.net_param_histogram_logging \
+from latent_with_splitseqs.post_epoch_funcs.net_param_histogram_logging \
     import NetParamHistogramLogger
 from latent_with_splitseqs.algo.algo_latent_splitseqs import \
     SeqwiseAlgoRevisedSplitSeqs
-from latent_with_splitseqs.evaluation.df_env_eval import DfEnvEvaluationSplitSeq
+from latent_with_splitseqs.post_epoch_funcs.df_env_eval import DfEnvEvaluationSplitSeq
 from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
     import post_epoch_func_wrapper
-from latent_with_splitseqs.evaluation.net_logging import NetLogger
+from latent_with_splitseqs.post_epoch_funcs.net_logging import NetLogger
 from latent_with_splitseqs.config.fun.get_skill_prior import get_skill_prior
 from latent_with_splitseqs.config.fun.get_loss_fun import get_loss_fun
 from latent_with_splitseqs.data_collector.seq_collector_over_horizon \
     import SeqCollectorHorizon
 from latent_with_splitseqs.algo.algo_latent_split_horizon_expl_collection \
     import SeqwiseAlgoSplitHorizonExplCollection
-from latent_with_splitseqs.evaluation.tb_logging import PostEpochTbLogger
+from latent_with_splitseqs.post_epoch_funcs.tb_logging import PostEpochTbLogger
+from latent_with_splitseqs.post_epoch_funcs.algo_saving import save_algo
 
 
 def experiment(variant,
