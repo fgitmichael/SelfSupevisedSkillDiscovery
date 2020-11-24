@@ -1,4 +1,6 @@
+import abc
 import torch
+from torch.utils.tensorboard import SummaryWriter
 import os
 import sys
 import gym
@@ -10,15 +12,44 @@ from self_supervised.utils.writer import MyWriterWithActivation
 from mode_disent_no_ssm.utils.parse_args import yaml_save, json_save
 
 
-class DiagnosticsWriter:
+class DiagnosticsWriterBase(object, metaclass=abc.ABCMeta):
+
+    def __init__(self, writer: SummaryWriter):
+        self.writer = writer
+
+        self.save_str = 'diagno_writer.pkl'
+
+    def save(self, base_dir='.'):
+        save_path = os.path.join(base_dir, self.save_str)
+        save_obj = self._save()
+        torch.save(save_obj, save_path)
+
+    def _save(self):
+        writer_log_dir = self.writer.get_logdir()
+        return dict(
+            writer_log_dir=writer_log_dir,
+        )
+
+    def load(self, base_dir='.') -> dict:
+        save_obj = torch.load(os.path.join(base_dir, self.save_str))
+        self.writer = SummaryWriter(
+            log_dir=save_obj['writer_log_dir']
+        )
+        return save_obj
+
+
+class DiagnosticsWriter(DiagnosticsWriterBase):
 
     def __init__(self,
+                 *args,
                  writer: MyWriterWithActivation,
                  config: edict = None,
                  config_path_name: str = None,
                  scripts_to_copy: str = None,
-                 log_interval=None
+                 log_interval=None,
+                 **kwargs
                  ):
+        super(DiagnosticsWriter, self).__init__(*args, **kwargs)
         self.log_interval = log_interval
         self._diagnostics = {}
         self.writer = writer
@@ -27,6 +58,16 @@ class DiagnosticsWriter:
         self.save_hparams(config)
         self.copy_config(config_path_name)
         self.create_copy_script_symlinks(scripts_to_copy)
+
+    def _save(self):
+        save_obj = super(DiagnosticsWriter, self)._save()
+        save_obj['log_interval'] = self.log_interval
+        return save_obj
+
+    def load(self, base_dir='.'):
+        save_obj = super(DiagnosticsWriter, self).load(base_dir=base_dir)
+        self.log_interval = save_obj['log_interval']
+        return save_obj
 
     def is_log(self, step, log_interval=None) -> bool:
         if log_interval is None:
@@ -87,7 +128,7 @@ class DiagnosticsWriter:
     def create_copy_script_symlinks(self, scripts_to_copy):
         if scripts_to_copy is not None:
             if isinstance(scripts_to_copy, list) or \
-                isinstance(scripts_to_copy, tuple):
+               isinstance(scripts_to_copy, tuple):
                 for path_name in scripts_to_copy:
                     self._create_test_script_symlin(
                         path_name,
@@ -112,7 +153,10 @@ class DiagnosticsWriter:
 
     def save_hparams(self, hparams: edict):
         if hparams is not None:
-            save_path = os.path.join(self.writer.summary_dir, 'hparams.yaml')
+            base_name = "hparams"
+
+            # Json
+            save_path = os.path.join(self.writer.summary_dir, base_name + '.json')
             json_save(
                 path_name=save_path,
                 file=hparams,
