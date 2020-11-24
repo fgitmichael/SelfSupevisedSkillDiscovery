@@ -11,3 +11,7 @@ class PostEpochDiagnoWritingBase(object, metaclass=abc.ABCMeta):
             **kwargs
     ):
         self.diagno_writer = diagnostic_writer
+
+    @abc.abstractmethod
+    def __call__(self, *args, epoch, **kwargs):
+        raise NotImplementedError
