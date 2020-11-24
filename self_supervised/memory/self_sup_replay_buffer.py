@@ -8,6 +8,7 @@ import self_supervised.utils.typed_dicts as td
 
 
 class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
+
     def __init__(self,
                  max_replay_buffer_size: int,
                  seq_len: int,
@@ -27,6 +28,15 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
              self._seq_len),
             dtype=np.float32
         )
+
+    def _save(self) -> dict:
+        save_obj = super(SelfSupervisedEnvSequenceReplayBuffer, self)._save()
+        save_obj['mode'] = self._mode_per_seqs
+        return save_obj
+
+    def _load(self, save_obj):
+        self._mode_per_seqs = save_obj['mode']
+        super()._load(save_obj)
 
     def add_sample(self,
                    path: td.TransitionModeMapping,

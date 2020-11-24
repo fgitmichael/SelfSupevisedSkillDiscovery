@@ -1,4 +1,6 @@
 import numpy as np
+import os
+import torch
 from collections import OrderedDict
 
 from self_supervised.base.replay_buffer.replay_buffer_base import SequenceReplayBufferSampleWithoutReplace
@@ -64,6 +66,29 @@ class NormalSequenceReplayBuffer(SequenceReplayBufferSampleWithoutReplace):
                  self._seq_len)
             )
         self._env_info_keys = env_info_sizes.keys()
+
+    def _load(self, save_obj):
+        self._obs_seqs = save_obj['obs']
+        self._obs_next_seqs = save_obj['next_obs']
+        self._action_seqs = save_obj['actions']
+        self._rewards_seqs = save_obj['rewards']
+        self._terminal_seqs = save_obj['terminals']
+        super()._load(save_obj)
+
+    def _save(self) -> dict:
+        save_obj = super()._save()
+        save_obj_add = dict(
+            obs=self._obs_seqs,
+            next_obs=self._obs_next_seqs,
+            actions=self._action_seqs,
+            rewards=self._rewards_seqs,
+            terminals=self._terminal_seqs,
+        )
+        return dict(
+            **save_obj,
+            **save_obj_add,
+        )
+
 
     def add_sample(self,
                    path: TransitionMapping,

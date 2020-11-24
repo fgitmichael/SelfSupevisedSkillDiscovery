@@ -11,31 +11,24 @@ from self_supervised.utils.writer import MyWriterWithActivation
 
 from mode_disent_no_ssm.utils.parse_args import yaml_save, json_save
 
+from latent_with_splitseqs.base.my_object_base import MyObjectBase
 
-class DiagnosticsWriterBase(object, metaclass=abc.ABCMeta):
+
+class DiagnosticsWriterBase(MyObjectBase, metaclass=abc.ABCMeta):
 
     def __init__(self, writer: SummaryWriter):
         self.writer = writer
 
-        self.save_str = 'diagno_writer.pkl'
+    def _save(self) -> dict:
+        save_obj = super(DiagnosticsWriterBase)._save()
+        save_obj['writer_log_dir'] = self.writer.get_logdir()
+        return save_obj
 
-    def save(self, base_dir='.'):
-        save_path = os.path.join(base_dir, self.save_str)
-        save_obj = self._save()
-        torch.save(save_obj, save_path)
-
-    def _save(self):
-        writer_log_dir = self.writer.get_logdir()
-        return dict(
-            writer_log_dir=writer_log_dir,
-        )
-
-    def load(self, base_dir='.') -> dict:
-        save_obj = torch.load(os.path.join(base_dir, self.save_str))
-        self.writer = SummaryWriter(
+    def _load(self, save_obj):
+        self.writer.writer = SummaryWriter(
             log_dir=save_obj['writer_log_dir']
         )
-        return save_obj
+        super(DiagnosticsWriterBase, self)._load(save_obj)
 
 
 class DiagnosticsWriter(DiagnosticsWriterBase):
@@ -59,15 +52,14 @@ class DiagnosticsWriter(DiagnosticsWriterBase):
         self.copy_config(config_path_name)
         self.create_copy_script_symlinks(scripts_to_copy)
 
-    def _save(self):
+    def _save(self) -> dict:
         save_obj = super(DiagnosticsWriter, self)._save()
         save_obj['log_interval'] = self.log_interval
         return save_obj
 
-    def load(self, base_dir='.'):
-        save_obj = super(DiagnosticsWriter, self).load(base_dir=base_dir)
+    def _load(self, save_obj):
         self.log_interval = save_obj['log_interval']
-        return save_obj
+        super(DiagnosticsWriter, self)._load(save_obj)
 
     def is_log(self, step, log_interval=None) -> bool:
         if log_interval is None:

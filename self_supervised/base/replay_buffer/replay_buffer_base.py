@@ -1,4 +1,6 @@
 import abc
+import os
+import torch
 from typing import List
 import numpy as np
 
@@ -6,8 +8,10 @@ from rlkit.data_management.replay_buffer import ReplayBuffer
 
 import self_supervised.utils.typed_dicts as td
 
+from latent_with_splitseqs.base.my_object_base import MyObjectBase
+
 # Adding skills
-class SequenceReplayBuffer(ReplayBuffer, metaclass=abc.ABCMeta):
+class SequenceReplayBuffer(ReplayBuffer, MyObjectBase, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def add_sample(self,
