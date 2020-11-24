@@ -2,7 +2,7 @@
 algorithm: "Continuous Skill Space"
 version: "latent split seq | guided | sac in feature space | rnn only"
 layer_size: 256
-replay_buffer_size: 100000
+replay_buffer_size: 50000
 random_hp_tuning: False
 
 # Environment

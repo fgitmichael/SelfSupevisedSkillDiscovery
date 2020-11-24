@@ -42,7 +42,7 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         self.mode_influence_one_plot_scatter = mode_influence_one_plot_scatter
         self.mode_influence_path_obs_lim = mode_influence_paths_obs_lim
 
-        self._epoch_cnt = 0
+        self._epoch_cnt = None
 
     def _update_epoch_cnt(self, epoch):
         self._epoch_cnt = epoch

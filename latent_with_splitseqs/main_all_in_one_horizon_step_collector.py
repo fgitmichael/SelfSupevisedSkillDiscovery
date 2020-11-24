@@ -34,28 +34,18 @@ from latent_with_splitseqs.config.fun.get_df_and_trainer import get_df_and_train
 from latent_with_splitseqs.config.fun.get_feature_dim_obs_dim \
     import get_feature_dim_obs_dim
 from latent_with_splitseqs.utils.loglikelihoodloss import GuidedKldLogOnlyLoss
-from latent_with_splitseqs.post_epoch_funcs.df_memory_eval import DfMemoryEvalSplitSeq
-from latent_with_splitseqs.algo.add_post_epoch_func import add_post_epoch_funcs
-from latent_with_splitseqs.post_epoch_funcs.net_param_histogram_logging \
-    import NetParamHistogramLogger
 from latent_with_splitseqs.algo.algo_latent_splitseqs import \
     SeqwiseAlgoRevisedSplitSeqs
-from latent_with_splitseqs.post_epoch_funcs.df_env_eval import DfEnvEvaluationSplitSeq
-from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
-    import post_epoch_func_wrapper
-from latent_with_splitseqs.post_epoch_funcs.net_logging import NetLogger
 from latent_with_splitseqs.config.fun.get_skill_prior import get_skill_prior
 from latent_with_splitseqs.config.fun.get_loss_fun import get_loss_fun
 from latent_with_splitseqs.data_collector.seq_collector_over_horizon \
     import SeqCollectorHorizon
 from latent_with_splitseqs.algo.algo_latent_split_horizon_expl_collection \
     import SeqwiseAlgoSplitHorizonExplCollection
-from latent_with_splitseqs.post_epoch_funcs.tb_logging import PostEpochTbLogger
-from latent_with_splitseqs.post_epoch_funcs.algo_saving import save_algo
+from latent_with_splitseqs.config.fun.get_algo import get_algo_with_post_epoch_funcs
 
 
-def experiment(variant,
-               config,
+def experiment(config,
                config_path_name,
                ):
     expl_env = get_env(
@@ -73,7 +63,7 @@ def experiment(variant,
         obs_dim=obs_dim,
         config=config,
     )
-    variant['algorithm_kwargs']['batch_size'] //= config.seq_len
+    config.algorithm_kwargs.batch_size //= config.seq_len
 
     test_script_path_name = config.test_script_path \
         if "test_script_path" in config.keys() \
@@ -105,7 +95,7 @@ def experiment(variant,
     eval_env.seed(seed)
     np.random.seed(seed)
 
-    M = variant['layer_size']
+    M = config.layer_size
     qf1 = MyFlattenMlp(
         input_size=feature_dim_or_obs_dim + action_dim + config.skill_dim,
         output_size=1,
@@ -171,7 +161,7 @@ def experiment(variant,
         target_qf2=target_qf2,
         loss_fun=loss_fun,
         skill_prior_dist=skill_prior_for_loss,
-        **variant['trainer_kwargs']
+        **config.trainer_kwargs,
     )
     df, trainer = get_df_and_trainer(
         obs_dim=obs_dim,
@@ -180,7 +170,7 @@ def experiment(variant,
     )
 
     replay_buffer = LatentReplayBuffer(
-        max_replay_buffer_size=variant['replay_buffer_size'],
+        max_replay_buffer_size=config.replay_buffer_size,
         seq_len=config.seq_len,
         mode_dim=config.skill_dim,
         env=expl_env,
@@ -196,69 +186,21 @@ def experiment(variant,
         log_interval=config.log_interval,
         config=config,
         config_path_name=config_path_name,
-        scripts_to_copy=test_script_path_name,
+        scripts_to_copy=scripts_to_copy,
     )
-
-    df_memory_eval = DfMemoryEvalSplitSeq(
+    algorithm = get_algo_with_post_epoch_funcs(
+        algo_class_in=SeqwiseAlgoSplitHorizonExplCollection,
         replay_buffer=replay_buffer,
-        df_to_evaluate=df,
-        diagnostics_writer=diagno_writer,
-        **config.df_evaluation_memory
-    )
-    df_env_eval = DfEnvEvaluationSplitSeq(
-        seq_collector=seq_eval_collector,
-        df_to_evaluate=df,
-        diagnostic_writer=diagno_writer,
-        log_prefix=None,
-        **config.df_evaluation_env,
-    )
-    net_logger = NetLogger(
-        diagnostic_writer=diagno_writer,
-        net_dict=dict(
-            policy_net=eval_policy,
-        ),
-        env=expl_env
-    )
-    net_param_hist_logger = NetParamHistogramLogger(
-        diagnostic_writer=diagno_writer,
-        trainer=trainer
-    )
-    post_epoch_tb_logger = PostEpochTbLogger(
-        diagnostic_writer=diagno_writer,
-        trainer=trainer,
-        replay_buffer=replay_buffer,
-    )
-    tb_log_interval = math.ceil(config.log_interval/4)
-    algo_class = add_post_epoch_funcs([
-        post_epoch_func_wrapper
-        ('df evaluation on env')(df_env_eval),
-        post_epoch_func_wrapper
-        ('df evaluation on memory')(df_memory_eval),
-        post_epoch_func_wrapper
-        ('object saving')(net_logger),
-        post_epoch_func_wrapper
-        ('net parameter histogram logging',
-         log_interval=tb_log_interval)(net_param_hist_logger),
-        post_epoch_func_wrapper
-        ('tb logging', log_interval=tb_log_interval)(post_epoch_tb_logger),
-        post_epoch_func_wrapper
-        ('algo saving', log_interval=config.log_interval * 4)(save_algo),
-    ])(SeqwiseAlgoSplitHorizonExplCollection)
-    algorithm = algo_class(
-        trainer=trainer,
-        exploration_env=expl_env,
-        evaluation_env=eval_env,
-        exploration_data_collector=expl_step_collector,
-        evaluation_data_collector=eval_path_collector,
-        replay_buffer=replay_buffer,
-
-        seq_len=config.seq_len,
-        horizon_len=config.horizon_len,
-
-        diagnostic_writer=diagno_writer,
+        expl_step_collector=expl_step_collector,
+        eval_path_collector=eval_path_collector,
         seq_eval_collector=seq_eval_collector,
-
-        **variant['algorithm_kwargs']
+        diagno_writer=diagno_writer,
+        eval_policy=eval_policy,
+        df=df,
+        config=config,
+        expl_env=expl_env,
+        eval_env=eval_env,
+        trainer=trainer,
     )
     algorithm.to(ptu.device)
     algorithm.train()
@@ -268,7 +210,7 @@ def experiment(variant,
 
 if __name__ == "__main__":
     config, config_path_name = parse_args_hptuning(
-        default="config/all_in_one_config/two_d_nav/"
+        default="config/all_in_one_config/halfcheetah/"
                 "rnn_v2.yaml",
         default_min="./config/all_in_one_config/mountaincar/"
                     "random_hp_search/"
@@ -328,8 +270,7 @@ if __name__ == "__main__":
     setup_logger(config.algorithm
                  + config.version
                  + str(config.skill_dim), variant=variant)
-    ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
+    ptu.set_gpu_mode(False)  # optionally set the GPU (default=False)
 
-    experiment(variant,
-               config,
+    experiment(config,
                config_path_name)
