@@ -29,14 +29,14 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
             dtype=np.float32
         )
 
-    def _save(self) -> dict:
-        save_obj = super(SelfSupervisedEnvSequenceReplayBuffer, self)._save()
+    def create_save_dict(self) -> dict:
+        save_obj = super(SelfSupervisedEnvSequenceReplayBuffer, self).create_save_dict()
         save_obj['mode'] = self._mode_per_seqs
         return save_obj
 
-    def _load(self, save_obj):
+    def process_save_dict(self, save_obj):
         self._mode_per_seqs = save_obj['mode']
-        super()._load(save_obj)
+        super().process_save_dict(save_obj)
 
     def add_sample(self,
                    path: td.TransitionModeMapping,

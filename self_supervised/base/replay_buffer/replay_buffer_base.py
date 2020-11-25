@@ -10,6 +10,7 @@ import self_supervised.utils.typed_dicts as td
 
 from latent_with_splitseqs.base.my_object_base import MyObjectBase
 
+
 # Adding skills
 class SequenceReplayBuffer(ReplayBuffer, MyObjectBase, metaclass=abc.ABCMeta):
 
