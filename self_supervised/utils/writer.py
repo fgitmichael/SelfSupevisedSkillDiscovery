@@ -1,11 +1,12 @@
 import os
 from datetime import datetime
-from typing import Union, List
-
+from typing import Union, List, Tuple
+from latent_with_splitseqs.base.my_object_base import MyObjectBase
 import numpy as np
 import torch
 from prodict import Prodict
 from torch.utils.tensorboard import SummaryWriter
+import shutil
 
 from self_supervised.base.writer.plt_creator_base import PltCreator
 from self_supervised.base.writer.writer_base import WriterBase
@@ -24,34 +25,78 @@ class WriterDataMapping(Prodict):
         )
 
 
-class MyWriter(WriterBase):
+class MyWriter(WriterBase, MyObjectBase):
 
     def __init__(self,
                  seed: int,
                  log_dir: str,
                  run_comment=None):
-        self.log_dir = log_dir
 
         run_id = f'mode_disent{seed}-{datetime.now().strftime("%Y%m%d-%H%M")}'
         run_id += run_comment if type(run_comment) is str else ""
 
         self.run_dir = self.get_run_dir_name(
-            log_dir=self.log_dir,
+            log_dir=log_dir,
             run_id=run_id,
         )
 
-        self.model_dir = os.path.join(self.run_dir, 'model')
-        self.summary_dir = os.path.join(self.run_dir, 'summary')
+        self.model_dir = ''
+        self.summary_dir = ''
+        self.object_saving_dir = ''
+        self.writer = None
+        self.set_up_directory_and_create_summary_writer(run_dir=self.run_dir)
+
+        self.plt_creator = PltCreator()
+
+    def set_up_directory_and_create_summary_writer(self, run_dir):
+        self.model_dir = os.path.join(run_dir, 'model')
+        self.summary_dir = os.path.join(run_dir, 'summary')
+        self.object_saving_dir = os.path.join(run_dir, 'object_saving')
 
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
         if not os.path.exists(self.summary_dir):
             os.makedirs(self.summary_dir)
+        if not os.path.exists(self.object_saving_dir):
+            os.makedirs(self.object_saving_dir)
 
         self.writer = SummaryWriter(
             log_dir=self.summary_dir,
         )
-        self.plt_creator = PltCreator()
+
+    def create_save_dict(self) -> dict:
+        save_obj = super().create_save_dict()
+        save_obj['run_dir'] = self.run_dir
+        return save_obj
+
+    def load(
+            self,
+            file_name,
+            base_dir='.',
+            delete_current_run_dir=False
+    ):
+        save_path = self._get_save_path(
+            file_name=file_name,
+            base_dir=base_dir,
+        )
+        save_obj = torch.load(save_path)
+        self.process_save_dict(save_obj, delete_current_run_dir=delete_current_run_dir)
+
+    def process_save_dict(
+            self,
+            save_obj,
+            delete_current_run_dir=None
+    ):
+        if delete_current_run_dir is None:
+            raise ValueError('arg delete_current_run_dir is required')
+
+        old_run_dir = self.run_dir
+        self.run_dir = save_obj['run_dir']
+        self.set_up_directory_and_create_summary_writer(run_dir=self.run_dir)
+        if delete_current_run_dir:
+            shutil.rmtree(old_run_dir)
+
+        super().process_save_dict(save_obj)
 
     def __del__(self):
         pass
