@@ -7,7 +7,7 @@ import gym
 from shutil import copyfile
 from easydict import EasyDict as edict
 
-from self_supervised.utils.writer import MyWriterWithActivation
+from self_supervised.utils.writer import MyWriterWithActivation, MyWriter
 
 from mode_disent_no_ssm.utils.parse_args import yaml_save, json_save
 
@@ -16,50 +16,58 @@ from latent_with_splitseqs.base.my_object_base import MyObjectBase
 
 class DiagnosticsWriterBase(MyObjectBase, metaclass=abc.ABCMeta):
 
-    def __init__(self, writer: SummaryWriter):
+    def __init__(self, writer: MyWriter):
         self.writer = writer
 
-    def _save(self) -> dict:
-        save_obj = super(DiagnosticsWriterBase)._save()
-        save_obj['writer_log_dir'] = self.writer.get_logdir()
+    def create_save_dict(self) -> dict:
+        save_obj = super().create_save_dict()
+        save_obj_writer = self.writer.create_save_dict()
+        save_obj['save_obj_writer'] = save_obj_writer
         return save_obj
 
-    def _load(self, save_obj):
-        self.writer.writer = SummaryWriter(
-            log_dir=save_obj['writer_log_dir']
-        )
-        super(DiagnosticsWriterBase, self)._load(save_obj)
+    def process_save_dict(
+            self,
+            save_obj,
+            delete_current_run_dir=False
+    ):
+        self.writer.process_save_dict(save_obj['save_obj_writer'],
+                                      delete_current_run_dir=delete_current_run_dir)
+        super(DiagnosticsWriterBase, self).process_save_dict(save_obj)
+
+    def close(self):
+        self.writer.writer.close()
 
 
 class DiagnosticsWriter(DiagnosticsWriterBase):
 
     def __init__(self,
                  *args,
-                 writer: MyWriterWithActivation,
                  config: edict = None,
                  config_path_name: str = None,
                  scripts_to_copy: str = None,
                  log_interval=None,
                  **kwargs
                  ):
-        super(DiagnosticsWriter, self).__init__(*args, **kwargs)
+        super(DiagnosticsWriter, self).__init__(*args,  **kwargs)
         self.log_interval = log_interval
         self._diagnostics = {}
-        self.writer = writer
 
         self.copy_main_script()
         self.save_hparams(config)
         self.copy_config(config_path_name)
         self.create_copy_script_symlinks(scripts_to_copy)
 
-    def _save(self) -> dict:
-        save_obj = super(DiagnosticsWriter, self)._save()
+    def create_save_dict(self) -> dict:
+        save_obj = super(DiagnosticsWriter, self).create_save_dict()
         save_obj['log_interval'] = self.log_interval
         return save_obj
 
-    def _load(self, save_obj):
+    def process_save_dict(self, save_obj, delete_current_run_dir=False):
         self.log_interval = save_obj['log_interval']
-        super(DiagnosticsWriter, self)._load(save_obj)
+        super(DiagnosticsWriter, self).process_save_dict(
+            save_obj,
+            delete_current_run_dir=delete_current_run_dir
+        )
 
     def is_log(self, step, log_interval=None) -> bool:
         if log_interval is None:
