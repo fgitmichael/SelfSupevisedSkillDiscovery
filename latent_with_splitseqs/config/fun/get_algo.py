@@ -12,7 +12,7 @@ from latent_with_splitseqs.post_epoch_funcs.df_memory_eval import DfMemoryEvalSp
 from latent_with_splitseqs.algo.add_post_epoch_func import add_post_epoch_funcs
 from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
     import post_epoch_func_wrapper
-from latent_with_splitseqs.post_epoch_funcs.algo_saving import AlgoLogger
+from latent_with_splitseqs.post_epoch_funcs.algo_saving import ConfigSaver, save_algo
 
 
 def get_algo_with_post_epoch_funcs(
@@ -58,18 +58,9 @@ def get_algo_with_post_epoch_funcs(
         trainer=trainer,
         replay_buffer=replay_buffer,
     )
-    algo_logger = AlgoLogger(
+    config_saver = ConfigSaver(
         diagno_writer=diagno_writer,
-        replay_buffer=replay_buffer,
-        expl_step_collector=expl_step_collector,
-        eval_path_collector=eval_path_collector,
-        seq_eval_collector=seq_eval_collector,
-        eval_policy=eval_policy,
-        df=df,
         config=config,
-        expl_env=expl_env,
-        eval_env=eval_env,
-        trainer=trainer,
     )
     tb_log_interval = math.ceil(config.log_interval/4)
     algo_class = add_post_epoch_funcs([
@@ -85,7 +76,9 @@ def get_algo_with_post_epoch_funcs(
         post_epoch_func_wrapper
         ('tb logging', log_interval=tb_log_interval)(post_epoch_tb_logger),
         post_epoch_func_wrapper
-        ('algo saving', log_interval=config.log_interval * 4, method=True)(algo_logger),
+        ('config saving')(config_saver),
+        post_epoch_func_wrapper
+        ('algo logging', log_interval=config.log_interval * 100, method=True)(save_algo),
     ])(algo_class_in)
 
     algorithm = algo_class(
