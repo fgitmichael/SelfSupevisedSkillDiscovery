@@ -6,12 +6,8 @@ import copy
 import rlkit.torch.pytorch_util as ptu
 from rlkit.launchers.launcher_util import setup_logger
 
-from self_supervised.utils.writer import MyWriterWithActivation
 from self_supervised.network.flatten_mlp import FlattenMlp as \
     MyFlattenMlp
-from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
-
-from latent_with_splitseqs.memory.replay_buffer_for_latent import LatentReplayBuffer
 
 from diayn_seq_code_revised.policies.skill_policy import \
     MakeDeterministicRevised
@@ -43,11 +39,17 @@ from latent_with_splitseqs.data_collector.seq_collector_over_horizon \
 from latent_with_splitseqs.algo.algo_latent_split_horizon_expl_collection \
     import SeqwiseAlgoSplitHorizonExplCollection
 from latent_with_splitseqs.config.fun.get_algo import get_algo_with_post_epoch_funcs
+from latent_with_splitseqs.config.fun.get_replay_buffer import get_replay_buffer
+from latent_with_splitseqs.config.fun.get_diagnostics_writer import get_diagnostics_writer
+from latent_with_splitseqs.config.fun.get_random_hp_params import get_random_hp_params
+from latent_with_splitseqs.config.fun.prepare_hparams import prepare_hparams
+
+from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 
 
-def experiment(config,
-               config_path_name,
-               ):
+def create_experiment(config,
+                      config_path_name,
+                      ) -> DIAYNTorchOnlineRLAlgorithmTb:
     expl_env = get_env(
         **config.env_kwargs
     )
@@ -63,7 +65,6 @@ def experiment(config,
         obs_dim=obs_dim,
         config=config,
     )
-    config.algorithm_kwargs.batch_size //= config.seq_len
 
     test_script_path_name = config.test_script_path \
         if "test_script_path" in config.keys() \
@@ -88,7 +89,6 @@ def experiment(config,
     run_comment += config.algorithm + sep_str
     run_comment += config.version + sep_str
 
-    log_folder=config.log_folder
     seed = 0
     torch.manual_seed = seed
     expl_env.seed(seed)
@@ -168,25 +168,16 @@ def experiment(config,
         trainer_init_kwargs=trainer_init_kwargs,
         **config
     )
-
-    replay_buffer = LatentReplayBuffer(
-        max_replay_buffer_size=config.replay_buffer_size,
-        seq_len=config.seq_len,
-        mode_dim=config.skill_dim,
+    replay_buffer = get_replay_buffer(
+        config=config,
         env=expl_env,
     )
-
-    writer = MyWriterWithActivation(
-        seed=seed,
-        log_dir=log_folder,
-        run_comment=run_comment
-    )
-    diagno_writer = DiagnosticsWriter(
-        writer=writer,
-        log_interval=config.log_interval,
+    diagno_writer = get_diagnostics_writer(
+        run_comment=run_comment,
         config=config,
-        config_path_name=config_path_name,
         scripts_to_copy=scripts_to_copy,
+        seed=seed,
+        config_path_name=config_path_name,
     )
     algorithm = get_algo_with_post_epoch_funcs(
         algo_class_in=SeqwiseAlgoSplitHorizonExplCollection,
@@ -203,9 +194,8 @@ def experiment(config,
         trainer=trainer,
     )
     algorithm.to(ptu.device)
-    algorithm.train()
 
-    diagno_writer.close()
+    return algorithm
 
 
 if __name__ == "__main__":
@@ -223,40 +213,8 @@ if __name__ == "__main__":
     )
 
     if config.random_hp_tuning:
-        #config.latent_kwargs.latent2_dim = config.latent_kwargs.latent1_dim * 8
-
-        config.df_evaluation_env.seq_len = config.seq_len
-        config.df_evaluation_memory.seq_len = config.seq_len
-        #config.horizon_len = max(100,
-        #                         np.random.randint(1, 20) * config.seq_len)
-        config.df_evaluation_env.horizon_len = config.horizon_len
-        config.df_evaluation_memory.horizon_len = config.horizon_len
-
-        classifier_layer_size = np.random.randint(32, 256)
-        config.df_kwargs_srnn.hidden_units_classifier = [classifier_layer_size,
-                                                        classifier_layer_size]
-
-        #if np.random.choice([True, False]):
-        #    config.df_type.feature_extractor = 'rnn'
-        #    config.df_type.latent_type = None
-
-        #else:
-        #    config.df_type.feature_extractor = 'latent_slac'
-        #    config.df_type.rnn_type = None
-        #    if np.random.choice([True, False]):
-        #        config.df_type.latent_type = 'single_skill'
-        #    else:
-        #        config.df_type.latent_type = 'full_seq'
-
-        #if np.random.choice([True, False]):
-        #    config.algorithm_kwargs.train_sac_in_feature_space = False
-
-        config_path_name = None
-
-        #if np.random.choice([True, False]):
-        #    config.df_kwargs_srnn.std_classifier = np.random.rand() + 0.3
-
-    config.horizon_len = (config.horizon_len // config.seq_len) * config.seq_len
+        config = get_random_hp_params(config)
+    config = prepare_hparams(config)
 
     # noinspection PyTypeChecker
     variant = dict(
@@ -272,5 +230,5 @@ if __name__ == "__main__":
                  + str(config.skill_dim), variant=variant)
     ptu.set_gpu_mode(False)  # optionally set the GPU (default=False)
 
-    experiment(config,
-               config_path_name)
+    algorithm = create_experiment(config, config_path_name)
+    algorithm.train()
