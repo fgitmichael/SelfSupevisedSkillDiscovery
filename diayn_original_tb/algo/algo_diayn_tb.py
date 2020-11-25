@@ -1,4 +1,5 @@
 from typing import Union
+import copy
 import gtimer as gt
 
 
@@ -17,8 +18,10 @@ from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqColl
 from diayn_seq_code_revised.data_collector.seq_collector_revised import \
     SeqCollectorRevised
 
+from latent_with_splitseqs.base.my_object_base import MyObjectBase
 
-class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
+
+class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm, MyObjectBase):
 
     def __init__(self,
                  *args,
@@ -43,6 +46,32 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         self.mode_influence_path_obs_lim = mode_influence_paths_obs_lim
 
         self._epoch_cnt = None
+
+    def create_save_dict(self) -> dict:
+        save_obj = super().create_save_dict()
+        assert isinstance(self.replay_buffer, SelfSupervisedEnvSequenceReplayBuffer)
+        save_obj['save_obj_replay_buffer'] = self.replay_buffer.create_save_dict()
+        save_obj['save_obj_diagno_writer'] = self.diagnostic_writer.create_save_dict()
+        save_obj['trainer'] = copy.deepcopy(self.trainer)
+        save_obj['expl_step_collector'] = copy.deepcopy(self.expl_data_collector)
+        save_obj['eval_step_collector'] = copy.deepcopy(self.eval_data_collector)
+        save_obj['seq_eval_collector'] = copy.deepcopy(self.seq_eval_collector)
+        save_obj['epoch_cnt'] = self.epoch_cnt
+        return save_obj
+
+    def process_save_dict(self, save_obj):
+        assert isinstance(self.replay_buffer, SelfSupervisedEnvSequenceReplayBuffer)
+        self.replay_buffer.process_save_dict(save_obj['save_obj_replay_buffer'])
+        self.diagnostic_writer.process_save_dict(
+            save_obj['save_obj_diagno_writer'],
+            delete_current_run_dir=True,
+        )
+        self.trainer = save_obj['trainer']
+        self.expl_data_collector = save_obj['expl_step_collector']
+        self.eval_data_collector = save_obj['eval_step_collector']
+        self.seq_eval_collector = save_obj['seq_eval_collector']
+        self._epoch_cnt = save_obj['epoch_cnt']
+        super().process_save_dict(save_obj)
 
     def _update_epoch_cnt(self, epoch):
         self._epoch_cnt = epoch
