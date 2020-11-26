@@ -228,7 +228,7 @@ if __name__ == "__main__":
     setup_logger(config.algorithm
                  + config.version
                  + str(config.skill_dim), variant=variant)
-    ptu.set_gpu_mode(False)  # optionally set the GPU (default=False)
+    ptu.set_gpu_mode(config.gpu)  # optionally set the GPU (default=False)
 
     algorithm = create_experiment(config, config_path_name)
     algorithm.train()
