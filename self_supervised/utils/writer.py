@@ -42,7 +42,6 @@ class MyWriter(WriterBase, MyObjectBase):
 
         self.model_dir = ''
         self.summary_dir = ''
-        self.object_saving_dir = ''
         self.writer = None
         self.set_up_directory_and_create_summary_writer(run_dir=self.run_dir)
 
@@ -51,14 +50,11 @@ class MyWriter(WriterBase, MyObjectBase):
     def set_up_directory_and_create_summary_writer(self, run_dir):
         self.model_dir = os.path.join(run_dir, 'model')
         self.summary_dir = os.path.join(run_dir, 'summary')
-        self.object_saving_dir = os.path.join(run_dir, 'object_saving')
 
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
         if not os.path.exists(self.summary_dir):
             os.makedirs(self.summary_dir)
-        if not os.path.exists(self.object_saving_dir):
-            os.makedirs(self.object_saving_dir)
 
         self.writer = SummaryWriter(
             log_dir=self.summary_dir,
