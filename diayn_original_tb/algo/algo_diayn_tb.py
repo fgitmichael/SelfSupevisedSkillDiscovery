@@ -61,9 +61,6 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm, MyObjectBase):
             epoch_cnt=self.epoch_cnt,
         )
 
-    def _update_epoch_cnt(self, epoch):
-        self._epoch_cnt = epoch
-
     @property
     def epoch_cnt(self):
         return self._epoch_cnt
@@ -82,7 +79,7 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm, MyObjectBase):
         self.replay_buffer.end_epoch(epoch)
         self.trainer.end_epoch(epoch)
 
-        self._update_epoch_cnt(epoch)
+        self.epoch_cnt = epoch
         for post_epoch_func in self.post_epoch_funcs:
             post_epoch_func(self, epoch=epoch)
 
@@ -93,7 +90,6 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm, MyObjectBase):
 
     def train(self, start_epoch=0):
         super().train(start_epoch)
-        self.diagnostic_writer.close()
 
     def _log_stats(self, epoch):
         logger.log("Epoch {} finished".format(epoch), with_timestamp=True)
