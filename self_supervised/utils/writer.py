@@ -102,9 +102,9 @@ class MyWriter(WriterBase, MyObjectBase):
             shutil.rmtree(old_run_dir)
 
     def __del__(self):
-        pass
-        #print("Close Writer")
-        #self.writer.close()
+        if self.writer is not None:
+            print("Close Writer")
+            self.writer.close()
 
     def get_run_dir_name(self, run_id, log_dir):
         run_id_try = run_id
@@ -113,7 +113,10 @@ class MyWriter(WriterBase, MyObjectBase):
             cnt += 1
             run_id_try = run_id + "_try_" + str(cnt)
 
-        return os.path.join(log_dir, str(run_id_try))
+        run_id = run_id_try.replace(" ", "_")
+        run_dir = os.path.join(log_dir, run_id)
+
+        return run_dir
 
     def plot(self,
              *args,
