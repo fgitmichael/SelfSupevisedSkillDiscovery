@@ -31,6 +31,7 @@ class MyWriter(WriterBase, MyObjectBase):
                  seed: int,
                  log_dir: str,
                  run_comment=None):
+        super().__init__()
 
         run_id = f'mode_disent{seed}-{datetime.now().strftime("%Y%m%d-%H%M")}'
         run_id += run_comment if type(run_comment) is str else ""
