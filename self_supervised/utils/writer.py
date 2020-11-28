@@ -53,7 +53,7 @@ class MyWriter(WriterBase, MyObjectBase):
         objs_to_save = super()._objs_to_save
         return dict(
             **objs_to_save,
-            writer=self.writer,
+            run_dir=self.run_dir,
         )
 
     def set_up_directory_and_create_summary_writer(self, run_dir):
