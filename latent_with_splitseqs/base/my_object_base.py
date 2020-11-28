@@ -84,7 +84,6 @@ class MyObjectBase(object, metaclass=abc.ABCMeta):
         assert all(key in save_obj.keys() for key in self._objs_to_save_checked.keys())
         self.process_save_dict(save_obj)
 
-    @abc.abstractmethod
     def process_save_dict(self, save_obj):
         for key, obj in save_obj.items():
             self._set_obj_attr(
