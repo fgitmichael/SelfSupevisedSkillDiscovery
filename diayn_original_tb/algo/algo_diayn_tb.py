@@ -47,31 +47,19 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm, MyObjectBase):
 
         self._epoch_cnt = None
 
-    def create_save_dict(self) -> dict:
-        save_obj = super().create_save_dict()
-        assert isinstance(self.replay_buffer, SelfSupervisedEnvSequenceReplayBuffer)
-        save_obj['save_obj_replay_buffer'] = self.replay_buffer.create_save_dict()
-        save_obj['save_obj_diagno_writer'] = self.diagnostic_writer.create_save_dict()
-        save_obj['trainer'] = copy.deepcopy(self.trainer)
-        save_obj['expl_step_collector'] = copy.deepcopy(self.expl_data_collector)
-        save_obj['eval_step_collector'] = copy.deepcopy(self.eval_data_collector)
-        save_obj['seq_eval_collector'] = copy.deepcopy(self.seq_eval_collector)
-        save_obj['epoch_cnt'] = self.epoch_cnt
-        return save_obj
-
-    def process_save_dict(self, save_obj):
-        assert isinstance(self.replay_buffer, SelfSupervisedEnvSequenceReplayBuffer)
-        self.replay_buffer.process_save_dict(save_obj['save_obj_replay_buffer'])
-        self.diagnostic_writer.process_save_dict(
-            save_obj['save_obj_diagno_writer'],
-            delete_current_run_dir=True,
+    @property
+    def _objs_to_save(self):
+        objs_to_save = super()._objs_to_save
+        return dict(
+            **objs_to_save,
+            replay_buffer=self.replay_buffer,
+            diagnostic_writer=self.diagnostic_writer,
+            trainer=self.trainer,
+            expl_data_collector=self.expl_data_collector,
+            eval_data_collector=self.eval_data_collector,
+            seq_eval_collector=self.seq_eval_collector,
+            epoch_cnt=self.epoch_cnt,
         )
-        self.trainer = save_obj['trainer']
-        self.expl_data_collector = save_obj['expl_step_collector']
-        self.eval_data_collector = save_obj['eval_step_collector']
-        self.seq_eval_collector = save_obj['seq_eval_collector']
-        self._epoch_cnt = save_obj['epoch_cnt']
-        super().process_save_dict(save_obj)
 
     def _update_epoch_cnt(self, epoch):
         self._epoch_cnt = epoch
@@ -79,6 +67,10 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm, MyObjectBase):
     @property
     def epoch_cnt(self):
         return self._epoch_cnt
+
+    @epoch_cnt.setter
+    def epoch_cnt(self, epoch):
+        self._epoch_cnt = epoch
 
     def _end_epoch(self, epoch):
         """

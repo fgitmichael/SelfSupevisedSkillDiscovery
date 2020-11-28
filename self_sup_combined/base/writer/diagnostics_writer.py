@@ -17,20 +17,24 @@ from latent_with_splitseqs.base.my_object_base import MyObjectBase
 class DiagnosticsWriterBase(MyObjectBase, metaclass=abc.ABCMeta):
 
     def __init__(self, writer: MyWriter):
+        super().__init__()
         self.writer = writer
 
-    def create_save_dict(self) -> dict:
-        save_obj = super().create_save_dict()
-        save_obj_writer = self.writer.create_save_dict()
-        save_obj['save_obj_writer'] = save_obj_writer
-        return save_obj
+    @property
+    def _objs_to_save(self):
+        objs_to_save = super()._objs_to_save
+        return dict(
+            **objs_to_save,
+            writer=self.writer,
+        )
 
     def process_save_dict(
             self,
             save_obj,
             delete_current_run_dir=False
     ):
-        self.writer.process_save_dict(save_obj['save_obj_writer'],
+        # Remove writer from save as it needs special treatment (delete current run dir)
+        self.writer.process_save_dict(save_obj.pop('writer'),
                                       delete_current_run_dir=delete_current_run_dir)
         super(DiagnosticsWriterBase, self).process_save_dict(save_obj)
 
@@ -57,16 +61,12 @@ class DiagnosticsWriter(DiagnosticsWriterBase):
         self.copy_config(config_path_name)
         self.create_copy_script_symlinks(scripts_to_copy)
 
-    def create_save_dict(self) -> dict:
-        save_obj = super(DiagnosticsWriter, self).create_save_dict()
-        save_obj['log_interval'] = self.log_interval
-        return save_obj
-
-    def process_save_dict(self, save_obj, delete_current_run_dir=False):
-        self.log_interval = save_obj['log_interval']
-        super(DiagnosticsWriter, self).process_save_dict(
-            save_obj,
-            delete_current_run_dir=delete_current_run_dir
+    @property
+    def _objs_to_save(self):
+        objs_to_save = super()._objs_to_save
+        return dict(
+            **objs_to_save,
+            log_interval=self.log_interval,
         )
 
     def is_log(self, step, log_interval=None) -> bool:

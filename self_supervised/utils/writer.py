@@ -47,6 +47,14 @@ class MyWriter(WriterBase, MyObjectBase):
 
         self.plt_creator = PltCreator()
 
+    @property
+    def _objs_to_save(self):
+        objs_to_save = super()._objs_to_save
+        return dict(
+            **objs_to_save,
+            writer=self.writer,
+        )
+
     def set_up_directory_and_create_summary_writer(self, run_dir):
         self.model_dir = os.path.join(run_dir, 'model')
         self.summary_dir = os.path.join(run_dir, 'summary')
@@ -60,22 +68,22 @@ class MyWriter(WriterBase, MyObjectBase):
             log_dir=self.summary_dir,
         )
 
-    def create_save_dict(self) -> dict:
-        save_obj = super().create_save_dict()
-        save_obj['run_dir'] = self.run_dir
-        return save_obj
-
     def load(
             self,
             file_name,
             base_dir='.',
             delete_current_run_dir=False
     ):
+        """
+        Override to delete current run directory
+        """
         save_path = self._get_save_path(
             file_name=file_name,
             base_dir=base_dir,
         )
         save_obj = torch.load(save_path)
+
+        # Only change here
         self.process_save_dict(save_obj, delete_current_run_dir=delete_current_run_dir)
 
     def process_save_dict(
@@ -87,12 +95,10 @@ class MyWriter(WriterBase, MyObjectBase):
             raise ValueError('arg delete_current_run_dir is required')
 
         old_run_dir = self.run_dir
-        self.run_dir = save_obj['run_dir']
+        super().process_save_dict(save_obj)
         self.set_up_directory_and_create_summary_writer(run_dir=self.run_dir)
         if delete_current_run_dir:
             shutil.rmtree(old_run_dir)
-
-        super().process_save_dict(save_obj)
 
     def __del__(self):
         pass
@@ -113,15 +119,15 @@ class MyWriter(WriterBase, MyObjectBase):
              tb_str: str,
              step: int,
              labels: Union[List[str], str] = None,
-             x_lim = None,
-             y_lim = None,
+             x_lim=None,
+             y_lim=None,
              **kwargs
              ):
         fig = self.plt_creator.plot(
             *args,
-            labels = labels,
-            x_lim = x_lim,
-            y_lim = y_lim,
+            labels=labels,
+            x_lim=x_lim,
+            y_lim=y_lim,
             **kwargs)
 
         self.writer.add_figure(
@@ -134,7 +140,7 @@ class MyWriter(WriterBase, MyObjectBase):
                 *args,
                 tb_str: str,
                 step: int,
-                labels: Union[List[str], str]=None,
+                labels: Union[List[str], str] = None,
                 x_lim=None,
                 y_lim=None,
                 **kwargs
@@ -158,8 +164,8 @@ class MyWriter(WriterBase, MyObjectBase):
                    tb_str: str,
                    arrays_to_plot: Union[np.ndarray, List[np.ndarray]],
                    step: int,
-                   x_lim = None,
-                   y_lim = None):
+                   x_lim=None,
+                   y_lim=None):
 
         fig = self.plt_creator.plot_lines(
             legend_str=legend_str,

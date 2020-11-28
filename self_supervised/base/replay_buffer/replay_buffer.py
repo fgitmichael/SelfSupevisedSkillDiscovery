@@ -3,7 +3,8 @@ import os
 import torch
 from collections import OrderedDict
 
-from self_supervised.base.replay_buffer.replay_buffer_base import SequenceReplayBufferSampleWithoutReplace
+from self_supervised.base.replay_buffer.replay_buffer_base \
+    import SequenceReplayBufferSampleWithoutReplace
 from self_supervised.utils.typed_dicts import TransitionMapping
 
 
@@ -67,28 +68,17 @@ class NormalSequenceReplayBuffer(SequenceReplayBufferSampleWithoutReplace):
             )
         self._env_info_keys = env_info_sizes.keys()
 
-    def process_save_dict(self, save_obj):
-        self._obs_seqs = save_obj['obs']
-        self._obs_next_seqs = save_obj['next_obs']
-        self._action_seqs = save_obj['actions']
-        self._rewards_seqs = save_obj['rewards']
-        self._terminal_seqs = save_obj['terminals']
-        super().process_save_dict(save_obj)
-
-    def create_save_dict(self) -> dict:
-        save_obj = super().create_save_dict()
-        save_obj_add = dict(
-            obs=self._obs_seqs,
-            next_obs=self._obs_next_seqs,
-            actions=self._action_seqs,
-            rewards=self._rewards_seqs,
-            terminals=self._terminal_seqs,
-        )
+    @property
+    def _objs_to_save(self):
+        objs_to_save = super()._objs_to_save
         return dict(
-            **save_obj,
-            **save_obj_add,
+            **objs_to_save,
+            _obs_seqs=self._obs_seqs,
+            _obs_next_seqs=self._obs_next_seqs,
+            _action_seqs=self._action_seqs,
+            _rewards_seqs=self._rewards_seqs,
+            _terminal_seqs=self._terminal_seqs,
         )
-
 
     def add_sample(self,
                    path: TransitionMapping,

@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import abc
 import os
 
@@ -25,9 +26,53 @@ class MyObjectBase(object, metaclass=abc.ABCMeta):
         save_obj = self.create_save_dict()
         torch.save(save_obj, save_path)
 
+    @property
     @abc.abstractmethod
-    def create_save_dict(self) -> dict:
+    def _objs_to_save(self):
         return {}
+
+    @property
+    def _objs_to_save_checked(self):
+        save_objs = self._objs_to_save
+        assert all(hasattr(self, key) for key in save_objs.keys())
+        return save_objs
+
+    def _add_to_save_dict(
+            self,
+            save_dict: dict,
+            key: str,
+            obj,
+    ):
+        assert key not in save_dict.keys()
+        if isinstance(obj, MyObjectBase):
+            save_dict[key] = obj.create_save_dict()
+        else:
+            save_dict[key] = obj
+
+    def _set_obj_attr(
+            self,
+            key: str,
+            obj,
+    ):
+        attr = getattr(self, key)
+        if isinstance(attr, MyObjectBase):
+            try:
+                assert hasattr(self, key)
+            except:
+                raise ValueError
+            attr.process_save_dict(obj)
+        else:
+            setattr(self, key, obj)
+
+    def create_save_dict(self) -> dict:
+        save_obj = {}
+        for key, obj in self._objs_to_save_checked.items():
+            self._add_to_save_dict(
+                save_dict=save_obj,
+                key=key,
+                obj=obj
+            )
+        return save_obj
 
     def load(self, file_name, base_dir='.'):
         save_path = self._get_save_path(
@@ -35,8 +80,14 @@ class MyObjectBase(object, metaclass=abc.ABCMeta):
             base_dir=base_dir
         )
         save_obj = torch.load(save_path)
+        assert isinstance(save_obj, dict)
+        assert all(key in save_obj.keys() for key in self._objs_to_save_checked.keys())
         self.process_save_dict(save_obj)
 
     @abc.abstractmethod
     def process_save_dict(self, save_obj):
-        assert not hasattr(super(), '_load')
+        for key, obj in save_obj.items():
+            self._set_obj_attr(
+                obj=save_obj[key],
+                key=key,
+            )
