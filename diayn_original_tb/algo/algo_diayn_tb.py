@@ -3,8 +3,6 @@ import copy
 import gtimer as gt
 
 
-from rlkit.torch.sac.diayn.diayn_torch_online_rl_algorithm import \
-    DIAYNTorchOnlineRLAlgorithm
 from rlkit.core.rl_algorithm import _get_epoch_timings
 from rlkit.core import logger
 
@@ -14,6 +12,7 @@ from self_supervised.memory.self_sup_replay_buffer \
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
+from diayn_original_tb.base.algo_base import SelfSupAlgoBase
 
 from diayn_seq_code_revised.data_collector.seq_collector_revised import \
     SeqCollectorRevised
@@ -21,7 +20,7 @@ from diayn_seq_code_revised.data_collector.seq_collector_revised import \
 from latent_with_splitseqs.base.my_object_base import MyObjectBase
 
 
-class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm, MyObjectBase):
+class DIAYNTorchOnlineRLAlgorithmTb(SelfSupAlgoBase, MyObjectBase):
 
     def __init__(self,
                  *args,
@@ -52,41 +51,16 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm, MyObjectBase):
         objs_to_save = super()._objs_to_save
         return dict(
             **objs_to_save,
-            replay_buffer=self.replay_buffer,
             diagnostic_writer=self.diagnostic_writer,
-            trainer=self.trainer,
-            expl_data_collector=self.expl_data_collector,
-            eval_data_collector=self.eval_data_collector,
             seq_eval_collector=self.seq_eval_collector,
-            epoch_cnt=self.epoch_cnt,
         )
-
-    @property
-    def epoch_cnt(self):
-        return self._epoch_cnt
-
-    @epoch_cnt.setter
-    def epoch_cnt(self, epoch):
-        self._epoch_cnt = epoch
 
     def _end_epoch(self, epoch):
         """
-        Change order compared to base method
+        Add seq_eval collector
         """
-        self.expl_data_collector.end_epoch(epoch)
-        self.eval_data_collector.end_epoch(epoch)
+        super()._end_epoch(epoch)
         self.seq_eval_collector.end_epoch(epoch)
-        self.replay_buffer.end_epoch(epoch)
-        self.trainer.end_epoch(epoch)
-
-        self.epoch_cnt = epoch
-        for post_epoch_func in self.post_epoch_funcs:
-            post_epoch_func(self, epoch=epoch)
-
-        snapshot = self._get_snapshot()
-        logger.save_itr_params(epoch, snapshot)
-        gt.stamp('saving')
-        self._log_stats(epoch)
 
     def train(self, start_epoch=0):
         super().train(start_epoch)
