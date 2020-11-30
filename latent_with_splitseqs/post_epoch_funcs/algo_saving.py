@@ -56,7 +56,8 @@ def save_algo(self, *args, epoch, **kwargs):
     # Create own directory for algo saving
     algo_logging_dir = _create_algo_logging_dir(diagno_writer=self.diagnostic_writer)
 
-    self.save(
-        file_name=algo_name + file_extension,
-        base_dir=algo_logging_dir,
-    )
+    if epoch > 0:
+        self.save(
+            file_name=algo_name + file_extension,
+            base_dir=algo_logging_dir,
+        )

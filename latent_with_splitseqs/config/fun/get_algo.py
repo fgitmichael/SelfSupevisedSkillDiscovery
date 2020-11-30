@@ -63,6 +63,10 @@ def get_algo_with_post_epoch_funcs(
         config=config,
     )
     tb_log_interval = math.ceil(config.log_interval/4)
+    algo_log_multiplier = config.algo_loginterval_multiplier \
+        if "algo_log_interval_multiplier" in config.keys() \
+        else 20
+    algo_log_interval = config.log_interval * algo_log_multiplier
     algo_class = add_post_epoch_funcs([
         post_epoch_func_wrapper
         ('df evaluation on env')(df_env_eval),
@@ -78,7 +82,7 @@ def get_algo_with_post_epoch_funcs(
         post_epoch_func_wrapper
         ('config saving')(config_saver),
         post_epoch_func_wrapper
-        ('algo logging', log_interval=config.log_interval * 100, method=True)(save_algo),
+        ('algo logging', log_interval=algo_log_interval, method=True)(save_algo),
     ])(algo_class_in)
 
     algorithm = algo_class(
