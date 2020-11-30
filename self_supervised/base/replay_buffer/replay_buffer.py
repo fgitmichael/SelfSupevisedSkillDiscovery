@@ -126,9 +126,10 @@ class NormalSequenceReplayBuffer(SequenceReplayBufferSampleWithoutReplace):
         return self._size
 
     def get_diagnostics(self):
+        num_transitions = int(self._size * self._seq_len)
         return OrderedDict([
             ('size', self._size),
-            ('num_transitions', self._size * self._seq_len)
+            ('num_transitions', num_transitions),
         ])
 
     def _test_dimensions(self,
