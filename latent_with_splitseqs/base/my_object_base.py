@@ -18,14 +18,6 @@ class MyObjectBase(object, metaclass=abc.ABCMeta):
         save_path = os.path.join(base_dir, file_name)
         return save_path
 
-    def save(self, file_name, base_dir='.'):
-        save_path = self._get_save_path(
-            file_name=file_name,
-            base_dir=base_dir
-        )
-        save_obj = self.create_save_dict()
-        torch.save(save_obj, save_path)
-
     @property
     @abc.abstractmethod
     def _objs_to_save(self):
@@ -63,6 +55,14 @@ class MyObjectBase(object, metaclass=abc.ABCMeta):
             attr.process_save_dict(obj)
         else:
             setattr(self, key, obj)
+
+    def save(self, file_name, base_dir='.'):
+        save_path = self._get_save_path(
+            file_name=file_name,
+            base_dir=base_dir
+        )
+        save_obj = self.create_save_dict()
+        torch.save(save_obj, save_path)
 
     def create_save_dict(self) -> dict:
         save_obj = {}
