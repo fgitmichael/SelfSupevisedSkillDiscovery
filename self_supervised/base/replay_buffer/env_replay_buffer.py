@@ -23,7 +23,7 @@ class SequenceEnvReplayBuffer(NormalSequenceReplayBuffer):
 
         if env_info_sizes is None:
             if hasattr(self._env, 'info_sizes'):
-                env_info_size = self._env.info_sizes
+                env_info_sizes = self._env.info_sizes
             else:
                 env_info_sizes = dict()
 

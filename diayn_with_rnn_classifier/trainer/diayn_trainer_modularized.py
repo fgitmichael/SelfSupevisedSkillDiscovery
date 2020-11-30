@@ -4,18 +4,16 @@ import torch
 import torch.optim as optim
 from torch import nn as nn
 import torch.nn.functional as F
-from collections import OrderedDict
-from typing import Iterable
 from operator import itemgetter
 
 import rlkit.torch.pytorch_util as ptu
-from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
 from rlkit.core.eval_util import create_stats_ordered_dict
 
 from my_utils.iterables.len_iterable import len_iterable
+from diayn_with_rnn_classifier.base.diayn_trainer_base_object import DIAYNTrainerBaseObject
 
 
-class DIAYNTrainerModularized(DIAYNTrainer):
+class DIAYNTrainerModularized(DIAYNTrainerBaseObject):
 
     def __init__(self,
                  *args,

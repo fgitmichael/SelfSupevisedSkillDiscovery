@@ -1,7 +1,10 @@
 import numpy as np
+import os
+import torch
 from collections import OrderedDict
 
-from self_supervised.base.replay_buffer.replay_buffer_base import SequenceReplayBufferSampleWithoutReplace
+from self_supervised.base.replay_buffer.replay_buffer_base \
+    import SequenceReplayBufferSampleWithoutReplace
 from self_supervised.utils.typed_dicts import TransitionMapping
 
 
@@ -65,6 +68,18 @@ class NormalSequenceReplayBuffer(SequenceReplayBufferSampleWithoutReplace):
             )
         self._env_info_keys = env_info_sizes.keys()
 
+    @property
+    def _objs_to_save(self):
+        objs_to_save = super()._objs_to_save
+        return dict(
+            **objs_to_save,
+            _obs_seqs=self._obs_seqs,
+            _obs_next_seqs=self._obs_next_seqs,
+            _action_seqs=self._action_seqs,
+            _rewards_seqs=self._rewards_seqs,
+            _terminal_seqs=self._terminal_seqs,
+        )
+
     def add_sample(self,
                    path: TransitionMapping,
                    **kwargs):
@@ -111,8 +126,10 @@ class NormalSequenceReplayBuffer(SequenceReplayBufferSampleWithoutReplace):
         return self._size
 
     def get_diagnostics(self):
+        num_transitions = int(self._size * self._seq_len)
         return OrderedDict([
-            ('size', self._size)
+            ('size', self._size),
+            ('num_transitions', num_transitions),
         ])
 
     def _test_dimensions(self,

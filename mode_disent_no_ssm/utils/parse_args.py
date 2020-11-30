@@ -67,6 +67,8 @@ def parse_args_hptuning(
         default_max=default_max,
     )
 
+    config_args = None
+    config_path_name = None
     if not args.hp_tuning:
         config_args_dict = load_hparams(args.config)
 
@@ -74,10 +76,7 @@ def parse_args_hptuning(
         pprint(config_args)
         print("\n")
 
-        if return_config_path_name:
-            return config_args, args.config
-        else:
-            return config_args
+        config_path_name = args.config
 
     else:
         config_args_dict_min = load_hparams(args.config_min)
@@ -95,12 +94,13 @@ def parse_args_hptuning(
             min_hp=config_args_min,
             max_hp=config_args_max,
         )
+        config_args = random_config_args
+        config_path_name = (args.config_min, args.config.max)
 
-        if return_config_path_name:
-            return random_config_args, (args.config_min, args.config_max)
-
-        else:
-            return random_config_args
+    if return_config_path_name:
+        return config_args, config_path_name
+    else:
+        return config_args
 
 
 def _sanity_check(parser_args,

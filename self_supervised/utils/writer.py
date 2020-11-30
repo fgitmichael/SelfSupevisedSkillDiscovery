@@ -1,11 +1,12 @@
 import os
 from datetime import datetime
-from typing import Union, List
-
+from typing import Union, List, Tuple
+from latent_with_splitseqs.base.my_object_base import MyObjectBase
 import numpy as np
 import torch
 from prodict import Prodict
 from torch.utils.tensorboard import SummaryWriter
+import shutil
 
 from self_supervised.base.writer.plt_creator_base import PltCreator
 from self_supervised.base.writer.writer_base import WriterBase
@@ -24,24 +25,40 @@ class WriterDataMapping(Prodict):
         )
 
 
-class MyWriter(WriterBase):
+class MyWriter(WriterBase, MyObjectBase):
 
     def __init__(self,
                  seed: int,
                  log_dir: str,
                  run_comment=None):
-        self.log_dir = log_dir
+        super().__init__()
 
         run_id = f'mode_disent{seed}-{datetime.now().strftime("%Y%m%d-%H%M")}'
         run_id += run_comment if type(run_comment) is str else ""
 
         self.run_dir = self.get_run_dir_name(
-            log_dir=self.log_dir,
+            log_dir=log_dir,
             run_id=run_id,
         )
 
-        self.model_dir = os.path.join(self.run_dir, 'model')
-        self.summary_dir = os.path.join(self.run_dir, 'summary')
+        self.model_dir = ''
+        self.summary_dir = ''
+        self.writer = None
+        self.set_up_directory_and_create_summary_writer(run_dir=self.run_dir)
+
+        self.plt_creator = PltCreator()
+
+    @property
+    def _objs_to_save(self):
+        objs_to_save = super()._objs_to_save
+        return dict(
+            **objs_to_save,
+            run_dir=self.run_dir,
+        )
+
+    def set_up_directory_and_create_summary_writer(self, run_dir):
+        self.model_dir = os.path.join(run_dir, 'model')
+        self.summary_dir = os.path.join(run_dir, 'summary')
 
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
@@ -51,12 +68,43 @@ class MyWriter(WriterBase):
         self.writer = SummaryWriter(
             log_dir=self.summary_dir,
         )
-        self.plt_creator = PltCreator()
+
+    def load(
+            self,
+            file_name,
+            base_dir='.',
+            delete_current_run_dir=False
+    ):
+        """
+        Override to delete current run directory
+        """
+        save_path = self._get_save_path(
+            file_name=file_name,
+            base_dir=base_dir,
+        )
+        save_obj = torch.load(save_path)
+
+        # Only change here
+        self.process_save_dict(save_obj, delete_current_run_dir=delete_current_run_dir)
+
+    def process_save_dict(
+            self,
+            save_obj,
+            delete_current_run_dir=None
+    ):
+        if delete_current_run_dir is None:
+            raise ValueError('arg delete_current_run_dir is required')
+
+        old_run_dir = self.run_dir
+        super().process_save_dict(save_obj)
+        self.set_up_directory_and_create_summary_writer(run_dir=self.run_dir)
+        if delete_current_run_dir:
+            shutil.rmtree(old_run_dir)
 
     def __del__(self):
-        pass
-        #print("Close Writer")
-        #self.writer.close()
+        if self.writer is not None:
+            print("Close Writer")
+            self.writer.close()
 
     def get_run_dir_name(self, run_id, log_dir):
         run_id_try = run_id
@@ -65,22 +113,25 @@ class MyWriter(WriterBase):
             cnt += 1
             run_id_try = run_id + "_try_" + str(cnt)
 
-        return os.path.join(log_dir, str(run_id_try))
+        run_id = run_id_try.replace(" ", "_")
+        run_dir = os.path.join(log_dir, run_id)
+
+        return run_dir
 
     def plot(self,
              *args,
              tb_str: str,
              step: int,
              labels: Union[List[str], str] = None,
-             x_lim = None,
-             y_lim = None,
+             x_lim=None,
+             y_lim=None,
              **kwargs
              ):
         fig = self.plt_creator.plot(
             *args,
-            labels = labels,
-            x_lim = x_lim,
-            y_lim = y_lim,
+            labels=labels,
+            x_lim=x_lim,
+            y_lim=y_lim,
             **kwargs)
 
         self.writer.add_figure(
@@ -93,7 +144,7 @@ class MyWriter(WriterBase):
                 *args,
                 tb_str: str,
                 step: int,
-                labels: Union[List[str], str]=None,
+                labels: Union[List[str], str] = None,
                 x_lim=None,
                 y_lim=None,
                 **kwargs
@@ -117,8 +168,8 @@ class MyWriter(WriterBase):
                    tb_str: str,
                    arrays_to_plot: Union[np.ndarray, List[np.ndarray]],
                    step: int,
-                   x_lim = None,
-                   y_lim = None):
+                   x_lim=None,
+                   y_lim=None):
 
         fig = self.plt_creator.plot_lines(
             legend_str=legend_str,

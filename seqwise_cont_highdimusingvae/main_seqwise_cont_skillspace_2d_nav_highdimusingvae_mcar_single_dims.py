@@ -170,7 +170,7 @@ def experiment(variant, args):
     diagno_writer = DiagnosticsWriter(
         writer=writer,
         log_interval=1,
-        test_script_path_name=test_script_path_name,
+        scripts_to_copy=test_script_path_name,
     )
 
     algorithm = SeqwiseAlgoRevisedContSkillsHighdimusingvae(

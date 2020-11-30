@@ -1,9 +1,8 @@
 from typing import Union
+import copy
 import gtimer as gt
 
 
-from rlkit.torch.sac.diayn.diayn_torch_online_rl_algorithm import \
-    DIAYNTorchOnlineRLAlgorithm
 from rlkit.core.rl_algorithm import _get_epoch_timings
 from rlkit.core import logger
 
@@ -13,12 +12,15 @@ from self_supervised.memory.self_sup_replay_buffer \
 from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 from diayn_original_tb.seq_path_collector.rkit_seq_path_collector import SeqCollector
+from diayn_original_tb.base.algo_base import SelfSupAlgoBase
 
 from diayn_seq_code_revised.data_collector.seq_collector_revised import \
     SeqCollectorRevised
 
+from latent_with_splitseqs.base.my_object_base import MyObjectBase
 
-class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
+
+class DIAYNTorchOnlineRLAlgorithmTb(SelfSupAlgoBase, MyObjectBase):
 
     def __init__(self,
                  *args,
@@ -42,22 +44,26 @@ class DIAYNTorchOnlineRLAlgorithmTb(DIAYNTorchOnlineRLAlgorithm):
         self.mode_influence_one_plot_scatter = mode_influence_one_plot_scatter
         self.mode_influence_path_obs_lim = mode_influence_paths_obs_lim
 
+        self._epoch_cnt = None
+
+    @property
+    def _objs_to_save(self):
+        objs_to_save = super()._objs_to_save
+        return dict(
+            **objs_to_save,
+            diagnostic_writer=self.diagnostic_writer,
+            seq_eval_collector=self.seq_eval_collector,
+        )
+
     def _end_epoch(self, epoch):
         """
-        Change order compared to base method
+        Add seq_eval collector
         """
-        self.expl_data_collector.end_epoch(epoch)
-        self.eval_data_collector.end_epoch(epoch)
-        self.replay_buffer.end_epoch(epoch)
-        self.trainer.end_epoch(epoch)
+        super()._end_epoch(epoch)
+        self.seq_eval_collector.end_epoch(epoch)
 
-        for post_epoch_func in self.post_epoch_funcs:
-            post_epoch_func(self, epoch=epoch)
-
-        snapshot = self._get_snapshot()
-        logger.save_itr_params(epoch, snapshot)
-        gt.stamp('saving')
-        self._log_stats(epoch)
+    def train(self, start_epoch=0):
+        super().train(start_epoch)
 
     def _log_stats(self, epoch):
         logger.log("Epoch {} finished".format(epoch), with_timestamp=True)

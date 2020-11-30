@@ -33,18 +33,19 @@ from latent_with_splitseqs.config.fun.get_df_and_trainer import get_df_and_train
 from latent_with_splitseqs.config.fun.get_feature_dim_obs_dim \
     import get_feature_dim_obs_dim
 from latent_with_splitseqs.utils.loglikelihoodloss import GuidedKldLogOnlyLoss
-from latent_with_splitseqs.evaluation.df_memory_eval import DfMemoryEvalSplitSeq
+from latent_with_splitseqs.post_epoch_funcs.df_memory_eval import DfMemoryEvalSplitSeq
 from latent_with_splitseqs.algo.add_post_epoch_func import add_post_epoch_funcs
-from latent_with_splitseqs.evaluation.net_param_histogram_logging \
+from latent_with_splitseqs.post_epoch_funcs.net_param_histogram_logging \
     import NetParamHistogramLogger
 from latent_with_splitseqs.algo.algo_latent_splitseqs import \
     SeqwiseAlgoRevisedSplitSeqs
-from latent_with_splitseqs.evaluation.df_env_eval import DfEnvEvaluationSplitSeq
+from latent_with_splitseqs.post_epoch_funcs.df_env_eval import DfEnvEvaluationSplitSeq
 from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
     import post_epoch_func_wrapper
-from latent_with_splitseqs.evaluation.net_logging import NetLogger
+from latent_with_splitseqs.post_epoch_funcs.net_logging import NetLogger
 from latent_with_splitseqs.config.fun.get_skill_prior import get_skill_prior
 from latent_with_splitseqs.config.fun.get_loss_fun import get_loss_fun
+from latent_with_splitseqs.post_epoch_funcs.algo_saving import save_algo
 
 def experiment(variant,
                config,
@@ -175,7 +176,7 @@ def experiment(variant,
         log_interval=config.log_interval,
         config=config,
         config_path_name=config_path_name,
-        test_script_path_name=test_script_path_name,
+        scripts_to_copy=test_script_path_name,
     )
 
     df_memory_eval = DfMemoryEvalSplitSeq(
@@ -211,6 +212,8 @@ def experiment(variant,
         ('object saving')(net_logger),
         post_epoch_func_wrapper
         ('net parameter histogram logging')(net_param_hist_logger),
+        post_epoch_func_wrapper
+        ('algo saving', log_interval=config.log_interval * 4)(save_algo),
     ])(SeqwiseAlgoRevisedSplitSeqs)
     algorithm = algo_class(
         trainer=trainer,

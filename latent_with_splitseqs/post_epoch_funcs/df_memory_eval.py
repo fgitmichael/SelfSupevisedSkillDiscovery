@@ -74,5 +74,3 @@ class DfMemoryEvalSplitSeq(MemoryEvalBase):
             scalar_value=df_accuracy_memory,
             global_step=epoch
         )
-
-
