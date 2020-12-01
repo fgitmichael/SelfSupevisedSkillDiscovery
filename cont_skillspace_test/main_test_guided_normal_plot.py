@@ -16,10 +16,16 @@ parser.add_argument('--epoch',
                     default=100,
                     help="epoch to test",
                     )
+parser.add_argument('--num_eval_steps',
+                    type=int,
+                    default=200,
+                    help="number of rollout steps per io-selected skill",
+                    )
 args = parser.parse_args()
 
 ptu.set_gpu_mode(False)
 epoch = args.epoch
+num_eval_steps = args.num_eval_steps
 
 extension = ".pkl"
 policy_net_name = "policy_net_epoch{}".format(epoch) + extension
@@ -29,6 +35,6 @@ policy = torch.load(policy_net_name, map_location=ptu.device)
 env_viz = EnvVisualizationPlotGuided(
     env=env,
     policy=policy,
-    seq_len=200,
+    seq_len=num_eval_steps,
 )
 env_viz.run()
