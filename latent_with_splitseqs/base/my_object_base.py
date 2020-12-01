@@ -51,7 +51,7 @@ class MyObjectBase(object, metaclass=abc.ABCMeta):
             try:
                 assert hasattr(self, key)
             except:
-                raise ValueError
+                raise KeyError
             attr.process_save_dict(obj)
         else:
             setattr(self, key, obj)

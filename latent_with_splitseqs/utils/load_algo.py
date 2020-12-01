@@ -4,7 +4,8 @@ import torch
 
 from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 from latent_with_splitseqs.main_all_in_one_horizon_step_collector import create_experiment
-from latent_with_splitseqs.post_epoch_funcs.algo_saving import config_name, file_extension, algo_name
+from latent_with_splitseqs.post_epoch_funcs.algo_saving \
+    import config_name, file_extension, algo_name
 
 
 def load_algo(
