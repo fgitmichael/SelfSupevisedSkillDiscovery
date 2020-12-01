@@ -5,8 +5,6 @@ import torch.nn.functional as F
 from latent_with_splitseqs.base.df_memory_eval_base \
     import MemoryEvalBase
 from latent_with_splitseqs.base.classifier_base import SplitSeqClassifierBase
-from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
-    import post_epoch_func_wrapper
 
 from self_supervised.memory.self_sup_replay_buffer \
     import SelfSupervisedEnvSequenceReplayBuffer
@@ -15,8 +13,6 @@ import self_supervised.utils.my_pytorch_util as my_ptu
 import self_supervised.utils.typed_dicts as td
 
 import rlkit.torch.pytorch_util as ptu
-
-from self_sup_combined.base.writer.is_log import is_log
 
 
 class DfMemoryEvalSplitSeq(MemoryEvalBase):
@@ -39,9 +35,6 @@ class DfMemoryEvalSplitSeq(MemoryEvalBase):
         self.seq_eval_len = seq_len
         self.horizon_eval_len = horizon_len
         self.batch_size = batch_size
-
-    def __call__(self, *args, **kwargs):
-        super(DfMemoryEvalSplitSeq, self).__call__(*args, **kwargs)
 
     def sample_paths_from_replay_buffer(self):
         memory_paths = self.replay_buffer.random_batch_bsd_format(self.batch_size)
