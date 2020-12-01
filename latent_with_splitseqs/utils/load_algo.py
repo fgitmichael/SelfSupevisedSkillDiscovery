@@ -13,16 +13,39 @@ def load_algo(
 ) -> DIAYNTorchOnlineRLAlgorithmTb:
     base_dir = base_dir
 
-    config = torch.load(
-        os.path.join(base_dir, config_name + file_extension)
-    )
+    algo_file_name, algo_epoch = get_numbered_file(algo_name, base_dir=base_dir)
+    _, algo_file_extension = os.path.splitext(algo_file_name)
+    assert algo_file_extension == file_extension
+
+    config = torch.load(os.path.join(base_dir, config_name + file_extension))
     start_algo = algo_creator_fun(
         config=config,
         config_path_name=None,
     )
     start_algo.load(
-        file_name=algo_name + file_extension,
+        file_name=algo_file_name,
         base_dir=base_dir,
     )
 
     return start_algo
+
+
+def get_numbered_file(
+        base_name,
+        base_dir='.',
+):
+    """
+    Gets file_name and number of files with structure: base_name[...]number[...]
+    """
+    with os.scandir(base_dir) as dir:
+        algo_files = []
+        for dir_entry in dir:
+            path = dir_entry.path
+            _, file_name = os.path.split(path)
+            if file_name.startswith(base_name):
+                algo_files.append(file_name)
+        assert len(algo_files) == 1
+        digit_str = ''.join(filter(lambda  i: i.isdigit(), algo_files[0]))
+        number = int(digit_str)
+
+    return algo_files[0], number

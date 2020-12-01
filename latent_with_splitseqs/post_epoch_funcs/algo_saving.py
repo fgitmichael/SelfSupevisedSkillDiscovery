@@ -56,8 +56,17 @@ def save_algo(self, *args, epoch, **kwargs):
     # Create own directory for algo saving
     algo_logging_dir = _create_algo_logging_dir(diagno_writer=self.diagnostic_writer)
 
+    # Delete last algo
+    with os.scandir(algo_logging_dir) as dir:
+        for dir_entry in dir:
+            path = dir_entry.path
+            assert isinstance(path, str)
+            if path.startswith(algo_name):
+                os.remove(path)
+
+    # Save new algo
     if epoch > 0:
         self.save(
-            file_name=algo_name + file_extension,
+            file_name=algo_name + "_epoch{}".format(epoch) + file_extension,
             base_dir=algo_logging_dir,
         )
