@@ -145,7 +145,9 @@ class DiagnosticsWriter(DiagnosticsWriterBase):
             link_name = "test_script.py"
 
         sym_link_path = os.path.join(self.writer.model_dir, link_name)
-        if not os.path.exists(sym_link_path):
+        test_script_path, _ = os.path.split(test_script_path_name)
+        test_script_path_name = os.path.abspath(test_script_path_name)
+        if not os.path.exists(sym_link_path) and os.path.exists(test_script_path):
             os.symlink(
                 src=test_script_path_name,
                 dst=sym_link_path
