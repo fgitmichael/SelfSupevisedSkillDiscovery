@@ -54,6 +54,7 @@ class GridRollouter(TestRollouter):
                 agent=self.policy,
                 max_path_length=self.horizon_len,
             )
+            rollout['skill'] = ptu.get_numpy(self.policy.skill)
             rollouts.append(rollout)
 
         return rollouts

@@ -33,6 +33,6 @@ class RolloutTesterPlot(object):
         # Plot
         for rollout in grid_rollout:
             obs = rollout['observations']
-            plt.plot(obs[0], obs[1])
+            plt.plot(obs[0], obs[1], label="skill {}".format(rollout['skill']))
 
         plt.show()
