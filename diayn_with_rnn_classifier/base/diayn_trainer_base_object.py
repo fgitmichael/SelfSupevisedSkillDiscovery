@@ -10,5 +10,8 @@ class DIAYNTrainerBaseObject(DIAYNTrainer, MyObjectBase):
         objs_to_save = super()._objs_to_save
         return dict(
             **objs_to_save,
-            **self.get_snapshot()
+            log_alpha=self.log_alpha,
+            alpha_optimizer=self.alpha_optimizer,
+            use_automatic_entropy_tuning=self.use_automatic_entropy_tuning,
+            **self.get_snapshot(),
         )

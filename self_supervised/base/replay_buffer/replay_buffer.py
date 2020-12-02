@@ -78,6 +78,8 @@ class NormalSequenceReplayBuffer(SequenceReplayBufferSampleWithoutReplace):
             _action_seqs=self._action_seqs,
             _rewards_seqs=self._rewards_seqs,
             _terminal_seqs=self._terminal_seqs,
+            _size=self._size,
+            _top=self._top,
         )
 
     def add_sample(self,
