@@ -39,6 +39,7 @@ class EnvVisualizationPlotGuided(EnvVisualizationGuidedBase):
 
 
 class EnvVisualizationPlotHduvae(EnvVisualizationHduvaeBase):
+
     def __init__(self,
                  *args,
                  plot_offset,

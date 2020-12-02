@@ -71,7 +71,6 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
         skill_influence_paths_stacked_dict_bsd = self.prepare_paths(skill_influence_paths)
         return skill_influence_paths_stacked_dict_bsd
 
-
     def prepare_paths(
             self,
             skill_influence_paths: List[td.TransitonModeMappingDiscreteSkills]
