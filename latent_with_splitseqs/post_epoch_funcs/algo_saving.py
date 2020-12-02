@@ -14,16 +14,20 @@ file_extension = ".pkl"
 class ConfigSaver(PostEpochDiagnoWritingBase):
 
     def __init__(self,
+                 *args,
                  config,
-                 diagno_writer,
+                 diagnostic_writer,
+                 **kwargs
                  ):
         super().__init__(
-            diagnostic_writer=diagno_writer,
-        )
+            *args,
+            diagnostic_writer=diagnostic_writer,
+            **kwargs)
         self.config = config
         # Create own directory for algo saving
         self.algo_logging_dir = _create_algo_logging_dir(
-            diagno_writer=diagno_writer)
+            diagno_writer=diagnostic_writer
+        )
 
         self.config_written = False
 

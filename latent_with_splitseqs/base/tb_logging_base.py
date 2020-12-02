@@ -7,6 +7,7 @@ class PostEpochDiagnoWritingBase(object, metaclass=abc.ABCMeta):
 
     def __init__(
             self,
+            *args,
             diagnostic_writer: DiagnosticsWriter,
             **kwargs
     ):

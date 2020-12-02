@@ -13,6 +13,8 @@ from latent_with_splitseqs.algo.add_post_epoch_func import add_post_epoch_funcs
 from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
     import post_epoch_func_wrapper
 from latent_with_splitseqs.post_epoch_funcs.algo_saving import ConfigSaver, save_algo
+from latent_with_splitseqs.post_epoch_funcs.plot_saved_skills_distribution \
+    import ReplayBufferSkillDistributionPlotter
 
 
 def get_algo_with_post_epoch_funcs(
@@ -59,8 +61,12 @@ def get_algo_with_post_epoch_funcs(
         replay_buffer=replay_buffer,
     )
     config_saver = ConfigSaver(
-        diagno_writer=diagno_writer,
+        diagnostic_writer=diagno_writer,
         config=config,
+    )
+    saved_skill_dist_plotter = ReplayBufferSkillDistributionPlotter(
+        diagnostic_writer=diagno_writer,
+        replay_buffer=replay_buffer,
     )
     tb_log_interval = math.ceil(config.log_interval/4)
     algo_log_multiplier = config.algo_loginterval_multiplier \
@@ -70,19 +76,23 @@ def get_algo_with_post_epoch_funcs(
     algo_class = add_post_epoch_funcs([
         post_epoch_func_wrapper
         ('df evaluation on env')(df_env_eval),
-        post_epoch_func_wrapper
-        ('df evaluation on memory')(df_memory_eval),
+        post_epoch_func_wrapper ('df evaluation on memory')(df_memory_eval),
         post_epoch_func_wrapper
         ('object saving')(net_logger),
         post_epoch_func_wrapper
         ('net parameter histogram logging',
          log_interval=tb_log_interval)(net_param_hist_logger),
         post_epoch_func_wrapper
-        ('tb logging', log_interval=tb_log_interval)(post_epoch_tb_logger),
+        ('tb logging',
+         log_interval=tb_log_interval)(post_epoch_tb_logger),
         post_epoch_func_wrapper
         ('config saving')(config_saver),
         post_epoch_func_wrapper
-        ('algo logging', log_interval=algo_log_interval, method=True)(save_algo),
+        ('algo logging',
+         log_interval=algo_log_interval, method=True)(save_algo),
+        post_epoch_func_wrapper
+        ('replay buffer skill dist plotting',
+         log_interval=config.log_interval)(saved_skill_dist_plotter),
     ])(algo_class_in)
 
     algorithm = algo_class(

@@ -97,8 +97,7 @@ class PltCreator(object, metaclass=abc.ABCMeta):
         lineobjects = plt.scatter(*args, **kwargs)
 
         if labels is not None:
-            pass
-            #plt.legend(lineobjects, labels)
+            plt.legend(lineobjects, labels)
 
         if x_lim is not None:
             plt.xlim(*x_lim)

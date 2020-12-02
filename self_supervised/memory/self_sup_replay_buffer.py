@@ -85,3 +85,19 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
         )
 
         return batch
+
+    def get_saved_skills(self, unique=True) -> np.ndarray:
+        seq_dim = -1
+        batch_dim = 0
+        if len(self) == self._max_replay_buffer_size:
+            skills = self._mode_per_seqs[..., 0]
+        elif len(self) < self._max_replay_buffer_size:
+            assert len(self) == self._top
+            skills = self._mode_per_seqs[:self._top, ..., 0]
+        else:
+            raise ValueError
+
+        if unique:
+            skills = np.unique(skills, axis=batch_dim)
+
+        return skills
