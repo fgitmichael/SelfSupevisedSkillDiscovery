@@ -33,6 +33,7 @@ def get_feature_dim_obs_dim(
     else:
         raise NotImplementedError
 
+    assert 'train_sac_in_feature_space' in config.trainer_kwargs.keys()
     feature_dim_or_obs_dim = latent_dim \
         if config['trainer_kwargs']['train_sac_in_feature_space'] \
         else obs_dim
