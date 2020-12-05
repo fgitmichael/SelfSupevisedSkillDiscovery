@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 import argparse
 
 from cont_skillspace_test.grid_rollout.grid_rollout_test \
@@ -14,9 +15,13 @@ parser.add_argument('--epoch',
                     default=100,
                     help="epoch to test",
                     )
+parser.add_argument('--grid_factor',
+                    type=float,
+                    default=1.5,
+                    help="low, high of skills grid")
 parser.add_argument('--num_eval_steps',
                     type=int,
-                    default=200,
+                    default=1000,
                     help="number of rollout steps per io-selected skill",
                     )
 args = parser.parse_args()
@@ -38,5 +43,8 @@ grid_rollouter = GridRollouter(
 tester = RolloutTesterPlot(
     test_rollouter=grid_rollouter,
 )
-tester()
+tester(
+    grid_low=np.array([-args.grid_factor, -args.grid_factor]),
+    grid_high=np.array([args.grid_factor, args.grid_factor]),
+)
 

@@ -1,4 +1,5 @@
 import numpy as np
+import tqdm
 import math
 
 from rlkit.samplers.rollout_functions import rollout as rollout_function
@@ -32,7 +33,7 @@ class GridRollouter(TestRollouter):
         num_points_array = math.ceil(math.sqrt(num_points))
         mesh_grid_arrays = []
         for dim_low, dim_high in zip(low, high):
-            array_ = np.meshgrid(dim_low, dim_high, num_points_array)
+            array_ = np.linspace(dim_low, dim_high, num_points_array)
             mesh_grid_arrays.append(array_)
 
         grid_list = np.meshgrid(*mesh_grid_arrays)
@@ -47,7 +48,7 @@ class GridRollouter(TestRollouter):
             "No skill grid created yet, call create_skill_grid method!"
 
         rollouts = []
-        for skill in self.skills_to_rollout:
+        for skill in tqdm.tqdm(self.skills_to_rollout):
             self.policy.skill = ptu.from_numpy(skill)
             rollout = rollout_function(
                 env=self.env,

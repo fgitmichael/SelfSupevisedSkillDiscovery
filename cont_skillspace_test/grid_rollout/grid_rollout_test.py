@@ -1,10 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('Agg')
-
-from cont_skillspace_test.grid_rollout.grid_rollouter \
-    import GridRollouter
 
 from cont_skillspace_test.grid_rollout.test_rollouter_base import TestRollouter
 
@@ -33,7 +29,6 @@ class RolloutTesterPlot(object):
         # Plot
         for rollout in grid_rollout:
             obs = rollout['observations']
-            plt.plot(obs[0], obs[1], label="skill {}".format(rollout['skill']))
+            plt.plot(obs[:, 0], obs[:, 1], label="skill {}".format(rollout['skill']))
 
-        plt.legend()
         plt.show()
