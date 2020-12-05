@@ -113,8 +113,8 @@ class MyWriter(WriterBase, MyObjectBase):
             cnt += 1
             run_id_try = run_id + "_try_" + str(cnt)
 
-        run_id = run_id_try.replace(" ", "_")
-        run_dir = os.path.join(log_dir, run_id)
+        run_id_try = run_id_try.replace(" ", "_")
+        run_dir = os.path.join(log_dir, run_id_try)
 
         return run_dir
 
