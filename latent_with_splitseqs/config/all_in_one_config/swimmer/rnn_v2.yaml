@@ -44,10 +44,10 @@ skill_dim: 2
 # Skill Prior
 skill_prior:
   type: uniform
-  grid_radius_factor: 1.58
+  grid_radius_factor: 1.
   uniform:
-    low: -2.5
-    high: 2.5
+    low: -1.5
+    high: 1.5
   gaussian:
     std: 1.6
 

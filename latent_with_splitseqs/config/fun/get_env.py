@@ -6,6 +6,8 @@ from gym.envs.mujoco.ant_v3 import AntEnv as AntVersionThreeEnv
 from gym.envs.mujoco.hopper_v3 import HopperEnv as HopperVersionThreeEnv
 from gym.envs.mujoco.walker2d_v3 import Walker2dEnv as Walker2dVersionThreeEnv
 
+from my_utils.dicts.remove_nones import remove_nones
+
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
 
@@ -40,6 +42,7 @@ def get_env(**env_kwargs):
     gym_id_key = 'env_id'
     init_kwargs_key = 'init_kwargs'
     init_kwargs = env_kwargs[init_kwargs_key]
+    init_kwargs = remove_nones(init_kwargs)
 
     # Return Environment
     gym_id = env_kwargs[gym_id_key]

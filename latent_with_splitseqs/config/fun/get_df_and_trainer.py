@@ -217,9 +217,13 @@ def get_df_and_trainer(
             == feature_extractor_types['latent_slac']:
 
         # Latent type
-        obs_dim_latent = len(df_kwargs_latent.obs_dims_used) \
-            if df_kwargs_latent.obs_dims_used is not None \
-            else obs_dim
+        obs_dims_used_df = get_obs_dims_used_df(
+            obs_dim=obs_dim,
+            obs_dims_used=df_kwargs_latent.obs_dims_used,
+            obs_dims_used_except=df_kwargs_latent.obs_dims_used_except \
+                if 'obs_dims_used_except' in df_kwargs_latent else None,
+        )
+        obs_dim_latent = len(obs_dims_used_df)
         if df_type[df_type_keys['latent_type']] == latent_types['single_skill']:
             latent_model = SlacLatentNetConditionedOnSingleSkill(
                 obs_dim=obs_dim_latent,
