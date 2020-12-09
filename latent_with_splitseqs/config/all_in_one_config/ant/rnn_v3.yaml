@@ -1,0 +1,114 @@
+---
+algorithm: "Continuous Skill Space"
+version: "latent split seq | guided | sac in feature space | rnn only"
+layer_size: 256
+replay_buffer_size: 90500
+random_hp_tuning: False
+
+# Environment
+env_kwargs:
+  env_id: ant
+  init_kwargs:
+    exclude_current_positions_from_observation: False
+    reset_noise_scale: 0.
+
+obs_dims_used_policy_all_except: [0, 1]
+
+# Algorithm
+algorithm_kwargs:
+  num_epochs: 20000
+  num_eval_steps_per_epoch: 10
+  num_trains_per_train_loop: 10
+  num_expl_steps_per_train_loop: 10
+  min_num_steps_before_training: 100000
+  max_path_length: 1000
+  batch_size: 700
+
+# Trainer
+trainer_kwargs:
+  discount: 0.99
+  soft_target_tau: 0.005
+  target_update_period: 1
+  policy_lr: 0.0003
+  qf_lr: 0.0003
+  reward_scale: 1
+  use_automatic_entropy_tuning: True
+  df_lr: 0.0003
+  train_sac_in_feature_space: False
+
+# Sampling
+seq_len: 70
+horizon_len: 700
+skill_dim: 2
+
+# Skill Prior
+skill_prior:
+  type: uniform
+  grid_radius_factor: 1.6
+  uniform:
+    low: -2.5
+    high: 2.5
+  gaussian:
+    std: 1.6
+
+# Evaluation
+df_evaluation_env:
+  obs_dims_to_log: [0, 1]
+  action_dims_to_log: [0, 1]
+  horizon_len: 560
+  num_paths_per_skill: 1
+  plot_skill_influence:
+    obs: True
+    action: True
+    obs_one_plot: True
+    plot_post: True
+
+df_evaluation_memory:
+  batch_size: 1000
+
+info_loss:
+  alpha: 0.9
+  lamda: 0.0
+  variant: reg_std_only
+
+# Classifier
+df_type:
+  feature_extractor: rnn
+  rnn_type: normal
+  latent_type: full_seq
+  recon: end_only
+
+latent_kwargs:
+  None: null
+
+latent_kwargs_smoothing:
+  None: null
+
+latent_single_layer_kwargs:
+  None: null
+
+rnn_kwargs:
+  hidden_size_rnn: 200
+  bidirectional: False
+
+df_kwargs_rnn:
+  obs_dims_used: [0, 1]
+  obs_dims_used_except: null
+  dropout: 0.4
+  leaky_slope_classifier: 0.15
+  hidden_units_classifier: [256, 256]
+  std_classifier: null
+
+df_kwargs_latent:
+  None: null
+
+# Logging
+test_script_path: [../cont_skillspace_test/main_test_guided_normal_plot.py,
+                   ../cont_skillspace_test/main_test_guided_normal_render.py,
+                   ../latent_with_splitseqs/continue_algo_training.py,
+                   ../cont_skillspace_test/main_test_grid_rollout_plot.py,]
+log_folder: /media/michael/TOSHIBA EXT/logs/04_latent_splitseq/ant_horizon
+log_interval: 50
+
+# GPU
+gpu: True
