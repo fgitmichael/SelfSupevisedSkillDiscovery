@@ -9,7 +9,8 @@ from latent_with_splitseqs.post_epoch_funcs.df_env_eval import DfEnvEvaluationSp
 from latent_with_splitseqs.post_epoch_funcs.net_param_histogram_logging \
     import NetParamHistogramLogger
 from latent_with_splitseqs.post_epoch_funcs.df_memory_eval import DfMemoryEvalSplitSeq
-from latent_with_splitseqs.algo.add_post_epoch_func import add_post_epoch_funcs
+from latent_with_splitseqs.algo.add_post_epoch_func \
+    import add_post_epoch_funcs, add_post_epoch_func
 from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
     import post_epoch_func_wrapper
 from latent_with_splitseqs.post_epoch_funcs.algo_saving import ConfigSaver, save_algo
@@ -69,10 +70,20 @@ def get_algo_with_post_epoch_funcs(
         replay_buffer=replay_buffer,
     )
     tb_log_interval = math.ceil(config.log_interval/4)
+
     algo_log_multiplier = config.algo_loginterval_multiplier \
         if "algo_log_interval_multiplier" in config.keys() \
         else 20
     algo_log_interval = config.log_interval * algo_log_multiplier
+    if 'algo_logging' not in config.keys() or config['algo_logging'] is True:
+        algo_class = add_post_epoch_func(
+            post_epoch_func_wrapper
+            ('algo logging',
+             log_interval=algo_log_interval, method=True)(save_algo)
+        )(algo_class_in)
+    else:
+        algo_class = algo_class_in
+
     algo_class = add_post_epoch_funcs([
         post_epoch_func_wrapper
         ('df evaluation on env')(df_env_eval),
@@ -88,12 +99,9 @@ def get_algo_with_post_epoch_funcs(
         post_epoch_func_wrapper
         ('config saving')(config_saver),
         post_epoch_func_wrapper
-        ('algo logging',
-         log_interval=algo_log_interval, method=True)(save_algo),
-        post_epoch_func_wrapper
         ('replay buffer skill dist plotting',
          log_interval=config.log_interval)(saved_skill_dist_plotter),
-    ])(algo_class_in)
+    ])(algo_class)
 
     algorithm = algo_class(
         trainer=trainer,
