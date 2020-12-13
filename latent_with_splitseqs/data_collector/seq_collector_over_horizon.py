@@ -94,6 +94,7 @@ class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
         num_seqs_horizon = horizon_len // seq_len
         horizon_completed = False
         if self._num_split_seqs_current_rollout == num_seqs_horizon:
+            self._num_split_seqs_current_rollout = 0
             self._rollouter.reset()
             horizon_completed = True
 
