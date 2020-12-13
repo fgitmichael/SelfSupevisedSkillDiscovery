@@ -127,7 +127,7 @@ class NormalSequenceReplayBuffer(SequenceReplayBufferSampleWithoutReplace):
     def num_steps_can_sample(self):
         return self._size
 
-    def get_diagnostics(self):
+    def get_diagnostics(self) -> dict:
         num_transitions = int(self._size * self._seq_len)
         return OrderedDict([
             ('size', self._size),

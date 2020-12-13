@@ -86,6 +86,13 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
 
         return batch
 
+    def get_diagnostics(self) -> dict:
+        diagnostics_dict = super().get_diagnostics()
+        batch_dim = 0
+        saved_skills_unique = self.get_saved_skills(unique=True)
+        diagnostics_dict['num_unique_skills'] = saved_skills_unique.shape[batch_dim]
+        return diagnostics_dict
+
     def get_saved_skills(self, unique=True) -> np.ndarray:
         seq_dim = -1
         batch_dim = 0
