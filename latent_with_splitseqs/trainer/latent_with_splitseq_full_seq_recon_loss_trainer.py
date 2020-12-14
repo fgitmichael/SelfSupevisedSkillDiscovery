@@ -7,8 +7,6 @@ from code_slac.utils import calc_kl_divergence
 from latent_with_splitseqs.trainer.latent_with_splitseqs_trainer \
     import URLTrainerLatentWithSplitseqs
 
-import rlkit.torch.pytorch_util as ptu
-
 
 class URLTrainerLatentWithSplitseqsFullSeqReconLoss(URLTrainerLatentWithSplitseqs):
 

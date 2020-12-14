@@ -18,6 +18,7 @@ import self_supervised.utils.my_pytorch_util as my_ptu
 
 from seqwise_cont_skillspace.utils.info_loss import InfoLoss, GuidedInfoLoss
 
+
 class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
 
     def __init__(self,
