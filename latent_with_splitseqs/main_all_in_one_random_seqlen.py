@@ -38,7 +38,7 @@ from latent_with_splitseqs.config.fun.get_df_and_trainer import get_df_and_train
 from latent_with_splitseqs.config.fun.get_feature_dim_obs_dim \
     import get_feature_dim_obs_dim
 from latent_with_splitseqs.memory.replay_buffer_latent_splitseq_sampling \
-    import LatentReplayBufferSplitSeqSampling
+    import LatentReplayBufferSplitSeqSamplingRandomSeqLen
 from latent_with_splitseqs.utils.loglikelihoodloss import GuidedKldLogOnlyLoss
 
 
@@ -169,7 +169,7 @@ def experiment(variant,
         latent_single_layer_kwargs=config.latent_single_layer_kwargs,
     )
 
-    replay_buffer = LatentReplayBufferSplitSeqSampling(
+    replay_buffer = LatentReplayBufferSplitSeqSamplingRandomSeqLen(
         max_replay_buffer_size=variant['replay_buffer_size'],
         seq_len=seq_len,
         mode_dim=skill_dim,

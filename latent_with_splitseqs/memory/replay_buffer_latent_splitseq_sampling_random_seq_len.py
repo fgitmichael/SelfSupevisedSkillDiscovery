@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 
 from latent_with_splitseqs.memory.replay_buffer_for_latent import LatentReplayBuffer
@@ -8,7 +10,7 @@ from my_utils.np_utils.create_aranges import create_aranges
 from my_utils.np_utils.take_per_row import take_per_row
 
 
-class LatentReplayBufferSplitSeqSampling(LatentReplayBuffer):
+class LatentReplayBufferSplitSeqSamplingRandomSeqLen(LatentReplayBuffer):
 
     def __init__(self,
                  *args,
@@ -16,7 +18,7 @@ class LatentReplayBufferSplitSeqSampling(LatentReplayBuffer):
                  max_sample_seq_len,
                  **kwargs
                  ):
-        super(LatentReplayBufferSplitSeqSampling, self).__init__(
+        super().__init__(
             *args,
             **kwargs
         )
@@ -74,7 +76,7 @@ class LatentReplayBufferSplitSeqSampling(LatentReplayBuffer):
         """
         sample_seq_len = np.random.randint(**self.sample_seq_len_dict)
         batch_size_adjusted = batch_size * self.horizon_len//sample_seq_len
-        batch_horizon = super(LatentReplayBufferSplitSeqSampling, self).\
+        batch_horizon = super(LatentReplayBufferSplitSeqSamplingRandomSeqLen, self).\
             random_batch_latent_training(
             batch_size=batch_size_adjusted,
         )
