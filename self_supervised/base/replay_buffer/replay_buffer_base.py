@@ -8,11 +8,9 @@ from rlkit.data_management.replay_buffer import ReplayBuffer
 
 import self_supervised.utils.typed_dicts as td
 
-from latent_with_splitseqs.base.my_object_base import MyObjectBase
-
 
 # Adding skills
-class SequenceReplayBuffer(ReplayBuffer, MyObjectBase, metaclass=abc.ABCMeta):
+class SequenceReplayBuffer(ReplayBuffer, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def add_sample(self,
@@ -107,7 +105,10 @@ class SequenceReplayBuffer(ReplayBuffer, MyObjectBase, metaclass=abc.ABCMeta):
         return
 
 
-class SequenceReplayBufferSampleWithoutReplace(SequenceReplayBuffer):
+class SequenceReplayBufferSampleWithoutReplace(
+    SequenceReplayBuffer,
+    metaclass=abc.ABCMeta
+):
 
     def __init__(self,
                  max_replay_buffer_size):

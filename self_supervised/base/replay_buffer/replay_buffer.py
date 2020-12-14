@@ -7,8 +7,10 @@ from self_supervised.base.replay_buffer.replay_buffer_base \
     import SequenceReplayBufferSampleWithoutReplace
 from self_supervised.utils.typed_dicts import TransitionMapping
 
+from latent_with_splitseqs.base.my_object_base import MyObjectBase
 
-class NormalSequenceReplayBuffer(SequenceReplayBufferSampleWithoutReplace):
+
+class NormalSequenceReplayBuffer(SequenceReplayBufferSampleWithoutReplace, MyObjectBase):
 
     def __init__(self,
                  max_replay_buffer_size,
