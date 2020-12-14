@@ -124,24 +124,3 @@ class SequenceReplayBufferSampleWithoutReplace(
 
     def __len__(self):
         return self._size
-
-    def _get_sample_idx(self, batch_size):
-        if self._size < batch_size:
-            idx_present = np.arange(self._size)
-            idx_rest = np.random.randint(
-                low=0,
-                high=self._size,
-                size=batch_size-self._size
-            )
-            idx = np.concatenate(
-                [idx_present, idx_rest]
-            )
-
-        else:
-            idx = np.random.choice(
-                np.arange(self._size),
-                size=batch_size,
-                replace=False
-            )
-
-        return idx
