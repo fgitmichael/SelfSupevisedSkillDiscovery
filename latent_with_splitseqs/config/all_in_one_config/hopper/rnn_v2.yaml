@@ -104,11 +104,12 @@ df_kwargs_latent:
   None: null
 
 # Logging
-test_script_path: [/home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_plot.py,
-                   /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/cont_skillspace_test/main_test_guided_normal_render.py,
-                   /home/michael/EIT/Github_Repos/24_SelfSupervisedDevel/latent_with_splitseqs/continue_algo_training.py]
-log_folder: /media/michael/TOSHIBA EXT/logs/04_latent_splitseq/hopper_horizon
+test_script_path: [../cont_skillspace_test/main_test_guided_normal_plot.py,
+                   ../cont_skillspace_test/main_test_guided_normal_render.py,
+                   ../latent_with_splitseqs/continue_algo_training.py,
+                   ../cont_skillspace_test/main_test_grid_rollout_plot.py,]
+log_folder: /media/michael/TOSHIBA EXT/logs/04_latent_splitseq/hopper_horizon_to_be_deleted
 log_interval: 100
 
 # GPU
-gpu: True
+gpu: False

@@ -2,7 +2,7 @@
 algorithm: "Continuous Skill Space"
 version: "latent split seq | guided | sac in feature space | rnn only"
 layer_size: 256
-replay_buffer_size: 60500
+replay_buffer_size: 50000
 random_hp_tuning: False
 
 # Environment
@@ -18,11 +18,12 @@ obs_dims_used_policy_all_except: [0, 1]
 algorithm_kwargs:
   num_epochs: 20000
   num_eval_steps_per_epoch: 10
-  num_trains_per_train_loop: 20
-  num_expl_steps_per_train_loop: 20
-  min_num_steps_before_training: 100000
+  num_trains_per_train_loop: 7
+  num_expl_steps_per_train_loop: 7
+  min_num_steps_before_training: 400
   max_path_length: 1000
-  batch_size: 350
+  train_sac_classifier_with_equal_data: True
+  batch_size: 70
 
 # Trainer
 trainer_kwargs:
@@ -38,24 +39,23 @@ trainer_kwargs:
 
 # Sampling
 seq_len: 70
-horizon_len: 1400
+horizon_len: 490
 skill_dim: 2
 
 # Skill Prior
 skill_prior:
   type: uniform
-  grid_radius_factor: 1.58
   uniform:
-    low: -2.5
-    high: 2.5
+    low: -1.5
+    high: 1.5
   gaussian:
-    std: 1.6
+    std: 1.
+  grid_radius_factor: 1.
 
 # Evaluation
 df_evaluation_env:
   obs_dims_to_log: [0, 1]
   action_dims_to_log: [0, 1]
-  horizon_len: 560
   num_paths_per_skill: 1
   plot_skill_influence:
     obs: True
@@ -67,7 +67,7 @@ df_evaluation_memory:
   batch_size: 1000
 
 info_loss:
-  alpha: 1.0
+  alpha: 0.9
   lamda: 0.0
   variant: reg_std_only
 
@@ -92,9 +92,9 @@ rnn_kwargs:
   bidirectional: False
 
 df_kwargs_rnn:
-  obs_dims_used: [0, 1]
+  obs_dims_used: [0, 1, 2]
   obs_dims_used_except: null
-  dropout: 0.4
+  dropout: 0.3
   leaky_slope_classifier: 0.15
   hidden_units_classifier: [256, 256]
   std_classifier: null
@@ -107,8 +107,9 @@ test_script_path: [../cont_skillspace_test/main_test_guided_normal_plot.py,
                    ../cont_skillspace_test/main_test_guided_normal_render.py,
                    ../latent_with_splitseqs/continue_algo_training.py,
                    ../cont_skillspace_test/main_test_grid_rollout_plot.py,]
-log_folder: /media/michael/TOSHIBA EXT/logs/04_latent_splitseq/swimmer_horizon
+log_folder: /media/michael/TOSHIBA EXT/logs/04_latent_splitseq/swimmer_horizon_new
 log_interval: 200
+algo_logging: False
 
 # GPU
 gpu: True
