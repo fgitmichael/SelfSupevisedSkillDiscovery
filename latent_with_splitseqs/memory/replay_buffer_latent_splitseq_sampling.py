@@ -32,6 +32,7 @@ class LatentReplayBufferSplitSeqSampling(LatentReplayBuffer):
     def random_batch(self,
                      batch_size: int) -> td.TransitionModeMapping:
         """
+        Sample batches with random sequence length
         Args:
             batch_size                 : N
         Return:
@@ -39,7 +40,7 @@ class LatentReplayBufferSplitSeqSampling(LatentReplayBuffer):
         """
         sample_seq_len = np.random.randint(**self.sample_seq_len_dict)
         batch_size = (batch_size * self.horizon_len) // sample_seq_len
-        batch_horizon = super(LatentReplayBufferSplitSeqSampling, self).random_batch(
+        batch_horizon = super().random_batch(
             batch_size=batch_size,
         )
 
@@ -66,6 +67,11 @@ class LatentReplayBufferSplitSeqSampling(LatentReplayBuffer):
 
     def random_batch_latent_training(self,
                                      batch_size: int) -> dict:
+        """
+        Sample batches with random sequence length
+        Args:
+            batch_size              : N
+        """
         sample_seq_len = np.random.randint(**self.sample_seq_len_dict)
         batch_size_adjusted = batch_size * self.horizon_len//sample_seq_len
         batch_horizon = super(LatentReplayBufferSplitSeqSampling, self).\
