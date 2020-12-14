@@ -78,8 +78,8 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         seq_dim = 1
         data_dim = -1
 
-        next_obs = batch['next_obs']
-        mode = batch['mode']
+        next_obs = batch['next_observations']
+        mode = batch['skills']
 
         assert len(next_obs.shape) == 3
         assert next_obs.shape[:data_dim] == mode.shape[:data_dim]
@@ -107,6 +107,7 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         self.train_latent_from_torch(batch)
 
         # Train sac
+        batch = None
         batch = np_to_pytorch_batch(np_batch['sac'])
         self.train_sac_from_torch(batch)
 

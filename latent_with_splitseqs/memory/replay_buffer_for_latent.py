@@ -18,8 +18,8 @@ class LatentReplayBuffer(SelfSupervisedEnvSequenceReplayBuffer):
         idx = np.random.randint(0, self._size, batch_size)
 
         batch = dict(
-            next_obs=self._obs_next_seqs[idx],
-            mode=self._mode_per_seqs[idx],
+            next_observations=self._obs_next_seqs[idx],
+            skills=self._mode_per_seqs[idx],
         )
 
         return batch

@@ -10,8 +10,8 @@ class URLTrainerRnnWithSplitseqsWholeSeqRecon(
     def train_latent_from_torch(self, batch):
         self._check_latent_batch(batch)
 
-        next_obs = batch['next_obs']
-        skills = batch['mode']
+        next_obs = batch['next_observations']
+        skills = batch['skills']
         batch_size, seq_len, skill_dim = skills.shape
         skills_reshaped = skills.reshape(
             batch_size * seq_len,

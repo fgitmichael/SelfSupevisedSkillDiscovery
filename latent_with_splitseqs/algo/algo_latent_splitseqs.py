@@ -1,4 +1,5 @@
 import gtimer as gt
+import copy
 from typing import List
 
 from diayn_original_tb.algo.algo_diayn_tb_own_fun \
@@ -9,18 +10,22 @@ from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollecto
 
 from diayn_seq_code_revised.base.data_collector_base import PathCollectorRevisedBase
 
+
 class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
 
     def __init__(self,
                  *args,
+                 batch_size,
                  horizon_len,
                  exploration_data_collector: SeqCollectorSplitSeq,
                  batch_size_latent=None,
+                 train_sac_classifier_with_equal_data=False,
                  mode_influence_plotting=False,
                  **kwargs):
         super(SeqwiseAlgoRevisedSplitSeqs, self).__init__(
             *args,
             exploration_data_collector=exploration_data_collector,
+            batch_size=batch_size,
             **kwargs
         )
         self.horizon_len = horizon_len
@@ -29,6 +34,11 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
         self.batch_size_latent = batch_size_latent \
             if batch_size_latent is not None \
             else self.batch_size
+
+        if train_sac_classifier_with_equal_data is True and \
+                batch_size_latent is not None:
+            assert batch_size_latent == batch_size
+        self.train_sac_classifier_with_equal_data = train_sac_classifier_with_equal_data
 
     def set_next_skill(self, data_collector: PathCollectorRevisedBase):
         data_collector.skill_reset()
@@ -109,7 +119,9 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
         train_data_sac = self._sample_batch_from_buffer()
 
         # Sample batch for latent training
-        train_data_latent = self._sample_batch_for_latent_training_from_buffer()
+        train_data_latent = copy.deepcopy(train_data_sac) \
+            if self.train_sac_classifier_with_equal_data \
+            else self._sample_batch_for_latent_training_from_buffer()
 
         train_dict = dict(
             latent=train_data_latent,

@@ -8,8 +8,8 @@ class URLTrainerRnnWithSplitseqsEndReconOnly(URLTrainerLatentWithSplitseqs):
         self._check_latent_batch(batch)
         batch_dim = 0
 
-        next_obs = batch['next_obs']
-        skills = batch['mode']
+        next_obs = batch['next_observations']
+        skills = batch['skills']
 
         skill = skills[:, 0, :]
         df_ret_dict = self.df(
