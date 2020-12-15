@@ -56,7 +56,6 @@ class RollouterRevised(RollouterBase):
         self.policy = policy
         self.rollout_wrapper = rollout_wrapper
 
-
     def do_rollout(
             self,
             seq_len: int = None,
