@@ -4,7 +4,7 @@ from latent_with_splitseqs.base.replay_buffer_latent_splitseq_sampling_base \
     import LatentReplayBufferSplitSeqSamplingBase
 
 
-class LatentReplayBufferSplitSeqSamplingRandomSeqLen(LatentReplayBufferSplitSeqSamplingBase):
+class LatentReplayBufferSplitSeqSamplingFixedSeqLen(LatentReplayBufferSplitSeqSamplingBase):
 
     def __init__(self,
                  *args,
