@@ -15,9 +15,20 @@ def prepare_hparams(config):
         default=config.horizon_len,
     )
 
-    if not "seq_len" in config.df_evaluation_memory.keys():
-        config.df_evaluation_memory.seq_len = config.seq_len
-    if not "horizon_len" in config.df_evaluation_memory.keys():
-        config.df_evaluation_memory.horizon_len = config.horizon_len
+    config.df_evaluation_memory = set_config_default_item(
+        config=config.df_evaluation_memory,
+        key="seq_len",
+        default=config.seq_len,
+    )
+    config.df_evaluation_memory = set_config_default_item(
+        config=config.df_evaluation_memory,
+        key="horizon_len",
+        default=config.horizon_len,
+    )
+
+    min_num_steps_before_training_key = "min_num_steps_before_training"
+    if min_num_steps_before_training_key in config.algorithm_kwargs:
+        if config.algorithm_kwargs[min_num_steps_before_training_key] > 1000:
+            config.algorithm_kwargs[min_num_steps_before_training_key] = 100
 
     return config
