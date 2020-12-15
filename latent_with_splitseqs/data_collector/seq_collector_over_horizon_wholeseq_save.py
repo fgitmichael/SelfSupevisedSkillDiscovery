@@ -22,8 +22,10 @@ class SeqCollectorHorizonWholeSeqSaving(SeqCollectorHorizonBase):
         assert isinstance(split_seq, td.TransitionModeMapping)
         seq_dim = 0
         data_dim = 1
+
         if self._whole_seq_buffer is None:
             self._whole_seq_buffer = split_seq
+
         else:
             new_buffer = {}
             for key, el_buffer in self._whole_seq_buffer.items():

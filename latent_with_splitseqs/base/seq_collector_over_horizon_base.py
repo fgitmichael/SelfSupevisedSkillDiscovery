@@ -105,7 +105,7 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
 
         self._save_split_seq(
             split_seq=seq_with_skill,
-            horizon_completed=horizon_completed
+            horizon_completed=horizon_completed,
         )
 
         return horizon_completed

@@ -17,6 +17,8 @@ from latent_with_splitseqs.post_epoch_funcs.algo_saving import ConfigSaver, save
 from latent_with_splitseqs.post_epoch_funcs.plot_saved_skills_distribution \
     import ReplayBufferSkillDistributionPlotter
 
+from my_utils.dicts.get_config_item import get_config_item
+
 
 def get_algo_with_post_epoch_funcs(
         algo_class_in: Type[DIAYNTorchOnlineRLAlgorithmTb],
@@ -75,7 +77,7 @@ def get_algo_with_post_epoch_funcs(
         if "algo_log_interval_multiplier" in config.keys() \
         else 20
     algo_log_interval = config.log_interval * algo_log_multiplier
-    if 'algo_logging' not in config.keys() or config['algo_logging'] is True:
+    if get_config_item(config, 'algo_logging'):
         algo_class = add_post_epoch_func(
             post_epoch_func_wrapper
             ('algo logging',

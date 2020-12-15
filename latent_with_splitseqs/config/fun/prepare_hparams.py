@@ -26,9 +26,4 @@ def prepare_hparams(config):
         default=config.horizon_len,
     )
 
-    min_num_steps_before_training_key = "min_num_steps_before_training"
-    if min_num_steps_before_training_key in config.algorithm_kwargs:
-        if config.algorithm_kwargs[min_num_steps_before_training_key] > 1000:
-            config.algorithm_kwargs[min_num_steps_before_training_key] = 100
-
     return config

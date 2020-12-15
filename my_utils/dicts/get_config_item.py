@@ -1,4 +1,4 @@
-def get_config_item(config: dict, key: str, default_value):
+def get_config_item(config: dict, key: str, default_value=None):
     if key in config.keys():
         ret_val = config[key]
     else:
