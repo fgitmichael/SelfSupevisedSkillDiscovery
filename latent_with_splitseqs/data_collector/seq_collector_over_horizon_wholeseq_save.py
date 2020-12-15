@@ -43,3 +43,7 @@ class SeqCollectorHorizonWholeSeqSaving(SeqCollectorHorizonBase):
         if horizon_completed:
             self._epoch_split_seqs.append(self._whole_seq_buffer)
             self._whole_seq_buffer = None
+
+    def reset(self):
+        super().reset()
+        self._whole_seq_buffer = None
