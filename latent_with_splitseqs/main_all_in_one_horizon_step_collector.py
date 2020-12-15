@@ -33,7 +33,8 @@ from latent_with_splitseqs.config.fun.get_loss_fun import get_loss_fun
 from latent_with_splitseqs.algo.algo_latent_split_horizon_expl_collection \
     import SeqwiseAlgoSplitHorizonExplCollection
 from latent_with_splitseqs.config.fun.get_algo import get_algo_with_post_epoch_funcs
-from latent_with_splitseqs.config.fun.get_replay_buffer import get_replay_buffer
+from latent_with_splitseqs.config.fun.get_replay_buffer_and_expl_collector \
+    import get_replay_buffer_and_expl_collector
 from latent_with_splitseqs.config.fun.get_diagnostics_writer import get_diagnostics_writer
 from latent_with_splitseqs.config.fun.get_random_hp_params import get_random_hp_params
 from latent_with_splitseqs.config.fun.prepare_hparams import prepare_hparams
@@ -133,12 +134,6 @@ def create_experiment(config,
         max_seqs=5000,
         skill_selector=skill_selector,
     )
-    expl_step_collector = SeqCollectorHorizonSplitSeqSaving(
-        expl_env,
-        policy,
-        max_seqs=5000,
-        skill_selector=skill_selector,
-    )
     seq_eval_collector = SeqCollectorSplitSeq(
         env=eval_env,
         policy=eval_policy,
@@ -162,9 +157,11 @@ def create_experiment(config,
         trainer_init_kwargs=trainer_init_kwargs,
         **config
     )
-    replay_buffer = get_replay_buffer(
+    replay_buffer, expl_step_collector = get_replay_buffer_and_expl_collector(
         config=config,
-        env=expl_env,
+        expl_env=expl_env,
+        policy=policy,
+        skill_selector=skill_selector,
     )
     diagno_writer = get_diagnostics_writer(
         run_comment=run_comment,
