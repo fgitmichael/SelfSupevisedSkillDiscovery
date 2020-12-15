@@ -6,6 +6,7 @@ from latent_with_splitseqs.memory.replay_buffer_for_latent import LatentReplayBu
 import self_supervised.utils.typed_dicts as td
 
 from my_utils.np_utils.take_per_row import take_per_row
+from my_utils.np_utils.np_array_equality import np_array_equality
 
 
 class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
@@ -22,12 +23,12 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
     def _add_left_zero_padding(
             arr: np.ndarray,
             padding_len: int,
-            data_dim: int
+            padding_dim: int
     ) -> np.ndarray:
         size_padding = list(arr.shape)
-        size_padding[data_dim] = padding_len
-        padding_arr = np.zeros_like(size_padding)
-        padded = np.concatenate([padding_arr, arr], axis=data_dim)
+        size_padding[padding_dim] = padding_len
+        padding_arr = np.zeros(size_padding)
+        padded = np.concatenate([padding_arr, arr], axis=padding_dim)
         return padded
 
     def _take_elements_from_batch(
@@ -36,9 +37,21 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
             batch_size: int,
             sample_seq_len: int,
     ) -> dict:
+        """
+        Prepends zero padding and samples sequences of seq_len from batch
+        Args:
+            batch               : dict with (N, data_dim, S) numpy arrays
+            batch_size          : N
+            sample_seq_len      : length of sampling that are taken along dimension S
+        Return:
+            sampled_batch       : dict with (N, data_dim, sample_seq_len) numpy arrays
+        """
         batch_dim = 0
         data_dim = 1
         seq_dim = 2
+        skill_key = 'mode'
+        obs_key = 'obs'
+        horizon_len = batch[obs_key].shape[seq_dim]
         transition_mode_mapping_kwargs = {}
         start_idx = np.random.randint(
             low=0,
@@ -46,12 +59,25 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
             size=(batch_size,)
         )
         for key, el in batch.items():
-            if isinstance(el, np.ndarray):
+            if isinstance(el, np.ndarray) and key != skill_key:
                 el_padded = self._add_left_zero_padding(
                     arr=el,
                     padding_len=sample_seq_len,
-                    data_dim=data_dim,
+                    padding_dim=seq_dim,
                 )
+
+            elif isinstance(el, np.ndarray) and key == skill_key:
+                assert np_array_equality(
+                    el,
+                    np.stack([el[..., 0]] * horizon_len, axis=seq_dim)
+                )
+                padding_arr = np.stack([el[..., 0]] * sample_seq_len, axis=seq_dim)
+                el_padded = np.concatenate([padding_arr, el], axis=seq_dim)
+
+            else:
+                el_padded = None
+
+            if isinstance(el_padded, np.ndarray):
                 el_bsd = np.swapaxes(el_padded, axis1=data_dim, axis2=seq_dim)
                 el_slices_bsd = take_per_row(el_bsd, start_idx, num_elem=sample_seq_len)
                 transition_mode_mapping_kwargs[key] = \
