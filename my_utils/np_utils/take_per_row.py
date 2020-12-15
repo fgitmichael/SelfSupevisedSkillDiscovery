@@ -5,5 +5,10 @@ import numpy as np
 
 
 def take_per_row(A, indx, num_elem=2):
-    all_indx = indx[:,None] + np.arange(num_elem)
-    return A[np.arange(all_indx.shape[0])[:,None], all_indx]
+    indx = np.expand_dims(indx, axis=1)
+    all_indx = indx + np.arange(num_elem)
+    first_dim_indx = np.expand_dims(
+        np.arange(all_indx.shape[0]),
+        axis=1
+    )
+    return A[first_dim_indx, all_indx]
