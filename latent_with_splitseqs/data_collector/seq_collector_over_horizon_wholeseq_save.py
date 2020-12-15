@@ -1,6 +1,6 @@
 import numpy as np
 
-from latent_with_splitseqs.base.seq_collector_over_horizon import SeqCollectorHorizonBase
+from latent_with_splitseqs.base.seq_collector_over_horizon_base import SeqCollectorHorizonBase
 
 import self_supervised.utils.typed_dicts as td
 

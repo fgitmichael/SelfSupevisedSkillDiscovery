@@ -103,7 +103,10 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
             self._rollouter.reset()
             horizon_completed = True
 
-        self._save_split_seq(seq_with_skill, horizon_completed)
+        self._save_split_seq(
+            split_seq=seq_with_skill,
+            horizon_completed=horizon_completed
+        )
 
         return horizon_completed
 
