@@ -1,6 +1,7 @@
 import numpy as np
 
-from latent_with_splitseqs.base.seq_collector_over_horizon_base import SeqCollectorHorizonBase
+from latent_with_splitseqs.base.seq_collector_over_horizon_base \
+    import SeqCollectorHorizonBase
 
 from my_utils.np_utils.np_array_equality import np_array_equality
 
@@ -13,7 +14,11 @@ class SeqCollectorHorizonWholeSeqSaving(SeqCollectorHorizonBase):
         super().__init__(*args, **kwargs)
         self._whole_seq_buffer = None
 
-    def _save_split_seq(self, split_seq: td.TransitionModeMapping, horizon_completed: bool):
+    def _save_split_seq(
+            self,
+            split_seq: td.TransitionModeMapping,
+            horizon_completed: bool
+    ):
         assert isinstance(split_seq, td.TransitionModeMapping)
         seq_dim = 0
         data_dim = 1
