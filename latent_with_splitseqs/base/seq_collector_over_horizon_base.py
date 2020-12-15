@@ -1,4 +1,5 @@
 import torch
+import abc
 import gym
 import numpy as np
 from collections import deque
@@ -20,7 +21,7 @@ import self_supervised.utils.typed_dicts as td
 import rlkit.torch.pytorch_util as ptu
 
 
-class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
+class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
 
     def __init__(
             self,
@@ -34,7 +35,7 @@ class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
     ):
         self.max_seqs = max_seqs
         self._epoch_split_seqs = None
-        super(SeqCollectorHorizon, self).__init__(
+        super().__init__(
             env=env,
             policy=policy,
         )
@@ -69,6 +70,10 @@ class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
         random_skill = self.skill_selector.get_random_skill()
         self.skill = random_skill
 
+    @abc.abstractmethod
+    def _save_split_seq(self, split_seq, horizon_completed: bool):
+        raise NotImplementedError
+
     def collect_split_seq(
             self,
             seq_len,
@@ -98,7 +103,7 @@ class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
             self._rollouter.reset()
             horizon_completed = True
 
-        self._epoch_split_seqs.append(seq_with_skill)
+        self._save_split_seq(seq_with_skill, horizon_completed)
 
         return horizon_completed
 
@@ -185,8 +190,8 @@ class SeqCollectorHorizon(HorizonSplitSeqCollectorBase):
     def get_epoch_paths(
             self,
             reset=True,
-            transpose=True) \
-            -> List[td.TransitionModeMapping]:
+            transpose=True,
+    ) -> List[td.TransitionModeMapping]:
         """
         Return:
             list of TransistionMapping consisting of (S, data_dim) np.ndarrays

@@ -15,13 +15,13 @@ from diayn_seq_code_revised.networks.my_gaussian import ConstantGaussianMultiDim
 from diayn_seq_code_revised.policies.skill_policy_obsdim_select \
     import SkillTanhGaussianPolicyRevisedObsSelect
 
-from seqwise_cont_skillspace.networks.contant_uniform import ConstantUniformMultiDim
 from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
-from seqwise_cont_skillspace.utils.info_loss import GuidedInfoLoss
 
-from mode_disent_no_ssm.utils.parse_args import parse_args, parse_args_hptuning
+from mode_disent_no_ssm.utils.parse_args import parse_args_hptuning
 
+from latent_with_splitseqs.data_collector.seq_collector_over_horizon_splitseq_save import \
+    SeqCollectorHorizonSplitSeqSaving
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 from latent_with_splitseqs.config.fun.get_env import get_env
 from latent_with_splitseqs.config.fun.get_obs_dims_used_policy \
@@ -29,13 +29,8 @@ from latent_with_splitseqs.config.fun.get_obs_dims_used_policy \
 from latent_with_splitseqs.config.fun.get_df_and_trainer import get_df_and_trainer
 from latent_with_splitseqs.config.fun.get_feature_dim_obs_dim \
     import get_feature_dim_obs_dim
-from latent_with_splitseqs.utils.loglikelihoodloss import GuidedKldLogOnlyLoss
-from latent_with_splitseqs.algo.algo_latent_splitseqs import \
-    SeqwiseAlgoRevisedSplitSeqs
 from latent_with_splitseqs.config.fun.get_skill_prior import get_skill_prior
 from latent_with_splitseqs.config.fun.get_loss_fun import get_loss_fun
-from latent_with_splitseqs.data_collector.seq_collector_over_horizon \
-    import SeqCollectorHorizon
 from latent_with_splitseqs.algo.algo_latent_split_horizon_expl_collection \
     import SeqwiseAlgoSplitHorizonExplCollection
 from latent_with_splitseqs.config.fun.get_algo import get_algo_with_post_epoch_funcs
@@ -139,7 +134,7 @@ def create_experiment(config,
         max_seqs=5000,
         skill_selector=skill_selector,
     )
-    expl_step_collector = SeqCollectorHorizon(
+    expl_step_collector = SeqCollectorHorizonSplitSeqSaving(
         expl_env,
         policy,
         max_seqs=5000,

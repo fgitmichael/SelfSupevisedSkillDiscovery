@@ -1,8 +1,8 @@
 import gtimer as gt
 
 from latent_with_splitseqs.algo.algo_latent_splitseqs import SeqwiseAlgoRevisedSplitSeqs
-from latent_with_splitseqs.data_collector.seq_collector_over_horizon \
-    import SeqCollectorHorizon
+from latent_with_splitseqs.base.seq_collector_over_horizon \
+    import SeqCollectorHorizonWholeSeqSaving
 
 
 class SeqwiseAlgoSplitHorizonExplCollection(SeqwiseAlgoRevisedSplitSeqs):
@@ -10,10 +10,10 @@ class SeqwiseAlgoSplitHorizonExplCollection(SeqwiseAlgoRevisedSplitSeqs):
     def __init__(
             self,
             *args,
-            exploration_data_collector: SeqCollectorHorizon,
+            exploration_data_collector: SeqCollectorHorizonWholeSeqSaving,
             **kwargs
     ):
-        assert isinstance(exploration_data_collector, SeqCollectorHorizon)
+        assert isinstance(exploration_data_collector, SeqCollectorHorizonWholeSeqSaving)
         super(SeqwiseAlgoSplitHorizonExplCollection, self).__init__(
             *args,
             exploration_data_collector=exploration_data_collector,
@@ -21,7 +21,7 @@ class SeqwiseAlgoSplitHorizonExplCollection(SeqwiseAlgoRevisedSplitSeqs):
         )
 
     def _explore(self):
-        assert isinstance(self.expl_data_collector, SeqCollectorHorizon)
+        assert isinstance(self.expl_data_collector, SeqCollectorHorizonWholeSeqSaving)
         horizon_complete = self.expl_data_collector.collect_split_seq(
             seq_len=self.seq_len,
             horizon_len=self.horizon_len,
