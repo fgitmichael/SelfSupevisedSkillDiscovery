@@ -2,6 +2,8 @@ import numpy as np
 
 from latent_with_splitseqs.base.seq_collector_over_horizon_base import SeqCollectorHorizonBase
 
+from my_utils.np_utils.np_array_equality import np_array_equality
+
 import self_supervised.utils.typed_dicts as td
 
 
@@ -20,8 +22,15 @@ class SeqCollectorHorizonWholeSeqSaving(SeqCollectorHorizonBase):
         else:
             new_buffer = {}
             for key, el_buffer in self._whole_seq_buffer.items():
-                el_new = split_seq[key]
-                new_buffer[key] = np.concatenate([el_buffer, el_new], axis=seq_dim)
+                if isinstance(el_buffer, np.ndarray):
+                    el_new = split_seq[key]
+                    new_buffer[key] = np.concatenate([el_buffer, el_new], axis=seq_dim)
+                if key == 'mode':
+                    horizon_len_now = new_buffer[key].shape[seq_dim]
+                    assert np_array_equality(
+                        new_buffer[key],
+                        np.stack([new_buffer[key][0]] * horizon_len_now, axis=seq_dim),
+                    )
             self._whole_seq_buffer = td.TransitionModeMapping(**new_buffer)
 
         if horizon_completed:
