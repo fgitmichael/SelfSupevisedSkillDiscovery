@@ -43,18 +43,18 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
     def set_next_skill(self, data_collector: PathCollectorRevisedBase):
         data_collector.skill_reset()
 
-    def _train(self):
-        self.training_mode(False)
-
+    def _initial_exploration(self):
         if self.min_num_steps_before_training > 0:
             for _ in range(max(self.min_num_steps_before_training//self.horizon_len, 1)):
                 self.set_next_skill(self.expl_data_collector)
                 self._explore()
-
-        init_expl_paths = self.expl_data_collector.get_epoch_paths()
-        self.replay_buffer.add_self_sup_paths(init_expl_paths)
-        self.expl_data_collector.end_epoch(-1)
         gt.stamp('initial exploration', unique=True)
+        self._store_expl_data()
+        self.expl_data_collector.end_epoch(-1)
+
+    def _train(self):
+        self.training_mode(False)
+        self._initial_exploration()
 
         num_trains_per_expl_step = self.num_trains_per_train_loop \
                                    // self.num_expl_steps_per_train_loop
