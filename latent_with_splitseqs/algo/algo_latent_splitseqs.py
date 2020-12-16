@@ -1,4 +1,5 @@
 import gtimer as gt
+import numpy as np
 import copy
 from typing import List
 
@@ -9,6 +10,8 @@ from latent_with_splitseqs.memory.replay_buffer_for_latent import LatentReplayBu
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 
 from diayn_seq_code_revised.base.data_collector_base import PathCollectorRevisedBase
+
+import self_supervised.utils.typed_dicts as td
 
 
 class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
@@ -98,14 +101,15 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
     def _sample_batch_from_buffer(self) -> dict:
         train_data = super(SeqwiseAlgoRevisedSplitSeqs, self)._sample_batch_from_buffer()
 
-        train_dict = dict(
-            rewards=train_data.reward,
-            terminals=train_data.terminal,
-            observations=train_data.obs,
-            actions=train_data.action,
-            next_observations=train_data.next_obs,
-            skills=train_data.mode,
-        )
+        train_dict = train_data
+        #train_dict = dict(
+        #    rewards=train_data.reward,
+        #    terminals=train_data.terminal,
+        #    observations=train_data.obs,
+        #    actions=train_data.action,
+        #    next_observations=train_data.next_obs,
+        #    skills=train_data.mode,
+        #)
 
         return train_dict
 
@@ -117,6 +121,11 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
 
         # Sample batch for sac training
         train_data_sac = self._sample_batch_from_buffer()
+        train_data_sac = {
+            k: el
+            for k, el in train_data_sac.items()
+            if isinstance(el, np.ndarray)
+        }
 
         # Sample batch for latent training
         train_data_latent = copy.deepcopy(train_data_sac) \

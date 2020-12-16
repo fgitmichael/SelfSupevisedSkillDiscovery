@@ -45,11 +45,11 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         seq_dim = 1
         data_dim = -1
 
-        terminals = batch['terminals']
-        obs = batch['observations']
-        actions = batch['actions']
-        next_obs = batch['next_observations']
-        skills = batch['skills']
+        terminals = batch['terminal']
+        obs = batch['obs']
+        actions = batch['action']
+        next_obs = batch['next_obs']
+        skills = batch['mode']
 
         seq_len = obs.size(seq_dim)
 
@@ -79,8 +79,8 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         seq_dim = 1
         data_dim = -1
 
-        next_obs = batch['next_observations']
-        mode = batch['skills']
+        next_obs = batch['next_obs']
+        mode = batch['mode']
 
         assert len(next_obs.shape) == 3
         assert next_obs.shape[:data_dim] == mode.shape[:data_dim]
@@ -265,11 +265,11 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         """
         self._check_sac_batch(batch)
 
-        terminals = batch['terminals']
-        obs = batch['observations']
-        actions = batch['actions']
-        next_obs = batch['next_observations']
-        skills = batch['skills']
+        terminals = batch['terminal']
+        obs = batch['obs']
+        actions = batch['action']
+        next_obs = batch['next_obs']
+        skills = batch['mode']
         batch = None
         batch_dim = 0
         seq_dim = 1

@@ -50,8 +50,8 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
         data_dim = 1
         seq_dim = 2
         skill_key = 'mode'
-        obs_key = 'obs'
-        horizon_len = batch[obs_key].shape[seq_dim]
+        next_obs_key = 'next_obs'
+        horizon_len = batch[next_obs_key].shape[seq_dim]
         transition_mode_mapping_kwargs = {}
         start_idx = np.random.randint(
             low=0,
