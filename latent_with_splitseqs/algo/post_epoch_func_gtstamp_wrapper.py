@@ -8,7 +8,7 @@ from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 def post_epoch_func_wrapper(
         gt_stamp_name,
         log_interval=None,
-        method: bool=False,
+        method: bool = False,
 ):
     def real_dec(func):
         @wraps(func)
