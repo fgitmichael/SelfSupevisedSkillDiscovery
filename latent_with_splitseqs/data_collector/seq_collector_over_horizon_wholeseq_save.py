@@ -32,12 +32,17 @@ class SeqCollectorHorizonWholeSeqSaving(SeqCollectorHorizonBase):
                 if isinstance(el_buffer, np.ndarray):
                     el_new = split_seq[key]
                     new_buffer[key] = np.concatenate([el_buffer, el_new], axis=seq_dim)
-                if key == 'mode':
-                    horizon_len_now = new_buffer[key].shape[seq_dim]
-                    assert np_array_equality(
-                        new_buffer[key],
-                        np.stack([new_buffer[key][0]] * horizon_len_now, axis=seq_dim),
-                    )
+
+                    if isinstance(el_buffer, np.ndarray):
+                        horizon_len_now = new_buffer[key].shape[seq_dim]
+                        assert np_array_equality(
+                            new_buffer[key],
+                            np.stack([new_buffer[key][0]] * horizon_len_now, axis=seq_dim),
+                        )
+                        assert np_array_equality(
+                            el_new,
+                            np.stack([el_new[0]] * el_new.shape[seq_dim], axis=seq_dim),
+                        )
             self._whole_seq_buffer = td.TransitionModeMapping(**new_buffer)
 
         if horizon_completed:
