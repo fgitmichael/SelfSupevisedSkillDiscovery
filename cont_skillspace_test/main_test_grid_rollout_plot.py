@@ -24,6 +24,10 @@ parser.add_argument('--num_eval_steps',
                     default=1000,
                     help="number of rollout steps per io-selected skill",
                     )
+parser.add_argument('--num_grid_points',
+                    type=int,
+                    default=200,
+                    help="number of skill grid points")
 args = parser.parse_args()
 
 ptu.set_gpu_mode(False)
@@ -46,5 +50,6 @@ tester = RolloutTesterPlot(
 tester(
     grid_low=np.array([-args.grid_factor, -args.grid_factor]),
     grid_high=np.array([args.grid_factor, args.grid_factor]),
+    num_points=args.num_grid_points,
 )
 
