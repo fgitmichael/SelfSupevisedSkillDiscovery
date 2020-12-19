@@ -55,10 +55,7 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
         self._store_expl_data()
         self.expl_data_collector.end_epoch(-1)
 
-    def _train(self):
-        self.training_mode(False)
-        self._initial_exploration()
-
+    def _train_loop(self):
         num_trains_per_expl_step = self.num_trains_per_train_loop \
                                    // self.num_expl_steps_per_train_loop
         for epoch in gt.timed_for(range(
@@ -74,6 +71,11 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
 
             self._store_expl_data()
             self._end_epoch(epoch)
+
+    def _train(self):
+        self.training_mode(False)
+        self._initial_exploration()
+        self._train_loop()
 
     def _explore(self):
         self.set_next_skill(self.expl_data_collector)
@@ -140,7 +142,3 @@ class SeqwiseAlgoRevisedSplitSeqs(DIAYNTorchOnlineRLAlgorithmOwnFun):
 
         gt.stamp('training', unique=False)
         self.training_mode(False)
-
-    def write_mode_influence_and_log(self, epoch):
-        if self.mode_influence_plotting:
-            super(SeqwiseAlgoRevisedSplitSeqs, self).write_mode_influence_and_log(epoch)
