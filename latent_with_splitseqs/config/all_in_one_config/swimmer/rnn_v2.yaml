@@ -2,7 +2,7 @@
 algorithm: "Continuous Skill Space"
 version: "latent split seq | guided | sac in feature space | rnn only"
 layer_size: 256
-replay_buffer_size: 90500
+replay_buffer_size: 20000
 replay_seq_sampling: sampling
 random_hp_tuning: False
 
@@ -11,7 +11,7 @@ env_kwargs:
   env_id: swimmer
   init_kwargs:
     exclude_current_positions_from_observation: False
-    reset_noise_scale: 0.
+    reset_noise_scale: null
 
 obs_dims_used_policy_all_except: [0, 1]
 
@@ -19,12 +19,13 @@ obs_dims_used_policy_all_except: [0, 1]
 algorithm_kwargs:
   num_epochs: 20000
   num_eval_steps_per_epoch: 10
-  num_trains_per_train_loop: 10
-  num_expl_steps_per_train_loop: 10
-  min_num_steps_before_training: 100000
+  num_trains_per_train_loop: 21
+  num_expl_steps_per_train_loop: 21
+  min_num_steps_before_training: 100
   max_path_length: 1000
-  train_sac_classifier_with_equal_data: True
-  batch_size: 350
+  train_sac_classifier_with_equal_data: False
+  batch_size: 300
+  batch_size_latent: 300
 
 # Trainer
 trainer_kwargs:
@@ -36,11 +37,11 @@ trainer_kwargs:
   reward_scale: 1
   use_automatic_entropy_tuning: True
   df_lr: 0.0003
-  train_sac_in_feature_space: False
+  train_sac_in_feature_space: True
 
 # Sampling
-seq_len: 70
-horizon_len: 700
+seq_len: 150
+horizon_len: 450
 skill_dim: 2
 
 # Skill Prior
@@ -51,13 +52,13 @@ skill_prior:
     low: -1.5
     high: 1.5
   gaussian:
-    std: 1.6
+    std: 1.
 
 # Evaluation
 df_evaluation_env:
   obs_dims_to_log: [0, 1]
   action_dims_to_log: [0, 1]
-  horizon_len: 560
+  horizon_len: 450
   num_paths_per_skill: 1
   plot_skill_influence:
     obs: True
@@ -69,7 +70,7 @@ df_evaluation_memory:
   batch_size: 1000
 
 info_loss:
-  alpha: 0.9
+  alpha: 1.0
   lamda: 0.0
   variant: reg_std_only
 
@@ -90,16 +91,16 @@ latent_single_layer_kwargs:
   None: null
 
 rnn_kwargs:
-  hidden_size_rnn: 200
+  hidden_size_rnn: 5
   bidirectional: False
 
 df_kwargs_rnn:
   obs_dims_used: [0, 1]
   obs_dims_used_except: null
-  dropout: 0.4
+  dropout: 0.1
   leaky_slope_classifier: 0.15
   hidden_units_classifier: [256, 256]
-  std_classifier: null
+  std_classifier: 0.8
 
 df_kwargs_latent:
   None: null
@@ -110,7 +111,7 @@ test_script_path: [../cont_skillspace_test/main_test_guided_normal_plot.py,
                    ../latent_with_splitseqs/continue_algo_training.py,
                    ../cont_skillspace_test/main_test_grid_rollout_plot.py,]
 log_folder: /media/michael/TOSHIBA EXT/logs/04_latent_splitseq/swimmer_horizon_new
-log_interval: 50
+log_interval: 5
 
 # GPU
 gpu: True
