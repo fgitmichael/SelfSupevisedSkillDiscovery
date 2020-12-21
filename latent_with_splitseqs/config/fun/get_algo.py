@@ -3,8 +3,10 @@ import math
 
 from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 
+from diayn_seq_code_revised.data_collector.seq_collector_revised import SeqCollectorRevised
+
 from latent_with_splitseqs.post_epoch_funcs.tb_logging import PostEpochTbLogger
-from latent_with_splitseqs.post_epoch_funcs.net_logging import NetLogger
+from latent_with_splitseqs.post_epoch_funcs.object_logging import ObjectSaver
 from latent_with_splitseqs.post_epoch_funcs.df_env_eval import DfEnvEvaluationSplitSeq
 from latent_with_splitseqs.post_epoch_funcs.net_param_histogram_logging \
     import NetParamHistogramLogger
@@ -23,7 +25,7 @@ from my_utils.dicts.get_config_item import get_config_item
 def get_algo_with_post_epoch_funcs(
         algo_class_in: Type[DIAYNTorchOnlineRLAlgorithmTb],
         replay_buffer,
-        expl_step_collector,
+        expl_step_collector: SeqCollectorRevised,
         eval_path_collector,
         seq_eval_collector,
         diagno_writer,
@@ -47,12 +49,15 @@ def get_algo_with_post_epoch_funcs(
         log_prefix=None,
         **config.df_evaluation_env,
     )
-    net_logger = NetLogger(
+    net_logger = ObjectSaver(
         diagnostic_writer=diagno_writer,
-        net_dict=dict(
+        objects_periodic_saving=dict(
             policy_net=eval_policy,
         ),
-        env=expl_env
+        objects_initial_saving=dict(
+            env=expl_env,
+            config=config,
+        ),
     )
     net_param_hist_logger = NetParamHistogramLogger(
         diagnostic_writer=diagno_writer,

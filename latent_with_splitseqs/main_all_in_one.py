@@ -42,7 +42,7 @@ from latent_with_splitseqs.algo.algo_latent_splitseqs import \
 from latent_with_splitseqs.post_epoch_funcs.df_env_eval import DfEnvEvaluationSplitSeq
 from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
     import post_epoch_func_wrapper
-from latent_with_splitseqs.post_epoch_funcs.net_logging import NetLogger
+from latent_with_splitseqs.post_epoch_funcs.net_logging import ObjectSaver
 from latent_with_splitseqs.config.fun.get_skill_prior import get_skill_prior
 from latent_with_splitseqs.config.fun.get_loss_fun import get_loss_fun
 from latent_with_splitseqs.post_epoch_funcs.algo_saving import save_algo
@@ -192,12 +192,12 @@ def experiment(variant,
         log_prefix=None,
         **config.df_evaluation_env,
     )
-    net_logger = NetLogger(
+    net_logger = ObjectSaver(
         diagnostic_writer=diagno_writer,
-        net_dict=dict(
+        objects_periodic_saving=dict(
             policy_net=eval_policy,
         ),
-        env=expl_env
+        objects_initial_saving=expl_env
     )
     net_param_hist_logger = NetParamHistogramLogger(
         diagnostic_writer=diagno_writer,
