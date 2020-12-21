@@ -15,10 +15,6 @@ parser.add_argument('--epoch',
                     default=100,
                     help="epoch to test",
                     )
-parser.add_argument('--grid_factor',
-                    type=float,
-                    default=1.5,
-                    help="low, high of skills grid")
 parser.add_argument('--num_eval_steps',
                     type=int,
                     default=1000,
@@ -36,9 +32,14 @@ horizon_len = args.num_eval_steps
 
 extension = ".pkl"
 policy_net_name = "policy_net_epoch{}".format(epoch) + extension
+config_name = "config" + extension
 env_name = "env" + extension
 env = torch.load(env_name)
 policy = torch.load(policy_net_name, map_location=ptu.device)
+config = torch.load(config_name)
+assert config['skill_prior']['type'] == "uniform"
+uniform_prior_low = config['skill_prior']['uniform']['low']
+uniform_prior_high = config['skill_prior']['uniform']['high']
 grid_rollouter = GridRollouter(
     env=env,
     policy=policy,
@@ -48,8 +49,7 @@ tester = RolloutTesterPlot(
     test_rollouter=grid_rollouter,
 )
 tester(
-    grid_low=np.array([-args.grid_factor, -args.grid_factor]),
-    grid_high=np.array([args.grid_factor, args.grid_factor]),
+    grid_low=np.array([uniform_prior_low, uniform_prior_low]),
+    grid_high=np.array([uniform_prior_high, uniform_prior_high]),
     num_points=args.num_grid_points,
 )
-
