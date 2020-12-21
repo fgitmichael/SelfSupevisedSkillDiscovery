@@ -36,15 +36,17 @@ horizon_len = args.num_eval_steps
 
 extension = ".pkl"
 policy_net_name = "policy_net_epoch{}".format(epoch) + extension
-config_name = "config" + extension
 env_name = "env" + extension
 env = torch.load(env_name)
 policy = torch.load(policy_net_name, map_location=ptu.device)
+
 if args.grid_factor is None:
+    config_name = "config" + extension
     config = torch.load(config_name)
     assert config['skill_prior']['type'] == "uniform"
     uniform_prior_low = config['skill_prior']['uniform']['low']
     uniform_prior_high = config['skill_prior']['uniform']['high']
+
 else:
     uniform_prior_low = -args.grid_factor
     uniform_prior_high = args.grid_factor
