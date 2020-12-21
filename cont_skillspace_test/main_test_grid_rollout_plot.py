@@ -15,6 +15,10 @@ parser.add_argument('--epoch',
                     default=100,
                     help="epoch to test",
                     )
+parser.add_argument('--grid_factor',
+                    type=float,
+                    default=None,
+                    help="low, high of skills grid")
 parser.add_argument('--num_eval_steps',
                     type=int,
                     default=1000,
@@ -36,10 +40,15 @@ config_name = "config" + extension
 env_name = "env" + extension
 env = torch.load(env_name)
 policy = torch.load(policy_net_name, map_location=ptu.device)
-config = torch.load(config_name)
-assert config['skill_prior']['type'] == "uniform"
-uniform_prior_low = config['skill_prior']['uniform']['low']
-uniform_prior_high = config['skill_prior']['uniform']['high']
+if args.grid_factor is None:
+    config = torch.load(config_name)
+    assert config['skill_prior']['type'] == "uniform"
+    uniform_prior_low = config['skill_prior']['uniform']['low']
+    uniform_prior_high = config['skill_prior']['uniform']['high']
+else:
+    uniform_prior_low = -args.grid_factor
+    uniform_prior_high = args.grid_factor
+
 grid_rollouter = GridRollouter(
     env=env,
     policy=policy,
