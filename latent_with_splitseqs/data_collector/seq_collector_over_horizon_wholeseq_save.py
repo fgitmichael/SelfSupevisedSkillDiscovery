@@ -33,7 +33,7 @@ class SeqCollectorHorizonWholeSeqSaving(SeqCollectorHorizonBase):
                     el_new = split_seq[key]
                     new_buffer[key] = np.concatenate([el_buffer, el_new], axis=seq_dim)
 
-                    if isinstance(el_buffer, np.ndarray):
+                    if key == 'mode':
                         horizon_len_now = new_buffer[key].shape[seq_dim]
                         assert np_array_equality(
                             new_buffer[key],
