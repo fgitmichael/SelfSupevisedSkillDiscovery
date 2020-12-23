@@ -26,9 +26,25 @@ class RolloutTesterPlot(object):
         )
         grid_rollout = self.test_rollouter()
 
-        # Plot
-        for rollout in grid_rollout:
+        # Find Rollout with big movements
+        max_array = np.empty((len(grid_rollout)))
+        for idx, rollout in enumerate(grid_rollout):
             obs = rollout['observations']
-            plt.plot(obs[:, 0], obs[:, 1], label="skill {}".format(rollout['skill']))
+            max_ = np.amax(np.abs(obs[:, 0]))
+            max_array[idx] = max_
+        num_rollouts_with_legend = 10
+        sorted_idx = np.argsort(max_array)
+        max_sorted_idx = sorted_idx[::-1][:num_rollouts_with_legend]
 
+        # Plot
+        for idx, rollout in enumerate(grid_rollout):
+            obs = rollout['observations']
+            to_plot = [obs[:, 0], obs[:, 1]]
+            if idx in max_sorted_idx:
+                skill = rollout['skill']
+                legend = "skill {}".format(skill)
+                plt.plot(*to_plot, label=legend)
+            else:
+                plt.plot(*to_plot)
+        plt.legend()
         plt.show()
