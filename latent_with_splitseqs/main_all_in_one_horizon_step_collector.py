@@ -19,8 +19,6 @@ from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
 
 from mode_disent_no_ssm.utils.parse_args import parse_args_hptuning
 
-from latent_with_splitseqs.data_collector.seq_collector_over_horizon_splitseq_save import \
-    SeqCollectorHorizonSplitSeqSaving
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 from latent_with_splitseqs.config.fun.get_env import get_env
 from latent_with_splitseqs.config.fun.get_obs_dims_used_policy \
