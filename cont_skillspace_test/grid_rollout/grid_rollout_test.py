@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
+import os
 
 from cont_skillspace_test.grid_rollout.test_rollouter_base import TestRollouter
 

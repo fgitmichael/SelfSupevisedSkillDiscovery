@@ -24,7 +24,8 @@ def get_replay_buffer_and_expl_collector(
     variant = get_config_item(
         config=config,
         key='replay_seq_sampling',
-        default_value='fixed', )
+        default_value='fixed',
+    )
 
     if variant == 'fixed':
         expl_step_collector = SeqCollectorHorizonSplitSeqSaving(

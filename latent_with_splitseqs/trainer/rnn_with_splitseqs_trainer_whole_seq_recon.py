@@ -3,6 +3,8 @@ from latent_with_splitseqs.trainer.rnn_with_splitseqs_trainer_end_recon_only imp
 
 from code_slac.utils import update_params
 
+import latent_with_splitseqs.utils.key_names as keys
+
 
 class URLTrainerRnnWithSplitseqsWholeSeqRecon(
     URLTrainerRnnWithSplitseqsEndReconOnly):
@@ -10,8 +12,8 @@ class URLTrainerRnnWithSplitseqsWholeSeqRecon(
     def train_latent_from_torch(self, batch):
         self._check_latent_batch(batch)
 
-        next_obs = batch['next_observations']
-        skills = batch['skills']
+        next_obs = batch[keys.next_obs]
+        skills = batch['mode']
         batch_size, seq_len, skill_dim = skills.shape
         skills_reshaped = skills.reshape(
             batch_size * seq_len,
