@@ -82,7 +82,7 @@ def get_algo_with_post_epoch_funcs(
         if "algo_log_interval_multiplier" in config.keys() \
         else 20
     algo_log_interval = config.log_interval * algo_log_multiplier
-    if get_config_item(config, 'algo_logging', default_value=False):
+    if get_config_item(config, 'algo_logging', default=False):
         algo_class = add_post_epoch_func(
             post_epoch_func_wrapper
             ('algo logging',
