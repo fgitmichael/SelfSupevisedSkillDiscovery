@@ -1,5 +1,4 @@
 import torch
-from code_slac.network.base import BaseNetwork
 
 from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 
