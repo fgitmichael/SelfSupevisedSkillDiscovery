@@ -13,8 +13,8 @@ class URLTrainerLatentSplitSeqsSRNNFullSeqRecon(URLTrainerLatentWithSplitseqs):
 
     def train_latent_from_torch(self, batch):
         self._check_latent_batch(batch)
-        next_obs = batch['next_observations']
-        skills = batch['skills']
+        next_obs = batch['next_obs']
+        skills = batch['mode']
 
         df_loss, log_dict = self._latent_loss(
             skills=skills,

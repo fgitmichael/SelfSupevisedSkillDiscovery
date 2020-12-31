@@ -345,7 +345,7 @@ def get_df_and_trainer(
         if df_type[df_type_keys['latent_type']] == latent_types['full_seq']:
             latent_model_class_stoch = SlacLatentNetConditionedOnSkillSeqForSRNN
             srnn_model = SRNNLatentConditionedOnSkillSeq(
-                obs_dim=obs_dim,
+                obs_dim=obs_dim_srnn,
                 skill_dim=skill_dim,
                 filter_net_params=srnn_kwargs.filter_net_params,
                 deterministic_latent_net=rnn,
@@ -358,7 +358,7 @@ def get_df_and_trainer(
 
         if df_type[df_type_keys['recon']] == recon_types['end_only']:
             df = SplitSeqClassifierSRNNEndReconOnly(
-                obs_dim=obs_dim_srnn,
+                obs_dim=obs_dim,
                 skill_dim=skill_dim,
                 seq_len=seq_len,
                 latent_net=srnn_model,
@@ -371,7 +371,7 @@ def get_df_and_trainer(
 
         elif df_type[df_type_keys['recon']] == recon_types['whole_seq']:
             df = SplitSeqClassifierSRNNWholeSeqRecon(
-                obs_dim=obs_dim_srnn,
+                obs_dim=obs_dim,
                 skill_dim=skill_dim,
                 seq_len=seq_len,
                 latent_net=srnn_model,

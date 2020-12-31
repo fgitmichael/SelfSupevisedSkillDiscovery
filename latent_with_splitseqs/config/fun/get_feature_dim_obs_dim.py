@@ -1,6 +1,7 @@
 from latent_with_splitseqs.config.fun.get_df_and_trainer import \
     df_type_keys, feature_extractor_types, latent_types
 
+
 def get_feature_dim_obs_dim(
         obs_dim,
         config
