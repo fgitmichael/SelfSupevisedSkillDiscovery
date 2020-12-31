@@ -15,7 +15,7 @@ class StochasticLatentNetBase(BaseNetwork, metaclass=abc.ABCMeta):
 
         self.beta_anneal = beta_anneal
         if beta_anneal is not None:
-            self._check_beta_anneal(beta_anneal)
+            self._check_beta_anneal()
             self.beta = self.beta_anneal['start']
 
         else:
@@ -23,7 +23,7 @@ class StochasticLatentNetBase(BaseNetwork, metaclass=abc.ABCMeta):
 
     def anneal_beta(self):
         if self.beta_anneal is not None:
-            if self.beta_anneal['beta'] < self.beta_anneal['end']:
+            if self.beta < self.beta_anneal['end']:
                 beta = self.beta + self.beta_anneal['add']
                 if self.beta > self.beta_anneal['end']:
                     beta = self.beta_anneal['end']
@@ -41,10 +41,10 @@ class StochasticLatentNetBase(BaseNetwork, metaclass=abc.ABCMeta):
         if self.beta_anneal is not None:
             self.beta_anneal['beta'] = val
 
-    def _check_beta_anneal(self, beta_anneal: dict):
-        assert 'start' in beta_anneal.keys()
-        assert 'add' in beta_anneal.keys()
-        assert 'end' in beta_anneal.keys()
+    def _check_beta_anneal(self):
+        assert 'start' in self.beta_anneal.keys()
+        assert 'add' in self.beta_anneal.keys()
+        assert 'end' in self.beta_anneal.keys()
 
     @abc.abstractmethod
     def sample_prior(self, obs_seq):
