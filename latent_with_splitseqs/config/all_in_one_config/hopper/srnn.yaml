@@ -76,21 +76,13 @@ info_loss:
 
 # Classifier
 df_type:
-  feature_extractor: latent_slac
+  feature_extractor: srnn
   rnn_type: normal
   latent_type: full_seq
   recon: whole_seq
 
 latent_kwargs:
-  latent1_dim: 32
-  latent2_dim: 256
-  hidden_units: [256, 256]
-  leaky_slope: 0.2
-  dropout: 0.3
-  beta_anneal:
-    start: 0.2
-    add: 0.00003
-    end: 1
+  None: null
 
 latent_kwargs_smoothing:
   None: null
@@ -101,16 +93,36 @@ latent_single_layer_kwargs:
 rnn_kwargs:
   None: null
 
+srnn_kwargs:
+  rnn_kwargs:
+    hidden_size_rnn: 50
+    bidirectional: False
+  stoch_latent_kwargs:
+    latent1_dim: 8
+    latent2_dim: 64
+    hidden_units: [256, 256]
+    leaky_slope: 0.2
+    dropout: 0.3
+    beta_anneal:
+      start: 0.2
+      add: 0.00003
+      end: 1
+
+  filter_net_params: null
+
 df_kwargs_rnn:
   None: null
 
 df_kwargs_latent:
+  None: null
+
+df_kwargs_srnn:
   obs_dims_used: null
   obs_dims_used_except: [0, ]
-  leaky_slope_classifier: 0.15
   hidden_units_classifier: [256, 256]
-  classifier_std: 0.8
-  classifier_dropout: 0.1
+  leaky_slope_classifier: 0.2
+  dropout: 0.1
+  std_classifier: 0.8
 
 # Logging
 test_script_path: [
