@@ -385,7 +385,6 @@ def get_df_and_trainer(
         else:
             raise NotImplementedError
 
-
     else:
         raise NotImplementedError
 
