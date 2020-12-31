@@ -1,4 +1,5 @@
 import os
+import tqdm
 from collections import deque
 import numpy as np
 import torch
@@ -187,7 +188,7 @@ class SlacAgent:
                 if self.learning_steps < self.initial_latent_steps:
                     print('-'*60)
                     print('Learning the latent model only...')
-                    for _ in range(self.initial_latent_steps):
+                    for _ in tqdm.tqdm(range(self.initial_latent_steps)):
                         self.learning_steps += 1
                         self.learn_latent()
                     print('Finish learning the latent model.')

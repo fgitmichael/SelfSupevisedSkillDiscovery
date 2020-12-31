@@ -76,13 +76,21 @@ info_loss:
 
 # Classifier
 df_type:
-  feature_extractor: rnn
+  feature_extractor: latent_slac
   rnn_type: normal
   latent_type: full_seq
-  recon: end_only
+  recon: whole_seq
 
 latent_kwargs:
-  None: null
+  latent1_dim: 8
+  latent2_dim: 64
+  hidden_units: [256, 256]
+  leaky_slope: 0.2
+  dropout: 0.3
+  beta_anneal:
+    start: 0.2
+    add: 0.00003
+    end: 1
 
 latent_kwargs_smoothing:
   None: null
@@ -95,12 +103,7 @@ rnn_kwargs:
   bidirectional: False
 
 df_kwargs_rnn:
-  obs_dims_used: [0, ]
-  obs_dims_used_except: null
-  dropout: 0.1
-  leaky_slope_classifier: 0.15
-  hidden_units_classifier: [256, 256]
-  std_classifier: 0.8
+  None: null
 
 df_kwargs_latent:
   None: null
