@@ -49,8 +49,8 @@ skill_prior:
   type: uniform
   grid_radius_factor: 1.
   uniform:
-    low: -1.5
-    high: 1.5
+    low: -2.5
+    high: 2.5
   gaussian:
     std: 1.
 
@@ -95,7 +95,7 @@ rnn_kwargs:
 
 srnn_kwargs:
   rnn_kwargs:
-    hidden_size_rnn: 50
+    hidden_size_rnn: 5
     bidirectional: False
   stoch_latent_kwargs:
     latent1_dim: 8
