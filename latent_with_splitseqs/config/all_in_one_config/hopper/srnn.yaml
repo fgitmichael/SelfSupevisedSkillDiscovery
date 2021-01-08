@@ -9,6 +9,9 @@ random_hp_tuning: False
 # Environment
 env_kwargs:
   env_id: hopper
+  pybullet:
+    is_pybullet: False
+    pos_dim: 1
   init_kwargs:
     exclude_current_positions_from_observation: False
     reset_noise_scale: null
