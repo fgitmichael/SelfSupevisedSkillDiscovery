@@ -78,6 +78,7 @@ def get_algo_with_post_epoch_funcs(
     )
     tb_log_interval = math.ceil(config.log_interval/4)
 
+    # Logging
     algo_log_multiplier = config.algo_loginterval_multiplier \
         if "algo_log_interval_multiplier" in config.keys() \
         else 20
