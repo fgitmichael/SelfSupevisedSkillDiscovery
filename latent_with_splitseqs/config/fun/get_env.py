@@ -49,7 +49,7 @@ def get_env(**env_kwargs):
 
         else:
             env_class = wrap_env_class(
-                env_class=pybullet_envs_version_three[gym_id],
+                env_class_in=pybullet_envs_version_three[gym_id],
                 pos_dim=get_config_item(
                     env_kwargs[pybullet_key],
                     key=pos_dim_key,

@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from gym.spaces import Box
 from functools import wraps
 from typing import Type
@@ -72,7 +73,7 @@ def _add_position(
     return obs_with_pos
 
 def wrap_env_class(
-        env_class: Type[BaseBulletEnv],
+        env_class_in: Type[BaseBulletEnv],
         pos_dim: int,
 ) -> Type[BaseBulletEnv]:
     """
@@ -80,11 +81,10 @@ def wrap_env_class(
         env_class           : environement class
         pos_dim             : dimension of position
     """
-    class BaseBulletEnvCopy(env_class):
-        pass
-    orig_init = BaseBulletEnvCopy.__init__
-    orig_reset = BaseBulletEnvCopy.reset
-    orig_step = BaseBulletEnvCopy.step
+    env_class = copy.deepcopy(env_class_in)
+    orig_init = env_class.__init__
+    orig_reset = env_class.reset
+    orig_step = env_class.step
 
     @wraps(orig_init)
     def new_init(self, *args, **kwargs):
@@ -152,8 +152,8 @@ def wrap_env_class(
 
         return step_return
 
-    BaseBulletEnvCopy.__init__ = new_init
-    BaseBulletEnvCopy.step = new_step
-    BaseBulletEnvCopy.reset = new_reset
+    env_class.__init__ = new_init
+    env_class.step = new_step
+    env_class.reset = new_reset
 
-    return BaseBulletEnvCopy
+    return env_class
