@@ -190,7 +190,7 @@ def create_experiment(config,
 if __name__ == "__main__":
     config, config_path_name = parse_args_hptuning(
         default="config/all_in_one_config/hopper/"
-                "rnn_v2.yaml",
+                "srnn.yaml",
         default_min="./config/all_in_one_config/mountaincar/"
                     "random_hp_search/"
                     "srnn_v0_min.yaml",

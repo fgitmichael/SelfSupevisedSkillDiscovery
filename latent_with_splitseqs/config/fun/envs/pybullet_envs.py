@@ -1,4 +1,5 @@
 import numpy as np
+from gym.spaces import Box
 from functools import wraps
 from typing import Type
 
@@ -10,9 +11,11 @@ from pybulletgym.envs.mujoco.envs.locomotion.half_cheetah_env import HalfCheetah
 from pybulletgym.envs.mujoco.envs.locomotion.walker2d_env import Walker2DMuJoCoEnv
 from pybulletgym.envs.roboschool.envs.env_bases import BaseBulletEnv
 
+from latent_with_splitseqs.config.fun.envs.locomotion_env_keys import locomotion_env_keys
+
 env_kwargs_keys = dict(
     exclude_current_position_key='exclude_current_positions_from_observation',
-    reset_noise_scale='reset_noise_sacle'
+    reset_noise_scale='reset_noise_scale',
 )
 
 
@@ -41,18 +44,34 @@ class Walker2dBulletVersionThreeEnv(Walker2DMuJoCoEnv):
     pass
 
 
-pybullet_envs_version_three = dict(
-    swimmer=SwimmerBulletVersionThreeEnv,
-    halfcheetah=HalfCheetahBulletVersionThreeEnv,
-    ant=AntBulletVersionThreeEnv,
-    walker=Walker2dBulletVersionThreeEnv,
-)
+pybullet_envs_version_three = {
+    locomotion_env_keys['swimmer_key']: SwimmerBulletVersionThreeEnv,
+    locomotion_env_keys['halfcheetah_key']: HalfCheetahBulletVersionThreeEnv,
+    locomotion_env_keys['ant_key']: AntBulletVersionThreeEnv,
+    locomotion_env_keys['walker_key']: Walker2dBulletVersionThreeEnv,
+    locomotion_env_keys['hopper_key']: HopperBulletVersionThreeEnv,
+}
 
 
 """
 Class Wrapper
 """
-def get_env_wrapper(
+def _add_position(
+        obs: np.ndarray,
+        current_position: np.ndarray,
+        pos_dim: int
+) -> np.ndarray:
+    assert len(obs.shape) == 1
+    obs_dim = obs.shape[0]
+
+    # Add position
+    current_observation_to_add = current_position[:pos_dim]
+    obs_with_pos = np.insert(obs, 0, current_observation_to_add)
+    assert obs_with_pos.shape[0] == obs_dim + pos_dim
+
+    return obs_with_pos
+
+def wrap_env_class(
         env_class: Type[BaseBulletEnv],
         pos_dim: int,
 ) -> Type[BaseBulletEnv]:
@@ -64,6 +83,7 @@ def get_env_wrapper(
     class BaseBulletEnvCopy(env_class):
         pass
     orig_init = BaseBulletEnvCopy.__init__
+    orig_reset = BaseBulletEnvCopy.reset
     orig_step = BaseBulletEnvCopy.step
 
     @wraps(orig_init)
@@ -85,32 +105,55 @@ def get_env_wrapper(
 
         # Delete keys
         for key_str in env_kwargs_keys.values():
-            del kwargs[key_str]
+            if key_str in kwargs.keys():
+                del kwargs[key_str]
 
         # Call original init method
-        orig_init(*args, **kwargs)
+        orig_init(self, *args, **kwargs)
+
+        # Adjust observation space if position is not excluded
+        assert "observation_space" in vars(self).keys()
+        orig_obs_space = self.observation_space
+        if not self.exclude_current_position:
+            assert isinstance(orig_obs_space, Box)
+            low = orig_obs_space.low
+            high = orig_obs_space.high
+            low_new = np.concatenate([-np.inf * np.ones([pos_dim]), low])
+            high_new = np.concatenate([np.inf * np.ones([pos_dim]), high])
+            self.observation_space = Box(low_new, high_new)
+
+    @wraps(orig_reset)
+    def new_reset(self):
+        obs = orig_reset(self)
+        if not self.exclude_current_position:
+            current_position = self.robot.body_xyz
+            obs = _add_position(
+                obs=obs,
+                current_position=current_position,
+                pos_dim=pos_dim,
+            )
+        return obs
 
     @wraps(orig_step)
     def new_step(self, *args, **kwargs):
         # Get observation
-        step_return = orig_step(*args, **kwargs)
+        step_return = orig_step(self, *args, **kwargs)
+        step_return = list(step_return)
+        obs = step_return[0]
 
         if not self.exclude_current_position:
-            obs = step_return[0]
-            assert len(obs.shape) == 1
-            obs_dim = obs.shape[0]
-
-            # Add position
             current_position = self.robot.body_xyz
-            current_observation_to_add = current_position[:pos_dim]
-            obs_with_pos = np.insert(obs, 0, current_observation_to_add)
-            assert obs_with_pos.shape[0] == obs_dim + pos_dim
-
-            # Replace observation
-            step_return[0] = obs_with_pos
+            # Add position
+            step_return[0] = _add_position(
+                obs=obs,
+                current_position=current_position,
+                pos_dim=pos_dim,
+            )
 
         return step_return
 
     BaseBulletEnvCopy.__init__ = new_init
     BaseBulletEnvCopy.step = new_step
+    BaseBulletEnvCopy.reset = new_reset
+
     return BaseBulletEnvCopy
