@@ -1,3 +1,5 @@
+import gym
+
 from my_utils.dicts.get_config_item import get_config_item
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
@@ -21,7 +23,7 @@ is_pybullet_key = 'is_pybullet'
 pos_dim_key = 'pos_dim'
 
 
-def get_env(**env_kwargs):
+def get_env(**env_kwargs) -> gym.Env:
     """
     Args:
         env_kwargs
