@@ -1,13 +1,16 @@
 import torch
 import numpy as np
 import argparse
+import pybulletgym
 
 from cont_skillspace_test.grid_rollout.grid_rollout_test \
     import RolloutTesterPlot
 from cont_skillspace_test.grid_rollout.grid_rollouter \
     import GridRollouter
+from cont_skillspace_test.utils.load_env import load_env
 
 import rlkit.torch.pytorch_util as ptu
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--epoch',
@@ -34,11 +37,14 @@ ptu.set_gpu_mode(False)
 epoch = args.epoch
 horizon_len = args.num_eval_steps
 
+# Load policy
 extension = ".pkl"
 policy_net_name = "policy_net_epoch{}".format(epoch) + extension
-env_name = "env" + extension
-env = torch.load(env_name)
 policy = torch.load(policy_net_name, map_location=ptu.device)
+
+# Load env
+env = load_env()
+
 
 if args.grid_factor is None:
     config_name = "config" + extension
