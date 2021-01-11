@@ -24,5 +24,3 @@ def get_config_item(
         raise ValueError
 
     return ret_val
-
-
