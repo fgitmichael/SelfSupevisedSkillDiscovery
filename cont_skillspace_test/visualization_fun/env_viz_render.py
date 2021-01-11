@@ -16,17 +16,18 @@ class EnvVisualizationRenderGuided(EnvVisualizationGuidedBase):
             **kwargs
         )
         self.render_dt = render_dt
+        self.render_mode = 'human'
 
     def reset(self):
+        self.env.render(mode=self.render_mode)
         super().reset()
-        self.env.render()
 
     def visualize(self):
         for step in range(self.seq_len):
             a, policy_info = self.policy.get_action(self.obs)
             self.obs, reward, done, info = self.env.step(a)
-            time.sleep(self.render_dt)
-            self.env.render()
+            #time.sleep(self.render_dt)
+            self.env.render(mode=self.render_mode)
             self.update_plot()
             print("step: {}".format(step))
 
