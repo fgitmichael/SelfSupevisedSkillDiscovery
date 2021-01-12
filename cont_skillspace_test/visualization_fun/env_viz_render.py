@@ -26,10 +26,10 @@ class EnvVisualizationRenderGuided(EnvVisualizationGuidedBase):
         for step in range(self.seq_len):
             a, policy_info = self.policy.get_action(self.obs)
             self.obs, reward, done, info = self.env.step(a)
-            #time.sleep(self.render_dt)
             self.env.render(mode=self.render_mode)
-            self.update_plot()
             print("step: {}".format(step))
+            if step % 20 == 0:
+                self.update_plot()
 
 
 class EnvVisualizationRenderHduvae(EnvVisualizationHduvaeBase):
