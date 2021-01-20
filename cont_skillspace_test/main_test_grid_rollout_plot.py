@@ -16,6 +16,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--epoch',
                     type=int,
                     default=100,
+                    nargs='+',
                     help="epoch to test",
                     )
 parser.add_argument('--grid_factor',
@@ -34,17 +35,11 @@ parser.add_argument('--num_grid_points',
 args = parser.parse_args()
 
 ptu.set_gpu_mode(False)
-epoch = args.epoch
+epochs = args.epoch
+show_plot = len(epochs) == 1
 horizon_len = args.num_eval_steps
 
-# Load policy
 extension = ".pkl"
-policy_net_name = "policy_net_epoch{}".format(epoch) + extension
-policy = torch.load(policy_net_name, map_location=ptu.device)
-
-# Load env
-env = load_env()
-
 
 if args.grid_factor is None:
     config_name = "config" + extension
@@ -57,16 +52,26 @@ else:
     uniform_prior_low = -args.grid_factor
     uniform_prior_high = args.grid_factor
 
-grid_rollouter = GridRollouter(
-    env=env,
-    policy=policy,
-    horizon_len=horizon_len,
-)
-tester = RolloutTesterPlot(
-    test_rollouter=grid_rollouter,
-)
-tester(
-    grid_low=np.array([uniform_prior_low, uniform_prior_low]),
-    grid_high=np.array([uniform_prior_high, uniform_prior_high]),
-    num_points=args.num_grid_points,
-)
+# Load env
+env = load_env()
+
+for epoch in epochs:
+    # Load policy
+    policy_net_name = "policy_net_epoch{}".format(epoch) + extension
+    policy = torch.load(policy_net_name, map_location=ptu.device)
+
+    grid_rollouter = GridRollouter(
+        env=env,
+        policy=policy,
+        horizon_len=horizon_len,
+    )
+    tester = RolloutTesterPlot(
+        test_rollouter=grid_rollouter,
+    )
+    tester(
+        epoch=epoch,
+        grid_low=np.array([uniform_prior_low, uniform_prior_low]),
+        grid_high=np.array([uniform_prior_high, uniform_prior_high]),
+        num_points=args.num_grid_points,
+        show=show_plot,
+    )

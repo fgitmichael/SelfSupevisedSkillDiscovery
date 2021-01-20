@@ -12,12 +12,17 @@ class RolloutTesterPlot(object):
                  test_rollouter: TestRollouter,
                  ):
         self.test_rollouter = test_rollouter
+        self.path_name_grid_rollouts = './grid_rollouts'
+        if not os.path.exists(self.path_name_grid_rollouts):
+            os.makedirs(self.path_name_grid_rollouts)
 
     def __call__(self,
                  *args,
+                 epoch,
                  grid_low=np.array([-1.5, -1.5]),
                  grid_high=np.array([1.5, 1.5]),
                  num_points=200,
+                 show=True,
                  **kwargs):
         # Rollout
         self.test_rollouter.create_skills_to_rollout(
@@ -47,5 +52,12 @@ class RolloutTesterPlot(object):
                 plt.plot(*to_plot, label=legend)
             else:
                 plt.plot(*to_plot)
+        plt.grid()
         plt.legend()
-        plt.show()
+        rollout_fig_name = 'epoch_' + str(epoch) + '.pdf'
+        plt.savefig(os.path.join(
+            self.path_name_grid_rollouts,
+            rollout_fig_name
+        ))
+        if show:
+            plt.show()
