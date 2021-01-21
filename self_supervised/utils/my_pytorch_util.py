@@ -38,16 +38,15 @@ def tensor_equality(*tensors):
 
     return bool_var
 
+
 def eval(module: torch.nn.Module, *args, **kwargs):
     train_mode_before = module.training
     module.eval()
     with torch.no_grad():
-        try:
-            ret_val = module(*args, **kwargs)
-        except:
-            raise ValueError
+        ret_val = module(*args, **kwargs)
     module.train(train_mode_before)
     return ret_val
+
 
 def set_gpu_mode(mode: bool):
     if mode:
