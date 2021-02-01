@@ -3,6 +3,9 @@ import abc
 
 class TestRollouter(object, metaclass=abc.ABCMeta):
 
+    def __init__(self):
+        self.skill_grid = None
+
     @abc.abstractmethod
     def __call__(self,):
         raise NotImplementedError

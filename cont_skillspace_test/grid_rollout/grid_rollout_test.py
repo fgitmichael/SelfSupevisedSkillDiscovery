@@ -42,7 +42,11 @@ class RolloutTesterPlot(object):
         sorted_idx = np.argsort(max_array)
         max_sorted_idx = sorted_idx[::-1][:num_rollouts_with_legend]
 
-        # Plot
+        # Plot in statespace
+        subplot_int1 = 121
+        ax1 = plt.gca()
+        ax1.set_title('Statespace Plot')
+        plt.subplot(subplot_int1)
         for idx, rollout in enumerate(grid_rollout):
             obs = rollout['observations']
             to_plot = [obs[:, 0], obs[:, 1]]
@@ -54,10 +58,25 @@ class RolloutTesterPlot(object):
                 plt.plot(*to_plot)
         plt.grid()
         plt.legend()
+
+        # Plot colormap of covered distance
+        subplot_int2 = 122
+        plt.subplot(subplot_int2)
+        coverd_dists = [rollout['observations'][-1, 0] for rollout in grid_rollout]
+        coverd_dists_mat = np.reshape(
+            np.expand_dims(np.array(coverd_dists), 0),
+            self.test_rollouter.skill_grid.shape[:-1],
+        )
+        ax2 = plt.gca()
+        ax2.set_title('Coverd Distance Colormap')
+        plt.imshow(coverd_dists_mat)
+        plt.colorbar(orientation='vertical')
+
         rollout_fig_name = 'epoch_' + str(epoch) + '.pdf'
         plt.savefig(os.path.join(
             self.path_name_grid_rollouts,
             rollout_fig_name
         ))
+
         if show:
             plt.show()

@@ -15,10 +15,10 @@ class GridRollouter(TestRollouter):
                  policy,
                  horizon_len: int = 300,
                  ):
+        super().__init__()
         self.env = env
         self.policy = policy
         self.horizon_len = horizon_len
-        self.skills_to_rollout = None
 
     def create_skills_to_rollout(self,
                                  low: np.ndarray,
@@ -39,11 +39,16 @@ class GridRollouter(TestRollouter):
         grid_list = np.meshgrid(*mesh_grid_arrays)
         assert len(grid_list) == 2
         assert isinstance(grid_list, list)
-        grid = np.concatenate([np.reshape(mat, (-1, 1)) for mat in grid_list], axis=1)
 
-        self.skills_to_rollout = grid
+        self.skill_grid = np.stack(grid_list, axis=-1)
 
-    def __call__(self) -> list:
+    @property
+    def skills_to_rollout(self) -> np.ndarray:
+        assert self.skill_grid is not None
+        return np.concatenate([np.reshape(mat, (-1, 1))
+                               for mat in np.moveaxis(self.skill_grid, -1, 0)], axis=1)
+
+    def __call__(self, return_coverd_dists=False) -> list:
         assert self.skills_to_rollout is not None, \
             "No skill grid created yet, call create_skill_grid method!"
 
