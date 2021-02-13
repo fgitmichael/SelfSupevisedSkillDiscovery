@@ -43,7 +43,7 @@ class RolloutTesterPlot(object):
         max_sorted_idx = sorted_idx[::-1][:num_rollouts_with_legend]
 
         # Plot in statespace
-        subplot_int1 = 121
+        subplot_int1 = 211
         ax1 = plt.gca()
         ax1.set_title('Statespace Plot')
         plt.subplot(subplot_int1)
@@ -52,7 +52,7 @@ class RolloutTesterPlot(object):
             to_plot = [obs[:, 0], obs[:, 1]]
             if idx in max_sorted_idx:
                 skill = rollout['skill']
-                legend = "skill {}".format(skill)
+                legend = "skill {}, covered distance {}".format(skill, obs[-1, 0])
                 plt.plot(*to_plot, label=legend)
             else:
                 plt.plot(*to_plot)
@@ -60,7 +60,7 @@ class RolloutTesterPlot(object):
         plt.legend()
 
         # Plot colormap of covered distance
-        subplot_int2 = 122
+        subplot_int2 = 212
         plt.subplot(subplot_int2)
         coverd_dists = [rollout['observations'][-1, 0] for rollout in grid_rollout]
         coverd_dists_mat = np.reshape(
