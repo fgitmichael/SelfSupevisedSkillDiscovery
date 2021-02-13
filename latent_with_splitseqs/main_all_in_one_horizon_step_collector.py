@@ -39,6 +39,8 @@ from latent_with_splitseqs.config.fun.prepare_hparams import prepare_hparams
 
 from diayn_original_tb.algo.algo_diayn_tb import DIAYNTorchOnlineRLAlgorithmTb
 
+from my_utils.dicts.get_config_item import get_config_item
+
 
 def create_experiment(config,
                       config_path_name,
@@ -76,9 +78,15 @@ def create_experiment(config,
     elif test_script_path_name is not None and scripts_to_copy is None:
         scripts_to_copy = test_script_path_name
 
+    replay_seq_sampling_variant = get_config_item(
+        config=config,
+        key='replay_seq_sampling',
+    )
+
     sep_str = " | "
     run_comment = sep_str
-    run_comment += "seq_len: {}".format(config.seq_len) + sep_str
+    if not replay_seq_sampling_variant == 'sampling_random_seq_len':
+        run_comment += "seq_len: {}".format(config.seq_len) + sep_str
     run_comment += config.algorithm + sep_str
     run_comment += config.version + sep_str
 
