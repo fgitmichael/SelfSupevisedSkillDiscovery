@@ -7,6 +7,7 @@ import argparse
 
 from cont_skillspace_test.visualization_fun.env_viz_plot import \
     EnvVisualizationPlotGuided
+from cont_skillspace_test.utils.load_env import load_env
 
 import rlkit.torch.pytorch_util as ptu
 
@@ -29,8 +30,8 @@ num_eval_steps = args.num_eval_steps
 
 extension = ".pkl"
 policy_net_name = "policy_net_epoch{}".format(epoch) + extension
-env_name = "env" + extension
-env = torch.load(env_name)
+env = load_env()
+
 policy = torch.load(policy_net_name, map_location=ptu.device)
 env_viz = EnvVisualizationPlotGuided(
     env=env,
