@@ -111,6 +111,10 @@ def get_algo_with_post_epoch_funcs(
          log_interval=config.log_interval)(saved_skill_dist_plotter),
     ])(algo_class)
 
+    replay_seq_sampling_variant = get_config_item(
+        config=config,
+        key='replay_seq_sampling',
+    )
     algorithm = algo_class(
         trainer=trainer,
         exploration_env=expl_env,
@@ -119,7 +123,9 @@ def get_algo_with_post_epoch_funcs(
         evaluation_data_collector=eval_path_collector,
         replay_buffer=replay_buffer,
 
-        seq_len=config.seq_len,
+        seq_len=config.max_sample_seq_len \
+            if replay_seq_sampling_variant == 'sampling_random_seq_len'
+            else config.seq_len,
         horizon_len=config.horizon_len,
 
         diagnostic_writer=diagno_writer,
