@@ -38,6 +38,7 @@ class CollectSeqOverHorizonWrapper(RolloutWrapperBase):
     def reset(self, reset_obs, **kwargs):
         self._obs_now = reset_obs
 
+
 def collect_seq_without_reset(
         env,
         agent: Union[
