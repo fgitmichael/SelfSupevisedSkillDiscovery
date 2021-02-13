@@ -212,7 +212,6 @@ def get_df_and_trainer(
         else:
             raise NotImplementedError
 
-
     elif df_type[df_type_keys['feature_extractor']] \
             == feature_extractor_types['latent_slac']:
 
