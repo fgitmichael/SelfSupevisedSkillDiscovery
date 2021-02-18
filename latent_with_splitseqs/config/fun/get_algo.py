@@ -93,22 +93,22 @@ def get_algo_with_post_epoch_funcs(
         algo_class = algo_class_in
 
     algo_class = add_post_epoch_funcs([
-        post_epoch_func_wrapper
-        ('df evaluation on env')(df_env_eval),
+        post_epoch_func_wrapper('df evaluation on env')(df_env_eval),
         post_epoch_func_wrapper ('df evaluation on memory')(df_memory_eval),
-        post_epoch_func_wrapper
-        ('object saving')(net_logger),
-        post_epoch_func_wrapper
-        ('net parameter histogram logging',
-         log_interval=tb_log_interval)(net_param_hist_logger),
-        post_epoch_func_wrapper
-        ('tb logging',
-         log_interval=tb_log_interval)(post_epoch_tb_logger),
-        post_epoch_func_wrapper
-        ('config saving')(config_saver),
-        post_epoch_func_wrapper
-        ('replay buffer skill dist plotting',
-         log_interval=config.log_interval)(saved_skill_dist_plotter),
+        post_epoch_func_wrapper('object saving')(net_logger),
+        post_epoch_func_wrapper(
+            'net parameter histogram logging',
+            log_interval=tb_log_interval
+        )(net_param_hist_logger),
+        post_epoch_func_wrapper(
+            'tb logging',
+            log_interval=tb_log_interval
+        )(post_epoch_tb_logger),
+        post_epoch_func_wrapper('config saving')(config_saver),
+        post_epoch_func_wrapper(
+            'replay buffer skill dist plotting',
+            log_interval=config.log_interval
+        )(saved_skill_dist_plotter),
     ])(algo_class)
 
     replay_seq_sampling_variant = get_config_item(
