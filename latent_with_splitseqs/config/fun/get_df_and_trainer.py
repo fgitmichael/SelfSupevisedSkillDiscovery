@@ -88,7 +88,6 @@ latent_types = dict(
 
 def get_df_and_trainer(
         obs_dim,
-        seq_len,
         skill_dim,
         df_type,
         df_kwargs_rnn,
@@ -98,6 +97,7 @@ def get_df_and_trainer(
         latent_single_layer_kwargs,
         latent_kwargs_smoothing,
         trainer_init_kwargs,
+        seq_len=None,
         srnn_kwargs=None,
         df_kwargs_srnn=None,
         **kwargs
