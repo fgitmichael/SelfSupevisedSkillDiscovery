@@ -13,6 +13,7 @@ class SeqwiseAlgoSplitHorizonExplCollection(SeqwiseAlgoRevisedSplitSeqs):
             *args,
             exploration_data_collector: SeqCollectorHorizonSplitSeqSaving,
             train_while_exploration=True,
+            hparam_trainsteps_adjust=True,
             **kwargs
     ):
         assert isinstance(exploration_data_collector, SeqCollectorHorizonBase)
@@ -22,6 +23,7 @@ class SeqwiseAlgoSplitHorizonExplCollection(SeqwiseAlgoRevisedSplitSeqs):
             **kwargs
         )
         self.train_while_exploration = train_while_exploration
+        self.hparam_trainsteps_adjust = hparam_trainsteps_adjust
 
     def _initial_exploration(self):
         if self.min_num_steps_before_training > 0:
@@ -56,7 +58,10 @@ class SeqwiseAlgoSplitHorizonExplCollection(SeqwiseAlgoRevisedSplitSeqs):
                     self._end_epoch(epoch)
 
         elif self.train_while_exploration == 'train_while_expl_horizon_completed':
-            hparam_adjust = self.horizon_len // self.seq_len
+            if self.hparam_trainsteps_adjust:
+                hparam_adjust = self.horizon_len // self.seq_len
+            else:
+                hparam_adjust = 1
             num_trains_per_expl_step = self.num_trains_per_train_loop \
                                        // self.num_expl_steps_per_train_loop
             num_trains_per_expl_step *= hparam_adjust
