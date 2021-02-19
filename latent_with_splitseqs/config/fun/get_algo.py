@@ -77,6 +77,11 @@ def get_algo_with_post_epoch_funcs(
         replay_buffer=replay_buffer,
     )
     tb_log_interval = math.ceil(config.log_interval/4)
+    net_log_interval = get_config_item(
+        config=config,
+        key='net_log_interval',
+        default=tb_log_interval,
+    )
 
     # Logging
     algo_log_multiplier = config.algo_loginterval_multiplier \
@@ -95,7 +100,10 @@ def get_algo_with_post_epoch_funcs(
     algo_class = add_post_epoch_funcs([
         post_epoch_func_wrapper('df evaluation on env')(df_env_eval),
         post_epoch_func_wrapper ('df evaluation on memory')(df_memory_eval),
-        post_epoch_func_wrapper('object saving')(net_logger),
+        post_epoch_func_wrapper(
+            'object saving',
+            log_interval=net_log_interval,
+        )(net_logger),
         post_epoch_func_wrapper(
             'net parameter histogram logging',
             log_interval=tb_log_interval
