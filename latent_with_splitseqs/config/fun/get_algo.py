@@ -80,7 +80,7 @@ def get_algo_with_post_epoch_funcs(
     net_log_interval = get_config_item(
         config=config,
         key='net_log_interval',
-        default=tb_log_interval,
+        default=config.log_interval,
     )
 
     # Logging
