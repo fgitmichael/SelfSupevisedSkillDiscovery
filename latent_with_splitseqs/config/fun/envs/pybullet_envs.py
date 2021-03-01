@@ -19,7 +19,6 @@ env_kwargs_keys = dict(
     reset_noise_scale='reset_noise_scale',
 )
 
-
 """
 Mujoco-like envs
 """
