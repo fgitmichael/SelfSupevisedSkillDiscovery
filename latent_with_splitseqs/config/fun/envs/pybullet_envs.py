@@ -53,6 +53,26 @@ pybullet_envs_version_three = {
 }
 
 
+def get_current_position(self) -> np.ndarray:
+    """
+    Pybullet does not seem to carry the current position consistently for all environments.
+    In the Halfcheetah environment, for example, the current position is kept
+    as "position_after"-attribute, while in the hopper environment the
+    current position can only be retrieved via robotxyz. However robotxzy does not work
+    for halfcheetah, it always shows zero no matter what happens with the robot.
+    These difference are handled in this function.
+    """
+    pos_after_attr_key = 'pos_after'
+    if hasattr(self.robot, pos_after_attr_key):
+        pos_after = getattr(self.robot, pos_after_attr_key)
+        assert isinstance(pos_after, float)
+        ret_val = [pos_after,]
+
+    else:
+        ret_val = self.robot.body_xyz
+
+    return np.array(ret_val)
+
 """
 Class Wrapper
 """
