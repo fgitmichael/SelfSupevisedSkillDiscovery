@@ -91,6 +91,7 @@ def _add_position(
 
     return obs_with_pos
 
+
 def wrap_env_class(
         env_class_in: Type[BaseBulletEnv],
         pos_dim: int,
@@ -145,7 +146,7 @@ def wrap_env_class(
     def new_reset(self):
         obs = orig_reset(self)
         if not self.exclude_current_position:
-            current_position = self.robot.body_xyz
+            current_position = get_current_position(self)
             obs = _add_position(
                 obs=obs,
                 current_position=current_position,
@@ -161,7 +162,7 @@ def wrap_env_class(
         obs = step_return[0]
 
         if not self.exclude_current_position:
-            current_position = self.robot.body_xyz
+            current_position = get_current_position(self)
             # Add position
             step_return[0] = _add_position(
                 obs=obs,
