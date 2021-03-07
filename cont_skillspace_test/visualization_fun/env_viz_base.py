@@ -23,7 +23,6 @@ class EnvVisualizationBase(metaclass=abc.ABCMeta):
         self.obs = None
 
     def set_skill(self, cursor_location: np.ndarray):
-        latent = ptu.from_numpy(cursor_location)
         skill = self.get_skill_from_cursor_location(cursor_location)
         self.policy.skill = skill
 
