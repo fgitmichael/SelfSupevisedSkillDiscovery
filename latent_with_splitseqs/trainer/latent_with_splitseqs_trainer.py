@@ -283,7 +283,7 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
         skill = skills[:, 0, :]
         classifier_eval_dict = my_ptu.eval(
             module=self.df,
-            obs_seq=next_obs,
+            obs_seq=obs,
             #skill=skill,
         )
         skill_recon_dist = classifier_eval_dict['skill_recon_dist']
