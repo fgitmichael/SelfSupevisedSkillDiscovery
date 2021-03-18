@@ -15,7 +15,7 @@ def create_twod_grid(
         **kwargs
 ) -> np.ndarray:
     """
-    Creates two grid with n=ceil(sqrt(num_points) points
+    Creates grid with n=ceil(sqrt(num_points) points
     """
     assert low.shape == high.shape
     assert len(low.shape) == 1
@@ -31,9 +31,9 @@ def create_twod_grid(
     assert len(grid_list) == 2
     assert isinstance(grid_list, list)
 
-    skill_grid = np.stack(grid_list, axis=-1)
+    grid = np.stack(grid_list, axis=-1)
 
-    return skill_grid
+    return grid
 
 
 class GridRollouter(TestRollouter):
