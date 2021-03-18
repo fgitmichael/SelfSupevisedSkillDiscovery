@@ -44,12 +44,14 @@ def get_env(**env_kwargs) -> gym.Env:
                 key=is_pybullet_key,
                 default=False
         ):
+            # MuJoCo
             # Conditional import to avoid unnecessary license checks
             from latent_with_splitseqs.config.fun.envs.mujoco_envs  \
                 import gym_envs_version_three
             env = gym_envs_version_three[gym_id](**init_kwargs)
 
         else:
+            # PyBullet
             env_class = wrap_env_class(
                 env_class_in=pybullet_envs_version_three[gym_id],
                 pos_dim=get_config_item(
