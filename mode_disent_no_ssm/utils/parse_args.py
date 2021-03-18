@@ -67,8 +67,6 @@ def parse_args_hptuning(
         default_max=default_max,
     )
 
-    config_args = None
-    config_path_name = None
     if not args.hp_tuning:
         config_args_dict = load_hparams(args.config)
 
