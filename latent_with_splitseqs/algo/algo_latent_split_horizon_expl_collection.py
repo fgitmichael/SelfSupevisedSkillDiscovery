@@ -39,6 +39,11 @@ class SeqwiseAlgoSplitHorizonExplCollection(SeqwiseAlgoRevisedSplitSeqs):
             super()._train_loop()
 
         elif self.train_while_exploration == 'train_expl_split':
+            num_trains_per_train_loop_adjusted = \
+                self.num_trains_per_train_loop // self.num_expl_steps_per_train_loop \
+                    if self.hparam_trainsteps_adjust \
+                    else self.num_trains_per_train_loop
+
             for epoch in gt.timed_for(range(
                     self._start_epoch, self.num_epochs),
                     save_itrs=True):
@@ -52,7 +57,7 @@ class SeqwiseAlgoSplitHorizonExplCollection(SeqwiseAlgoRevisedSplitSeqs):
                     self._store_expl_data()
 
                     # Training
-                    for train_step in range(self.num_trains_per_train_loop):
+                    for train_step in range(num_trains_per_train_loop_adjusted):
                         self._train_sac_latent()
 
                     self._end_epoch(epoch)
