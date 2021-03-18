@@ -8,6 +8,34 @@ import rlkit.torch.pytorch_util as ptu
 from cont_skillspace_test.grid_rollout.test_rollouter_base import TestRollouter
 
 
+def create_twod_grid(
+        low: np.ndarray,
+        high: np.ndarray,
+        num_points,
+        **kwargs
+) -> np.ndarray:
+    """
+    Creates two grid with n=ceil(sqrt(num_points) points
+    """
+    assert low.shape == high.shape
+    assert len(low.shape) == 1
+    assert low.shape[0] == 2
+
+    num_points_array = math.ceil(math.sqrt(num_points))
+    mesh_grid_arrays = []
+    for dim_low, dim_high in zip(low, high):
+        array_ = np.linspace(dim_low, dim_high, num_points_array)
+        mesh_grid_arrays.append(array_)
+
+    grid_list = np.meshgrid(*mesh_grid_arrays)
+    assert len(grid_list) == 2
+    assert isinstance(grid_list, list)
+
+    skill_grid = np.stack(grid_list, axis=-1)
+
+    return skill_grid
+
+
 class GridRollouter(TestRollouter):
 
     def __init__(self,
@@ -21,26 +49,10 @@ class GridRollouter(TestRollouter):
         self.horizon_len = horizon_len
 
     def create_skills_to_rollout(self,
-                                 low: np.ndarray,
-                                 high: np.ndarray,
-                                 num_points: int,
+                                 *args,
                                  **kwargs
                                  ):
-        assert low.shape == high.shape
-        assert len(low.shape) == 1
-        assert low.shape[0] == 2
-
-        num_points_array = math.ceil(math.sqrt(num_points))
-        mesh_grid_arrays = []
-        for dim_low, dim_high in zip(low, high):
-            array_ = np.linspace(dim_low, dim_high, num_points_array)
-            mesh_grid_arrays.append(array_)
-
-        grid_list = np.meshgrid(*mesh_grid_arrays)
-        assert len(grid_list) == 2
-        assert isinstance(grid_list, list)
-
-        self.skill_grid = np.stack(grid_list, axis=-1)
+        self.skill_grid = create_twod_grid(*args, **kwargs)
 
     @property
     def skills_to_rollout(self) -> np.ndarray:
