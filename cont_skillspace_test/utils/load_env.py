@@ -40,9 +40,11 @@ def load_env() -> gym.Env:
         default=False,
     )
     if env_is_pybullet:
+        print("Pybullet")
         # Serialized py bullet envs can't be loaded and need be created again
         env = get_env.get_env(**config['env_kwargs'])
     else:
+        print("Mujoco")
         extension = ".pkl"
         env_name = "env" + extension
         env = torch.load(env_name)
