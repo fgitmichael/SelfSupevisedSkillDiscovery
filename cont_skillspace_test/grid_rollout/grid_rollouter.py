@@ -32,10 +32,12 @@ def create_twod_grid(
         mesh_grid_arrays.append(array_)
 
     grid_list = np.meshgrid(*mesh_grid_arrays)
-    assert len(grid_list) == 2
+    assert len(grid_list) == low.shape[0]
     assert isinstance(grid_list, list)
 
     grid = np.stack(grid_list, axis=-1)
+    if matrix_form:
+        grid = np.reshape(grid, (num_points_array * num_points_array, low.shape[-1]))
 
     return grid
 
