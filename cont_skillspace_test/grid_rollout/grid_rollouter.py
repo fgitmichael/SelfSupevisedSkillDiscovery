@@ -11,15 +11,19 @@ from cont_skillspace_test.grid_rollout.test_rollouter_base import TestRollouter
 def create_twod_grid(
         low: np.ndarray,
         high: np.ndarray,
-        num_points,
+        num_points: int,
+        matrix_form=False,
         **kwargs
 ) -> np.ndarray:
     """
     Creates grid with n=ceil(sqrt(num_points) points
+    low             : (d,) np.array
+    high            : (d,) np.array
+    num_points      : N
+    matrix_form     : bool
     """
     assert low.shape == high.shape
     assert len(low.shape) == 1
-    assert low.shape[0] == 2
 
     num_points_array = math.ceil(math.sqrt(num_points))
     mesh_grid_arrays = []
