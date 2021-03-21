@@ -56,25 +56,25 @@ class TwoDimNavigationEnv(gym.Env):
         elif np.all(np.abs(action) - self.action_space.high > 1E7):
             raise ValueError('Action is out of action space')
 
-        #if action[0] > 0:
-        #    action[0] = 0.1
-        #else:
-        #    action[0] = -0.1
-
-        #if action[1] > 0:
-        #    action[1] = 0.1
-        #else:
-        #    action[1] = -0.1
-
         self.state = self.state + action
         self.state = self.map_back(self.state)
-        #assert self.state in self.observation_space
         assert self.observation_space.contains(self.state)
         self.check_state(self.state)
         reward = 0.
         done = False
         info = {}
         return self.state, reward, done, {}
+
+    def map_into_action_space(self, action: np.ndarray):
+        """
+        We assume actions with low = (-1, -1) and high = (1, 1)
+        as input (standard policy output)
+        We map it into the action space
+        """
+        action = 0.5 * (np.multiply(self.action_space.high - self.action_space.low, action)
+                        + self.action_space.high
+                        + self.action_space.low)
+        return action
 
     def check_state(self, state):
         for dim in state:
