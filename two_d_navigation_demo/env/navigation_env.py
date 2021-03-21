@@ -48,7 +48,7 @@ class TwoDimNavigationEnv(gym.Env):
         return self.state
 
     def step(self, action: np.ndarray):
-        action = action / 10
+        action = self.map_into_action_space(action)
         if action not in self.action_space and \
                 np.all(np.abs(action) - self.action_space.high < 1E7):
             warnings.warn('Action is numerically out of actions space')
