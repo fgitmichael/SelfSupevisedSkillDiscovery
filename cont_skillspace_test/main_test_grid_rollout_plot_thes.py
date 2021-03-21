@@ -3,8 +3,8 @@ import numpy as np
 import argparse
 import pybulletgym
 
-from cont_skillspace_test.grid_rollout.grid_rollout_test \
-    import RolloutTesterPlot
+from cont_skillspace_test.grid_rollout.rollout_tester_plot_thes \
+    import RolloutTesterPlotThes
 from cont_skillspace_test.grid_rollout.grid_rollouter \
     import GridRollouter
 from cont_skillspace_test.utils.load_env import load_env
@@ -32,11 +32,26 @@ parser.add_argument('--num_grid_points',
                     type=int,
                     default=200,
                     help="number of skill grid points")
+parser.add_argument('--plot_height_inches',
+                    type=float,
+                    default=3.7,
+                    help="plot height (inches)")
+parser.add_argument('--plot_width_inches',
+                    type=float,
+                    default=3.7,
+                    help="plot width (inches)")
+parser.add_argument('--x_label',
+                    type=str,
+                    default=None,
+                    help="x label for plot")
+parser.add_argument('--y_label',
+                    type=str,
+                    default=None,
+                    help="y label for plot")
 args = parser.parse_args()
 
 ptu.set_gpu_mode(False)
 epochs = args.epoch
-show_plot = len(epochs) == 1
 horizon_len = args.num_eval_steps
 
 extension = ".pkl"
@@ -65,13 +80,14 @@ for epoch in epochs:
         policy=policy,
         horizon_len=horizon_len,
     )
-    tester = RolloutTesterPlot(
+    tester = RolloutTesterPlotThes(
         test_rollouter=grid_rollouter,
+        plot_height_width_inches=(args.plot_height_inches, args.plot_width_inches),
+        xy_label=(args.x_label, args.y_label),
     )
     tester(
         epoch=epoch,
         grid_low=np.array([uniform_prior_low, uniform_prior_low]),
         grid_high=np.array([uniform_prior_high, uniform_prior_high]),
         num_points=args.num_grid_points,
-        show=show_plot,
     )
