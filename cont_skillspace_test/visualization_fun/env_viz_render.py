@@ -24,12 +24,14 @@ class EnvVisualizationRenderGuided(EnvVisualizationGuidedBase):
 
     def visualize(self):
         for step in range(self.seq_len):
+            if step == 0:
+                print(10 * "-" + "restart" + 10 * "-")
             a, policy_info = self.policy.get_action(self.obs)
             self.obs, reward, done, info = self.env.step(a)
             self.env.render(mode=self.render_mode)
-            print("step: {}".format(step))
             if step % 20 == 0:
-                self.update_plot()
+                print("step: {}".format(step))
+        self.update_plot()
 
 
 class EnvVisualizationRenderHduvae(EnvVisualizationHduvaeBase):
