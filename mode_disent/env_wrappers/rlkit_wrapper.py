@@ -84,13 +84,6 @@ class NormalizedBoxEnvForPytorch(OrdinaryEnvForPytorch):
         # Only change to OrdinaryEnvForPytorch: Use NormalizedBoxEnv
         self.normalize_states = normalize_states
         env_to_wrap = gym.make(gym_id)
-        obs_space = env_to_wrap.observation_space
-
-        low = obs_space.low
-        high = obs_space.high
-        bound_above = bool(np.prod(obs_space.bounded_above.astype(np.int)))
-        bound_below = bool(np.prod(obs_space.bounded_below.astype(np.int)))
-        bounded = bound_above and bound_below
 
         self.env = NormalizedBoxEnv(env_to_wrap)
         self.estimate_obs_stats(num_data=100000)
@@ -121,7 +114,7 @@ class NormalizedBoxEnvForPytorch(OrdinaryEnvForPytorch):
         else:
             denormalized = state
 
-        return  denormalized
+        return denormalized
 
     def estimate_obs_stats(self,
                            num_data: int):
