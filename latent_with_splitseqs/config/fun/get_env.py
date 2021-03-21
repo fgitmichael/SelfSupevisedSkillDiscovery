@@ -63,7 +63,9 @@ def get_env(**env_kwargs) -> gym.Env:
             env = env_class(**init_kwargs)
 
     elif gym_id in gym_envs_normal.keys():
-        env = gym_envs_normal[gym_id]()
+        env = gym_envs_normal[gym_id](
+            action_max=(0.01, 0.01)
+        )
 
     else:
         env = NormalizedBoxEnvWrapper(env_kwargs[gym_id_key])
