@@ -32,7 +32,8 @@ class RolloutTesterPlotThes(object):
         self.plot_size_inches = plot_size_inches
         self.plot_height_width_inches = plot_height_width_inches
 
-        self.xy_label = xy_label
+        self.xy_label = xy_label \
+            if xy_label is not None else ('', '')
 
         self.plot_size_inches = plot_size_inches
         if not os.path.exists(self.path_name_grid_rollouts):

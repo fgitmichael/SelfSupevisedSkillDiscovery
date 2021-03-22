@@ -18,12 +18,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--epoch',
                     type=int,
                     default=100,
-                    nargs='+',
                     help="epoch to test",
                     )
 parser.add_argument('--num_eval_steps',
                     type=int,
-                    default=1000,
+                    default=100,
                     help="number of rollout steps per io-selected skill",
                     )
 parser.add_argument('--num_grid_points',

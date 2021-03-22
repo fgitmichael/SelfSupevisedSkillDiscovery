@@ -96,6 +96,7 @@ class HeatMapPlotterSaver(object):
             prior_skill_dist=self.uniform_skill_prior_edges,
             heat_values=heatmap_values_arr,
         )
+        self.set_fig_sizes(fig=fig2)
 
         if self.show_plot:
             fig1.show()
