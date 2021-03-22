@@ -43,7 +43,7 @@ parser.add_argument('--path',
                     help="path variable")
 parser.add_argument('--filename',
                     type=str,
-                    default='saved_fig',
+                    default='savedfig',
                     help="filename prefix")
 parser.add_argument('--heat_eval_fun',
                     type=str,
