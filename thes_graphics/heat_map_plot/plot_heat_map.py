@@ -4,10 +4,11 @@ from typing import Tuple
 
 
 def plot_heat_map(
+        fig: plt.Figure,
         prior_skill_dist: Tuple[tuple, tuple],
         heat_values: np.ndarray,
         log: bool = False,
-) -> plt.Figure:
+):
     """
     Args:
         prior_skill_dist        : ((x,y), (x,y)) tuple with to two dimensional coordinates
@@ -21,32 +22,28 @@ def plot_heat_map(
     if log:
         heat_values = np.log(heat_values)
 
-    fig = plt.figure()
     plt.imshow(heat_values)
     plt.colorbar(orientation='vertical')
 
     heat_map_axis, colorbar_axis = fig.get_axes()
-    set_heatmap_axis_ticks_labels(
+    _set_heatmap_axis_ticks_labels(
         heat_map_axis=heat_map_axis,
         num_ticks_needed=heat_values.shape[0] + 1,
         prior_skill_dist=prior_skill_dist,
     )
-    set_colorbar_axis_ticks_labels(
+    _set_colorbar_axis_ticks_labels(
         colorbar_axis=colorbar_axis,
         log=log,
     )
 
-    return fig
-
-
-def set_colorbar_axis_ticks_labels(
+def _set_colorbar_axis_ticks_labels(
         colorbar_axis: plt.Axes,
         log,
 ):
     pass
 
 
-def set_heatmap_axis_ticks_labels(
+def _set_heatmap_axis_ticks_labels(
         heat_map_axis: plt.Axes,
         num_ticks_needed: int,
         prior_skill_dist: Tuple[tuple, tuple],
