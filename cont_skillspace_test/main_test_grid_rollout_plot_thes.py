@@ -67,6 +67,10 @@ else:
     uniform_prior_low = -args.grid_factor
     uniform_prior_high = args.grid_factor
 
+# Skill prior tuple
+uniform_prior_edges = (np.array([uniform_prior_low, uniform_prior_low]),
+                       np.array([uniform_prior_high, uniform_prior_high]))
+
 # Load env
 env = load_env()
 
@@ -87,7 +91,7 @@ for epoch in epochs:
     )
     tester(
         epoch=epoch,
-        grid_low=np.array([uniform_prior_low, uniform_prior_low]),
-        grid_high=np.array([uniform_prior_high, uniform_prior_high]),
+        grid_low=uniform_prior_edges[0],
+        grid_high=uniform_prior_edges[1],
         num_points=args.num_grid_points,
     )
