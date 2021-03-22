@@ -28,7 +28,7 @@ parser.add_argument('--num_eval_steps',
                     )
 parser.add_argument('--num_grid_points',
                     type=int,
-                    default=200,
+                    default=9,
                     help="number of skill grid points")
 parser.add_argument('--plot_height_inches',
                     type=float,
@@ -50,6 +50,11 @@ parser.add_argument('--heat_eval_fun',
                     type=str,
                     default='covered_dist',
                     help="heat eval function identifier"
+                    )
+parser.add_argument('--show_plots',
+                    type=int,
+                    default=0,
+                    help="heat eval function identifier",
                     )
 
 args = parser.parse_args()
@@ -76,27 +81,28 @@ env = load_env()
 # Load heat eval function
 heat_eval_fun = get_heat_map_fun_using_identifier(args.heat_eval_fun)
 
-for epoch in epochs:
-    # Load policy
-    policy_net_name = "policy_net_epoch{}".format(epoch) + extension
-    policy = torch.load(policy_net_name, map_location=ptu.device)
+# Load policy
+epoch = args.epoch
+policy_net_name = "policy_net_epoch{}".format(epoch) + extension
+policy = torch.load(policy_net_name, map_location=ptu.device)
 
-    grid_rollouter = GridRollouter(
-        env=env,
-        policy=policy,
-        horizon_len=horizon_len,
-    )
-    tester = HeatMapPlotterSaver(
-        test_rollouter=grid_rollouter,
-        plot_height_width_inches=(args.plot_height_inches, args.plot_width_inches),
-        heat_eval_fun=heat_eval_fun,
-        path=args.path,
-        save_name_prefix=args.filename,
-        uniform_skill_prior_edges=uniform_prior_edges,
-    )
-    tester(
-        epoch=epoch,
-        grid_low=uniform_prior_edges[0],
-        grid_high=uniform_prior_edges[1],
-        num_points=args.num_grid_points,
-    )
+grid_rollouter = GridRollouter(
+    env=env,
+    policy=policy,
+    horizon_len=horizon_len,
+)
+tester = HeatMapPlotterSaver(
+    test_rollouter=grid_rollouter,
+    plot_height_width_inches=(args.plot_height_inches, args.plot_width_inches),
+    heat_eval_fun=heat_eval_fun,
+    path=args.path,
+    save_name_prefix=args.filename,
+    uniform_skill_prior_edges=uniform_prior_edges,
+    show=bool(args.show_plots),
+)
+tester(
+    epoch=epoch,
+    grid_low=uniform_prior_edges[0],
+    grid_high=uniform_prior_edges[1],
+    num_points=args.num_grid_points,
+)

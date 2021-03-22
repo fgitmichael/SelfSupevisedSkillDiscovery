@@ -2,13 +2,6 @@ import numpy as np
 import math
 from typing import Tuple
 import matplotlib
-matplotlib.use("pgf")
-matplotlib.rcParams.update({
-    "pgf.texsystem": "pdflatex",
-    'font.family': 'serif',
-    'text.usetex': True,
-    'pgf.rcfonts': False,
-})
 import matplotlib.pyplot as plt
 import os
 
@@ -26,6 +19,7 @@ class HeatMapPlotterSaver(object):
                  uniform_skill_prior_edges: tuple,
                  plot_size_inches: float=None,
                  plot_height_width_inches: Tuple[float, float]=None,
+                 show=False,
                  ):
         self.test_rollouter = test_rollouter
 
@@ -43,6 +37,16 @@ class HeatMapPlotterSaver(object):
 
         if not os.path.exists(self.path_name_grid_rollouts):
             os.makedirs(self.path_name_grid_rollouts)
+
+        self.show_plot = show
+        if not self.show_plot:
+            matplotlib.use("pgf")
+            matplotlib.rcParams.update({
+                "pgf.texsystem": "pdflatex",
+                'font.family': 'serif',
+                'text.usetex': True,
+                'pgf.rcfonts': False,
+            })
 
     def __call__(self,
                  *args,
@@ -75,13 +79,14 @@ class HeatMapPlotterSaver(object):
 
         # Calc heatmap
         heatmap_values_list = self.heat_eval_fun(
-            [rollout['observations'] for rollout in grid_rollout]
+            grid_rollout=grid_rollout,
         )
 
         # Shape to equal row col array
         heatmap_values_arr = np.stack(heatmap_values_list, axis=0)
         n_rows = math.sqrt(heatmap_values_arr.shape[0])
         assert n_rows % 1 == 0
+        n_rows = int(n_rows)
         heatmap_values_arr = np.reshape(heatmap_values_arr, (n_rows, n_rows))
 
         # Plot heatmap
@@ -92,15 +97,21 @@ class HeatMapPlotterSaver(object):
             heat_values=heatmap_values_arr,
         )
 
-        fig1.show()
-        fig2.show()
+        if self.show_plot:
+            fig1.show()
+            fig2.show()
 
-        matplotlib.use("pgf")
-        save_name = os.path.join(
-            self.path_name_grid_rollouts,
-            self.save_name_prefix + '_trajectories.pgf'
-        )
-        plt.savefig(save_name, bbox_inches='tight')
+        else:
+            save_name_plot = os.path.join(
+                self.path_name_grid_rollouts,
+                self.save_name_prefix + '_trajectories.pgf'
+            )
+            save_name_heat = os.path.join(
+                self.path_name_grid_rollouts,
+                self.save_name_prefix + 'heatmap.pgf'
+            )
+            fig1.savefig(save_name_plot, bbox_inches='tight')
+            fig2.savefig(save_name_heat, bbox_inches='tight')
 
     def set_fig_sizes(self, fig: plt.Figure):
         if self.plot_size_inches is not None:
