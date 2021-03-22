@@ -30,6 +30,8 @@ def plot_heat_map(
 
     ax = fig.add_subplot(1, 1, 1)
     plot = ax.pcolor(heat_values)
+    ax.set_xlabel('skill dimension 0')
+    ax.set_ylabel('skill dimension 1')
     fig.colorbar(plot)
     _set_fig_size(fig, width_height)
 
@@ -56,7 +58,7 @@ def _set_heatmap_axis_ticks_labels(
 ):
     heat_map_axis_xticks = heat_map_axis.get_xticks()
     heat_map_axis_yticks = heat_map_axis.get_yticks()
-    assert np.all(heat_map_axis_xticks == heat_map_axis_yticks)
+    #assert np.all(heat_map_axis_xticks == heat_map_axis_yticks)
     heat_map_xticks_minmax = np.array([heat_map_axis_xticks[0],
                                        heat_map_axis_xticks[-1]])
     heat_map_yticks_minmax = np.array([heat_map_axis_yticks[0],
