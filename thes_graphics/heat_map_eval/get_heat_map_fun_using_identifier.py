@@ -2,6 +2,7 @@ from thes_graphics.heat_map_eval.heat_map_covered_distance_eval \
     import calc_covered_dist_heat_map
 from thes_graphics.heat_map_eval.heat_map_covered_y_eval import calc_covered_y_heat_map
 from thes_graphics.heat_map_eval.heat_map_max_x_val import calc_x_max_heat_map
+from thes_graphics.heat_map_eval.heat_map_min_x_val import calc_x_min_heat_map
 from thes_graphics.heat_map_eval.heat_map_max_y_val import calc_y_max_heat_map
 
 
