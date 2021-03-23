@@ -11,6 +11,3 @@ def extract_max_abs_x(grid_rollout: list, num_to_extract: int) -> list:
     sort_idx = np.argsort(max_abs_x_np)
 
     return grid_rollout[sort_idx[-num_to_extract:]]
-
-
-
