@@ -64,6 +64,9 @@ class HeatMapPlotterSaver(object):
         )
         grid_rollout = self.test_rollouter()
 
+        # Clear all figure
+        plt.close()
+
         # Plot in statespace
         fig1 = plt.figure(1)
         ax1 = plt.gca()

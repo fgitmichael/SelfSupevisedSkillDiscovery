@@ -124,20 +124,6 @@ grid_rollouter = GridRollouter(
     horizon_len=horizon_len,
 )
 
-normal_plotting = RolloutTesterPlotThes(
-    test_rollouter=grid_rollouter,
-    plot_height_width_inches=(args.plot_height_inches, args.plot_width_inches),
-    xy_label=(args.x_label, args.y_label),
-    path=args.path,
-    save_name_prefix='01_' + args.filename + '_normal',
-)
-normal_plotting(
-    epoch=epoch,
-    grid_low=uniform_prior_edges[0],
-    grid_high=uniform_prior_edges[1],
-    num_points=args.num_grid_points,
-)
-
 for id, relevant_extracting_fun in extract_relevant_rollout_fun.items():
     relevant_plotting = RolloutTesterPlotterThesGraphics(
         test_rollouter=grid_rollouter,
