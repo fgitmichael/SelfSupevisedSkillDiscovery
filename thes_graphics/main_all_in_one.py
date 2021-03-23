@@ -52,6 +52,7 @@ parser.add_argument('--y_label',
                     help="y label for plot")
 parser.add_argument('--extract_relevant_rollout_fun',
                     type=str,
+                    nargs='+',
                     default="max_abs_x",
                     help="identifier for the function "
                          "to extract the relevant rollout")
@@ -101,13 +102,16 @@ uniform_prior_edges = (np.array([uniform_prior_low, uniform_prior_low]),
 env = load_env()
 
 # Load relevant rollout extractor function
-extract_relevant_rollout_fun = get_relevant_rollout_fun_using_identifier(
-    args.extract_relevant_rollout_fun,
-)
+extract_relevant_rollout_fun = {
+    id: get_relevant_rollout_fun_using_identifier(id)
+    for id in args.extract_relevant_rollout_fun
+}
 
 # Load heat eval function
-heat_eval_funs = {heat_eval_fun: get_heat_map_fun_using_identifier(heat_eval_fun)
-                  for heat_eval_fun in args.heat_eval_fun}
+heat_eval_funs = {
+    heat_eval_fun: get_heat_map_fun_using_identifier(heat_eval_fun)
+    for heat_eval_fun in args.heat_eval_fun
+}
 
 # Load policy
 epoch = args.epoch
@@ -134,21 +138,22 @@ normal_plotting(
     num_points=args.num_grid_points,
 )
 
-relevant_plotting = RolloutTesterPlotterThesGraphics(
-    test_rollouter=grid_rollouter,
-    plot_height_width_inches=(args.plot_height_inches, args.plot_width_inches),
-    xy_label=(args.x_label, args.y_label),
-    extract_relevant_rollouts_fun=extract_relevant_rollout_fun,
-    num_relevant_skills=args.num_relevant_skill,
-    path=args.path,
-    save_name_prefix= '01_' + args.filename + '_relevant',
-)
-relevant_plotting(
-    epoch=epoch,
-    grid_low=uniform_prior_edges[0],
-    grid_high=uniform_prior_edges[1],
-    num_points=args.num_grid_points,
-)
+for id, relevant_extracting_fun in extract_relevant_rollout_fun.items():
+    relevant_plotting = RolloutTesterPlotterThesGraphics(
+        test_rollouter=grid_rollouter,
+        plot_height_width_inches=(args.plot_height_inches, args.plot_width_inches),
+        xy_label=(args.x_label, args.y_label),
+        extract_relevant_rollouts_fun=relevant_extracting_fun,
+        num_relevant_skills=args.num_relevant_skill,
+        path=args.path,
+        save_name_prefix= '02_' + args.filename + '_relevant_{}'.format(id),
+    )
+    relevant_plotting(
+        epoch=epoch,
+        grid_low=uniform_prior_edges[0],
+        grid_high=uniform_prior_edges[1],
+        num_points=args.num_grid_points,
+    )
 
 for heat_eval_fun_id, heat_eval_fun in heat_eval_funs.items():
     heatmap_plotting = HeatMapPlotterSaver(
@@ -156,7 +161,7 @@ for heat_eval_fun_id, heat_eval_fun in heat_eval_funs.items():
         plot_height_width_inches=(args.plot_height_inches, args.plot_width_inches),
         heat_eval_fun=heat_eval_fun,
         path=args.path,
-        save_name_prefix='02_' + args.filename + '_heatmap_{}'.format(heat_eval_fun_id),
+        save_name_prefix='03_' + args.filename + '_heatmap_{}'.format(heat_eval_fun_id),
         uniform_skill_prior_edges=uniform_prior_edges,
         show=bool(args.show_plots),
     )
