@@ -1,7 +1,6 @@
 import torch
 import numpy as np
 import argparse
-import pybulletgym
 
 from cont_skillspace_test.grid_rollout.grid_rollouter \
     import GridRollouter
