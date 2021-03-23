@@ -26,7 +26,9 @@ class RolloutTesterPlotThes(object):
                  xy_label: Tuple[str, str]=None,
                  ):
         self.test_rollouter = test_rollouter
-        self.path_name_grid_rollouts = './grid_rollouts'
+
+        self.path_name_grid_rollouts = path
+        self.save_name_prefix = save_name_prefix
 
         assert  plot_height_width_inches is not None \
             or plot_size_inches is not None
@@ -41,8 +43,6 @@ class RolloutTesterPlotThes(object):
         if not os.path.exists(self.path_name_grid_rollouts):
             os.makedirs(self.path_name_grid_rollouts)
 
-        self.path_name_grid_rollouts = path
-        self.save_name_prefix = save_name_prefix
 
     def __call__(self,
                  *args,

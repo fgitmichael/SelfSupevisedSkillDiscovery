@@ -28,7 +28,6 @@ class RolloutTesterPlotterThesGraphics(object):
                  xy_label: Tuple[str, str]=None,
                  ):
         self.test_rollouter = test_rollouter
-        self.path_name_grid_rollouts = './grid_rollouts'
 
         self.extract_relevant_rollouts_fun = extract_relevant_rollouts_fun
         self.num_relevant_skills = num_relevant_skills

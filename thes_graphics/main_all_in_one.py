@@ -53,7 +53,7 @@ parser.add_argument('--y_label',
 parser.add_argument('--extract_relevant_rollout_fun',
                     type=str,
                     nargs='+',
-                    default="max_abs_x",
+                    default=["max_abs_x"],
                     help="identifier for the function "
                          "to extract the relevant rollout")
 parser.add_argument('--num_relevant_skill',
@@ -71,7 +71,7 @@ parser.add_argument('--filename',
 parser.add_argument('--heat_eval_fun',
                     type=str,
                     nargs='+',
-                    default='covered_dist',
+                    default=['covered_dist'],
                     help="heat eval function identifier"
                     )
 parser.add_argument('--show_plots',
