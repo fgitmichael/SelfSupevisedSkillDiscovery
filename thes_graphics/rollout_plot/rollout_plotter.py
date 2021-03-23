@@ -76,7 +76,9 @@ class RolloutTesterPlotterThesGraphics(object):
             obs = rollout['observations']
             skill = rollout['skill']
             to_plot = [obs[:, 0], obs[:, 1]]
-            legend = "skill {}".format(np.array2string(skill, separator=', '))
+            legend = "skill {}".format(
+                np.array2string(np.round(skill, 3), separator=',')
+            )
             plt.plot(*to_plot, label=legend)
 
         plt.grid()
