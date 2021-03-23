@@ -19,6 +19,8 @@ class RolloutTesterPlotThes(object):
 
     def __init__(self,
                  test_rollouter: TestRollouter,
+                 path,
+                 save_name_prefix,
                  plot_size_inches: float=None,
                  plot_height_width_inches: Tuple[float, float]=None,
                  xy_label: Tuple[str, str]=None,
@@ -38,6 +40,9 @@ class RolloutTesterPlotThes(object):
         self.plot_size_inches = plot_size_inches
         if not os.path.exists(self.path_name_grid_rollouts):
             os.makedirs(self.path_name_grid_rollouts)
+
+        self.path_name_grid_rollouts = path
+        self.save_name_prefix = save_name_prefix
 
     def __call__(self,
                  *args,
@@ -69,7 +74,11 @@ class RolloutTesterPlotThes(object):
         self.set_fig_sizes(fig=fig)
         self.add_labels(ax=ax1)
 
-        save_name = os.path.join(self.path_name_grid_rollouts, 'saved_fig.pgf')
+        save_name_plot = os.path.join(
+            self.path_name_grid_rollouts,
+            self.save_name_prefix + '_trajectories.pgf'
+        )
+        save_name = os.path.join(self.path_name_grid_rollouts, save_name_plot)
         plt.savefig(save_name, bbox_inches='tight')
 
     def add_labels(self, ax: plt.Axes):

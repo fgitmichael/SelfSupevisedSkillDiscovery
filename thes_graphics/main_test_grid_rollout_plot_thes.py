@@ -48,6 +48,14 @@ parser.add_argument('--y_label',
                     type=str,
                     default=None,
                     help="y label for plot")
+parser.add_argument('--path',
+                    type=str,
+                    default='./grid_rollouts',
+                    help="path variable")
+parser.add_argument('--filename',
+                    type=str,
+                    default='savedfig',
+                    help="filename prefix")
 args = parser.parse_args()
 
 ptu.set_gpu_mode(False)
@@ -88,6 +96,8 @@ for epoch in epochs:
         test_rollouter=grid_rollouter,
         plot_height_width_inches=(args.plot_height_inches, args.plot_width_inches),
         xy_label=(args.x_label, args.y_label),
+        path=args.path,
+        save_name_prefix=args.filename,
     )
     tester(
         epoch=epoch,
