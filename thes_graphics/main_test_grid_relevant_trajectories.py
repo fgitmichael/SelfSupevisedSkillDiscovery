@@ -59,6 +59,14 @@ parser.add_argument('--num_relevant_skill',
                     type=int,
                     default=10,
                     help="number of relevant skills")
+parser.add_argument('--path',
+                    type=str,
+                    default='./grid_rollouts',
+                    help="path variable")
+parser.add_argument('--filename',
+                    type=str,
+                    default='savedfig',
+                    help="filename prefix")
 args = parser.parse_args()
 
 ptu.set_gpu_mode(False)
@@ -108,6 +116,8 @@ for epoch in epochs:
         xy_label=(args.x_label, args.y_label),
         extract_relevant_rollouts_fun=extract_relevant_rollout_fun,
         num_relevant_skills=args.num_relevant_skill,
+        path=args.path,
+        save_name_prefix=args.filename,
     )
     tester(
         epoch=epoch,

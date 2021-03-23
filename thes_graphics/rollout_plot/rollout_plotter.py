@@ -21,6 +21,8 @@ class RolloutTesterPlotterThesGraphics(object):
                  test_rollouter: TestRollouter,
                  extract_relevant_rollouts_fun,
                  num_relevant_skills: int,
+                 path,
+                 save_name_prefix,
                  plot_size_inches: float=None,
                  plot_height_width_inches: Tuple[float, float]=None,
                  xy_label: Tuple[str, str]=None,
@@ -31,8 +33,11 @@ class RolloutTesterPlotterThesGraphics(object):
         self.extract_relevant_rollouts_fun = extract_relevant_rollouts_fun
         self.num_relevant_skills = num_relevant_skills
 
-        assert  plot_height_width_inches is not None \
-                or plot_size_inches is not None
+        self.path_name_grid_rollouts = path
+        self.save_name_prefix = save_name_prefix
+
+        assert plot_height_width_inches is not None \
+               or plot_size_inches is not None
         self.plot_size_inches = plot_size_inches
         self.plot_height_width_inches = plot_height_width_inches
         self.plot_size_inches = plot_size_inches
@@ -79,7 +84,11 @@ class RolloutTesterPlotterThesGraphics(object):
         self.set_fig_sizes(fig=fig)
         self.add_labels(ax=ax1)
 
-        save_name = os.path.join(self.path_name_grid_rollouts, 'saved_fig.pgf')
+        save_name_plot = os.path.join(
+            self.path_name_grid_rollouts,
+            self.save_name_prefix + '_trajectories.pgf'
+        )
+        save_name = os.path.join(self.path_name_grid_rollouts, save_name_plot)
         plt.savefig(save_name, bbox_inches='tight')
 
     def add_labels(self, ax: plt.Axes):
