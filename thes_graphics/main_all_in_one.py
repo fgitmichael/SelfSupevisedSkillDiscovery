@@ -69,6 +69,7 @@ parser.add_argument('--filename',
                     help="filename prefix")
 parser.add_argument('--heat_eval_fun',
                     type=str,
+                    nargs='+',
                     default='covered_dist',
                     help="heat eval function identifier"
                     )
@@ -105,7 +106,8 @@ extract_relevant_rollout_fun = get_relevant_rollout_fun_using_identifier(
 )
 
 # Load heat eval function
-heat_eval_fun = get_heat_map_fun_using_identifier(args.heat_eval_fun)
+heat_eval_funs = {heat_eval_fun: get_heat_map_fun_using_identifier(heat_eval_fun)
+                  for heat_eval_fun in args.heat_eval_fun}
 
 # Load policy
 epoch = args.epoch
@@ -148,18 +150,19 @@ relevant_plotting(
     num_points=args.num_grid_points,
 )
 
-heatmap_plotting = HeatMapPlotterSaver(
-    test_rollouter=grid_rollouter,
-    plot_height_width_inches=(args.plot_height_inches, args.plot_width_inches),
-    heat_eval_fun=heat_eval_fun,
-    path=args.path,
-    save_name_prefix='02_' + args.filename + '_heatmap',
-    uniform_skill_prior_edges=uniform_prior_edges,
-    show=bool(args.show_plots),
-)
-heatmap_plotting(
-    epoch=epoch,
-    grid_low=uniform_prior_edges[0],
-    grid_high=uniform_prior_edges[1],
-    num_points=args.num_grid_points,
-)
+for heat_eval_fun_id, heat_eval_fun in heat_eval_funs.items():
+    heatmap_plotting = HeatMapPlotterSaver(
+        test_rollouter=grid_rollouter,
+        plot_height_width_inches=(args.plot_height_inches, args.plot_width_inches),
+        heat_eval_fun=heat_eval_fun,
+        path=args.path,
+        save_name_prefix='02_' + args.filename + '_heatmap_{}'.format(heat_eval_fun_id),
+        uniform_skill_prior_edges=uniform_prior_edges,
+        show=bool(args.show_plots),
+    )
+    heatmap_plotting(
+        epoch=epoch,
+        grid_low=uniform_prior_edges[0],
+        grid_high=uniform_prior_edges[1],
+        num_points=args.num_grid_points,
+    )
