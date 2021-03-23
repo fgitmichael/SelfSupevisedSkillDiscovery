@@ -16,6 +16,9 @@ def get_heat_map_fun_using_identifier(identifier: str):
     elif identifier == 'max_x':
         return calc_x_max_heat_map
 
+    elif identifier == 'min_x':
+        return calc_x_min_heat_map
+
     elif identifier == 'max_y':
         return calc_y_max_heat_map
 
