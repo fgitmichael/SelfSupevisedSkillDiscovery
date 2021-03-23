@@ -42,6 +42,14 @@ parser.add_argument('--plot_width_inches',
                     type=float,
                     default=3.7,
                     help="plot width (inches)")
+parser.add_argument('--plot_width_inches_heat',
+                    type=float,
+                    default=3.7,
+                    help="plot width (inches)")
+parser.add_argument('--plot_height_inches_heat',
+                    type=float,
+                    default=3.7,
+                    help="plot height (inches)")
 parser.add_argument('--x_label',
                     type=str,
                     default=None,
