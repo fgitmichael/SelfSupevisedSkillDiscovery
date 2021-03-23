@@ -3,11 +3,13 @@ import numpy as np
 import argparse
 import pybulletgym
 
-from cont_skillspace_test.grid_rollout.rollout_tester_plot_thes \
-    import RolloutTesterPlotThes
 from cont_skillspace_test.grid_rollout.grid_rollouter \
     import GridRollouter
 from cont_skillspace_test.utils.load_env import load_env
+
+from thes_graphics.rollout_relevant_eval.get_relevant_rollout_fun_using_identifier \
+    import get_relevant_rollout_fun_using_identifier
+from thes_graphics.rollout_plot.rollout_plotter import RolloutTesterPlotterThesGraphics
 
 import rlkit.torch.pytorch_util as ptu
 
@@ -48,6 +50,11 @@ parser.add_argument('--y_label',
                     type=str,
                     default=None,
                     help="y label for plot")
+parser.add_argument('--extract_relevant_rollout_fun',
+                    type=str,
+                    default=None,
+                    help="identifier for the function "
+                         "to extract the relevant rollout")
 args = parser.parse_args()
 
 ptu.set_gpu_mode(False)
@@ -68,11 +75,18 @@ else:
     uniform_prior_high = args.grid_factor
 
 # Skill prior tuple
-uniform_prior_edges = (np.array([uniform_prior_low, uniform_prior_low]),
-                       np.array([uniform_prior_high, uniform_prior_high]))
+uniform_prior_edges = (
+    np.array([uniform_prior_low, uniform_prior_low]),
+    np.array([uniform_prior_high, uniform_prior_high])
+)
 
 # Load env
 env = load_env()
+
+# Load relevant rollout extractor function
+extract_relevant_rollout_fun = get_relevant_rollout_fun_using_identifier(
+    args.extract_relvant_rollout_fun,
+)
 
 for epoch in epochs:
     # Load policy
@@ -84,10 +98,11 @@ for epoch in epochs:
         policy=policy,
         horizon_len=horizon_len,
     )
-    tester = RolloutTesterPlotThes(
+    tester = RolloutTesterPlotterThesGraphics(
         test_rollouter=grid_rollouter,
         plot_height_width_inches=(args.plot_height_inches, args.plot_width_inches),
         xy_label=(args.x_label, args.y_label),
+        extract_relevant_rollouts_fun=extract_relevant_rollout_fun,
     )
     tester(
         epoch=epoch,
