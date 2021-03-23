@@ -20,6 +20,7 @@ class RolloutTesterPlotterThesGraphics(object):
     def __init__(self,
                  test_rollouter: TestRollouter,
                  extract_relevant_rollouts_fun,
+                 num_relevant_skills: int,
                  plot_size_inches: float=None,
                  plot_height_width_inches: Tuple[float, float]=None,
                  xy_label: Tuple[str, str]=None,
@@ -28,6 +29,7 @@ class RolloutTesterPlotterThesGraphics(object):
         self.path_name_grid_rollouts = './grid_rollouts'
 
         self.extract_relevant_rollouts_fun = extract_relevant_rollouts_fun
+        self.num_relevant_skills = num_relevant_skills
 
         assert  plot_height_width_inches is not None \
                 or plot_size_inches is not None
@@ -57,7 +59,10 @@ class RolloutTesterPlotterThesGraphics(object):
         grid_rollout = self.test_rollouter()
 
         # Extract relevant rollouts
-        grid_rollout_relevant = self.extract_relevant_rollouts_fun(grid_rollout)
+        grid_rollout_relevant = self.extract_relevant_rollouts_fun(
+            grid_rollout,
+            num_to_extract=self.num_relevant_skills,
+        )
 
         # Plot in statespace
         fig = plt.figure()

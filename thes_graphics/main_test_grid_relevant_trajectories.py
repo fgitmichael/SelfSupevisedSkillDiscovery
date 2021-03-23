@@ -52,9 +52,13 @@ parser.add_argument('--y_label',
                     help="y label for plot")
 parser.add_argument('--extract_relevant_rollout_fun',
                     type=str,
-                    default=None,
+                    default="max_abs_x",
                     help="identifier for the function "
                          "to extract the relevant rollout")
+parser.add_argument('--num_relevant_skill',
+                    type=int,
+                    default=10,
+                    help="number of relevant skills")
 args = parser.parse_args()
 
 ptu.set_gpu_mode(False)
@@ -85,7 +89,7 @@ env = load_env()
 
 # Load relevant rollout extractor function
 extract_relevant_rollout_fun = get_relevant_rollout_fun_using_identifier(
-    args.extract_relvant_rollout_fun,
+    args.extract_relevant_rollout_fun,
 )
 
 for epoch in epochs:
@@ -103,6 +107,7 @@ for epoch in epochs:
         plot_height_width_inches=(args.plot_height_inches, args.plot_width_inches),
         xy_label=(args.x_label, args.y_label),
         extract_relevant_rollouts_fun=extract_relevant_rollout_fun,
+        num_relevant_skills=args.num_relevant_skill,
     )
     tester(
         epoch=epoch,
