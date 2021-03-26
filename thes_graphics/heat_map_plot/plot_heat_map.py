@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.colors as mpl_colors
 import numpy as np
 from typing import Tuple
 
@@ -29,7 +30,10 @@ def plot_heat_map(
     #heat_values = heat_values[idx]
 
     ax = fig.add_subplot(1, 1, 1)
-    plot = ax.pcolor(heat_values)
+    if log is False:
+        plot = ax.pcolor(heat_values)
+    else:
+        plot = ax.pcolor(heat_values, norm=mpl_colors.LogNorm())
     ax.set_xlabel('skill dimension 0')
     ax.set_ylabel('skill dimension 1')
     fig.colorbar(plot)
@@ -46,7 +50,7 @@ def plot_heat_map(
     )
 
 def _set_colorbar_axis_ticks_labels(
-        colorbar_axis: plt.Axes,
+        colorbar_axis: plt,
         log,
 ):
     pass
