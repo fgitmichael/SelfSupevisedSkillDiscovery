@@ -8,15 +8,14 @@ from cont_skillspace_test.grid_rollout.grid_rollouter \
 
 
 show = False
-if not show:
-    matplotlib.use("pgf")
-    matplotlib.rcParams.update({
-        "pgf.texsystem": "pdflatex",
-        'font.family': 'serif',
-        'text.usetex': True,
-        'pgf.rcfonts': False,
-    })
 matplotlib.rcParams['text.usetex'] = True
+matplotlib.use("pgf")
+matplotlib.rcParams.update({
+    "pgf.texsystem": "pdflatex",
+    'font.family': 'serif',
+    'text.usetex': True,
+    'pgf.rcfonts': False,
+})
 
 low = np.array([-2.5, -2.5])
 high = np.array([2.5, 2.5])
@@ -29,7 +28,8 @@ grid = create_twod_grid(
 )
 
 fig = plt.figure()
-plt.scatter(grid[:, 0], grid[:, 1])
+ax = fig.add_subplot(111)
+ax.scatter(grid[:, 0], grid[:, 1])
 x_ticks = [-2.5, 0, 2.5]
 x_labels = [r'$a_x$', 0, r'$b_x$']
 y_ticks = [-2.5, 0, 2.5]
@@ -43,6 +43,8 @@ plt.yticks(
     ticks=y_ticks,
     labels=y_labels,
 )
+ax.set_xlabel('skill dimension 0')
+ax.set_ylabel('skill dimension 1')
 
 plt.grid(True)
 
@@ -55,12 +57,6 @@ else:
 
     print("path: ")
     path = input()
-    plt.savefig(path)
-
-
-    print("path: ")
-    path = input()
-    tikzplotlib.clean_figure()
-    tikzplotlib.save(path)
+    plt.savefig(path, bbox_inches='tight')
 
 print('End')
