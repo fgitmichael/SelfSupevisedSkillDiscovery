@@ -27,17 +27,6 @@ class SkillTanhGaussianPolicyRevisedObsSelect(
         self.used_obs_dims = obs_dims_selected
         self.obs_dim_real = obs_dim_real if obs_dim_real is not None else self.obs_dim
 
-    def get_skill_actions(self,
-                          obs_skill_cat: torch.Tensor,
-                          deterministic: bool=False
-                          ) -> np.ndarray:
-        action_tensor = self.forward(
-            obs=obs_skill_cat,
-            deterministic=deterministic,
-        )[0]
-
-        return ptu.get_numpy(action_tensor)
-
     def recover_obs_skillvec(self,
                   obs: torch.Tensor,
                   skill_vec: torch.Tensor = None,
