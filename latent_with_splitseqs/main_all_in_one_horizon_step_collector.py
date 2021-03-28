@@ -17,7 +17,7 @@ from diayn_seq_code_revised.policies.skill_policy_obsdim_select \
 from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
 
-from mode_disent_no_ssm.utils.parse_args import parse_args_hptuning
+from mode_disent_no_ssm.utils.parse_args import parse_args
 
 from latent_with_splitseqs.data_collector.seq_collector_split import SeqCollectorSplitSeq
 from latent_with_splitseqs.config.fun.get_env import get_env
@@ -196,21 +196,11 @@ def create_experiment(config,
 
 
 if __name__ == "__main__":
-    config, config_path_name = parse_args_hptuning(
+    config, config_path_name = parse_args(
         default="config/all_in_one_config/hopper/"
                 "srnn.yaml",
-        default_min="./config/all_in_one_config/mountaincar/"
-                    "random_hp_search/"
-                    "srnn_v0_min.yaml",
-        default_max="./config/all_in_one_config/mountaincar/"
-                    "random_hp_search/"
-                    "srnn_v0_max.yaml",
-        default_hp_tuning=False,
         return_config_path_name=True,
     )
-
-    if config.random_hp_tuning:
-        config = get_random_hp_params(config)
     config = prepare_hparams(config)
 
     # noinspection PyTypeChecker
