@@ -76,7 +76,7 @@ class RolloutTesterPlotThes(object):
 
         save_name_plot = os.path.join(
             self.path_name_grid_rollouts,
-            self.save_name_prefix + '_trajectories.pgf'
+            self.save_name_prefix + '.pgf'
         )
         save_name = os.path.join(self.path_name_grid_rollouts, save_name_plot)
         plt.savefig(save_name, bbox_inches='tight')
