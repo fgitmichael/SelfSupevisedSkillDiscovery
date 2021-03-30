@@ -44,17 +44,6 @@ def create_twod_grid(
 
 class GridRollouter(TestRollouter):
 
-    def __init__(self,
-                 env,
-                 policy,
-                 horizon_len: int = 300,
-                 ):
-        super().__init__()
-        self.env = env
-        self.policy = policy
-        self.horizon_len = horizon_len
-        self.rollouts = None
-
     def create_skills_to_rollout(self,
                                  *args,
                                  **kwargs
@@ -67,25 +56,16 @@ class GridRollouter(TestRollouter):
         return np.concatenate([np.reshape(mat, (-1, 1))
                                for mat in np.moveaxis(self.skill_grid, -1, 0)], axis=1)
 
-    def __call__(self, return_coverd_dists=False) -> list:
-        assert self.skills_to_rollout is not None, \
-            "No skill grid created yet, call create_skill_grid method!"
+    def rollout_trajectories(self):
+        rollouts = []
+        for skill in tqdm.tqdm(self.skills_to_rollout):
+            self.policy.skill = ptu.from_numpy(skill)
+            rollout = rollout_function(
+                env=self.env,
+                agent=self.policy,
+                max_path_length=self.horizon_len,
+            )
+            rollout['skill'] = ptu.get_numpy(self.policy.skill)
+            rollouts.append(rollout)
 
-        if self.rollouts is None:
-            rollouts = []
-            for skill in tqdm.tqdm(self.skills_to_rollout):
-                self.policy.skill = ptu.from_numpy(skill)
-                rollout = rollout_function(
-                    env=self.env,
-                    agent=self.policy,
-                    max_path_length=self.horizon_len,
-                )
-                rollout['skill'] = ptu.get_numpy(self.policy.skill)
-                rollouts.append(rollout)
-
-            self.rollouts = rollouts
-
-            return rollouts
-
-        else:
-            return self.rollouts
+        return rollouts
