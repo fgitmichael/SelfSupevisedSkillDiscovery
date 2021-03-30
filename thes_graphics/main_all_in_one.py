@@ -10,7 +10,7 @@ from cont_skillspace_test.utils.load_env import load_env
 
 from thes_graphics.rollout_relevant_eval.get_relevant_rollout_fun_using_identifier \
     import get_relevant_rollout_fun_using_identifier
-from thes_graphics.rollout_plot.rollout_plotter import RolloutTesterPlotterThesGraphics
+from thes_graphics.rollout_plot.rollout_plotter import RelevantTrajectoryPlotterSaver
 
 import rlkit.torch.pytorch_util as ptu
 
@@ -133,7 +133,7 @@ grid_rollouter = GridRollouter(
 )
 
 for id, relevant_extracting_fun in extract_relevant_rollout_fun.items():
-    relevant_plotting = RolloutTesterPlotterThesGraphics(
+    relevant_plotting = RelevantTrajectoryPlotterSaver(
         test_rollouter=grid_rollouter,
         plot_height_width_inches=(args.plot_height_inches, args.plot_width_inches),
         xy_label=(args.x_label, args.y_label),

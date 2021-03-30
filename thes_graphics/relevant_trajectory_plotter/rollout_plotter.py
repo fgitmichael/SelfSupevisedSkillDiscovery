@@ -15,7 +15,7 @@ import tikzplotlib
 from cont_skillspace_test.grid_rollout.test_rollouter_base import TestRollouter
 
 
-class RolloutTesterPlotterThesGraphics(object):
+class RelevantTrajectoryPlotterSaver(object):
 
     def __init__(self,
                  test_rollouter: TestRollouter,
