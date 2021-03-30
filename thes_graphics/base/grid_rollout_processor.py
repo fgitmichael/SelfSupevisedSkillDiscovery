@@ -15,7 +15,7 @@ class GridRolloutProcessor(object, metaclass=abc.ABCMeta):
                  grid_low=np.array([-1.5, -1.5]),
                  grid_high=np.array([1.5, 1.5]),
                  num_points=200,
-                 **kwargs):
+                 **kwargs) -> list:
         # Rollout
         self.test_rollouter.create_skills_to_rollout(
             low=grid_low,
@@ -23,3 +23,5 @@ class GridRolloutProcessor(object, metaclass=abc.ABCMeta):
             num_points=num_points,
         )
         grid_rollout = self.test_rollouter()
+
+        return grid_rollout
