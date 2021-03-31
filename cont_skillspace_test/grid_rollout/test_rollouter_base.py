@@ -8,7 +8,7 @@ class TestRollouter(object, metaclass=abc.ABCMeta):
             self,
             env,
             policy,
-            rollout_fun: rollout_function,
+            rollout_fun = rollout_function,
             horizon_len: int = 300,
     ):
         self.skill_grid = None
@@ -20,7 +20,6 @@ class TestRollouter(object, metaclass=abc.ABCMeta):
 
         self.rollouts = None
 
-    @abc.abstractmethod
     def __call__(self,):
         if self.rollouts is None:
             rollouts = self.rollout_trajectories()
