@@ -5,14 +5,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 import os
 
-from cont_skillspace_test.grid_rollout.test_rollouter_base import TestRollouter
 from thes_graphics.heat_map_plot.plot_heat_map import plot_heat_map
+from thes_graphics.base.grid_rollout_processor import GridRolloutProcessor
 
 
-class HeatMapPlotterSaver(object):
+class HeatMapPlotterSaver(GridRolloutProcessor):
 
     def __init__(self,
-                 test_rollouter: TestRollouter,
+                 *args,
                  heat_eval_fun,
                  path,
                  save_name_prefix,
@@ -20,8 +20,9 @@ class HeatMapPlotterSaver(object):
                  plot_size_inches: float=None,
                  plot_height_width_inches: Tuple[float, float]=None,
                  show=False,
+                 **kwargs
                  ):
-        self.test_rollouter = test_rollouter
+        super().__init__(*args, **kwargs)
 
         self.path_name_grid_rollouts = path
         self.save_name_prefix = save_name_prefix
@@ -50,21 +51,10 @@ class HeatMapPlotterSaver(object):
 
     def __call__(self,
                  *args,
-                 epoch,
-                 grid_low: np.ndarray,
-                 grid_high: np.ndarray,
-                 num_points=200,
                  **kwargs):
-        # Rollout
-        self.test_rollouter.create_skills_to_rollout(
-            low=grid_low,
-            high=grid_high,
-            num_points=num_points,
-            matrix_form=False,
-        )
-        grid_rollout = self.test_rollouter()
+        grid_rollout = super().__call__(*args, **kwargs)
 
-        # Clear all figure
+        # Clear all figures
         plt.close()
 
         # Plot in statespace

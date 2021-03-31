@@ -12,13 +12,13 @@ import matplotlib.pyplot as plt
 import os
 import tikzplotlib
 
-from cont_skillspace_test.grid_rollout.test_rollouter_base import TestRollouter
+from thes_graphics.base.grid_rollout_processor import GridRolloutProcessor
 
 
-class RelevantTrajectoryPlotterSaver(object):
+class RelevantTrajectoryPlotterSaver(GridRolloutProcessor):
 
     def __init__(self,
-                 test_rollouter: TestRollouter,
+                 *args,
                  extract_relevant_rollouts_fun,
                  num_relevant_skills: int,
                  path,
@@ -26,8 +26,9 @@ class RelevantTrajectoryPlotterSaver(object):
                  plot_size_inches: float=None,
                  plot_height_width_inches: Tuple[float, float]=None,
                  xy_label: Tuple[str, str]=None,
+                 **kwargs
                  ):
-        self.test_rollouter = test_rollouter
+        super().__init__(*args, **kwargs)
 
         self.extract_relevant_rollouts_fun = extract_relevant_rollouts_fun
         self.num_relevant_skills = num_relevant_skills
@@ -49,18 +50,8 @@ class RelevantTrajectoryPlotterSaver(object):
 
     def __call__(self,
                  *args,
-                 epoch,
-                 grid_low=np.array([-1.5, -1.5]),
-                 grid_high=np.array([1.5, 1.5]),
-                 num_points=200,
                  **kwargs):
-        # Rollout
-        self.test_rollouter.create_skills_to_rollout(
-            low=grid_low,
-            high=grid_high,
-            num_points=num_points,
-        )
-        grid_rollout = self.test_rollouter()
+        grid_rollout = super().__call__(*args, **kwargs)
 
         # Extract relevant rollouts
         grid_rollout_relevant = self.extract_relevant_rollouts_fun(
