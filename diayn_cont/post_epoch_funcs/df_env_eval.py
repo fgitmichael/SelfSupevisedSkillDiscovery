@@ -222,6 +222,7 @@ class DfEnvEvaluationDIAYNCont(EnvEvaluationBase):
                 y_lim=lim,
             )
 
+    @torch.no_grad()
     def apply_df(
             self,
             *args,
