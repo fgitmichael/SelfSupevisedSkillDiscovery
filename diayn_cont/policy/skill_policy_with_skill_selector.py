@@ -14,10 +14,16 @@ class SkillTanhGaussianPolicyWithSkillSelector(SkillTanhGaussianPolicy):
     def __init__(
             self,
             *args,
+            obs_dim,
             skill_selector: SkillSelectorContinous,
             **kwargs
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            *args,
+            obs_dim=obs_dim,
+            **kwargs
+        )
+        self.obs_dim = obs_dim
         self.skill_selector = skill_selector
         self._skill = skill_selector.get_random_skill()
 
