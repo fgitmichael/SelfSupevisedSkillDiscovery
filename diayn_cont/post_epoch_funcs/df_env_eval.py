@@ -31,6 +31,7 @@ class DfEnvEvaluationDIAYNCont(EnvEvaluationBase):
             *args,
             seq_collector=seq_collector,
             df_to_evaluate=df_to_evaluate,
+            **kwargs
         )
         self.seq_len = seq_len
         self.num_paths_per_skill = num_paths_per_skill

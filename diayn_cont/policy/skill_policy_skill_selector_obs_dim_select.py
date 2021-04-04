@@ -46,14 +46,12 @@ class SkillTanhGaussianPolicyWithSkillSelectorObsSelect(
 
     def forward(
             self,
-            *args,
             obs,
             skill_vec=None,
             **kwargs
     ):
         obs, skill_vec = self.select_obs_dims(obs, skill_vec)
         super().forward(
-            *args,
             obs=obs,
             skill_vec=skill_vec,
             **kwargs

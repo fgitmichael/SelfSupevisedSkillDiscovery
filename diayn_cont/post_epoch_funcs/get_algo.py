@@ -28,12 +28,13 @@ from my_utils.dicts.get_config_item import get_config_item
 def get_algo(
         algo_class: Type[DIAYNContAlgo],
         algo_kwargs: dict,
+        df,
         diagnostic_writer,
         eval_policy: MakeDeterministic,
         post_epoch_eval_path_collector: MdpPathCollectorWithReset,
         config: dict,
 
-):
+) -> DIAYNContAlgo:
     tb_log_interval = math.ceil(config['log_interval']/4)
     net_log_interval = get_config_item(
         config=config,
@@ -43,14 +44,15 @@ def get_algo(
 
     df_memory_eval =DfMemoryEvalDIAYNCont(
         replay_buffer=algo_kwargs['replay_buffer'],
-        df_to_evaluate=algo_kwargs['df'],
+        df_to_evaluate=df,
         diagnostics_writer=diagnostic_writer,
-        **config['df_evalutation_memory'],
+        **config['df_evaluation_memory'],
     )
     df_memory_eval = post_epoch_func_wrapper('df evaluation on memory')(df_memory_eval)
     df_env_eval = DfEnvEvaluationDIAYNCont(
         seq_collector=post_epoch_eval_path_collector,
-        df_to_evaluate=algo_kwargs['df'],
+        seq_len=config['algorithm_kwargs']['max_path_length'],
+        df_to_evaluate=df,
         diagnostic_writer=diagnostic_writer,
         log_prefix=None,
         **config['df_evaluation_env'],
@@ -63,7 +65,7 @@ def get_algo(
             policy_net=eval_policy,
         ),
         objects_initial_saving=dict(
-            env=algo_kwargs['expl_env'],
+            env=algo_kwargs['exploration_env'],
             config=config,
         )
     )
@@ -119,3 +121,5 @@ def get_algo(
     algorithm = algo_class(
         **algo_kwargs,
     )
+
+    return algorithm

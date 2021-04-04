@@ -38,8 +38,10 @@ class SkillTanhGaussianPolicyWithSkillSelector(SkillTanhGaussianPolicy):
 
     def _check_skill(self,
                      skill: torch.Tensor):
-        assert isinstance(skill, torch.Tensor)
-        assert skill.shape[-1] == self.skill_dim
+        # In base __init__ method skill is set to zero one time
+        assert isinstance(skill, torch.Tensor) or skill == 0
+        if skill != 0:
+            assert skill.shape[-1] == self.skill_dim
 
     def skill_reset(self):
         self.skill = self.skill_selector.get_random_skill()

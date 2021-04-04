@@ -18,6 +18,7 @@ from latent_with_splitseqs.config.fun.get_obs_dims_used_policy \
 from latent_with_splitseqs.config.fun.get_obs_dims_used_df \
     import get_obs_dims_used_df
 from latent_with_splitseqs.config.fun.get_diagnostics_writer import get_diagnostics_writer
+from latent_with_splitseqs.config.fun.get_skill_prior import get_skill_prior
 
 from my_utils.dicts.get_config_item import get_config_item
 
@@ -30,6 +31,9 @@ from diayn_cont.policy.skill_policy_with_skill_selector import MakeDeterministic
 from diayn_cont.algo.cont_algo import DIAYNContAlgo
 from diayn_cont.data_collector.seq_eval_collector import MdpPathCollectorWithReset
 from diayn_cont.post_epoch_funcs.get_algo import get_algo
+
+from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
+    SkillSelectorContinous
 
 
 def create_experiment(config, config_path_name):
@@ -82,12 +86,19 @@ def create_experiment(config, config_path_name):
         hidden_sizes=[M, M],
     )
 
+    skill_prior = get_skill_prior(config)
+    skill_selector = SkillSelectorContinous(
+        prior_skill_dist=skill_prior,
+        grid_radius_factor=config.skill_prior.grid_radius_factor,
+    )
     policy = SkillTanhGaussianPolicyWithSkillSelectorObsSelect(
         hidden_sizes=[M, M],
-        obs_dim=len(used_obs_dims_policy),
+        skill_dim=skill_dim,
+        skill_selector=skill_selector,
+        obs_dim=len(used_obs_dims_policy) + skill_dim,
         action_dim=action_dim,
         obs_dims_selected=used_obs_dims_policy,
-        obs_dim_real=obs_dim
+        obs_dim_real=obs_dim,
     )
     eval_policy = MakeDeterministic(policy)
     expl_step_collector = MdpStepCollector(
@@ -110,7 +121,7 @@ def create_experiment(config, config_path_name):
         obs_dims_used_except=config["df_kwargs"]["obs_dims_used_except"]
     )
     df = Gaussian(
-        input_dim=obs_dims_used_df,
+        input_dim=len(obs_dims_used_df),
         output_dim=skill_dim,
         hidden_units=[M, M],
         leaky_slope=0.1,
@@ -127,12 +138,12 @@ def create_experiment(config, config_path_name):
         **config["trainer_kwargs"]
     )
     replay_buffer = DIAYNEnvReplayBuffer(
-        max_replay_buffer_size=config["max_replay_buffer_size"],
+        max_replay_buffer_size=config["replay_buffer_size"],
         env=eval_env,
         skill_dim=skill_dim,
     )
     diagno_writer = get_diagnostics_writer(
-        run_comment=config['run_comment'],
+        run_comment=" ".join((config['algorithm'], config['version'])),
         config=config,
         scripts_to_copy=scripts_to_copy,
         seed=seed,
@@ -141,21 +152,22 @@ def create_experiment(config, config_path_name):
     algo_kwargs = dict(
         trainer=trainer,
         exploration_env=expl_env,
-        evaluation_env=expl_env,
-        eval=eval_env,
+        evaluation_env=eval_env,
         exploration_data_collector=expl_step_collector,
         evaluation_data_collector=eval_path_collector,
         replay_buffer=replay_buffer,
-        **config['algo_kwargs'],
+        **config['algorithm_kwargs'],
     )
     algorithm = get_algo(
         algo_class=DIAYNContAlgo,
         algo_kwargs=algo_kwargs,
+        df=df,
         diagnostic_writer=diagno_writer,
         eval_policy=eval_policy,
         post_epoch_eval_path_collector=post_epoch_eval_path_collector,
         config=config,
     )
+    algorithm.to(ptu.device)
 
     return algorithm
 
