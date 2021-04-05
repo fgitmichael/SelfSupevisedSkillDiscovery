@@ -66,7 +66,16 @@ df_kwargs:
   std: 0.5
 
 # Logging
-test_script_path: []
+test_script_path: [
+  ../cont_skillspace_test/main_test_guided_normal_plot.py,
+  ../cont_skillspace_test/main_test_guided_normal_render.py,
+  ../latent_with_splitseqs/continue_algo_training.py,
+  ../cont_skillspace_test/main_test_grid_rollout_plot.py,
+  ../thes_graphics/main_all_in_one.py,
+  ../thes_graphics/main_grid_rollout_heat_map.py,
+  ../thes_graphics/main_test_grid_relevant_trajectories.py,
+  ../thes_graphics/main_test_grid_rollout_plot_thes.py
+]
 log_folder: /media/michael/TOSHIBA EXT1/logs/diayn_cont/mcar
 log_interval: 5
 
