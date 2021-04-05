@@ -47,12 +47,6 @@ def create_experiment(config, config_path_name):
         config=config,
     )
 
-    scripts_to_copy = get_config_item(
-        config,
-        key="scripts_to_copy",
-        default=None,
-    )
-
     seed = get_config_item(
         config,
         key="seed",
@@ -145,7 +139,7 @@ def create_experiment(config, config_path_name):
     diagno_writer = get_diagnostics_writer(
         run_comment=" ".join((config['algorithm'], config['version'])),
         config=config,
-        scripts_to_copy=scripts_to_copy,
+        scripts_to_copy=config['test_script_path'],
         seed=seed,
         config_path_name=config_path_name,
     )

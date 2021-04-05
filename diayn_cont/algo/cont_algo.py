@@ -6,6 +6,7 @@ from self_sup_combined.base.writer.diagnostics_writer import DiagnosticsWriter
 
 from rlkit.core import logger, eval_util
 
+
 class DIAYNContAlgo(SelfSupAlgoBase):
 
     def __init__(
