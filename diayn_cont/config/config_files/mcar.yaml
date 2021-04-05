@@ -1,0 +1,75 @@
+---
+algorithm: "Diayn Continuous"
+version: "Df-Gaussian"
+layer_size: 256
+replay_buffer_size: 1000000
+skill_dim: 2
+
+# Environment
+env_kwargs:
+  env_id: MountainCarContinuous-v0
+  pybullet:
+    is_pybullet: False
+    pos_dim: null
+  init_kwargs:
+    exclude_current_positions_from_observation: False
+    reset_noise_scale: null
+
+obs_dims_used_policy_all_except: []
+
+# Algorithm
+algorithm_kwargs:
+  num_epochs: 1000
+  num_eval_steps_per_epoch: 5000
+  num_trains_per_train_loop: 1000
+  num_expl_steps_per_train_loop: 1000
+  min_num_steps_before_training: 1000
+  max_path_length: 100
+  batch_size: 256
+
+# Trainer
+trainer_kwargs:
+  discount: 0.99
+  soft_target_tau: 0.005
+  target_update_period: 1
+  policy_lr: 0.0003
+  qf_lr: 0.0003
+  reward_scale: 1.
+  use_automatic_entropy_tuning: True
+
+# Skill Prior
+skill_prior:
+  type: uniform
+  grid_radius_factor: 0.7
+  uniform:
+    low: -1.0
+    high: 1.0
+
+# Evaluation
+df_evaluation_env:
+  obs_dims_to_log: [0, 1]
+  action_dims_to_log: [0, ]
+  horizon_len: 100
+  num_paths_per_skill: 1
+  plot_skill_influence:
+    obs: True
+    action: True
+    obs_one_plot: True
+    plot_post: True
+df_evaluation_memory:
+  batch_size: 256
+
+# Classifier
+df_kwargs:
+  obs_dims_used: null
+  obs_dims_used_except: null
+  std: 0.5
+
+# Logging
+test_script_path: []
+log_folder: /media/michael/TOSHIBA EXT1/logs/diayn_cont/mcar
+log_interval: 5
+
+# GPU
+gpu: True
+
