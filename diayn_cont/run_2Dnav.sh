@@ -1,0 +1,1 @@
+python3 main_diayn_cont.py --config ./config/config_files/twoDnav.yaml
