@@ -52,7 +52,7 @@ class DfMemoryEvalDIAYNCont(MemoryEvalBase):
             **kwargs
     ) -> dict:
         next_obs = ptu.from_numpy(sampled_transitions['next_observations'])
-        skill_recon_dist = my_ptu.eval(self.df_to_evaluate, obs_seq=next_obs)
+        skill_recon_dist = my_ptu.eval(self.df_to_evaluate, next_obs)
         return dict(
             skill_recon_dist=skill_recon_dist
         )

@@ -40,7 +40,7 @@ class SkillTanhGaussianPolicyWithSkillSelector(SkillTanhGaussianPolicy):
                      skill: torch.Tensor):
         # In base __init__ method skill is set to zero one time
         assert isinstance(skill, torch.Tensor) or skill == 0
-        if skill != 0:
+        if isinstance(skill, torch.Tensor):
             assert skill.shape[-1] == self.skill_dim
 
     def skill_reset(self):

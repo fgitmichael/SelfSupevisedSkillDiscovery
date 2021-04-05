@@ -36,6 +36,10 @@ class DfEnvEvaluationDIAYNCont(EnvEvaluationBase):
         self.seq_len = seq_len
         self.num_paths_per_skill = num_paths_per_skill
 
+    def __call__(self, *args, **kwargs):
+        super().__call__(*args, **kwargs)
+        self.seq_collector.reset()
+
     def collect_skill_influence_paths(self) -> dict:
         assert isinstance(self.seq_collector, MdpPathCollector)
 
@@ -53,6 +57,7 @@ class DfEnvEvaluationDIAYNCont(EnvEvaluationBase):
             skills.append(skill)
             skill_ids.append(skill_id)
         skill_influence_paths = self.seq_collector.get_epoch_paths()
+        skill_influence_paths = list(skill_influence_paths)
         assert isinstance(skill_influence_paths, list)
 
         for skill_id, skill, path in zip(skill_ids, skills, skill_influence_paths):
@@ -237,7 +242,7 @@ class DfEnvEvaluationDIAYNCont(EnvEvaluationBase):
         num_seqs = next_observations.shape[batch_dim]
 
         next_observations = ptu.from_numpy(next_observations)
-        skill_recon_dist = my_ptu.eval(self.df_to_evaluate, obs_seq=next_observations)
+        skill_recon_dist = my_ptu.eval(self.df_to_evaluate, next_observations)
         ret_dict = dict(skill_recon_dist=skill_recon_dist)
 
         return ret_dict
@@ -252,7 +257,7 @@ class DfEnvEvaluationDIAYNCont(EnvEvaluationBase):
             **kwargs
     ):
         assert skill_recon_dist.batch_shape \
-               == torch.Size((self.seq_len, len(skill), skill[0].shape[-1]))
+               == torch.Size((len(skill), self.seq_len, skill[0].shape[-1]))
         assert isinstance(skill_recon_dist, torch_dist.Normal)
         colors = get_colors()
 
@@ -264,7 +269,7 @@ class DfEnvEvaluationDIAYNCont(EnvEvaluationBase):
             plt.scatter(
                 ptu.get_numpy(recon_dist_loc[:, 0].reshape(-1)),
                 ptu.get_numpy(recon_dist_loc[:, 1].reshape(-1)),
-                label="skill_{}({})".format(_skill_id, _skill),
+                label="skill_{}({})".format(_skill_id, repr(_skill)),
                 c=colors[_skill_id]
             )
         axes.grid(True)
@@ -300,9 +305,12 @@ class DfEnvEvaluationDIAYNCont(EnvEvaluationBase):
             skill,
             **kwargs
     ):
-        skills_np = np.array([np.array([_skill] * self.seq_len) for _skill in skill])
-        assert skills_np.shape == (len(skill), self.seq_len, skill[0].shape[-1])
-        skills = ptu.from_numpy(skills_np)
+        #skills_np = np.array([np.array([_skill] * self.seq_len) for _skill in skill])
+        assert isinstance(skill, list)
+        assert isinstance(skill[0], torch.Tensor)
+        skill = torch.stack(skill)
+        assert skill_recon_dist.batch_shape == torch.Size((skill.shape[0], self.seq_len, 2))
+        skills = torch.stack([skill] * self.seq_len, dim=1)
         assert skill_recon_dist.batch_shape == skills.shape
 
         df_accuracy_eval = F.mse_loss(skill_recon_dist.loc, skills)

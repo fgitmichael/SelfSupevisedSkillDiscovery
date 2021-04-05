@@ -5,7 +5,6 @@ import copy
 from rlkit.launchers.launcher_util import setup_logger
 from rlkit.torch.networks import FlattenMlp
 import rlkit.torch.pytorch_util as ptu
-from rlkit.torch.sac.diayn.diayn_env_replay_buffer import DIAYNEnvReplayBuffer
 from rlkit.samplers.data_collector.path_collector import MdpPathCollector
 from rlkit.samplers.data_collector.step_collector import MdpStepCollector
 from rlkit.torch.sac.diayn.diayn_path_collector import DIAYNMdpPathCollector
@@ -31,6 +30,7 @@ from diayn_cont.policy.skill_policy_with_skill_selector import MakeDeterministic
 from diayn_cont.algo.cont_algo import DIAYNContAlgo
 from diayn_cont.data_collector.seq_eval_collector import MdpPathCollectorWithReset
 from diayn_cont.post_epoch_funcs.get_algo import get_algo
+from diayn_cont.memory.replay_buffer import DIAYNContEnvReplayBuffer
 
 from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
@@ -137,7 +137,7 @@ def create_experiment(config, config_path_name):
         df=df,
         **config["trainer_kwargs"]
     )
-    replay_buffer = DIAYNEnvReplayBuffer(
+    replay_buffer = DIAYNContEnvReplayBuffer(
         max_replay_buffer_size=config["replay_buffer_size"],
         env=eval_env,
         skill_dim=skill_dim,
@@ -156,6 +156,7 @@ def create_experiment(config, config_path_name):
         exploration_data_collector=expl_step_collector,
         evaluation_data_collector=eval_path_collector,
         replay_buffer=replay_buffer,
+        diagnostic_writer=diagno_writer,
         **config['algorithm_kwargs'],
     )
     algorithm = get_algo(

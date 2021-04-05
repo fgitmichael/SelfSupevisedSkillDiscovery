@@ -57,7 +57,7 @@ def get_algo(
         log_prefix=None,
         **config['df_evaluation_env'],
     )
-    df_env_eval = post_epoch_func_wrapper('df evaluation on env')(df_env_eval),
+    df_env_eval = post_epoch_func_wrapper('df evaluation on env')(df_env_eval)
 
     net_logger = ObjectSaver(
         diagnostic_writer=diagnostic_writer,

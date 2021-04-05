@@ -14,7 +14,7 @@ def post_epoch_func_wrapper(
         @wraps(func)
         def new_func(self, *args, **kwargs):
             epoch = kwargs['epoch']
-            assert isinstance(self, DIAYNTorchOnlineRLAlgorithmTb)
+            #assert isinstance(self, DIAYNTorchOnlineRLAlgorithmTb)
 
             if self.diagnostic_writer.is_log(epoch, log_interval=log_interval):
                 if method:

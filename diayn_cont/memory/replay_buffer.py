@@ -14,7 +14,7 @@ class DIAYNContEnvReplayBuffer(DIAYNEnvReplayBuffer):
             skills = self._skill
         elif len(self) < self._max_replay_buffer_size:
             assert len(self) == self._top
-            skills = self._skill[:self._top, 0]
+            skills = self._skill[:self._top]
         else:
             raise ValueError
 

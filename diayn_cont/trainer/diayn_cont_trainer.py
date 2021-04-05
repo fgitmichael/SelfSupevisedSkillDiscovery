@@ -35,7 +35,7 @@ class DIAYNContTrainer(DIAYNTrainerModularized):
         return dict(
             df_loss=df_loss,
             rewards=rewards,
-            pred_skill=pred_skill,
+            pred_z=pred_skill,
             z_hat=skills,
         )
 
