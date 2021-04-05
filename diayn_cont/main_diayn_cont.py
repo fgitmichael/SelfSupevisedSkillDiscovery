@@ -29,7 +29,7 @@ from diayn_cont.policy.skill_policy_with_skill_selector \
 from diayn_cont.policy.skill_policy_with_skill_selector import MakeDeterministic
 from diayn_cont.algo.cont_algo import DIAYNContAlgo
 from diayn_cont.data_collector.seq_eval_collector import MdpPathCollectorWithReset
-from diayn_cont.post_epoch_funcs.get_algo import get_algo
+from diayn_cont.config.get_algo import get_algo
 from diayn_cont.memory.replay_buffer import DIAYNContEnvReplayBuffer
 
 from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
