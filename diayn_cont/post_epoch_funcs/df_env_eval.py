@@ -269,7 +269,10 @@ class DfEnvEvaluationDIAYNCont(EnvEvaluationBase):
             plt.scatter(
                 ptu.get_numpy(recon_dist_loc[:, 0].reshape(-1)),
                 ptu.get_numpy(recon_dist_loc[:, 1].reshape(-1)),
-                label="skill_{}({})".format(_skill_id, repr(_skill)),
+                label="skill {}({})".format(
+                    _skill_id,
+                    np.array2string(ptu.get_numpy(_skill))
+                ),
                 c=colors[_skill_id]
             )
         axes.grid(True)
