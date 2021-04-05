@@ -52,12 +52,12 @@ class OrdinaryEnvForPytorch(DmControlEnvForPytorch):
     def step(self, action):
         sum_reward = 0.0
         for _ in range(self.action_repeat):
-            obs, reward, done, _ = self._step(action)
+            obs, reward, done, env_info = self._step(action)
             sum_reward += reward
             if done:
                 break
 
-        return obs, sum_reward, done, None
+        return obs, sum_reward, done, env_info
 
     def reset(self):
         return self.env.reset()
