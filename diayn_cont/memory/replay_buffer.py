@@ -22,3 +22,9 @@ class DIAYNContEnvReplayBuffer(DIAYNEnvReplayBuffer):
             skills = np.unique(skills, axis=batch_dim)
 
         return skills
+
+    def get_diagnostics(self):
+        diagnostics = super().get_diagnostics()
+        saved_skills = self.get_saved_skills()
+        diagnostics['num_saved_skills'] = saved_skills.shape[0]
+        return diagnostics
