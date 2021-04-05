@@ -1,29 +1,27 @@
 import torch
 import numpy as np
 
-from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy
 from rlkit.policies.base import Policy
 import rlkit.torch.pytorch_util as ptu
 
 from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
     SkillSelectorContinous
 
+from diayn_cont.policy.skill_policy_obs_dim_select import SkillTanhGaussianPolicyObsSelect
 
-class SkillTanhGaussianPolicyWithSkillSelector(SkillTanhGaussianPolicy):
+
+class SkillTanhGaussianPolicyWithSkillSelector(SkillTanhGaussianPolicyObsSelect):
 
     def __init__(
             self,
             *args,
-            obs_dim,
             skill_selector: SkillSelectorContinous,
             **kwargs
     ):
         super().__init__(
             *args,
-            obs_dim=obs_dim,
             **kwargs
         )
-        self.obs_dim = obs_dim
         self.skill_selector = skill_selector
         self._skill = skill_selector.get_random_skill()
 

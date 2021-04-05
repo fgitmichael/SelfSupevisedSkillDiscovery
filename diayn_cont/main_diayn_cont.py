@@ -24,8 +24,8 @@ from my_utils.dicts.get_config_item import get_config_item
 from code_slac.network.latent import Gaussian
 
 from diayn_cont.trainer.diayn_cont_trainer import DIAYNContTrainer
-from diayn_cont.policy.skill_policy_skill_selector_obs_dim_select \
-    import SkillTanhGaussianPolicyWithSkillSelectorObsSelect
+from diayn_cont.policy.skill_policy_with_skill_selector \
+    import SkillTanhGaussianPolicyWithSkillSelector
 from diayn_cont.policy.skill_policy_with_skill_selector import MakeDeterministic
 from diayn_cont.algo.cont_algo import DIAYNContAlgo
 from diayn_cont.data_collector.seq_eval_collector import MdpPathCollectorWithReset
@@ -85,7 +85,7 @@ def create_experiment(config, config_path_name):
         prior_skill_dist=skill_prior,
         grid_radius_factor=config.skill_prior.grid_radius_factor,
     )
-    policy = SkillTanhGaussianPolicyWithSkillSelectorObsSelect(
+    policy = SkillTanhGaussianPolicyWithSkillSelector(
         hidden_sizes=[M, M],
         skill_dim=skill_dim,
         skill_selector=skill_selector,

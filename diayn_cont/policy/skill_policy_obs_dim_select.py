@@ -1,23 +1,24 @@
 import torch
 
-from diayn_cont.policy.skill_policy_with_skill_selector \
-    import SkillTanhGaussianPolicyWithSkillSelector
+from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy
 
 
-class SkillTanhGaussianPolicyWithSkillSelectorObsSelect(
-    SkillTanhGaussianPolicyWithSkillSelector):
+class SkillTanhGaussianPolicyObsSelect(SkillTanhGaussianPolicy):
 
     def __init__(
             self,
             *args,
+            obs_dim,
             obs_dim_real: int = None,
             obs_dims_selected: tuple = (),
             **kwargs
     ):
         super().__init__(
             *args,
+            obs_dim=obs_dim,
             **kwargs
         )
+        self.obs_dim = obs_dim
 
         # Sanity check
         assert obs_dim_real >= len(obs_dims_selected)
