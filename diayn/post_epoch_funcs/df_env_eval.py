@@ -12,6 +12,8 @@ import self_supervised.utils.my_pytorch_util as my_ptu
 
 from seqwise_cont_skillspace.utils.get_colors import get_colors
 
+import self_supervised.utils.my_pytorch_util as my_ptu
+
 
 class DfEnvEvaluationDIAYN(DfEnvEvaluationDIAYNCont):
 
@@ -26,7 +28,7 @@ class DfEnvEvaluationDIAYN(DfEnvEvaluationDIAYNCont):
     def collect_skill_influence_paths(self) -> dict:
         assert isinstance(self.seq_collector, MdpPathCollector)
 
-        skill_array = np.eye(self.skill_dim)
+        skill_array = [number for number in range(self.seq_collector._policy.skill_dim)]
         skill_ids = []
         skills = []
         for skill_id, skill in enumerate(skill_array):
@@ -72,49 +74,7 @@ class DfEnvEvaluationDIAYN(DfEnvEvaluationDIAYNCont):
             skill,
             **kwargs
     ):
-        assert skill_recon.shape \
-               == torch.Size((len(skill), self.seq_len, skill[0].shape[-1]))
-        assert isinstance(skill_recon, torch.Tensor)
-        colors = get_colors()
-
-        # Without Limits
-        plt.clf()
-        _, axes = plt.subplots()
-        for _skill_id, _skill, recon\
-                in zip(skill_id, skill, skill_recon):
-            plt.scatter(
-                ptu.get_numpy(recon[:, 0].reshape(-1)),
-                ptu.get_numpy(recon[:, 1].reshape(-1)),
-                label="skill {}({})".format(
-                    _skill_id,
-                    np.array2string(ptu.get_numpy(_skill))
-                ),
-                c=colors[_skill_id]
-            )
-        axes.grid(True)
-        axes.legend()
-        fig_without_lim = plt.gcf()
-
-        # With Limits
-        lim = [-3., 3.]
-        axes.set_ylim(lim)
-        axes.set_xlim(lim)
-        fig_with_lim = plt.gcf()
-        plt.close()
-
-        # Write
-        figs = dict(
-            no_lim=fig_without_lim,
-            lim=fig_with_lim,
-        )
-        for key, fig in figs.items():
-            self.diagno_writer.writer.writer.add_figure(
-                tag=self.get_log_string(
-                    "Skill Posterior Plot Eval/{}".format(key)
-                ),
-                figure=fig,
-                global_step=epoch,
-            )
+        pass
 
     def classifier_evaluation(
             self,
@@ -126,13 +86,12 @@ class DfEnvEvaluationDIAYN(DfEnvEvaluationDIAYNCont):
     ):
         #skills_np = np.array([np.array([_skill] * self.seq_len) for _skill in skill])
         assert isinstance(skill, list)
-        assert isinstance(skill[0], torch.Tensor)
-        skill = torch.stack(skill)
-        assert skill_recon.shape == torch.Size((skill.shape[0], self.seq_len, 2))
-        skills = torch.stack([skill] * self.seq_len, dim=1)
-        assert skill_recon.shape == skills.shape
+        assert skill_recon.shape[:-1] == torch.Size((len(skill), self.seq_len))
+        skill_recon_reshaped = skill_recon.reshape(len(skill) * self.seq_len, -1)
+        assert my_ptu.tensor_equality(skill_recon_reshaped[:self.seq_len], skill_recon[0,])
+        skills = torch.stack([torch.tensor(skill)] * self.seq_len, dim=-1).reshape(len(skill) * self.seq_len)
 
-        df_accuracy_eval = F.mse_loss(skill_recon, skills)
+        df_accuracy_eval = F.cross_entropy(skill_recon_reshaped, skills)
 
         self.diagno_writer.writer.writer.add_scalar(
             tag=self.get_log_string("Classifier Performance/Eval"),

@@ -1,15 +1,13 @@
 from typing import Type
 import math
 
-from diayn_cont.algo.cont_algo import DIAYNContAlgo
-from diayn_cont.post_epoch_funcs.df_memory_eval import DfMemoryEvalDIAYNCont
-from diayn_cont.post_epoch_funcs.df_env_eval import DfEnvEvaluationDIAYNCont
-from diayn_cont.data_collector.seq_eval_collector import MdpPathCollectorWithReset
-from diayn_cont.policy.skill_policy_with_skill_selector import MakeDeterministic
+from diayn.algo.diayn_algo import DIAYNAlgo
+from diayn.policies.diayn_policy import MakeDeterministic
+from diayn.post_epoch_funcs.df_memory_eval import DfMemoryEvalDIAYN
+from diayn.post_epoch_funcs.df_env_eval import DfEnvEvaluationDIAYN
 
-from latent_with_splitseqs.post_epoch_funcs.tb_logging import PostEpochTbLogger
-from latent_with_splitseqs.post_epoch_funcs.net_param_histogram_logging \
-    import NetParamHistogramLogger
+from diayn_cont.data_collector.seq_eval_collector import MdpPathCollectorWithReset
+
 from latent_with_splitseqs.algo.post_epoch_func_gtstamp_wrapper \
     import post_epoch_func_wrapper
 from latent_with_splitseqs.post_epoch_funcs.algo_saving import ConfigSaver
@@ -18,22 +16,21 @@ from latent_with_splitseqs.post_epoch_funcs.plot_saved_skills_distribution \
 from latent_with_splitseqs.post_epoch_funcs.object_logging import ObjectSaver
 from latent_with_splitseqs.algo.add_post_epoch_func \
     import add_post_epoch_funcs, add_post_epoch_func
-
-from self_sup_combined.base.writer.diagnostics_writer import \
-    DiagnosticsWriter, DiagnosticsWriterBase
+from latent_with_splitseqs.post_epoch_funcs.net_param_histogram_logging \
+    import NetParamHistogramLogger
+from latent_with_splitseqs.post_epoch_funcs.tb_logging import PostEpochTbLogger
 
 from my_utils.dicts.get_config_item import get_config_item
 
-
 def get_algo(
-        algo_class: Type[DIAYNContAlgo],
+        algo_class: Type[DIAYNAlgo],
         algo_kwargs: dict,
         df,
         diagnostic_writer,
         eval_policy: MakeDeterministic,
         post_epoch_eval_path_collector: MdpPathCollectorWithReset,
         config: dict,
-) -> DIAYNContAlgo:
+) -> DIAYNAlgo:
     tb_log_interval = math.ceil(config['log_interval']/4)
     net_log_interval = get_config_item(
         config=config,
@@ -41,15 +38,16 @@ def get_algo(
         default=config['log_interval']
     )
 
-    df_memory_eval =DfMemoryEvalDIAYNCont(
+    df_memory_eval = DfMemoryEvalDIAYN(
         replay_buffer=algo_kwargs['replay_buffer'],
         df_to_evaluate=df,
         diagnostics_writer=diagnostic_writer,
         **config['df_evaluation_memory'],
     )
     df_memory_eval = post_epoch_func_wrapper('df evaluation on memory')(df_memory_eval)
-    df_env_eval = DfEnvEvaluationDIAYNCont(
+    df_env_eval = DfEnvEvaluationDIAYN(
         seq_collector=post_epoch_eval_path_collector,
+        skill_dim=eval_policy.skill_dim,
         seq_len=config['algorithm_kwargs']['max_path_length'],
         df_to_evaluate=df,
         diagnostic_writer=diagnostic_writer,
@@ -114,7 +112,7 @@ def get_algo(
         net_param_hist_logger,
         post_epoch_tb_logger,
         config_saver,
-        saved_skill_dist_plotter,
+    #    saved_skill_dist_plotter,
     ])(algo_class)
 
     algorithm = algo_class(

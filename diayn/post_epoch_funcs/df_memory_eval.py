@@ -31,9 +31,10 @@ class DfMemoryEvalDIAYN(DfMemoryEvalDIAYNCont):
             sampled_transitions,
             **kwargs
     ):
-        df_accuracy_memory = F.mse_loss(
-            skill_recon.loc,
-            ptu.from_numpy(sampled_transitions['skills'])
+        d_pred = torch.argmax(ptu.from_numpy(sampled_transitions['skills']), dim=-1)
+        df_accuracy_memory = F.cross_entropy(
+            skill_recon,
+            d_pred,
         )
 
         self.diagno_writer.writer.writer.add_scalar(

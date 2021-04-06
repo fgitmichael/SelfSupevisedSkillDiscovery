@@ -1,38 +1,35 @@
-import numpy as np
-import torch
 import copy
+import torch
+import numpy as np
+
+from mode_disent_no_ssm.utils.parse_args import parse_args
 
 from rlkit.launchers.launcher_util import setup_logger
 from rlkit.torch.networks import FlattenMlp
 import rlkit.torch.pytorch_util as ptu
 from rlkit.samplers.data_collector.path_collector import MdpPathCollector
 from rlkit.samplers.data_collector.step_collector import MdpStepCollector
-
-from mode_disent_no_ssm.utils.parse_args import parse_args
+from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
 
 from latent_with_splitseqs.config.fun.get_env import get_env
 from latent_with_splitseqs.config.fun.get_obs_dims_used_policy \
     import get_obs_dims_used_policy
-from latent_with_splitseqs.config.fun.get_obs_dims_used_df \
-    import get_obs_dims_used_df
 from latent_with_splitseqs.config.fun.get_diagnostics_writer import get_diagnostics_writer
-from latent_with_splitseqs.config.fun.get_skill_prior import get_skill_prior
 
 from my_utils.dicts.get_config_item import get_config_item
 
-from diayn_cont.classifier.diayn_cont_classifier_obs_dim_select \
-    import GaussianInputDimSelect
-from diayn_cont.trainer.diayn_cont_trainer import DIAYNContTrainer
-from diayn_cont.policy.skill_policy_with_skill_selector \
-    import SkillTanhGaussianPolicyWithSkillSelector
-from diayn_cont.policy.skill_policy_with_skill_selector import MakeDeterministic
-from diayn_cont.algo.cont_algo import DIAYNContAlgo
+from diayn.policies.diayn_policy import \
+    SkillTanhGaussianPolicyObsSelectDIAYN, MakeDeterministic
+from diayn.config.get_algo import get_algo
+from diayn.algo.diayn_algo import DIAYNAlgo
+from diayn.classifier.diayn_classifier_obs_dim_select \
+    import FlattenMlpInputDimSelect
+
 from diayn_cont.data_collector.seq_eval_collector import MdpPathCollectorWithReset
-from diayn_cont.config.get_algo import get_algo
 from diayn_cont.memory.replay_buffer import DIAYNContEnvReplayBuffer
 
-from seqwise_cont_skillspace.data_collector.skill_selector_cont_skills import \
-    SkillSelectorContinous
+from latent_with_splitseqs.config.fun.get_obs_dims_used_df \
+    import get_obs_dims_used_df
 
 
 def create_experiment(config, config_path_name):
@@ -79,15 +76,9 @@ def create_experiment(config, config_path_name):
         hidden_sizes=[M, M],
     )
 
-    skill_prior = get_skill_prior(config)
-    skill_selector = SkillSelectorContinous(
-        prior_skill_dist=skill_prior,
-        grid_radius_factor=config.skill_prior.grid_radius_factor,
-    )
-    policy = SkillTanhGaussianPolicyWithSkillSelector(
+    policy = SkillTanhGaussianPolicyObsSelectDIAYN(
         hidden_sizes=[M, M],
         skill_dim=skill_dim,
-        skill_selector=skill_selector,
         obs_dim=len(used_obs_dims_policy) + skill_dim,
         action_dim=action_dim,
         obs_dims_selected=used_obs_dims_policy,
@@ -113,23 +104,21 @@ def create_experiment(config, config_path_name):
         obs_dims_used=config["df_kwargs"]["obs_dims_used"],
         obs_dims_used_except=config["df_kwargs"]["obs_dims_used_except"]
     )
-    df = GaussianInputDimSelect(
-        input_dim=len(obs_dims_used_df),
+    df = FlattenMlpInputDimSelect(
+        input_size=len(obs_dims_used_df),
         used_dims=obs_dims_used_df,
-        output_dim=skill_dim,
-        hidden_units=[M, M],
-        leaky_slope=0.1,
-        std=config["df_kwargs"]["std"],
+        output_size=skill_dim,
+        hidden_sizes=[M, M],
     )
-    trainer = DIAYNContTrainer(
-        env=expl_env,
+    trainer = DIAYNTrainer(
+        env=eval_env,
         policy=policy,
         qf1=qf1,
         qf2=qf2,
+        df=df,
         target_qf1=target_qf1,
         target_qf2=target_qf2,
-        df=df,
-        **config["trainer_kwargs"]
+        **config['trainer_kwargs']
     )
     replay_buffer = DIAYNContEnvReplayBuffer(
         max_replay_buffer_size=config["replay_buffer_size"],
@@ -154,7 +143,7 @@ def create_experiment(config, config_path_name):
         **config['algorithm_kwargs'],
     )
     algorithm = get_algo(
-        algo_class=DIAYNContAlgo,
+        algo_class=DIAYNAlgo,
         algo_kwargs=algo_kwargs,
         df=df,
         diagnostic_writer=diagno_writer,
@@ -175,7 +164,7 @@ if __name__ == "__main__":
 
     setup_logger(
         config.algorithm + config.version,
-    )
+        )
     ptu.set_gpu_mode(config.gpu)
 
     algorithm = create_experiment(config, config_path_name)
