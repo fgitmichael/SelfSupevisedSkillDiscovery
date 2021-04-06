@@ -91,7 +91,7 @@ class DfEnvEvaluationDIAYN(DfEnvEvaluationDIAYNCont):
         assert my_ptu.tensor_equality(skill_recon_reshaped[:self.seq_len], skill_recon[0,])
         skills = torch.stack([torch.tensor(skill)] * self.seq_len, dim=-1).reshape(len(skill) * self.seq_len)
 
-        df_accuracy_eval = F.cross_entropy(skill_recon_reshaped, skills)
+        df_accuracy_eval = F.cross_entropy(skill_recon_reshaped.cpu(), skills.cpu())
 
         self.diagno_writer.writer.writer.add_scalar(
             tag=self.get_log_string("Classifier Performance/Eval"),
