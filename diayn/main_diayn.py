@@ -158,7 +158,7 @@ def create_experiment(config, config_path_name):
 
 if __name__ == "__main__":
     config, config_path_name = parse_args(
-        default="config/config_files/mcar.yaml",
+        default="config/config_files/halfcheetah.yaml",
         return_config_path_name=True
     )
 
