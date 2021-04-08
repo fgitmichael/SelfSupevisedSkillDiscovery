@@ -24,6 +24,7 @@ from diayn.config.get_algo import get_algo
 from diayn.algo.diayn_algo import DIAYNAlgo
 from diayn.classifier.diayn_classifier_obs_dim_select \
     import FlattenMlpInputDimSelect
+from diayn.config.get_replay_buffer import get_replay_buffer
 
 from diayn_cont.data_collector.seq_eval_collector import MdpPathCollectorWithReset
 from diayn_cont.memory.replay_buffer import DIAYNContEnvReplayBuffer
@@ -120,10 +121,14 @@ def create_experiment(config, config_path_name):
         target_qf2=target_qf2,
         **config['trainer_kwargs']
     )
-    replay_buffer = DIAYNContEnvReplayBuffer(
+    replay_buffer_kwargs = dict(
         max_replay_buffer_size=config["replay_buffer_size"],
         env=eval_env,
         skill_dim=skill_dim,
+    )
+    replay_buffer = get_replay_buffer(
+        replay_buffer_kwargs=replay_buffer_kwargs,
+        config=config,
     )
     diagno_writer = get_diagnostics_writer(
         run_comment=" ".join((config['algorithm'], config['version'])),
