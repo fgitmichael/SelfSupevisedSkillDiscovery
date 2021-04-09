@@ -19,10 +19,9 @@ class DIAYNEnvReplayBufferEBP(DIAYNContEnvReplayBuffer):
         )
         self.calc_path_energy_fun = calc_path_energy_fun
 
-        self.path_energy = {}
-        self.path_energy['pot'] = np.zeros((max_replay_buffer_size,))
-        self.path_energy['kin'] = np.zeros((max_replay_buffer_size,))
-        self.path_energy['rot'] = np.zeros((max_replay_buffer_size,))
+        self.path_energy = {'pot': np.zeros((max_replay_buffer_size,)),
+                            'kin': np.zeros((max_replay_buffer_size,)),
+                            'rot': np.zeros((max_replay_buffer_size,))}
 
     def add_path(self, path):
         """
@@ -99,9 +98,14 @@ class DIAYNEnvReplayBufferEBP(DIAYNContEnvReplayBuffer):
         pvals = 1/3 * pvals['pot'] + 1/3 * pvals['kin'] + 1/3 * pvals['rot']
 
         num_drawn_samples = np.random.multinomial(batch_size, pvals)
+
+        non_zero_idx_tuple = np.nonzero(num_drawn_samples)
+        assert len(non_zero_idx_tuple) == 1
+        non_zero_idx = non_zero_idx_tuple[0]
+        num_drawn_per_idx = num_drawn_samples[non_zero_idx]
         indices = []
-        for idx, num_drawn in enumerate(num_drawn_samples):
-            for _ in range(num_drawn):
+        for idx, num in zip(non_zero_idx, num_drawn_per_idx):
+            for _ in range(num):
                 indices.append(idx)
         indices = np.array(indices)
 
