@@ -12,8 +12,6 @@ import self_supervised.utils.my_pytorch_util as my_ptu
 
 from seqwise_cont_skillspace.utils.get_colors import get_colors
 
-import self_supervised.utils.my_pytorch_util as my_ptu
-
 
 class DfEnvEvaluationDIAYN(DfEnvEvaluationDIAYNCont):
 
