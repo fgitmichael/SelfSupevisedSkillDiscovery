@@ -1,0 +1,74 @@
+---
+algorithm: DIAYN
+version: "original with post epoch tensorboard"
+layer_size: 300
+replay_buffer_size: 1000000
+skill_dim: 50
+
+# Environment
+env_kwargs:
+  env_id: MountainCarContinuous-v0
+  pybullet:
+    is_pybullet: False
+    pos_dim: null
+  init_kwargs:
+    exclude_current_positions_from_observation: False
+    reset_noise_scale: null
+
+obs_dims_used_policy_all_except: []
+
+# Algorithm
+algorithm_kwargs:
+  num_epochs: 1000
+  num_eval_steps_per_epoch: 5000
+  num_trains_per_train_loop: 1000
+  num_expl_steps_per_train_loop: 1000
+  min_num_steps_before_training: 1000
+  max_path_length: 1000
+  batch_size: 128
+
+# Trainer
+trainer_kwargs:
+  discount: 0.99
+  soft_target_tau: 0.005
+  target_update_period: 1
+  policy_lr: 0.0003
+  qf_lr: 0.0003
+  reward_scale: 1.
+  use_automatic_entropy_tuning: True
+
+# Evaluation
+df_evaluation_env:
+  obs_dims_to_log: [0, 1]
+  action_dims_to_log: [0, ]
+  horizon_len: 100
+  num_paths_per_skill: 1
+  plot_skill_influence:
+    obs: True
+    action: True
+    obs_one_plot: True
+    plot_post: True
+df_evaluation_memory:
+  batch_size: 256
+
+# Classifier
+df_kwargs:
+  obs_dims_used: [0, 1]
+  obs_dims_used_except: null
+
+# Logging
+test_script_path: [
+  ../cont_skillspace_test/main_test_guided_normal_plot.py,
+  ../cont_skillspace_test/main_test_guided_normal_render.py,
+  ../latent_with_splitseqs/continue_algo_training.py,
+  ../cont_skillspace_test/main_test_grid_rollout_plot.py,
+  ../thes_graphics/main_all_in_one.py,
+  ../thes_graphics/main_grid_rollout_heat_map.py,
+  ../thes_graphics/main_test_grid_relevant_trajectories.py,
+  ../thes_graphics/main_test_grid_rollout_plot_thes.py
+]
+log_folder: /media/michael/TOSHIBA EXT1/logs/diayn/mcar
+log_interval: 50
+
+# GPU
+gpu: True

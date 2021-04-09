@@ -48,7 +48,6 @@ def get_algo(
     df_env_eval = DfEnvEvaluationDIAYN(
         seq_collector=post_epoch_eval_path_collector,
         skill_dim=eval_policy.skill_dim,
-        seq_len=config['algorithm_kwargs']['max_path_length'],
         df_to_evaluate=df,
         diagnostic_writer=diagnostic_writer,
         log_prefix=None,
