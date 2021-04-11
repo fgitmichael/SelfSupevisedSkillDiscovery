@@ -35,65 +35,28 @@ class DIAYNEnvReplayBufferEBP(DIAYNContEnvReplayBuffer):
 
         :param path: Dict like one outputted by rlkit.samplers.util.rollout
         """
-        # Calc path energy
         path_energy = self.calc_path_energy_fun(path)
 
-        for i, (
-                obs,
-                action,
-                reward,
-                next_obs,
-                terminal,
-                agent_info,
-                env_info
-        ) in enumerate(zip(
-            path["observations"],
-            path["actions"],
-            path["rewards"],
-            path["next_observations"],
-            path["terminals"],
-            path["agent_infos"],
-            path["env_infos"],
-        )):
-            self.add_sample(
-                observation=obs,
-                action=action,
-                reward=reward,
-                next_observation=next_obs,
-                terminal=terminal,
-                agent_info=agent_info,
-                env_info=env_info,
-                path_energy=path_energy,
-            )
-        self.terminate_episode()
+        path_len = path["observations"].shape[0]
 
-    def add_sample(
-            self,
-            *args,
-            path_energy=None,
-            **kwargs
-    ):
-        if path_energy is None:
-            raise ValueError
-        assert isinstance(path_energy, dict)
-        assert "pot" in path_energy.keys() \
-            and "kin" in path_energy.keys() \
-            and "rot" in path_energy.keys()
+        idx_to_write = np.mod(
+            np.arange(self._top, self._top + path_len),
+            self._max_replay_buffer_size
+        )
+        self.path_energy["pot"][idx_to_write] = path_energy["pot"]
+        self.path_energy["kin"][idx_to_write] = path_energy["kin"]
+        self.path_energy["rot"][idx_to_write] = path_energy["rot"]
 
-        self.path_energy['pot'][self._top] = path_energy['pot']
-        self.path_energy['kin'][self._top] = path_energy['kin']
-        self.path_energy['rot'][self._top] = path_energy['rot']
-
-        return super().add_sample(*args, **kwargs)
+        super().add_path(path)
 
     def random_batch(self, batch_size):
         """
         Sample energy prioritized
         """
         pvals = {}
-        pvals['pot'] = calc_pvals(self.path_energy['pot'][:len(self) - 1])
-        pvals['kin'] = calc_pvals(self.path_energy['kin'][:len(self) - 1])
-        pvals['rot'] = calc_pvals(self.path_energy['rot'][:len(self) - 1])
+        pvals['pot'] = calc_pvals(self.path_energy['pot'][:len(self)])
+        pvals['kin'] = calc_pvals(self.path_energy['kin'][:len(self)])
+        pvals['rot'] = calc_pvals(self.path_energy['rot'][:len(self)])
 
         pvals = 1/3 * pvals['pot'] + 1/3 * pvals['kin'] + 1/3 * pvals['rot']
 
