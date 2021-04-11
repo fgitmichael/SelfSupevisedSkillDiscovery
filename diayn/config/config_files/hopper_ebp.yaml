@@ -1,8 +1,9 @@
 ---
 algorithm: DIAYN
-version: "original with post epoch tensorboard"
+version: "original with post epoch tensorboard ebp"
 layer_size: 300
 replay_buffer_size: 1000000
+ebp_sampling: True
 skill_dim: 50
 
 # Environment
@@ -41,7 +42,7 @@ trainer_kwargs:
 df_evaluation_env:
   obs_dims_to_log: [0, 1]
   action_dims_to_log: [0, ]
-  horizon_len: 100
+  seq_len: 300
   num_paths_per_skill: 1
   plot_skill_influence:
     obs: True
@@ -60,7 +61,6 @@ df_kwargs:
 test_script_path: [
   ../cont_skillspace_test/main_test_guided_normal_plot.py,
   ../cont_skillspace_test/main_test_guided_normal_render.py,
-  ../latent_with_splitseqs/continue_algo_training.py,
   ../cont_skillspace_test/main_test_grid_rollout_plot.py,
   ../thes_graphics/main_all_in_one.py,
   ../thes_graphics/main_grid_rollout_heat_map.py,
@@ -71,4 +71,4 @@ log_folder: /media/michael/TOSHIBA EXT1/logs/diayn/hopper
 log_interval: 125
 
 # GPU
-gpu: False
+gpu: True
