@@ -28,7 +28,6 @@ from diayn.classifier.diayn_classifier_obs_dim_select \
 from diayn.config.get_replay_buffer import get_replay_buffer
 
 from diayn_cont.data_collector.seq_eval_collector import MdpPathCollectorWithReset
-from diayn_cont.memory.replay_buffer import DIAYNContEnvReplayBuffer
 
 from latent_with_splitseqs.config.fun.get_obs_dims_used_df \
     import get_obs_dims_used_df

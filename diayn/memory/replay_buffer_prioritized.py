@@ -1,9 +1,9 @@
 import numpy as np
 
-from diayn_cont.memory.replay_buffer import DIAYNContEnvReplayBuffer
+from diayn.memory.replay_buffer_discrete import DIAYNEnvReplayBufferOptDiscrete
 
 
-class DIAYNEnvReplayBufferEBP(DIAYNContEnvReplayBuffer):
+class DIAYNEnvReplayBufferEBP(DIAYNEnvReplayBufferOptDiscrete):
 
     def __init__(
             self,
@@ -22,6 +22,9 @@ class DIAYNEnvReplayBufferEBP(DIAYNContEnvReplayBuffer):
         self.path_energy = {'pot': np.zeros((max_replay_buffer_size,)),
                             'kin': np.zeros((max_replay_buffer_size,)),
                             'rot': np.zeros((max_replay_buffer_size,))}
+
+        data_dim= -1
+        self._num_times_skill_sampled = np.zeros((self._skill.shape[data_dim],))
 
     def add_path(self, path):
         """
@@ -83,6 +86,9 @@ class DIAYNEnvReplayBufferEBP(DIAYNContEnvReplayBuffer):
         for key in self._env_info_keys:
             assert key not in batch.keys()
             batch[key] = self._env_infos[key][indices]
+
+        self._update_num_times_skill_used_for_training(batch["skills"])
+
         return batch
 
 

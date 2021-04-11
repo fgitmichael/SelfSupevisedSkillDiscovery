@@ -2,11 +2,11 @@ from my_utils.dicts.get_config_item import get_config_item
 
 from rlkit.torch.sac.diayn.diayn_env_replay_buffer import DIAYNEnvReplayBuffer
 
-from diayn_cont.memory.replay_buffer import DIAYNContEnvReplayBuffer
-
 from diayn.memory.replay_buffer_prioritized import DIAYNEnvReplayBufferEBP
 from diayn.energy.calc_energy_1D_pos_dim import calc_energy_1d_pos_dim
 from diayn.energy.calc_energy_mcar import calc_energy_mcar
+from diayn.memory.replay_buffer_discrete import DIAYNEnvReplayBufferOptDiscrete
+
 
 
 def get_replay_buffer(
@@ -32,7 +32,7 @@ def get_replay_buffer(
         )
 
     else:
-        replay_buffer = DIAYNContEnvReplayBuffer(
+        replay_buffer = DIAYNEnvReplayBufferOptDiscrete(
             **replay_buffer_kwargs
         )
 
