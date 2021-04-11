@@ -5,6 +5,8 @@ from diayn.algo.diayn_algo import DIAYNAlgo
 from diayn.policies.diayn_policy import MakeDeterministic
 from diayn.post_epoch_funcs.df_memory_eval import DfMemoryEvalDIAYN
 from diayn.post_epoch_funcs.df_env_eval import DfEnvEvaluationDIAYN
+from diayn.post_epoch_funcs.num_times_skill_used_for_training_logger \
+    import NumTimesSkillUsedForTrainingLogger
 
 from diayn_cont.data_collector.seq_eval_collector import MdpPathCollectorWithReset
 
@@ -104,6 +106,15 @@ def get_algo(
         log_interval=config['log_interval'],
     )(saved_skill_dist_plotter)
 
+    num_times_skill_used_for_training_plotter = NumTimesSkillUsedForTrainingLogger(
+        diagnostic_writer=diagnostic_writer,
+        replay_buffer=algo_kwargs['replay_buffer']
+    )
+    num_times_skill_used_for_training_plotter = post_epoch_func_wrapper(
+        'num times skill used for training plotter',
+        log_interval=config['log_interval'],
+    )(num_times_skill_used_for_training_plotter)
+
     algo_class = add_post_epoch_funcs([
         df_env_eval,
         df_memory_eval,
@@ -111,7 +122,8 @@ def get_algo(
         net_param_hist_logger,
         post_epoch_tb_logger,
         config_saver,
-    #    saved_skill_dist_plotter,
+        #saved_skill_dist_plotter,
+        num_times_skill_used_for_training_plotter,
     ])(algo_class)
 
     algorithm = algo_class(
