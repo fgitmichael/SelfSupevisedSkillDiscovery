@@ -20,6 +20,7 @@ class NumTimesSkillUsedForTrainingLogger(PostEpochDiagnoWritingBase):
 
         self.diagno_writer.writer.plot(
             num_times_skills_used,
+            marker='o',
             tb_str="Replay-Buffer_Eval_Stats/Num Times skills used for training",
             step=epoch,
         )
