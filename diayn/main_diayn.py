@@ -1,4 +1,5 @@
 import copy
+import warnings
 import torch
 import numpy as np
 
@@ -163,7 +164,7 @@ def create_experiment(config, config_path_name):
 
 if __name__ == "__main__":
     config, config_path_name = parse_args(
-        default="config/config_files/halfcheetah.yaml",
+        default="config/config_files/hopper_ebp.yaml",
         return_config_path_name=True
     )
 
@@ -171,6 +172,8 @@ if __name__ == "__main__":
         config.algorithm + config.version,
         )
     ptu.set_gpu_mode(config.gpu)
+    if not config.gpu:
+        warnings.warn("GPU is deactivated")
 
     algorithm = create_experiment(config, config_path_name)
     algorithm.train()
