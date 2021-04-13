@@ -35,6 +35,7 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
             self,
             batch: dict,
             batch_size: int,
+            batch_seqlens: np.ndarray,
             sample_seq_len: int,
     ) -> dict:
         """
@@ -53,11 +54,12 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
         next_obs_key = 'next_obs'
         horizon_len = batch[next_obs_key].shape[seq_dim]
         transition_mode_mapping_kwargs = {}
-        start_idx = np.random.randint(
-            low=0,
-            high=self.horizon_len, # padding is needed
-            size=(batch_size,)
-        )
+        start_idx = np.array([
+            np.random.randint(
+                low=0,
+                high=batch_horizon_len)
+            for batch_horizon_len in np.squeeze(batch_seqlens)
+        ])
         for key, el in batch.items():
             if isinstance(el, np.ndarray) and key != skill_key:
                 el_padded = self._add_left_zero_padding(
@@ -95,12 +97,14 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
             TransitionModeMapping      : consisting of (N, data_dim, S) tensors
         """
         sample_seq_len = self._get_sample_seqlen()
-        batch_horizon = super().random_batch(
-            batch_size=batch_size,
-        )
+        sample_idx = self._sample_random_batch_extraction_idx(batch_size)
+        batch_horizon = self._extract_whole_batch(sample_idx)
+        batch_seqlens = self._seqlen_saved_paths[sample_idx]
+
         transition_mode_mapping_kwargs = self._take_elements_from_batch(
             batch=batch_horizon,
             batch_size=batch_size,
+            batch_seqlens=batch_seqlens,
             sample_seq_len=sample_seq_len,
         )
 
@@ -116,12 +120,14 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
             batch_size              : N
         """
         sample_seq_len = self._get_sample_seqlen()
-        batch_horizon = super().random_batch_latent_training(
-            batch_size=batch_size,
-        )
+        sample_idx = self._sample_random_batch_extraction_idx(batch_size)
+        batch_horizon = self._extract_batch_latent_training(sample_idx)
+        batch_seqlens = self._seqlen_saved_paths[sample_idx]
+
         return_dict = self._take_elements_from_batch(
             batch=batch_horizon,
             sample_seq_len=sample_seq_len,
+            batch_seqlens=batch_seqlens,
             batch_size=batch_size,
         )
 

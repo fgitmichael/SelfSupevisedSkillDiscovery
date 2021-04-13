@@ -73,8 +73,14 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
         Return:
             TransitionModeMapping      : consisting of (N, data_dim, S) tensors
         """
-        idx = np.random.randint(0, self._size, batch_size)
+        idx = self._sample_random_batch_extraction_idx(batch_size)
+        batch = self._extract_whole_batch(idx)
+        return batch
 
+    def _sample_random_batch_extraction_idx(self, batch_size):
+        return np.random.randint(0, self._size, batch_size)
+
+    def _extract_whole_batch(self, idx: int) -> td.TransitionModeMapping:
         batch = td.TransitionModeMapping(
             obs=self._obs_seqs[idx],
             action=self._action_seqs[idx],
@@ -83,7 +89,6 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
             terminal=self._terminal_seqs[idx],
             mode=self._mode_per_seqs[idx]
         )
-
         return batch
 
     def get_diagnostics(self) -> dict:

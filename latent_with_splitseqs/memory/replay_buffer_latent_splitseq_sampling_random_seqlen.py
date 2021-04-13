@@ -23,3 +23,6 @@ class LatentReplayBufferSplitSeqSamplingRandomSeqLen(LatentReplayBufferSplitSeqS
 
     def _get_sample_seqlen(self) -> int:
         return np.random.randint(**self.sample_seq_len_dict)
+
+    def _add_sample_if(self, path_len) -> bool:
+        return not path_len < self.sample_seq_len_dict['low']

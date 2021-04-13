@@ -80,15 +80,20 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
             horizon_len,
             discard_incomplete_seq,
     ) -> bool:
+        # Rollout
         seq = self._rollouter.do_rollout(
             seq_len=seq_len
         )
-        seq_with_skill = self.prepare_seq_before_save(
+
+        # Add skills and handle terminals
+        seq = self._handle_terminals(seq)
+
+        # Add skills
+        seq = self._extend_transitions_with_skill(
             seq=seq,
-            sampling_seq_len=seq_len,
-            discard_incomplete_seq=discard_incomplete_seq
         )
 
+        # Update counters
         seq_dim = 0
         sampled_seq_len = seq.obs.shape[seq_dim]
         self._num_steps_total += sampled_seq_len
@@ -103,10 +108,14 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
             self._rollouter.reset()
             horizon_completed = True
 
-        self._save_split_seq(
-            split_seq=seq_with_skill,
-            horizon_completed=horizon_completed,
-        )
+        # Decide if incomplete sequence (fragments) are saved
+        # (Sequence can be incomplete if terminals occured)
+        seq_complete = sampled_seq_len == seq_len
+        if seq_complete or not discard_incomplete_seq:
+            self._save_split_seq(
+                split_seq=seq,
+                horizon_completed=horizon_completed,
+            )
 
         return horizon_completed
 
@@ -126,56 +135,41 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
     def action_dim(self):
         return self._rollouter.env.action_space.shape[-1]
 
-    def prepare_seq_before_save(
-            self,
-            seq,
-            sampling_seq_len,
-            discard_incomplete_seq
-    ) -> td.TransitionModeMapping:
-        # Handle possible incomplete path
+    def _handle_terminals(self, seq):
         seq_dim = 0
-        sampled_seq_len = seq.obs.shape[seq_dim]
-        seq_complete = sampled_seq_len == sampling_seq_len
-        assert sampling_seq_len >= sampled_seq_len
-        if discard_incomplete_seq and not seq_complete:
-            prepared_seq = None
 
-        elif not discard_incomplete_seq and not seq_complete:
-            # Copy the last (sampling_seq_len - seq_len) elements
-            # to complete the sequence
-            assert len(self._epoch_split_seqs) > 0
-            copy_len = sampling_seq_len - sampled_seq_len
-            last_seq = self._epoch_split_seqs[-1]
-            completed_seq = {}
-            seq_dim = 0
-            for key, el in last_seq.items():
+        assert isinstance(seq, td.TransitionMapping)
+        terminal = np.squeeze(seq.terminal)
+        assert isinstance(terminal, np.ndarray)
+        assert len(terminal.shape) == 1
+        assert terminal.dtype == np.bool
+
+        seq_terminated = not np.all(terminal == False, axis=seq_dim)
+        if seq_terminated:
+            terminal_idx = np.argwhere(terminal == True)
+            first_terminal_idx = int(terminal_idx[0])
+            #seq = seq[:first_terminal_idx]
+            seq_until_terminal = {}
+            for key, el in seq.items():
                 if isinstance(el, np.ndarray):
-                    completed_seq[key] = np.concatenate(
-                        (el[-copy_len:], seq[key]),
-                        axis=seq_dim,
-                    )
-                    assert completed_seq[key].shape[seq_dim] == sampling_seq_len
+                    seq_until_terminal[key] = el[:first_terminal_idx]
+                else:
+                    seq_until_terminal[key] = el
+            seq = td.TransitionMapping(**seq_until_terminal)
 
-            prepared_seq = self.extend_transitions_with_skill(
-                seq=seq,
-                sampling_seq_len=sampling_seq_len,
-            )
+        return seq
 
-        else:
-            # Seq is complete
-            prepared_seq = self.extend_transitions_with_skill(
-                seq=seq,
-                sampling_seq_len=sampling_seq_len
-            )
-
-        return prepared_seq
-
-    def extend_transitions_with_skill(
+    def _extend_transitions_with_skill(
             self,
             seq: td.TransitionMapping,
-            sampling_seq_len,
     ) -> td.TransitionModeMapping:
-        seq_len = sampling_seq_len
+
+        # Get sampled sequence length
+        seq_dim = 0
+        seq_lens = [el.shape[seq_dim] for el in seq.values() if isinstance(el, np.ndarray)]
+        assert all([path_len == seq_lens[0] for path_len in seq_lens])
+        seq_len = seq_lens[0]
+
         # Extend to TransitionModeMapping
         seq_dim = 0
         skill_seq = np.stack(
