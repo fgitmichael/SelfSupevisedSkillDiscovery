@@ -50,7 +50,6 @@ def get_algo(
     df_memory_eval = post_epoch_func_wrapper('df evaluation on memory')(df_memory_eval)
     df_env_eval = DfEnvEvaluationDIAYNCont(
         seq_collector=post_epoch_eval_path_collector,
-        seq_len=config['algorithm_kwargs']['max_path_length'],
         df_to_evaluate=df,
         diagnostic_writer=diagnostic_writer,
         log_prefix=None,

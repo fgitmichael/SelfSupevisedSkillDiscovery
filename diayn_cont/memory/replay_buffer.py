@@ -1,5 +1,4 @@
-from rlkit.torch.sac.diayn.diayn_env_replay_buffer import DIAYNEnvReplayBuffer
+from diayn.memory.replay_buffer_opt import DIAYNEnvReplayBufferOpt
 
-
-class DIAYNContEnvReplayBuffer(DIAYNEnvReplayBuffer):
+class DIAYNContEnvReplayBuffer(DIAYNEnvReplayBufferOpt):
     pass
