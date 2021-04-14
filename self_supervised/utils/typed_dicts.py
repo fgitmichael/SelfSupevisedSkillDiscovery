@@ -237,7 +237,7 @@ class SlicableProdict(Prodict):
     def size_first_dim(self):
         sizes_first_dim = [v.shape[0] for v in self.values() if self._is_array_type(v)]
 
-        if all(sizes_first_dim[0]== size for size in sizes_first_dim):
+        if all(sizes_first_dim[0] == size for size in sizes_first_dim):
             return sizes_first_dim[0]
         else:
             raise ValueError("Arrays in the Mapping don't match on the first dimension")
