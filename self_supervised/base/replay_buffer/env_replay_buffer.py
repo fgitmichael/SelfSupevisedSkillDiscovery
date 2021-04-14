@@ -45,7 +45,7 @@ class SequenceEnvReplayBuffer(NormalSequenceReplayBuffer):
         """
 
         if isinstance(self._action_space, Discrete):
-            # One Hot over pathuences
+            # One Hot over paths
             new_action = np.zeros(
                 (self._action_dim, self._seq_len)
             )
