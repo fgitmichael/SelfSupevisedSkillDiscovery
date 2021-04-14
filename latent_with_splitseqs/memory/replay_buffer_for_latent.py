@@ -75,4 +75,12 @@ class LatentReplayBuffer(SelfSupervisedEnvSequenceReplayBuffer):
         # Only add complete paths
         if self._add_sample_if(path_len):
             self._seqlen_saved_paths[self._top] = path_len
-            return super().add_sample(path, **kwargs)
+
+            self._mode_per_seqs[self._top, :, :path_len] = path.mode
+            self._obs_seqs[self._top, :, :path_len] = path.obs
+            self._obs_next_seqs[self._top, :, :path_len] = path.next_obs
+            self._action_seqs[self._top, :, :path_len] = path.action
+            self._rewards_seqs[self._top, :, :path_len] = path.reward
+            self._terminal_seqs[self._top, :, :path_len] = path.terminal
+
+            self._advance()

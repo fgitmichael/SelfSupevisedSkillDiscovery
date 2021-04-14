@@ -3,7 +3,7 @@ import abc
 import gym
 import numpy as np
 from collections import deque
-from typing import List, Union
+from typing import List, Union, Tuple
 
 from latent_with_splitseqs.base.split_seq_collector_horizon_base \
     import HorizonSplitSeqCollectorBase
@@ -86,16 +86,16 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
         )
 
         # Add skills and handle terminals
-        seq = self._handle_terminals(seq)
+        seq_terminals_handled, seq_terminated = self._handle_terminals(seq)
 
         # Add skills
-        seq = self._extend_transitions_with_skill(
-            seq=seq,
+        seq_with_skills = self._extend_transitions_with_skill(
+            seq=seq_terminals_handled,
         )
 
         # Update counters
         seq_dim = 0
-        sampled_seq_len = seq.obs.shape[seq_dim]
+        sampled_seq_len = seq_with_skills.obs.shape[seq_dim]
         self._num_steps_total += sampled_seq_len
         self._num_split_seqs_total += 1
         self._num_split_seqs_current_rollout += 1
@@ -103,7 +103,7 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
         # Reset rollouter
         num_seqs_horizon = horizon_len // seq_len
         horizon_completed = False
-        if self._num_split_seqs_current_rollout == num_seqs_horizon:
+        if self._num_split_seqs_current_rollout == num_seqs_horizon or seq_terminated:
             self._num_split_seqs_current_rollout = 0
             self._rollouter.reset()
             horizon_completed = True
@@ -113,7 +113,7 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
         seq_complete = sampled_seq_len == seq_len
         if seq_complete or not discard_incomplete_seq:
             self._save_split_seq(
-                split_seq=seq,
+                split_seq=seq_with_skills,
                 horizon_completed=horizon_completed,
             )
 
@@ -135,7 +135,7 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
     def action_dim(self):
         return self._rollouter.env.action_space.shape[-1]
 
-    def _handle_terminals(self, seq):
+    def _handle_terminals(self, seq) -> Tuple[td.TransitionMapping, bool]:
         seq_dim = 0
 
         assert isinstance(seq, td.TransitionMapping)
@@ -145,7 +145,12 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
         assert terminal.dtype == np.bool
 
         seq_terminated = not np.all(terminal == False, axis=seq_dim)
-        if seq_terminated:
+
+        # Always use at least one sequence chunk,
+        # otherwise replay buffer will never be filled
+        remove_terminals = seq_terminated and self._num_split_seqs_current_rollout > 0
+
+        if remove_terminals:
             terminal_idx = np.argwhere(terminal == True)
             first_terminal_idx = int(terminal_idx[0])
             #seq = seq[:first_terminal_idx]
@@ -157,7 +162,7 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
                     seq_until_terminal[key] = el
             seq = td.TransitionMapping(**seq_until_terminal)
 
-        return seq
+        return seq, seq_terminated
 
     def _extend_transitions_with_skill(
             self,

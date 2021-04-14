@@ -34,7 +34,6 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
     def _take_elements_from_batch(
             self,
             batch: dict,
-            batch_size: int,
             batch_seqlens: np.ndarray,
             sample_seq_len: int,
     ) -> dict:
@@ -53,13 +52,15 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
         skill_key = 'mode'
         next_obs_key = 'next_obs'
         horizon_len = batch[next_obs_key].shape[seq_dim]
-        transition_mode_mapping_kwargs = {}
+
         start_idx = np.array([
             np.random.randint(
                 low=0,
                 high=batch_horizon_len)
             for batch_horizon_len in np.squeeze(batch_seqlens)
         ])
+
+        transition_mode_mapping_kwargs = {}
         for key, el in batch.items():
             if isinstance(el, np.ndarray) and key != skill_key:
                 el_padded = self._add_left_zero_padding(
@@ -69,10 +70,6 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
                 )
 
             elif isinstance(el, np.ndarray) and key == skill_key:
-                assert np_array_equality(
-                    el,
-                    np.stack([el[..., 0]] * horizon_len, axis=seq_dim)
-                )
                 padding_arr = np.stack([el[..., 0]] * sample_seq_len, axis=seq_dim)
                 el_padded = np.concatenate([padding_arr, el], axis=seq_dim)
 
@@ -103,7 +100,6 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
 
         transition_mode_mapping_kwargs = self._take_elements_from_batch(
             batch=batch_horizon,
-            batch_size=batch_size,
             batch_seqlens=batch_seqlens,
             sample_seq_len=sample_seq_len,
         )
@@ -128,7 +124,6 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
             batch=batch_horizon,
             sample_seq_len=sample_seq_len,
             batch_seqlens=batch_seqlens,
-            batch_size=batch_size,
         )
 
         return return_dict
