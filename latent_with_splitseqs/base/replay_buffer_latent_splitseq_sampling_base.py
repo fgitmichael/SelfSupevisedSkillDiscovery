@@ -19,70 +19,116 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
     def horizon_len(self):
         return self._seq_len
 
-    @staticmethod
-    def _add_left_zero_padding(
-            arr: np.ndarray,
-            padding_len: int,
-            padding_dim: int
-    ) -> np.ndarray:
-        size_padding = list(arr.shape)
-        size_padding[padding_dim] = padding_len
-        padding_arr = np.zeros(size_padding)
-        padded = np.concatenate([padding_arr, arr], axis=padding_dim)
-        return padded
+    def _extract_whole_batch(self, idx: tuple, **kwargs) -> td.TransitionModeMapping:
+        assert 'seq_len' in kwargs.keys()
+        seq_len = kwargs['seq_len']
 
-    def _take_elements_from_batch(
-            self,
-            batch: dict,
-            batch_seqlens: np.ndarray,
-            sample_seq_len: int,
-    ) -> dict:
+        rows = idx[0]
+        cols = idx[1]
+
+        batch = td.TransitionModeMapping(
+            obs=self._take_seqs(
+                self._obs_seqs[rows],
+                cols=cols,
+                seq_len=seq_len,
+            ),
+            action=self._take_seqs(
+                self._action_seqs[rows],
+                cols=cols,
+                seq_len=seq_len,
+            ),
+            reward=self._take_seqs(
+                self._rewards_seqs[rows],
+                cols=cols,
+                seq_len=seq_len,
+            ),
+            next_obs=self._take_seqs(
+                self._obs_next_seqs[rows],
+                cols=cols,
+                seq_len=seq_len,
+            ),
+            terminal=self._take_seqs(
+                self._terminal_seqs[rows],
+                cols=cols,
+                seq_len=seq_len),
+            mode=self._take_seqs(self._mode_per_seqs[rows], cols=cols, seq_len=seq_len),
+        )
+
+        return batch
+
+    def _extract_batch_latent_training(self, idx, **kwargs):
+        assert 'seq_len' in kwargs.keys()
+        seq_len = kwargs['seq_len']
+
+        rows = idx[0]
+        cols = idx[1]
+
+        batch = dict(
+            next_obs=self._take_seqs(
+                self._obs_next_seqs[rows],
+                cols=cols,
+                seq_len=seq_len,
+            ),
+            mode=self._take_seqs(
+                self._mode_per_seqs[rows],
+                cols=cols,
+                seq_len=seq_len,
+            ),
+        )
+
+        return batch
+
+    def _take_seqs(self, array_: np.ndarray, cols, seq_len):
         """
-        Prepends zero padding and samples sequences of seq_len from batch
-        Args:
-            batch               : dict with (N, data_dim, S) numpy arrays
-            batch_size          : N
-            sample_seq_len      : length of sampling that are taken along dimension S
-        Return:
-            sampled_batch       : dict with (N, data_dim, sample_seq_len) numpy arrays
+        Return sampled seqs in (batch, data, seq) format (bds)
         """
         batch_dim = 0
         data_dim = 1
         seq_dim = 2
-        skill_key = 'mode'
-        next_obs_key = 'next_obs'
-        horizon_len = batch[next_obs_key].shape[seq_dim]
+        array_bsd = np.swapaxes(array_, axis1=data_dim, axis2=seq_dim)
+        seqs = take_per_row(array_bsd, cols, num_elem=seq_len)
+        data_dim = 2
+        seq_dim = 1
+        return np.swapaxes(seqs, axis1=data_dim, axis2=seq_dim)
 
-        start_idx = np.array([
-            np.random.randint(
-                low=0,
-                high=batch_horizon_len)
-            for batch_horizon_len in np.squeeze(batch_seqlens)
-        ])
+    def _sample_random_batch_extraction_idx(self, batch_size, **kwargs):
+        assert 'seq_len' in kwargs.keys()
+        seq_len = kwargs['seq_len']
 
-        transition_mode_mapping_kwargs = {}
-        for key, el in batch.items():
-            if isinstance(el, np.ndarray) and key != skill_key:
-                el_padded = self._add_left_zero_padding(
-                    arr=el,
-                    padding_len=sample_seq_len,
-                    padding_dim=seq_dim,
-                )
+        #max_seqlen = np.max(self._seqlen_saved_paths[:self._size])
+        #idx_pool = np.stack([np.arange(max_seqlen)] * self._size, axis=0)
+        #possible_idx_bool = np.less(
+        #    idx_pool,
+        #    np.expand_dims(self._seqlen_saved_paths[:self._size], 1) - seq_len
+        #)
+        #possible_start_idx = np.where(possible_idx_bool)
+        #assert len(possible_start_idx) == 2
+        #num_possible_idx = len(possible_start_idx[0])
+        #sample_idx = np.random.randint(num_possible_idx, size=batch_size)
+        #rows2 = possible_start_idx[0][sample_idx]
+        #cols2 = possible_start_idx[1][sample_idx]
 
-            elif isinstance(el, np.ndarray) and key == skill_key:
-                padding_arr = np.stack([el[..., 0]] * sample_seq_len, axis=seq_dim)
-                el_padded = np.concatenate([padding_arr, el], axis=seq_dim)
+        seqlen_cumsum = np.cumsum(
+            self._seqlen_saved_paths[:self._size] - seq_len + 1
+        )
+        num_possible_idx = seqlen_cumsum[-1]
+        sample_idx = np.random.randint(num_possible_idx, size=batch_size)
+        #assert num_possible_idx == seqlen_cumsum[-1]
+        rows = np.empty(batch_size, dtype=np.int)
+        cols = np.empty(batch_size, dtype=np.int)
+        for idx, sample_idx_ in enumerate(sample_idx):
+            row = np.searchsorted(seqlen_cumsum, sample_idx_, side='right')
+            col = sample_idx_ - seqlen_cumsum[row - 1] if row > 0 else sample_idx_
+            rows[idx] = row
+            cols[idx] = col
 
-            else:
-                el_padded = None
+        max_cols = self._seqlen_saved_paths[rows]
+        assert np.all((cols + seq_len) <= max_cols)
 
-            if isinstance(el_padded, np.ndarray):
-                el_bsd = np.swapaxes(el_padded, axis1=data_dim, axis2=seq_dim)
-                el_slices_bsd = take_per_row(el_bsd, start_idx, num_elem=sample_seq_len)
-                transition_mode_mapping_kwargs[key] = \
-                    np.swapaxes(el_slices_bsd, axis1=1, axis2=2)
+        #assert np.all(rows2 == rows)
+        #assert np.all(cols2 == cols)
 
-        return transition_mode_mapping_kwargs
+        return rows, cols
 
     def random_batch(self,
                      batch_size: int) -> td.TransitionModeMapping:
@@ -94,18 +140,14 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
             TransitionModeMapping      : consisting of (N, data_dim, S) tensors
         """
         sample_seq_len = self._get_sample_seqlen()
-        sample_idx = self._sample_random_batch_extraction_idx(batch_size)
-        batch_horizon = self._extract_whole_batch(sample_idx)
-        batch_seqlens = self._seqlen_saved_paths[sample_idx]
-
-        transition_mode_mapping_kwargs = self._take_elements_from_batch(
-            batch=batch_horizon,
-            batch_seqlens=batch_seqlens,
-            sample_seq_len=sample_seq_len,
+        sample_idx = self._sample_random_batch_extraction_idx(
+            batch_size,
+            seq_len=sample_seq_len
         )
+        batch_horizon = self._extract_whole_batch(sample_idx, seq_len=sample_seq_len)
 
         return td.TransitionModeMapping(
-            **transition_mode_mapping_kwargs
+            **batch_horizon
         )
 
     def random_batch_latent_training(self,
@@ -116,14 +158,13 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
             batch_size              : N
         """
         sample_seq_len = self._get_sample_seqlen()
-        sample_idx = self._sample_random_batch_extraction_idx(batch_size)
-        batch_horizon = self._extract_batch_latent_training(sample_idx)
-        batch_seqlens = self._seqlen_saved_paths[sample_idx]
-
-        return_dict = self._take_elements_from_batch(
-            batch=batch_horizon,
-            sample_seq_len=sample_seq_len,
-            batch_seqlens=batch_seqlens,
+        sample_idx = self._sample_random_batch_extraction_idx(
+            batch_size,
+            seq_len=sample_seq_len
+        )
+        batch_horizon = self._extract_batch_latent_training(
+            sample_idx,
+            seq_len=sample_seq_len
         )
 
-        return return_dict
+        return batch_horizon

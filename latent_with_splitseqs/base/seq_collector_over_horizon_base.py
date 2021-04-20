@@ -110,7 +110,7 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
 
         # Decide if incomplete sequence (fragments) are saved
         # (Sequence can be incomplete if terminals occured)
-        seq_complete = sampled_seq_len == seq_len
+        seq_complete = sampled_seq_len == seq_len or seq_terminated
         if seq_complete or not discard_incomplete_seq:
             self._save_split_seq(
                 split_seq=seq_with_skills,
@@ -153,11 +153,10 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
         if remove_terminals:
             terminal_idx = np.argwhere(terminal == True)
             first_terminal_idx = int(terminal_idx[0])
-            #seq = seq[:first_terminal_idx]
             seq_until_terminal = {}
             for key, el in seq.items():
                 if isinstance(el, np.ndarray):
-                    seq_until_terminal[key] = el[:first_terminal_idx]
+                    seq_until_terminal[key] = el[:(first_terminal_idx + 1)]
                 else:
                     seq_until_terminal[key] = el
             seq = td.TransitionMapping(**seq_until_terminal)

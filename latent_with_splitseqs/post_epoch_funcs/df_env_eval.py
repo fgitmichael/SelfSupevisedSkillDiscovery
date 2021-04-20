@@ -124,6 +124,7 @@ class DfEnvEvaluationSplitSeq(EnvEvaluationBase):
         # Extract relevant dimensions and cat split seqs back to whole seqs
         seq_dim = 1
         obs = skill_influence_whole_paths.obs[..., self.obs_dims_to_log]
+        terminal = skill_influence_whole_paths.terminal
         action = skill_influence_whole_paths.action[..., self.action_dims_to_log]
         skill = np.unique(skill_influence_whole_paths.mode, axis=seq_dim).squeeze()
         skill_id = np.unique(skill_influence_whole_paths.skill_id, axis=seq_dim).squeeze()

@@ -16,7 +16,7 @@ class LatentReplayBuffer(SelfSupervisedEnvSequenceReplayBuffer):
     ):
         super().__init__(*args, **kwargs)
 
-        self._seqlen_saved_paths = np.zeros((self._max_replay_buffer_size,))
+        self._seqlen_saved_paths = np.zeros((self._max_replay_buffer_size,), dtype=np.int)
 
     def add_paths(self, paths: List[td.TransitionModeMapping]):
         """
