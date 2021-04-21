@@ -110,8 +110,8 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
 
         # Decide if incomplete sequence (fragments) are saved
         # (Sequence can be incomplete if terminals occured)
-        seq_complete = sampled_seq_len == seq_len or seq_terminated
-        if seq_complete or not discard_incomplete_seq:
+        save_seq = sampled_seq_len == seq_len or seq_terminated
+        if save_seq or not discard_incomplete_seq:
             self._save_split_seq(
                 split_seq=seq_with_skills,
                 horizon_completed=horizon_completed,
@@ -144,11 +144,13 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
         assert len(terminal.shape) == 1
         assert terminal.dtype == np.bool
 
-        seq_terminated = not np.all(terminal == False, axis=seq_dim)
+        consider_terminals = self._num_split_seqs_current_rollout > 0
 
-        # Always use at least one sequence chunk,
+        seq_terminated = not np.all(terminal == False, axis=seq_dim) and consider_terminals
+
+        # Always use at least two sequence chunk,
         # otherwise replay buffer will never be filled
-        remove_terminals = seq_terminated and self._num_split_seqs_current_rollout > 0
+        remove_terminals = seq_terminated
 
         if remove_terminals:
             terminal_idx = np.argwhere(terminal == True)
