@@ -144,13 +144,11 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
         assert len(terminal.shape) == 1
         assert terminal.dtype == np.bool
 
-        consider_terminals = self._num_split_seqs_current_rollout > 0
-
-        seq_terminated = not np.all(terminal == False, axis=seq_dim) and consider_terminals
+        seq_terminated = not np.all(terminal == False, axis=seq_dim)
 
         # Always use at least two sequence chunk,
         # otherwise replay buffer will never be filled
-        remove_terminals = seq_terminated
+        remove_terminals = self._num_split_seqs_current_rollout > 0 and seq_terminated
 
         if remove_terminals:
             terminal_idx = np.argwhere(terminal == True)
