@@ -111,9 +111,6 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
         max_cols = self._seqlen_saved_paths[rows]
         assert np.all((cols + seq_len) <= max_cols)
 
-        #assert np.all(rows2 == rows)
-        #assert np.all(cols2 == cols)
-
         return rows, cols
 
     def random_batch(self,
