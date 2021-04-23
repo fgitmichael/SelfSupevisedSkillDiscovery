@@ -32,6 +32,7 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
             ],
             skill_selector: SkillSelectorBase,
             max_seqs: int = 5000,
+            terminal_handling: bool = False,
     ):
         self.max_seqs = max_seqs
         self._epoch_split_seqs = None
@@ -43,6 +44,8 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
         self.skill_selector = skill_selector
         self._skill = None
         self._obs = None
+
+        self._terminal_handling_bool = terminal_handling
 
         self._num_steps_total = 0
         self._num_split_seqs_total = 0
@@ -85,8 +88,13 @@ class SeqCollectorHorizonBase(HorizonSplitSeqCollectorBase):
             seq_len=seq_len
         )
 
-        # Add skills and handle terminals
-        seq_terminals_handled, seq_terminated = self._handle_terminals(seq)
+        # Handle terminals
+        if self._terminal_handling_bool:
+            seq_terminals_handled, seq_terminated = self._handle_terminals(seq)
+
+        else:
+            seq_terminals_handled = seq
+            seq_terminated = False
 
         # Add skills
         seq_with_skills = self._extend_transitions_with_skill(
