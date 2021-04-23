@@ -4,6 +4,7 @@ version: "latent split seq | rnn only"
 layer_size: 256
 replay_buffer_size: 60000
 replay_seq_sampling: sampling
+terminal_handling: True
 random_hp_tuning: False
 
 # Environment

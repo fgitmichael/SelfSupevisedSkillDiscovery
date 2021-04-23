@@ -28,6 +28,11 @@ def get_replay_buffer_and_expl_collector(
         key='replay_seq_sampling',
         default='fixed',
     )
+    terminal_handling = get_config_item(
+        config=config,
+        key='terminal_handling',
+        default=False,
+    )
 
     if variant == 'fixed':
         expl_step_collector = SeqCollectorHorizonSplitSeqSaving(
@@ -35,6 +40,7 @@ def get_replay_buffer_and_expl_collector(
             policy,
             max_seqs=get_config_item(config, 'max_seqs', 5000),
             skill_selector=skill_selector,
+            terminal_handling=terminal_handling,
         )
         replay_buffer = LatentReplayBuffer(
             max_replay_buffer_size=config.replay_buffer_size,
@@ -49,6 +55,7 @@ def get_replay_buffer_and_expl_collector(
             policy,
             max_seqs=get_config_item(config, 'max_seqs', 5000),
             skill_selector=skill_selector,
+            terminal_handling=terminal_handling,
         )
         replay_buffer = LatentReplayBufferSplitSeqSamplingFixedSeqLen(
             max_replay_buffer_size=config.replay_buffer_size,
@@ -64,6 +71,7 @@ def get_replay_buffer_and_expl_collector(
             policy,
             max_seqs=get_config_item(config, 'max_seqs', 5000),
             skill_selector=skill_selector,
+            terminal_handling=terminal_handling,
         )
         replay_buffer = LatentReplayBufferSplitSeqSamplingRandomSeqLen(
             max_replay_buffer_size=config.replay_buffer_size,
