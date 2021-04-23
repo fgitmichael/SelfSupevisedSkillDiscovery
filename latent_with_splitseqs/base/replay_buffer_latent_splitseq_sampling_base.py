@@ -95,25 +95,11 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
         assert 'seq_len' in kwargs.keys()
         seq_len = kwargs['seq_len']
 
-        #max_seqlen = np.max(self._seqlen_saved_paths[:self._size])
-        #idx_pool = np.stack([np.arange(max_seqlen)] * self._size, axis=0)
-        #possible_idx_bool = np.less(
-        #    idx_pool,
-        #    np.expand_dims(self._seqlen_saved_paths[:self._size], 1) - seq_len
-        #)
-        #possible_start_idx = np.where(possible_idx_bool)
-        #assert len(possible_start_idx) == 2
-        #num_possible_idx = len(possible_start_idx[0])
-        #sample_idx = np.random.randint(num_possible_idx, size=batch_size)
-        #rows2 = possible_start_idx[0][sample_idx]
-        #cols2 = possible_start_idx[1][sample_idx]
-
         seqlen_cumsum = np.cumsum(
             self._seqlen_saved_paths[:self._size] - seq_len + 1
         )
         num_possible_idx = seqlen_cumsum[-1]
         sample_idx = np.random.randint(num_possible_idx, size=batch_size)
-        #assert num_possible_idx == seqlen_cumsum[-1]
         rows = np.empty(batch_size, dtype=np.int)
         cols = np.empty(batch_size, dtype=np.int)
         for idx, sample_idx_ in enumerate(sample_idx):
