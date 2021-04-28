@@ -70,6 +70,7 @@ class LatentReplayBuffer(SelfSupervisedEnvSequenceReplayBuffer):
                    **kwargs):
         # Get path len
         seq_dim = 1
+        assert len(path.obs.shape) == 2
         path_lens = [el.shape[seq_dim] for el in path.values() if isinstance(el, np.ndarray)]
         assert all([path_len == path_lens[0] for path_len in path_lens])
         path_len = path_lens[0]
