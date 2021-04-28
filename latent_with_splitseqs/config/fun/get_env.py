@@ -11,6 +11,8 @@ from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 from latent_with_splitseqs.config.fun.envs.locomotion_env_keys import locomotion_env_keys
 from latent_with_splitseqs.config.fun.envs.pybullet_envs \
     import pybullet_envs_version_three, wrap_env_class
+from latent_with_splitseqs.config.fun.envs.action_repeat_wrapper \
+    import wrap_env_action_repeat
 
 gym_envs_normal = dict(
     two_d_nav=TwoDimNavigationEnv,
@@ -36,6 +38,8 @@ def get_env(**env_kwargs) -> gym.Env:
     init_kwargs = env_kwargs[init_kwargs_key]
     init_kwargs = remove_nones(init_kwargs)
 
+    action_repeat = get_config_item(env_kwargs, key='action_repeat', default=1)
+
     # Return Environment
     gym_id = env_kwargs[gym_id_key]
     if gym_id in locomotion_env_keys.values():
@@ -60,14 +64,23 @@ def get_env(**env_kwargs) -> gym.Env:
                     default=None
                 )
             )
+            if action_repeat > 1:
+                env_class = wrap_env_action_repeat(
+                    env_class_in=env_class,
+                    num_action_repeat=action_repeat,
+                )
             env = env_class(**init_kwargs)
 
     elif gym_id in gym_envs_normal.keys():
+        assert action_repeat == 1
         env = gym_envs_normal[gym_id](
             action_max=(0.01, 0.01)
         )
 
     else:
-        env = NormalizedBoxEnvWrapper(env_kwargs[gym_id_key])
+        env = NormalizedBoxEnvWrapper(
+            env_kwargs[gym_id_key],
+            action_repeat=action_repeat,
+        )
 
     return env
