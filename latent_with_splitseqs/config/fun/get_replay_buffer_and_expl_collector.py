@@ -33,6 +33,11 @@ def get_replay_buffer_and_expl_collector(
         key='terminal_handling',
         default=False,
     )
+    min_sample_seqlen = get_config_item(
+        config=config,
+        key='min_sample_seqlen',
+        default=2,
+    )
 
     if variant == 'fixed':
         expl_step_collector = SeqCollectorHorizonSplitSeqSaving(
@@ -63,6 +68,7 @@ def get_replay_buffer_and_expl_collector(
             mode_dim=config.skill_dim,
             env=expl_env,
             sample_seqlen=config.seq_len,
+            min_sample_seqlen=min_sample_seqlen,
         )
 
     elif variant == 'sampling_random_seq_len':
@@ -78,6 +84,7 @@ def get_replay_buffer_and_expl_collector(
             seq_len=config.horizon_len,  # Now whole horizon is saved
             mode_dim=config.skill_dim,
             env=expl_env,
+            min_sample_seqlen=min_sample_seqlen,
             min_sample_seq_len=config.min_sample_seq_len,
             max_sample_seq_len=config.max_sample_seq_len,
         )

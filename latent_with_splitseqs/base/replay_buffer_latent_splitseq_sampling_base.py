@@ -11,6 +11,15 @@ from my_utils.np_utils.np_array_equality import np_array_equality
 
 class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
                                              metaclass=abc.ABCMeta):
+    def __init__(
+            self,
+            *args,
+            min_sample_seqlen: int = 2,
+            **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self._min_sample_seqlen = min_sample_seqlen
+
     @abc.abstractmethod
     def _get_sample_seqlen(self) -> int:
         raise NotImplementedError
@@ -29,29 +38,42 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
         batch = td.TransitionModeMapping(
             obs=self._take_seqs(
                 self._obs_seqs[rows],
+                saved_seqlens=self._seqlen_saved_paths[rows],
                 cols=cols,
                 seq_len=seq_len,
             ),
             action=self._take_seqs(
                 self._action_seqs[rows],
+                saved_seqlens=self._seqlen_saved_paths[rows],
                 cols=cols,
                 seq_len=seq_len,
             ),
             reward=self._take_seqs(
                 self._rewards_seqs[rows],
+                saved_seqlens=self._seqlen_saved_paths[rows],
                 cols=cols,
                 seq_len=seq_len,
             ),
             next_obs=self._take_seqs(
                 self._obs_next_seqs[rows],
+                saved_seqlens=self._seqlen_saved_paths[rows],
                 cols=cols,
                 seq_len=seq_len,
             ),
             terminal=self._take_seqs(
                 self._terminal_seqs[rows],
+                saved_seqlens=self._seqlen_saved_paths[rows],
                 cols=cols,
-                seq_len=seq_len),
-            mode=self._take_seqs(self._mode_per_seqs[rows], cols=cols, seq_len=seq_len),
+                seq_len=seq_len,
+                padding_type='first_el',
+            ),
+            mode=self._take_seqs(
+                self._mode_per_seqs[rows],
+                saved_seqlens=self._seqlen_saved_paths[rows],
+                cols=cols,
+                seq_len=seq_len,
+                padding_type='first_el',
+            ),
         )
 
         return batch
@@ -66,29 +88,76 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
         batch = dict(
             next_obs=self._take_seqs(
                 self._obs_next_seqs[rows],
+                saved_seqlens=self._seqlen_saved_paths[rows],
                 cols=cols,
                 seq_len=seq_len,
             ),
             mode=self._take_seqs(
                 self._mode_per_seqs[rows],
+                saved_seqlens=self._seqlen_saved_paths[rows],
                 cols=cols,
                 seq_len=seq_len,
+                padding_type='first_el'
             ),
         )
 
         return batch
 
-    def _take_seqs(self, array_: np.ndarray, cols, seq_len):
+    def _take_seqs(
+            self,
+            array_: np.ndarray,
+            saved_seqlens: np.ndarray,
+            cols,
+            seq_len,
+            padding_type=None
+    ):
         """
         Return sampled seqs in (batch, data, seq) format (bds)
         """
-        batch_dim = 0
-        data_dim = 1
-        seq_dim = 2
+        if padding_type is None:
+            padding_type = 'zeros'
+
+        batch_dim, data_dim, seq_dim = 0, 1, 2
+        horizon_len = saved_seqlens
+        assert array_.shape[batch_dim] == horizon_len.shape[0]
+
+        # BSD Format
         array_bsd = np.swapaxes(array_, axis1=data_dim, axis2=seq_dim)
-        seqs = take_per_row(array_bsd, cols, num_elem=seq_len)
-        data_dim = 2
-        seq_dim = 1
+        batch_dim, data_dim, seq_dim = 0, 2, 1
+
+        # Add Zero Paddings
+        end_idx = cols > horizon_len - seq_len
+        if np.any(end_idx):
+            num_padding_els = np.max(cols[end_idx] % seq_len)
+            assert num_padding_els <= seq_len
+            cols[end_idx] = cols[end_idx] % seq_len
+            cols += num_padding_els
+            cols[end_idx] -= num_padding_els
+
+            if padding_type == 'zeros':
+                padding_array_ = np.zeros((
+                    array_bsd.shape[batch_dim],
+                    num_padding_els,
+                    array_bsd.shape[data_dim]
+                ))
+
+            elif padding_type == 'first_el':
+                padding_array_ = np.stack(
+                    [array_bsd[:, 0, :]] * num_padding_els,
+                    axis=seq_dim
+                )
+
+            else:
+                raise NotImplementedError
+
+            padded_array_ = np.concatenate([padding_array_, array_bsd], axis=seq_dim)
+
+        else:
+            padded_array_ = array_bsd
+
+        # Take seqs
+        seqs = take_per_row(padded_array_, cols, num_elem=seq_len)
+
         return np.swapaxes(seqs, axis1=data_dim, axis2=seq_dim)
 
     def _sample_random_batch_extraction_idx(self, batch_size, **kwargs):
@@ -96,7 +165,7 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
         seq_len = kwargs['seq_len']
 
         seqlen_cumsum = np.cumsum(
-            self._seqlen_saved_paths[:self._size] - seq_len + 1
+            self._seqlen_saved_paths[:self._size] - (self._min_sample_seqlen - 1)
         )
         num_possible_idx = seqlen_cumsum[-1]
         sample_idx = np.random.randint(num_possible_idx, size=batch_size)
@@ -109,7 +178,7 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
             cols[idx] = col
 
         max_cols = self._seqlen_saved_paths[rows]
-        assert np.all((cols + seq_len) <= max_cols)
+        assert np.all((cols + self._min_sample_seqlen) <= max_cols)
 
         return rows, cols
 
