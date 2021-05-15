@@ -3,19 +3,22 @@ import cv2
 import matplotlib.pyplot as plt
 
 from thes_graphics.base.grid_rollout_processor import GridRolloutProcessor
+from thes_graphics.skill_videos.video_rollouter import VideoGridRollouter
 
 
 class RelevantTrajectoryVideoSaver(GridRolloutProcessor):
 
     def __init__(self,
-                 *args,
+                 test_rollouter: VideoGridRollouter,
                  extract_relevant_rollouts_fun,
                  num_relevant_skills: int,
                  path,
                  save_name_prefix,
-                 **kwargs,
                  ):
-        super().__init__(*args, **kwargs)
+        assert isinstance(test_rollouter, VideoGridRollouter)
+        super().__init__(
+            test_rollouter=test_rollouter,
+        )
 
         self.extract_relevant_rollouts_fun = extract_relevant_rollouts_fun
         self.num_relevant_skills = num_relevant_skills
@@ -51,7 +54,9 @@ class RelevantTrajectoryVideoSaver(GridRolloutProcessor):
             )
             out = cv2.VideoWriter(
                 save_name,
-                cv2.VideoWriter_fourcc(*'DIVX'), 60, frame_size
+                cv2.VideoWriter_fourcc(*'DIVX'),
+                60,
+                frame_size,
             )
 
             # Write images to video

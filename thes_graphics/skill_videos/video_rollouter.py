@@ -17,7 +17,7 @@ class VideoGridRollouter(GridRollouter):
         super().__init__(*args, **kwargs)
         self.render_kwargs = render_kwargs
 
-    def rollout_trajectories(self):
+    def rollout_trajectories(self) -> list:
         rollouts = []
 
         for skill in tqdm.tqdm(self.skills_to_rollout):
@@ -26,8 +26,9 @@ class VideoGridRollouter(GridRollouter):
                 env=self.env,
                 agent=self.policy,
                 max_path_length=self.horizon_len,
+                render=True,
             )
             rollout['skill'] = ptu.get_numpy(self.policy.skill)
-            rollouts.append(rollouts)
+            rollouts.append(rollout)
 
         return rollouts
