@@ -54,6 +54,10 @@ def get_env(**env_kwargs) -> gym.Env:
                 import gym_envs_version_three
             env = gym_envs_version_three[gym_id](**init_kwargs)
 
+            #TODO: Check if all dimension are used, as if position is not
+            # excluded the observation space of the mujoco envs stays the same
+            raise ValueError('remaining TODO is left!')
+
         else:
             # PyBullet
             env_class = wrap_env_class(
