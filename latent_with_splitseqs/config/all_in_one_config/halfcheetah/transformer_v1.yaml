@@ -8,7 +8,7 @@ random_hp_tuning: False
 
 # Environment
 env_kwargs:
-  env_id: hopper
+  env_id: halfcheetah
   pybullet:
     is_pybullet: True
     pos_dim: 1
@@ -95,8 +95,9 @@ rnn_kwargs:
   None: null
 
 transformer_kwargs:
-  nhead: 8
+  num_heads: 8
   num_layers: 6
+  output_size: null
 
 df_kwargs_rnn:
   None: null
