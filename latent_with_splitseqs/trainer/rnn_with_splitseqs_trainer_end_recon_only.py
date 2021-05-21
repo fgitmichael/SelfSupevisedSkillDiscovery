@@ -12,6 +12,7 @@ class URLTrainerRnnWithSplitseqsEndReconOnly(URLTrainerLatentWithSplitseqs):
         skills = batch['mode']
 
         skill = skills[:, 0, :]
+        assert self.df.training is True
         df_ret_dict = self.df(
             obs_seq=next_obs,
             skill=skill
