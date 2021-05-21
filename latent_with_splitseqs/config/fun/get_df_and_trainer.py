@@ -18,6 +18,12 @@ from latent_with_splitseqs.latent.\
 from latent_with_splitseqs.latent.one_stochlayered_latent_conditioned_on_skill_seq \
     import OneLayeredStochasticLatent
 
+from latent_with_splitseqs.latent.df_transformer import DfTransformer
+from latent_with_splitseqs.networks.seqwise_splitseq_classifier_transformer \
+    import SeqwiseSplitseqClassifierTransformer
+from latent_with_splitseqs.trainer.transformer_with_splitseqs_trainer \
+    import URLTrainerTransformerWithSplitseqs
+
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier_latent_seq_end_recon \
     import SeqwiseSplitseqClassifierSlacLatentSeqEndOnlyRecon
 from latent_with_splitseqs.networks.seqwise_splitseq_classifier_latent_whole_seq_recon \
@@ -57,7 +63,8 @@ df_type_keys = dict(
     recon='recon',
     rnn_type='rnn_type',
     latent_type='latent_type',
-    latent_single_layer_type='latent_single_layer_type'
+    latent_single_layer_type='latent_single_layer_type',
+    transformer_type='transformer_type',
 )
 
 feature_extractor_types = dict(
@@ -65,6 +72,7 @@ feature_extractor_types = dict(
     latent_slac='latent_slac',
     latent_single_layer='latent_single_layer',
     srnn='srnn',
+    transformer='transformer',
 )
 
 recon_types = dict(
@@ -77,6 +85,10 @@ rnn_types = dict(
     dim_wise='dim_wise',
     normal_posenc='normal_posenc',
     dimwise_posenc='dimwise_posenc',
+)
+
+transformer_type = dict(
+    normal='normal'
 )
 
 latent_types = dict(
@@ -100,6 +112,8 @@ def get_df_and_trainer(
         seq_len=None,
         srnn_kwargs=None,
         df_kwargs_srnn=None,
+        df_kwargs_transformer=None,
+        transformer_kwargs=None,
         **kwargs
 ):
     """
@@ -107,13 +121,13 @@ def get_df_and_trainer(
         obs_dim                     : observation dimensionality
         seq_len                     : sequence length
         skill_dim                   : skill dimensionality
-        df_kwargs
+        df_kwargs_rnn               : dict
             obs_dims_used_df        : list or tuple
             dropout                 : float
             hidden_size_rnn         : int
             leaky_slop_classifier   : float
             hidden_units_classifier : list or tuple
-        df_type
+        df_type:                    : dict
             feature_extractor       : which method to extract sequential features
             recon                   : full seq reconstruction or end reconstruction
         trainer_init_kwargs         : dict, all arguments passed to the trainer init function
@@ -383,6 +397,39 @@ def get_df_and_trainer(
 
         else:
             raise NotImplementedError
+
+    elif df_type[df_type_keys['feature_extractor']]\
+            == feature_extractor_types['transformer']:
+        obs_dims_used_df = get_obs_dims_used_df(
+            obs_dim=obs_dim,
+            obs_dims_used=df_kwargs_transformer.obs_dims_used,
+            obs_dims_used_except=df_kwargs_transformer.obs_dims_used_except
+            if 'obs_dims_used_except' in df_kwargs_transformer else None,
+        )
+        num_obs_dims_used = len(obs_dims_used_df)
+
+        if df_type[df_type_keys['transformer_type']] == transformer_type['normal']:
+            transformer = DfTransformer(
+                input_size=num_obs_dims_used,
+                **transformer_kwargs,
+            )
+
+        else:
+            raise NotImplementedError
+
+        assert seq_len is not None
+        df = SeqwiseSplitseqClassifierTransformer(
+            seq_len=seq_len,
+            obs_dim=obs_dim,
+            skill_dim=skill_dim,
+            df_transformer=transformer,
+            **df_kwargs_transformer
+        )
+
+        trainer = URLTrainerTransformerWithSplitseqs(
+            df=df,
+            **trainer_init_kwargs
+        )
 
     else:
         raise NotImplementedError

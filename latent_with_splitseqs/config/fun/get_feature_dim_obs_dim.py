@@ -31,6 +31,12 @@ def get_feature_dim_obs_dim(
                      + config.srnn_kwargs.stoch_latent_kwargs.latent1_dim \
                      + config.srnn_kwargs.stoch_latent_kwargs.latent2_dim
 
+    elif config.df_type[df_type_keys['feature_extractor']] \
+        == feature_extractor_types['transformer']:
+        latent_dim = None
+        if config['trainer_kwargs']['train_sac_in_feature_space']:
+            raise NotImplementedError
+
     else:
         raise NotImplementedError
 
