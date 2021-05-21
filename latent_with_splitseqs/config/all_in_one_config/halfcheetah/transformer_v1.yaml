@@ -123,4 +123,4 @@ log_folder: /media/michael/TOSHIBA EXT1/logs/04_latent_splitseq/halfcheetah_hori
 log_interval: 50
 
 # GPU
-gpu: False
+gpu: True
