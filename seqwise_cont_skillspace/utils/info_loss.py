@@ -167,8 +167,7 @@ class InfoLoss(LossFunBase):
         assert pri[dist_key].batch_shape == post[dist_key].batch_shape
 
         if recon is not None:
-            assert recon[dist_key].batch_shape \
-                   == recon[sample_key].shape \
+            assert recon[dist_key].batch_shape == recon[sample_key].shape
 
 
 class GuidedInfoLoss(InfoLoss):
@@ -233,16 +232,17 @@ class GuidedInfoLoss(InfoLoss):
             pri=pri
         )
         data_loss_dict = self._data_loss(
-            dict(recon=recon,
-                 data=data,
-                 post=post,
-                 guide=guide
+            dict(
+                recon=recon,
+                data=data,
+                post=post,
+                guide=guide,
             )
         )
 
         info_loss = data_loss_dict['loss'] + \
-                    latent_loss_dict['kld_info'] + \
-                    latent_loss_dict['mmd_info']
+            latent_loss_dict['kld_info'] + \
+            latent_loss_dict['mmd_info']
 
         log_dict = {**latent_loss_dict['log_dict'],
                     **data_loss_dict['log_dict']}

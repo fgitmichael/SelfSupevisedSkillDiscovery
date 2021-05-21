@@ -25,6 +25,7 @@ class GuidedKldLogOnlyLoss(GuidedInfoLoss):
             raise ValueError("Guide has to be passed!")
         if len(list(kwargs.keys())) > 1:
             raise ValueError("Values that are not used are passed!")
+
         guide = kwargs['guide']
 
         if dist_key is not None:

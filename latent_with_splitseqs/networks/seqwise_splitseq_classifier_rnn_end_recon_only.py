@@ -9,6 +9,7 @@ from diayn_seq_code_revised.networks.my_gaussian import MyGaussian as Gaussian
 from latent_with_splitseqs.base.classifier_base import SplitSeqClassifierBase
 from latent_with_splitseqs.base.my_object_base import MyObjectBase
 
+
 class SeqwiseSplitseqClassifierRnnEndReconOnly(SplitSeqClassifierBase, MyObjectBase):
 
     def __init__(self,

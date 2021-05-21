@@ -89,15 +89,15 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
     def train(self, np_batch):
         """
         Args:
-            np_batch
-                sac
+            np_batch                : dict
+                sac                 : dict
                     obs             : (N, obs_dim, S) nd-array
                     next_obs        : (N, obs_dim, S) nd-array
                     action          : (N, action_dim, S) nd-array
                     reward          : (N, 1, S) nd-array
                     terminal        : (N, 1, S) nd-array
                     mode            : (N, skill_dim, S) nd-array of skills
-                latent
+                latent              : dict
                     next_obs        : (N, obs_dim, S) nd-array
                     mode            : (N, skill_dim, S) nd-array of skills
         """
@@ -256,12 +256,13 @@ class URLTrainerLatentWithSplitseqs(DIAYNTrainerModularized):
     def train_sac_from_torch(self, batch):
         """
         Args:
-            obs             : (N, obs_dim, S) tensor
-            next_obs        : (N, obs_dim, S) tensor
-            action          : (N, action_dim, S) tensor
-            reward          : (N, 1, S) tensor
-            terminal        : (N, 1, S) tensor
-            mode            : (N, skill_dim, S) tensor of skills
+            batch               : dict
+                obs             : (N, obs_dim, S) tensor
+                next_obs        : (N, obs_dim, S) tensor
+                action          : (N, action_dim, S) tensor
+                reward          : (N, 1, S) tensor
+                terminal        : (N, 1, S) tensor
+                mode            : (N, skill_dim, S) tensor of skills
         """
         self._check_sac_batch(batch)
 

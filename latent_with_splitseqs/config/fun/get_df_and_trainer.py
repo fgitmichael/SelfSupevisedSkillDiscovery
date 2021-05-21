@@ -144,7 +144,7 @@ def get_df_and_trainer(
     global latent_types
 
     if df_type[df_type_keys['feature_extractor']] \
-        == feature_extractor_types['rnn']:
+            == feature_extractor_types['rnn']:
 
         # RNN type
         obs_dims_used_df = get_obs_dims_used_df(
@@ -233,8 +233,8 @@ def get_df_and_trainer(
         obs_dims_used_df = get_obs_dims_used_df(
             obs_dim=obs_dim,
             obs_dims_used=df_kwargs_latent.obs_dims_used,
-            obs_dims_used_except=df_kwargs_latent.obs_dims_used_except \
-                if 'obs_dims_used_except' in df_kwargs_latent else None,
+            obs_dims_used_except=df_kwargs_latent.obs_dims_used_except
+            if 'obs_dims_used_except' in df_kwargs_latent else None,
         )
         obs_dim_latent = len(obs_dims_used_df)
         if df_type[df_type_keys['latent_type']] == latent_types['single_skill']:
@@ -259,7 +259,7 @@ def get_df_and_trainer(
             )
 
         else:
-            raise  NotImplementedError
+            raise NotImplementedError
 
         # Classifier using latent model above
         # Trainer
@@ -295,7 +295,7 @@ def get_df_and_trainer(
             raise NotImplementedError
 
     elif df_type[df_type_keys['feature_extractor']] \
-        == feature_extractor_types['latent_single_layer']:
+            == feature_extractor_types['latent_single_layer']:
 
         # Latent type
         obs_dim_latent = len(df_kwargs_latent.obs_dims_used) \
@@ -334,13 +334,13 @@ def get_df_and_trainer(
         )
 
     elif df_type[df_type_keys['feature_extractor']] \
-        == feature_extractor_types['srnn']:
+            == feature_extractor_types['srnn']:
         assert srnn_kwargs is not None
         obs_dim_latent = get_obs_dims_used_df(
             obs_dim=obs_dim,
             obs_dims_used=df_kwargs_srnn.obs_dims_used,
-            obs_dims_used_except=df_kwargs_srnn.obs_dims_used_except \
-                if 'obs_dims_used_except' in df_kwargs_srnn else None,
+            obs_dims_used_except=df_kwargs_srnn.obs_dims_used_except
+            if 'obs_dims_used_except' in df_kwargs_srnn else None,
         )
         obs_dim_srnn = len(obs_dim_latent)
 
