@@ -9,10 +9,9 @@ from my_utils.dicts.get_config_item import get_config_item
 import latent_with_splitseqs.config.fun.get_env as get_env
 
 
-def _load_config() -> dict:
+def _load_config(dir: str) -> dict:
     # Get file list of summary folder
-    summary_folder_rel_path = "../summary"
-    summary_dir_list = os.listdir(summary_folder_rel_path)
+    summary_dir_list = os.listdir(dir)
 
     # Get yaml file(s)
     extension = ".yaml"
@@ -24,14 +23,14 @@ def _load_config() -> dict:
     assert len(yaml_files) == 1, "More than one yaml config file found"
 
     # Load config
-    config = load_hparams(os.path.join(summary_folder_rel_path, yaml_files[0]))
+    config = load_hparams(os.path.join(dir, yaml_files[0]))
 
     return config
 
 
-def load_env() -> gym.Env:
+def load_env(dir='../summary') -> gym.Env:
     # Load config
-    config = _load_config()
+    config = _load_config(dir=dir)
 
     # Load environment
     env_is_pybullet = get_config_item(
