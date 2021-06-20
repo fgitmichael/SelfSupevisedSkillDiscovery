@@ -31,6 +31,10 @@ parser.add_argument('--render_dt',
                     default=0.00001,
                     help="render dt"
                     )
+parser.add_argument('--horizon_len',
+                    type=int,
+                    default=500,
+                    help="horizon length")
 args = parser.parse_args()
 ptu.set_gpu_mode(False)
 epoch = args.epoch
@@ -42,7 +46,7 @@ policy = torch.load(policy_net_name, map_location=ptu.device)
 env_viz = EnvVisualizationRenderGuided(
     env=env,
     policy=policy,
-    seq_len=500,
+    seq_len=args.horizon_len,
     render_dt=args.render_dt,
 )
 env_viz.run()
