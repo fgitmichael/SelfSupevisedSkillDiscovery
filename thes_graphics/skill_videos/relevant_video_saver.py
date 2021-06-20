@@ -44,8 +44,7 @@ class RelevantTrajectoryVideoSaver(GridRolloutProcessor):
         )
 
         # Save Videos
-        frame_dims = [-2, -1]
-        frame_size = grid_rollout_relevant[0]['frames'].shape[frame_dims]
+        _, h, w, _ = grid_rollout_relevant[0]['frames'].shape
         for idx, rollout in enumerate(grid_rollout_relevant):
             # Destination
             save_name = os.path.join(
@@ -56,7 +55,7 @@ class RelevantTrajectoryVideoSaver(GridRolloutProcessor):
                 save_name,
                 cv2.VideoWriter_fourcc(*'DIVX'),
                 60,
-                frame_size,
+                (w, h),
             )
 
             # Write images to video
