@@ -11,7 +11,6 @@ class GridRolloutProcessor(object, metaclass=abc.ABCMeta):
 
     def __call__(self,
                  *args,
-                 epoch,
                  grid_low=np.array([-1.5, -1.5]),
                  grid_high=np.array([1.5, 1.5]),
                  num_points=200,
