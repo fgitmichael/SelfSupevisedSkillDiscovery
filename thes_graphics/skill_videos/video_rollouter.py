@@ -11,11 +11,12 @@ class VideoGridRollouter(GridRollouter):
 
     def __init__(self,
                  *args,
-                 render_kwargs: dict,
                  **kwargs
                  ):
         super().__init__(*args, **kwargs)
-        self.render_kwargs = render_kwargs
+        self.render_kwargs = dict(
+            mode='rgb_array'
+        )
 
     def rollout_trajectories(self) -> list:
         rollouts = []
@@ -27,6 +28,7 @@ class VideoGridRollouter(GridRollouter):
                 agent=self.policy,
                 max_path_length=self.horizon_len,
                 render=True,
+                render_kwargs=self.render_kwargs,
             )
             rollout['skill'] = ptu.get_numpy(self.policy.skill)
             rollouts.append(rollout)
