@@ -20,7 +20,7 @@ def _load_config(dir: str) -> dict:
         for filestr in summary_dir_list
         if os.path.splitext(filestr)[-1] == extension
     ]
-    assert len(yaml_files) == 1, "More than one yaml config file found"
+    assert len(yaml_files) == 1, "More or less than one yaml config file found"
 
     # Load config
     config = load_hparams(os.path.join(dir, yaml_files[0]))
