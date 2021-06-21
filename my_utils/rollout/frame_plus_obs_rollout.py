@@ -17,6 +17,8 @@ def rollout(
      - next_observations
      - terminals
 
+    frames will be 4D array with first dimension being time dimension
+
     The next two elements will be lists of dictionaries, with the index into
     the list being the index into the time
      - agent_infos
