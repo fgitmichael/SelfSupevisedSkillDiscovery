@@ -1,7 +1,6 @@
 import numpy as np
 import abc
 import tqdm
-import math
 
 from rlkit.samplers.rollout_functions import rollout as rollout_function
 import rlkit.torch.pytorch_util as ptu
