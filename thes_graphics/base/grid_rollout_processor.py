@@ -21,6 +21,6 @@ class GridRolloutProcessor(object, metaclass=abc.ABCMeta):
             high=grid_high,
             num_points=num_points,
         )
-        grid_rollout = self.test_rollouter()
+        grid_rollout = self.test_rollouter(*args, **kwargs)
 
         return grid_rollout
