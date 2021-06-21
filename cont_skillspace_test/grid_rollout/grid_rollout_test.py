@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import os
 
-from cont_skillspace_test.grid_rollout.grid_rollouter import GridRollouterBase
+from my_utils.rollout.grid_rollouter import GridRollouterBase
 
 
 class RolloutTesterPlot(object):

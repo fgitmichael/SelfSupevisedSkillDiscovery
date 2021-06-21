@@ -21,14 +21,14 @@ class TestRollouter(object, metaclass=abc.ABCMeta):
 
         self.rollouts = None
 
-    def __call__(self,):
+    def __call__(self, *args, **kwargs):
         if self.rollouts is None:
-            rollouts = self.rollout_trajectories()
+            rollouts = self.rollout_trajectories(*args, **kwargs)
             self.rollouts = rollouts
             return rollouts
         else:
             return self.rollouts
 
     @abc.abstractmethod
-    def rollout_trajectories(self):
+    def rollout_trajectories(self, *args, **kwargs):
         raise NotImplementedError

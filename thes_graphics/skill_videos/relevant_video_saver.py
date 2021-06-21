@@ -3,19 +3,20 @@ import cv2
 import matplotlib.pyplot as plt
 
 from thes_graphics.base.grid_rollout_processor import GridRolloutProcessor
-from thes_graphics.skill_videos.video_rollouter import VideoGridRollouter
+
+from cont_skillspace_test.grid_rollout.grid_rollouter import GridRollouterBase
 
 
 class RelevantTrajectoryVideoSaver(GridRolloutProcessor):
 
     def __init__(self,
-                 test_rollouter: VideoGridRollouter,
+                 test_rollouter: GridRollouterBase,
                  extract_relevant_rollouts_fun,
                  num_relevant_skills: int,
                  path,
                  save_name_prefix,
                  ):
-        assert isinstance(test_rollouter, VideoGridRollouter)
+        assert isinstance(test_rollouter, GridRollouterBase)
         super().__init__(
             test_rollouter=test_rollouter,
         )
