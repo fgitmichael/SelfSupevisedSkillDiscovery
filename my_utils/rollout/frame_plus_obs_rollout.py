@@ -9,6 +9,9 @@ def rollout(
         render_kwargs=None,
 ):
     """
+    -----
+    See rlkit rollout_functions.py for original function
+    -----
     The following value for the following keys will be a 2D array, with the
     first dimension corresponding to the time dimension.
      - observations
