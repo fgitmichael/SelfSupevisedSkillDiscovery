@@ -1,12 +1,12 @@
 import abc
 import numpy as np
 
-from cont_skillspace_test.grid_rollout.test_rollouter_base import TestRollouter
+from cont_skillspace_test.grid_rollout.grid_rollouter import GridRollouterBase
 
 
 class GridRolloutProcessor(object, metaclass=abc.ABCMeta):
 
-    def __init__(self, test_rollouter: TestRollouter):
+    def __init__(self, test_rollouter: GridRollouterBase):
         self.test_rollouter = test_rollouter
 
     def __call__(self,

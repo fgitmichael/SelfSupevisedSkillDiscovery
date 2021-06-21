@@ -3,9 +3,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import tikzplotlib
 
-from cont_skillspace_test.grid_rollout.grid_rollouter \
-    import create_twod_grid
-
+from my_utils.grids.twod_grid import create_twod_grid
 
 show = False
 matplotlib.rcParams['text.usetex'] = True

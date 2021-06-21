@@ -12,13 +12,13 @@ import matplotlib.pyplot as plt
 import os
 import tikzplotlib
 
-from cont_skillspace_test.grid_rollout.test_rollouter_base import TestRollouter
+from cont_skillspace_test.grid_rollout.grid_rollouter import GridRollouterBase
 
 
 class RolloutTesterPlotThes(object):
 
     def __init__(self,
-                 test_rollouter: TestRollouter,
+                 test_rollouter: GridRollouterBase,
                  path,
                  save_name_prefix,
                  plot_size_inches: float=None,

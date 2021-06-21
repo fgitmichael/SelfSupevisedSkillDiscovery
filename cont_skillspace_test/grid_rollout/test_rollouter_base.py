@@ -32,7 +32,3 @@ class TestRollouter(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def rollout_trajectories(self):
         raise NotImplementedError
-
-    @abc.abstractmethod
-    def create_skills_to_rollout(self, **kwargs):
-        raise NotImplementedError
