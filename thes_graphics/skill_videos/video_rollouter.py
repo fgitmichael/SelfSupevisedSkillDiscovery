@@ -2,7 +2,7 @@ import tqdm
 
 from cont_skillspace_test.grid_rollout.grid_rollouter import GridRollouter
 
-from my_utils.rollout.frame_rollout import rollout as rollout_function
+from my_utils.rollout.frame_plus_obs_rollout import rollout as rollout_function
 
 import rlkit.torch.pytorch_util as ptu
 
