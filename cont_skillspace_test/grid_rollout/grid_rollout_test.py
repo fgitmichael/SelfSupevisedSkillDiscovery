@@ -3,13 +3,13 @@ import matplotlib.pyplot as plt
 import matplotlib
 import os
 
-from cont_skillspace_test.grid_rollout.test_rollouter_base import TestRollouter
+from cont_skillspace_test.grid_rollout.grid_rollouter import GridRollouterBase
 
 
 class RolloutTesterPlot(object):
 
     def __init__(self,
-                 test_rollouter: TestRollouter,
+                 test_rollouter: GridRollouterBase,
                  ):
         self.test_rollouter = test_rollouter
         self.path_name_grid_rollouts = './grid_rollouts'
