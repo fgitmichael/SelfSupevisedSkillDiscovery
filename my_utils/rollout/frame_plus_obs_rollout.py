@@ -75,7 +75,9 @@ def rollout(
             np.expand_dims(next_o, 0)
         )
     )
-    frames = np.stack(frames, axis=0)
+    if render:
+        frames = np.stack(frames, axis=0)
+
     return dict(
         observations=observations,
         actions=actions,
