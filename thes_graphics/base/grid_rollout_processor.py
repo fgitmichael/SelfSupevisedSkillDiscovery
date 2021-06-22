@@ -1,7 +1,7 @@
 import abc
 import numpy as np
 
-from cont_skillspace_test.grid_rollout.grid_rollouter import GridRollouterBase
+from my_utils.rollout.grid_rollouter import GridRollouterBase
 
 
 class GridRolloutProcessor(object, metaclass=abc.ABCMeta):
