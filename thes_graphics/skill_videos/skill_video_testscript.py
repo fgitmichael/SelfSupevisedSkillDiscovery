@@ -16,6 +16,10 @@ import rlkit.torch.pytorch_util as ptu
 ptu.set_gpu_mode(False)
 
 filedir = './files'
+video_destination = './test_videos'
+horizon_len = 200
+num_points = 200
+num_relevant_skills = 10
 
 policy_net_name = os.path.join(filedir, 'policy_net_epoch25000.pkl')
 config_name = os.path.join(filedir, 'config.pkl')
@@ -28,7 +32,6 @@ grid_low = np.array([config['skill_prior']['uniform']['low']
                      for _ in range(skill_dim)])
 grid_high = np.array([config['skill_prior']['uniform']['high']
                       for _ in range(skill_dim)])
-horizon_len = 200
 
 rollouter = GridRollouter(
     env=env,
@@ -39,13 +42,13 @@ rollouter = GridRollouter(
 video_saver = RelevantTrajectoryVideoSaver(
     test_rollouter=rollouter,
     extract_relevant_rollouts_fun=extract_max_abs_x,
-    num_relevant_skills=10,
-    path='./test_videos',
+    num_relevant_skills=num_relevant_skills,
+    path=video_destination,
     save_name_prefix='testvideo',
 )
 
 video_saver(
     grid_low=grid_low,
     grid_high=grid_high,
-    num_points=200,
+    num_points=num_points,
 )
