@@ -5,9 +5,9 @@ import pybulletgym
 
 from cont_skillspace_test.grid_rollout.grid_rollout_test \
     import RolloutTesterPlot
-from cont_skillspace_test.grid_rollout.grid_rollouter \
-    import GridRollouter
 from cont_skillspace_test.utils.load_env import load_env
+
+from my_utils.rollout.grid_rollouter import GridRollouter
 
 import rlkit.torch.pytorch_util as ptu
 

@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 
 from thes_graphics.base.grid_rollout_processor import GridRolloutProcessor
 
-from cont_skillspace_test.grid_rollout.grid_rollouter import GridRollouterBase
+from my_utils.rollout.grid_rollouter import GridRollouterBase
+from my_utils.rollout.point_rollouter import PointRollouter
+from my_utils.rollout.frame_plus_obs_rollout import rollout as rollout_frame_plus_obs
 
 
 class RelevantTrajectoryVideoSaver(GridRolloutProcessor):

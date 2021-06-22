@@ -4,10 +4,11 @@ import numpy as np
 
 from cont_skillspace_test.utils.load_env import load_env
 
-from thes_graphics.skill_videos.video_rollouter import VideoGridRollouter
 from thes_graphics.skill_videos.relevant_video_saver import RelevantTrajectoryVideoSaver
-from thes_graphics.rollout_relevant_eval.max_plus_minus_x import extract_max_plus_minus_x
 from thes_graphics.rollout_relevant_eval.max_abs_x import extract_max_abs_x
+
+from my_utils.rollout.frame_plus_obs_rollout import rollout as rollout_frame_plus_obs
+from my_utils.rollout.grid_rollouter import GridRollouter
 
 import rlkit.torch.pytorch_util as ptu
 
