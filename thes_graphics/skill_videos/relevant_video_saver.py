@@ -35,7 +35,10 @@ class RelevantTrajectoryVideoSaver(GridRolloutProcessor):
     def __call__(self, 
                  *args, 
                  **kwargs):
-        grid_rollout = super().__call__(*args, **kwargs)
+        grid_rollout = super().__call__(
+            *args,
+            **kwargs
+        )
 
         # Clear all figures
         plt.close()
@@ -45,10 +48,26 @@ class RelevantTrajectoryVideoSaver(GridRolloutProcessor):
             grid_rollout,
             num_to_extract=self.num_relevant_skills,
         )
+        assert len(grid_rollout_relevant['frames']) == 0
+
+        skills = [el['skill'] for el in grid_rollout_relevant]
+        relevant_skill_rollouter = PointRollouter(
+            env=self.test_rollouter.env,
+            policy=self.test_rollouter.policy,
+            rollout_fun=rollout_frame_plus_obs,
+            horizon_len=self.test_rollouter.horizon_len,
+            skill_points=skills,
+        )
+        grid_rollout_relevant_with_frames = relevant_skill_rollouter(
+            render=True,
+            render_kwargs=dict(
+                mode='rgb_array'
+            )
+        )
 
         # Save Videos
-        _, h, w, _ = grid_rollout_relevant[0]['frames'].shape
-        for idx, rollout in enumerate(grid_rollout_relevant):
+        _, h, w, _ = grid_rollout_relevant_with_frames[0]['frames'].shape
+        for idx, rollout in enumerate(grid_rollout_relevant_with_frames):
             # Destination
             save_name = os.path.join(
                 self.path_name_grid_rollouts,

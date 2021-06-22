@@ -24,10 +24,11 @@ grid_high = np.array([config['skill_prior']['uniform']['high']
 horizon_len = 20
 ptu.set_gpu_mode(config['gpu'])
 
-rollouter = VideoGridRollouter(
+rollouter = GridRollouter(
     env=env,
     policy=policy,
     horizon_len=horizon_len,
+    rollout_fun=rollout_frame_plus_obs,
 )
 video_saver = RelevantTrajectoryVideoSaver(
     test_rollouter=rollouter,
