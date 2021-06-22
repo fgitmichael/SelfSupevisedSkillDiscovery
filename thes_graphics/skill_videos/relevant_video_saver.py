@@ -48,7 +48,7 @@ class RelevantTrajectoryVideoSaver(GridRolloutProcessor):
             grid_rollout,
             num_to_extract=self.num_relevant_skills,
         )
-        assert len(grid_rollout_relevant['frames']) == 0
+        assert len(grid_rollout_relevant[0]['frames']) == 0
 
         skills = [el['skill'] for el in grid_rollout_relevant]
         relevant_skill_rollouter = PointRollouter(
