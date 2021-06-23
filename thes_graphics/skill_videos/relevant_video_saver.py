@@ -67,6 +67,13 @@ class RelevantTrajectoryVideoSaver(GridRolloutProcessor):
                  *args,
                  render=False,
                  **kwargs):
+        """
+        Args:
+            ...
+            render              : bool, if true every rollout is rendered,
+                                        if false only relevant rollouts are rendered
+            ...
+        """
         grid_rollout = super().__call__(
             *args,
             render=render,

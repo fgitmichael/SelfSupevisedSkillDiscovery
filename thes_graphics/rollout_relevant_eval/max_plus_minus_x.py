@@ -23,6 +23,5 @@ def extract_max_plus_minus_x(grid_rollout: list, num_to_extract: int) -> list:
     relevant_idx_list.extend(relevant_idx_list_minus)
     relevant_grid_rollouts = [grid_rollout[idx] for idx in relevant_idx_list]
 
-
     return relevant_grid_rollouts
 
