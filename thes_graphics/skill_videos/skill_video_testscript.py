@@ -6,6 +6,7 @@ from cont_skillspace_test.utils.load_env import load_env
 
 from thes_graphics.skill_videos.relevant_video_saver import RelevantTrajectoryVideoSaver
 from thes_graphics.rollout_relevant_eval.max_abs_x import extract_max_abs_x
+from thes_graphics.rollout_relevant_eval.max_plus_minus_x import extract_max_plus_minus_x
 
 from my_utils.rollout.frame_plus_obs_rollout import rollout as rollout_frame_plus_obs
 from my_utils.rollout.grid_rollouter import GridRollouter
@@ -17,11 +18,11 @@ ptu.set_gpu_mode(False)
 
 filedir = './files'
 video_destination = './test_videos'
-horizon_len = 200
-num_points = 200
+horizon_len = 300
+num_points = 500
 num_relevant_skills = 10
 
-policy_net_name = os.path.join(filedir, 'policy_net_epoch25000.pkl')
+policy_net_name = os.path.join(filedir, 'policy_net_epoch5000.pkl')
 config_name = os.path.join(filedir, 'config.pkl')
 
 env = load_env(dir=filedir)
@@ -41,7 +42,7 @@ rollouter = GridRollouter(
 )
 video_saver = RelevantTrajectoryVideoSaver(
     test_rollouter=rollouter,
-    extract_relevant_rollouts_fun=extract_max_abs_x,
+    extract_relevant_rollouts_fun=extract_max_plus_minus_x,
     num_relevant_skills=num_relevant_skills,
     path=video_destination,
     save_name_prefix='testvideo',

@@ -1,4 +1,5 @@
 import os
+import matplotlib.pyplot as plt
 import cv2
 import matplotlib.pyplot as plt
 
@@ -31,12 +32,26 @@ class RelevantTrajectoryVideoSaver(GridRolloutProcessor):
 
         if not os.path.exists(self.path_name_grid_rollouts):
             os.makedirs(self.path_name_grid_rollouts)
-            
+
+    def plot_relevant_rollouts(self, grid_rollout_relevant):
+        for idx, rollout in enumerate(grid_rollout_relevant):
+            obs_plot_dims = rollout['observations'][..., :2]
+            plt.plot(
+                obs_plot_dims[..., 0],
+                obs_plot_dims[..., 1],
+                label='skill {} {}'.format(idx, rollout['skill']),
+            )
+        save_name = os.path.join(self.path_name_grid_rollouts, 'skills_plotted.png')
+        plt.legend()
+        plt.savefig(save_name)
+
     def __call__(self, 
-                 *args, 
+                 *args,
+                 render=False,
                  **kwargs):
         grid_rollout = super().__call__(
             *args,
+            render=render,
             **kwargs
         )
 
@@ -49,21 +64,26 @@ class RelevantTrajectoryVideoSaver(GridRolloutProcessor):
             num_to_extract=self.num_relevant_skills,
         )
         assert len(grid_rollout_relevant[0]['frames']) == 0
+        self.plot_relevant_rollouts(grid_rollout_relevant)
 
-        skills = [el['skill'] for el in grid_rollout_relevant]
-        relevant_skill_rollouter = PointRollouter(
-            env=self.test_rollouter.env,
-            policy=self.test_rollouter.policy,
-            rollout_fun=rollout_frame_plus_obs,
-            horizon_len=self.test_rollouter.horizon_len,
-            skill_points=skills,
-        )
-        grid_rollout_relevant_with_frames = relevant_skill_rollouter(
-            render=True,
-            render_kwargs=dict(
-                mode='rgb_array'
+        if render:
+            grid_rollout_relevant_with_frames = grid_rollout_relevant
+
+        else:
+            skills = [el['skill'] for el in grid_rollout_relevant]
+            relevant_skill_rollouter = PointRollouter(
+                env=self.test_rollouter.env,
+                policy=self.test_rollouter.policy,
+                rollout_fun=rollout_frame_plus_obs,
+                horizon_len=self.test_rollouter.horizon_len,
+                skill_points=skills,
             )
-        )
+            grid_rollout_relevant_with_frames = relevant_skill_rollouter(
+                render=True,
+                render_kwargs=dict(
+                    mode='rgb_array'
+                )
+            )
 
         # Save Videos
         _, h, w, _ = grid_rollout_relevant_with_frames[0]['frames'].shape
