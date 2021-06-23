@@ -1,5 +1,5 @@
 import os
-import matplotlib.pyplot as plt
+import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
@@ -44,6 +44,24 @@ class RelevantTrajectoryVideoSaver(GridRolloutProcessor):
         save_name = os.path.join(self.path_name_grid_rollouts, 'skills_plotted.png')
         plt.legend()
         plt.savefig(save_name)
+        plt.close()
+
+    def plot_x_dist_heatmap(self, grid_rollout):
+        assert np.sqrt(len(grid_rollout)).is_integer()
+        covered_dists = [rollout['observations'][-1, 0]
+                         for rollout in grid_rollout]
+        covered_dists_mat = np.reshape(
+            np.expand_dims(np.array(covered_dists), 0),
+            self.test_rollouter.skill_grid.shape[:-1]
+        )
+
+        plt.imshow(covered_dists_mat)
+        plt.colorbar(orientation='vertical')
+
+        save_name = os.path.join(self.path_name_grid_rollouts, 'covered_dist_heatmap.png')
+        plt.savefig(save_name)
+
+        plt.close()
 
     def __call__(self, 
                  *args,
@@ -64,6 +82,9 @@ class RelevantTrajectoryVideoSaver(GridRolloutProcessor):
             num_to_extract=self.num_relevant_skills,
         )
         assert len(grid_rollout_relevant[0]['frames']) == 0
+
+        # Plots
+        self.plot_x_dist_heatmap(grid_rollout)
         self.plot_relevant_rollouts(grid_rollout_relevant)
 
         if render:
