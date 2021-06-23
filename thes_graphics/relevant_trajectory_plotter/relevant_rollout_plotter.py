@@ -10,7 +10,6 @@ matplotlib.rcParams.update({
 })
 import matplotlib.pyplot as plt
 import os
-import tikzplotlib
 
 from thes_graphics.base.grid_rollout_processor import GridRolloutProcessor
 
