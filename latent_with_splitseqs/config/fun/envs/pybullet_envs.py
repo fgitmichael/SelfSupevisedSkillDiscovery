@@ -12,7 +12,14 @@ from pybulletgym.envs.mujoco.envs.locomotion.half_cheetah_env import HalfCheetah
 from pybulletgym.envs.mujoco.envs.locomotion.walker2d_env import Walker2DMuJoCoEnv
 from pybulletgym.envs.roboschool.envs.env_bases import BaseBulletEnv
 
+from my_utils.envs.pybullet_halfcheetah_adjusted import halfcheetah_env_creator
+
 from latent_with_splitseqs.config.fun.envs.locomotion_env_keys import locomotion_env_keys
+
+
+halfcheetah_xml_path_mujoco_physics = "my_utils/envs/assets/half_cheetah_mujoco_physics.xml"
+halfcheetah_xml_orig = "my_utils/envs/assets/half_cheetah_pybullet_original.xml"
+
 
 env_kwargs_keys = dict(
     exclude_current_position_key='exclude_current_positions_from_observation',
@@ -30,6 +37,11 @@ class SwimmerBulletVersionThreeEnv(object):
 
 class HalfCheetahBulletVersionThreeEnv(HalfCheetahMuJoCoEnv):
     pass
+
+
+HalfCheetahMuJoCoEnvAdjusted = halfcheetah_env_creator(
+    xml_file_path=halfcheetah_xml_orig,
+)
 
 
 class AntBulletVersionThreeEnv(AntMuJoCoEnv):
@@ -50,6 +62,7 @@ pybullet_envs_version_three = {
     locomotion_env_keys['ant_key']: AntBulletVersionThreeEnv,
     locomotion_env_keys['walker_key']: Walker2dBulletVersionThreeEnv,
     locomotion_env_keys['hopper_key']: HopperBulletVersionThreeEnv,
+    locomotion_env_keys['halfcheetah_mujocoxml_key']: HalfCheetahMuJoCoEnvAdjusted,
 }
 
 

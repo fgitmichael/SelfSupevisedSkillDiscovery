@@ -18,11 +18,11 @@ ptu.set_gpu_mode(False)
 
 filedir = './files'
 video_destination = './test_videos'
-horizon_len = 300
-num_points = 500
-num_relevant_skills = 10
+horizon_len = 30
+num_points = 5
+num_relevant_skills = 1
 
-policy_net_name = os.path.join(filedir, 'policy_net_epoch5000.pkl')
+policy_net_name = os.path.join(filedir, 'policy_net_epoch25000.pkl')
 config_name = os.path.join(filedir, 'config.pkl')
 
 env = load_env(dir=filedir)

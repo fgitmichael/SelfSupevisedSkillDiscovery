@@ -3,6 +3,8 @@ locomotion_env_keys = dict(
     swimmer_key="swimmer",
     # 1d current position
     halfcheetah_key="halfcheetah",
+    # 1d current position
+    halfcheetah_mujocoxml_key="halfcheetah_mujoco_xml",
     # 2d current position
     ant_key="ant",
     # 1d current position
