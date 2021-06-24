@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import copy
 from gym.spaces import Box
 from functools import wraps
@@ -11,14 +12,14 @@ from pybulletgym.envs.mujoco.envs.locomotion.ant_env import AntMuJoCoEnv
 from pybulletgym.envs.mujoco.envs.locomotion.half_cheetah_env import HalfCheetahMuJoCoEnv
 from pybulletgym.envs.mujoco.envs.locomotion.walker2d_env import Walker2DMuJoCoEnv
 from pybulletgym.envs.roboschool.envs.env_bases import BaseBulletEnv
+from pybulletgym.envs.mujoco.envs.locomotion.walker_base_env import WalkerBaseMuJoCoEnv
 
 from my_utils.envs.pybullet_halfcheetah_adjusted import halfcheetah_env_creator
 
 from latent_with_splitseqs.config.fun.envs.locomotion_env_keys import locomotion_env_keys
 
 
-halfcheetah_xml_path_mujoco_physics = "my_utils/envs/assets/half_cheetah_mujoco_physics.xml"
-halfcheetah_xml_orig = "my_utils/envs/assets/half_cheetah_pybullet_original.xml"
+halfcheetah_mujoco_version = "../my_utils/envs/assets/half_cheetah_copy.xml"
 
 
 env_kwargs_keys = dict(
@@ -40,7 +41,7 @@ class HalfCheetahBulletVersionThreeEnv(HalfCheetahMuJoCoEnv):
 
 
 HalfCheetahMuJoCoEnvAdjusted = halfcheetah_env_creator(
-    xml_file_path=halfcheetah_xml_orig,
+    xml_file_path=os.path.abspath(halfcheetah_mujoco_version),
 )
 
 
