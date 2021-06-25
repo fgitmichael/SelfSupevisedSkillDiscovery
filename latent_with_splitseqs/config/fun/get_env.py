@@ -1,16 +1,21 @@
 import gym
+import os
 
 from my_utils.dicts.get_config_item import get_config_item
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
+from self_supervised.utils.writer import model_folder_name, summary_folder_name
 
 from my_utils.dicts.remove_nones import remove_nones
 
 from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
 from latent_with_splitseqs.config.fun.envs.locomotion_env_keys import locomotion_env_keys
-from latent_with_splitseqs.config.fun.envs.pybullet_envs \
-    import pybullet_envs_version_three, wrap_env_class
+from latent_with_splitseqs.config.fun.envs.pybullet_envs import \
+    env_xml_file_paths, \
+    pybullet_envs_version_three, \
+    pybullet_envs_version_three_xml_change, \
+    wrap_env_class
 from latent_with_splitseqs.config.fun.envs.action_repeat_wrapper \
     import wrap_env_action_repeat
 
@@ -23,6 +28,7 @@ init_kwargs_key = 'init_kwargs'
 pybullet_key = 'pybullet'
 is_pybullet_key = 'is_pybullet'
 pos_dim_key = 'pos_dim'
+change_xml_key = 'change_xml'
 
 
 def get_env(**env_kwargs) -> gym.Env:
@@ -42,12 +48,20 @@ def get_env(**env_kwargs) -> gym.Env:
 
     # Return Environment
     gym_id = env_kwargs[gym_id_key]
+    change_xml = get_config_item(
+        env_kwargs,
+        key=change_xml_key,
+        default=False
+    )
     if gym_id in locomotion_env_keys.values():
         if not get_config_item(
                 env_kwargs[pybullet_key],
                 key=is_pybullet_key,
                 default=False
         ):
+            if change_xml:
+                raise NotImplementedError
+
             # MuJoCo
             # Conditional import to avoid unnecessary license checks
             from latent_with_splitseqs.config.fun.envs.mujoco_envs  \
@@ -59,9 +73,29 @@ def get_env(**env_kwargs) -> gym.Env:
             raise ValueError('remaining TODO is left!')
 
         else:
+            if change_xml:
+                # Get xml path, use either original or saved version in the summary folder
+                cwd = os.getcwd()
+                if os.path.basename(cwd) == model_folder_name:
+                    xml_path = os.path.join(
+                        "..",
+                        summary_folder_name,
+                        os.path.basename(env_xml_file_paths[gym_id]),
+                    )
+
+                else:
+                    xml_path = env_xml_file_paths[gym_id]
+
+                env_class_in = pybullet_envs_version_three_xml_change[gym_id](
+                    os.path.abspath(xml_path)
+                )
+
+            else:
+                env_class_in = pybullet_envs_version_three[gym_id]
+
             # PyBullet
             env_class = wrap_env_class(
-                env_class_in=pybullet_envs_version_three[gym_id],
+                env_class_in=env_class_in,
                 pos_dim=get_config_item(
                     env_kwargs[pybullet_key],
                     key=pos_dim_key,

@@ -12,6 +12,10 @@ from self_supervised.base.writer.plt_creator_base import PltCreator
 from self_supervised.base.writer.writer_base import WriterBase
 
 
+model_folder_name = 'model'
+summary_folder_name = 'summary'
+
+
 class WriterDataMapping(Prodict):
     value: torch.Tensor
     global_step: int
@@ -57,8 +61,8 @@ class MyWriter(WriterBase, MyObjectBase):
         )
 
     def set_up_directory_and_create_summary_writer(self, run_dir):
-        self.model_dir = os.path.join(run_dir, 'model')
-        self.summary_dir = os.path.join(run_dir, 'summary')
+        self.model_dir = os.path.join(run_dir, model_folder_name)
+        self.summary_dir = os.path.join(run_dir, summary_folder_name)
 
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)

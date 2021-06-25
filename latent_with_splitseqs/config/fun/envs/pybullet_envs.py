@@ -19,8 +19,11 @@ from my_utils.envs.pybullet_halfcheetah_adjusted import halfcheetah_env_creator
 from latent_with_splitseqs.config.fun.envs.locomotion_env_keys import locomotion_env_keys
 
 
-halfcheetah_mujoco_version_xml = "../my_utils/envs/assets/" \
-                                 "half_cheetah_mujoco_version.xml"
+env_xml_file_paths = {
+    locomotion_env_keys['halfcheetah_key']: os.path.join(
+        '..', 'my_utils', 'envs', 'assets', 'half_cheetah_mujoco_version.xml'
+    ),
+}
 
 
 env_kwargs_keys = dict(
@@ -41,11 +44,6 @@ class HalfCheetahBulletVersionThreeEnv(HalfCheetahMuJoCoEnv):
     pass
 
 
-HalfCheetahMuJoCoEnvAdjusted = halfcheetah_env_creator(
-    xml_file_path=os.path.abspath(halfcheetah_mujoco_version_xml),
-)
-
-
 class AntBulletVersionThreeEnv(AntMuJoCoEnv):
     pass
 
@@ -64,7 +62,9 @@ pybullet_envs_version_three = {
     locomotion_env_keys['ant_key']: AntBulletVersionThreeEnv,
     locomotion_env_keys['walker_key']: Walker2dBulletVersionThreeEnv,
     locomotion_env_keys['hopper_key']: HopperBulletVersionThreeEnv,
-    locomotion_env_keys['halfcheetah_mujocoxml_key']: HalfCheetahMuJoCoEnvAdjusted,
+}
+pybullet_envs_version_three_xml_change = {
+    locomotion_env_keys['halfcheetah_key']: halfcheetah_env_creator,
 }
 
 

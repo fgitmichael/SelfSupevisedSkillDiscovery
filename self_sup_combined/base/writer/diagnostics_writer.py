@@ -13,6 +13,11 @@ from mode_disent_no_ssm.utils.parse_args import yaml_save, json_save
 
 from latent_with_splitseqs.base.my_object_base import MyObjectBase
 
+from my_utils.dicts.get_config_item import get_config_item
+
+from latent_with_splitseqs.config.fun.envs.pybullet_envs import env_xml_file_paths
+from latent_with_splitseqs.config.fun.get_env import change_xml_key
+
 
 class DiagnosticsWriterBase(MyObjectBase, metaclass=abc.ABCMeta):
 
@@ -58,6 +63,7 @@ class DiagnosticsWriter(DiagnosticsWriterBase):
 
         self.copy_main_script()
         self.save_hparams(config)
+        self.copy_env_xml(config)
         self.copy_config(config_path_name)
         self.create_copy_script_symlinks(scripts_to_copy)
 
@@ -68,6 +74,27 @@ class DiagnosticsWriter(DiagnosticsWriterBase):
             **objs_to_save,
             log_interval=self.log_interval,
         )
+
+    def copy_env_xml(self, config):
+        xml_change = get_config_item(
+            config=config['env_kwargs'],
+            key=change_xml_key,
+            default=False,
+        )
+        env_id = get_config_item(
+            config=config['env_kwargs'],
+            key='env_id',
+        )
+
+        if xml_change:
+            src = env_xml_file_paths[env_id]
+            dest = os.path.join(
+                self.writer.summary_dir, os.path.basename(src)
+            )
+            copyfile(
+                src=src,
+                dst=dest
+            )
 
     def is_log(self, step, log_interval=None) -> bool:
         if log_interval is None:
