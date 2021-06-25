@@ -77,7 +77,7 @@ class DiagnosticsWriter(DiagnosticsWriterBase):
 
     def copy_env_xml(self, config):
         xml_change = get_config_item(
-            config=config['env_kwargs'],
+            config=config['env_kwargs']['pybullet'],
             key=change_xml_key,
             default=False,
         )

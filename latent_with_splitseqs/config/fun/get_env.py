@@ -28,7 +28,7 @@ init_kwargs_key = 'init_kwargs'
 pybullet_key = 'pybullet'
 is_pybullet_key = 'is_pybullet'
 pos_dim_key = 'pos_dim'
-change_xml_key = 'change_xml'
+change_xml_key = 'mujoco_physics'
 
 
 def get_env(**env_kwargs) -> gym.Env:
@@ -48,20 +48,12 @@ def get_env(**env_kwargs) -> gym.Env:
 
     # Return Environment
     gym_id = env_kwargs[gym_id_key]
-    change_xml = get_config_item(
-        env_kwargs,
-        key=change_xml_key,
-        default=False
-    )
     if gym_id in locomotion_env_keys.values():
         if not get_config_item(
                 env_kwargs[pybullet_key],
                 key=is_pybullet_key,
                 default=False
         ):
-            if change_xml:
-                raise NotImplementedError
-
             # MuJoCo
             # Conditional import to avoid unnecessary license checks
             from latent_with_splitseqs.config.fun.envs.mujoco_envs  \
@@ -73,6 +65,11 @@ def get_env(**env_kwargs) -> gym.Env:
             raise ValueError('remaining TODO is left!')
 
         else:
+            change_xml = get_config_item(
+                env_kwargs['pybullet'],
+                key=change_xml_key,
+                default=False
+            )
             if change_xml:
                 # Get xml path, use either original or saved version in the summary folder
                 cwd = os.getcwd()
