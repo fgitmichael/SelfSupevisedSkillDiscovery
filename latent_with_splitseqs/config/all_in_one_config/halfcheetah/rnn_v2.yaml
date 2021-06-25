@@ -8,8 +8,9 @@ random_hp_tuning: False
 
 # Environment
 env_kwargs:
-  env_id: halfcheetah_mujoco_xml
+  env_id: halfcheetah
   pybullet:
+    mujoco_physics: True
     is_pybullet: True
     pos_dim: 1
   init_kwargs:
@@ -22,13 +23,13 @@ obs_dims_used_policy_all_except: [0, ]
 algorithm_kwargs:
   num_epochs: 2000000
   num_eval_steps_per_epoch: 10
-  num_trains_per_train_loop: 8
-  num_expl_steps_per_train_loop: 8
+  num_trains_per_train_loop: 12
+  num_expl_steps_per_train_loop: 12
   min_num_steps_before_training: 200
   max_path_length: 1000
-  train_sac_classifier_with_equal_data: True
-  batch_size: 500
-  batch_size_latent: 500
+  train_sac_classifier_with_equal_data: False
+  batch_size: 250
+  batch_size_latent: 250
 
 # Trainer
 trainer_kwargs:
@@ -43,14 +44,14 @@ trainer_kwargs:
   train_sac_in_feature_space: False
 
 # Sampling
-seq_len: 30
-horizon_len: 240
+seq_len: 25
+horizon_len: 300
 skill_dim: 2
 
 # Skill Prior
 skill_prior:
   type: uniform
-  grid_radius_factor: 1.77
+  grid_radius_factor: 1.7
   uniform:
     low: -2.5
     high: 2.5
@@ -61,7 +62,7 @@ skill_prior:
 df_evaluation_env:
   obs_dims_to_log: [0, 1]
   action_dims_to_log: [0, 1]
-  horizon_len: 480
+  horizon_len: 450
   num_paths_per_skill: 1
   plot_skill_influence:
     obs: True
@@ -94,16 +95,16 @@ latent_single_layer_kwargs:
   None: null
 
 rnn_kwargs:
-  hidden_size_rnn: 500
+  hidden_size_rnn: 1000
   bidirectional: False
 
 df_kwargs_rnn:
   obs_dims_used: null
   obs_dims_used_except: [0, ]
-  dropout: 0.05
+  dropout: 0.1
   leaky_slope_classifier: 0.15
   hidden_units_classifier: [256, 256]
-  std_classifier: 0.18
+  std_classifier: 0.17
 
 df_kwargs_latent:
   None: null
