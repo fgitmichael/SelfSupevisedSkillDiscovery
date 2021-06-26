@@ -70,7 +70,8 @@ pybullet_envs_version_three_xml_change = {
 
 def get_current_position(self) -> np.ndarray:
     """
-    Pybullet does not seem to carry the current position consistently for all environments.
+    Pybullet does not seem to carry the current position
+    consistently for all environments.
     In the Halfcheetah environment, for example, the current position is kept
     as "position_after"-attribute, while in the hopper environment the
     current position can only be retrieved via robotxyz. However robotxzy does not work
