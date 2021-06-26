@@ -117,79 +117,69 @@ def wrap_env_class(
         env_class           : environement class
         pos_dim             : dimension of position
     """
-    env_class = copy.deepcopy(env_class_in)
-    orig_init = env_class.__init__
-    orig_reset = env_class.reset
-    orig_step = env_class.step
+    class EnvClassOut(env_class_in):
 
-    @wraps(orig_init)
-    def new_init(self, *args, **kwargs):
-        # Get position exclude bool
-        self.exclude_current_position = get_config_item(
-            kwargs,
-            key=env_kwargs_keys['exclude_current_position_key'],
-            default=True,
-        )
-
-        # Check for no reset_noise scaling
-        reset_noise_scale = get_config_item(
-            kwargs,
-            key=env_kwargs_keys['reset_noise_scale'],
-            default=None,
-        )
-        assert reset_noise_scale is None
-
-        # Delete keys
-        for key_str in env_kwargs_keys.values():
-            if key_str in kwargs.keys():
-                del kwargs[key_str]
-
-        # Call original init method
-        orig_init(self, *args, **kwargs)
-
-        # Adjust observation space if position is not excluded
-        assert "observation_space" in vars(self).keys()
-        orig_obs_space = self.observation_space
-        if not self.exclude_current_position:
-            assert isinstance(orig_obs_space, Box)
-            low = orig_obs_space.low
-            high = orig_obs_space.high
-            low_new = np.concatenate([-np.inf * np.ones([pos_dim]), low])
-            high_new = np.concatenate([np.inf * np.ones([pos_dim]), high])
-            self.observation_space = Box(low_new, high_new)
-
-    @wraps(orig_reset)
-    def new_reset(self):
-        obs = orig_reset(self)
-        if not self.exclude_current_position:
-            current_position = get_current_position(self)
-            obs = _add_position(
-                obs=obs,
-                current_position=current_position,
-                pos_dim=pos_dim,
-            )
-        return obs
-
-    @wraps(orig_step)
-    def new_step(self, *args, **kwargs):
-        # Get observation
-        step_return = orig_step(self, *args, **kwargs)
-        step_return = list(step_return)
-        obs = step_return[0]
-
-        if not self.exclude_current_position:
-            current_position = get_current_position(self)
-            # Add position
-            step_return[0] = _add_position(
-                obs=obs,
-                current_position=current_position,
-                pos_dim=pos_dim,
+        def new_init(self, *args, **kwargs):
+            # Get position exclude bool
+            self.exclude_current_position = get_config_item(
+                kwargs,
+                key=env_kwargs_keys['exclude_current_position_key'],
+                default=True,
             )
 
-        return step_return
+            # Check for no reset_noise scaling
+            reset_noise_scale = get_config_item(
+                kwargs,
+                key=env_kwargs_keys['reset_noise_scale'],
+                default=None,
+            )
+            assert reset_noise_scale is None
 
-    env_class.__init__ = new_init
-    env_class.step = new_step
-    env_class.reset = new_reset
+            # Delete keys
+            for key_str in env_kwargs_keys.values():
+                if key_str in kwargs.keys():
+                    del kwargs[key_str]
 
-    return env_class
+            # Call original init method
+            super().__init__(*args, **kwargs)
+
+            # Adjust observation space if position is not excluded
+            assert "observation_space" in vars(self).keys()
+            orig_obs_space = self.observation_space
+            if not self.exclude_current_position:
+                assert isinstance(orig_obs_space, Box)
+                low = orig_obs_space.low
+                high = orig_obs_space.high
+                low_new = np.concatenate([-np.inf * np.ones([pos_dim]), low])
+                high_new = np.concatenate([np.inf * np.ones([pos_dim]), high])
+                self.observation_space = Box(low_new, high_new)
+
+        def reset(self):
+            obs = super().reset()
+            if not self.exclude_current_position:
+                current_position = get_current_position(self)
+                obs = _add_position(
+                    obs=obs,
+                    current_position=current_position,
+                    pos_dim=pos_dim,
+                )
+            return obs
+
+        def step(self, *args, **kwargs):
+            # Get observation
+            step_return = super().step(*args, **kwargs)
+            step_return = list(step_return)
+            obs = step_return[0]
+
+            if not self.exclude_current_position:
+                current_position = get_current_position(self)
+                # Add position
+                step_return[0] = _add_position(
+                    obs=obs,
+                    current_position=current_position,
+                    pos_dim=pos_dim,
+                )
+
+            return step_return
+
+    return EnvClassOut
