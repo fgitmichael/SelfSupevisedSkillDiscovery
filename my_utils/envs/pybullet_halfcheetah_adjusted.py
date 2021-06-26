@@ -1,4 +1,4 @@
-import copy
+from typing import Type
 from functools import wraps
 from pybulletgym.envs.mujoco.envs.locomotion.half_cheetah_env \
     import HalfCheetahMuJoCoEnv
@@ -26,20 +26,14 @@ class HalfCheetahAdjusted(HalfCheetah):
         # self.pos_after = 0
 
 
-def halfcheetah_env_creator(xml_file_path: str):
+def halfcheetah_env_creator(xml_file_path: str) -> Type[HalfCheetahMuJoCoEnv]:
     robot = HalfCheetahAdjusted(
         xml_file_path=xml_file_path,
     )
+    class HalfCheetahMuJoCoEnvAdjusted(HalfCheetahMuJoCoEnv):
+        def __init__(self):
+            super().__init__()
+            self.robot = robot
+            WalkerBaseMuJoCoEnv.__init__(self, self.robot)
 
-    env_class = copy.deepcopy(HalfCheetahMuJoCoEnv)
-    orig_init = env_class.__init__
-
-    @wraps(orig_init)
-    def new_init(self, *args, **kwargs):
-        orig_init(self, *args, **kwargs)
-        self.robot = robot
-        WalkerBaseMuJoCoEnv.__init__(self, self.robot)
-
-    env_class.__init__ = new_init
-
-    return env_class
+    return HalfCheetahMuJoCoEnvAdjusted
