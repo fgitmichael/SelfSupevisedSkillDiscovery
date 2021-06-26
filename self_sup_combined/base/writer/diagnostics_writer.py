@@ -131,7 +131,10 @@ class DiagnosticsWriter(DiagnosticsWriterBase):
             save_name = "{}_epoch{}.pkl".format(save_name, epoch)
 
         save_path = os.path.join(self.writer.model_dir, save_name)
-        torch.save(obj, save_path)
+        try:
+            torch.save(obj, save_path)
+        except AttributeError as error:
+            print("{} (Problem with saving of {})".format(error, save_name))
 
     def save_env(self,
                  env: gym.Env):

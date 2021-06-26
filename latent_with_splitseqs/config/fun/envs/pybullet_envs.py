@@ -119,7 +119,7 @@ def wrap_env_class(
     """
     class EnvClassOut(env_class_in):
 
-        def new_init(self, *args, **kwargs):
+        def __init__(self, *args, **kwargs):
             # Get position exclude bool
             self.exclude_current_position = get_config_item(
                 kwargs,
