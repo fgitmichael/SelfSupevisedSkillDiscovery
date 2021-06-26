@@ -10,10 +10,8 @@ import shutil
 
 from self_supervised.base.writer.plt_creator_base import PltCreator
 from self_supervised.base.writer.writer_base import WriterBase
-
-
-model_folder_name = 'model'
-summary_folder_name = 'summary'
+from self_supervised.utils.writer_names import \
+    model_folder_name, summary_folder_name
 
 
 class WriterDataMapping(Prodict):

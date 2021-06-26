@@ -4,7 +4,7 @@ import os
 from my_utils.dicts.get_config_item import get_config_item
 
 from self_supervised.env_wrapper.rlkit_wrapper import NormalizedBoxEnvWrapper
-from self_supervised.utils.writer import model_folder_name, summary_folder_name
+from self_supervised.utils.writer_names import model_folder_name, summary_folder_name
 
 from my_utils.dicts.remove_nones import remove_nones
 
