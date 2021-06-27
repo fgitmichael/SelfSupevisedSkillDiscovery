@@ -1,71 +1,15 @@
 import numpy as np
-import os
-import copy
 from gym.spaces import Box
-from functools import wraps
 from typing import Type
 
 from my_utils.dicts.get_config_item import get_config_item
 
-from pybulletgym.envs.mujoco.envs.locomotion.hopper_env import HopperMuJoCoEnv
-from pybulletgym.envs.mujoco.envs.locomotion.ant_env import AntMuJoCoEnv
-from pybulletgym.envs.mujoco.envs.locomotion.half_cheetah_env import HalfCheetahMuJoCoEnv
-from pybulletgym.envs.mujoco.envs.locomotion.walker2d_env import Walker2DMuJoCoEnv
 from pybulletgym.envs.roboschool.envs.env_bases import BaseBulletEnv
-from pybulletgym.envs.mujoco.envs.locomotion.walker_base_env import WalkerBaseMuJoCoEnv
-
-from my_utils.envs.pybullet_halfcheetah_adjusted import halfcheetah_env_creator
-
-from latent_with_splitseqs.config.fun.envs.locomotion_env_keys import locomotion_env_keys
-
-
-env_xml_file_paths = {
-    locomotion_env_keys['halfcheetah_key']: os.path.join(
-        '..', 'my_utils', 'envs', 'assets', 'half_cheetah_mujoco_version.xml'
-    ),
-}
-
 
 env_kwargs_keys = dict(
     exclude_current_position_key='exclude_current_positions_from_observation',
     reset_noise_scale='reset_noise_scale',
 )
-
-"""
-Mujoco-like envs
-"""
-class SwimmerBulletVersionThreeEnv(object):
-
-    def __init__(self):
-        raise NotImplementedError
-
-
-class HalfCheetahBulletVersionThreeEnv(HalfCheetahMuJoCoEnv):
-    pass
-
-
-class AntBulletVersionThreeEnv(AntMuJoCoEnv):
-    pass
-
-
-class HopperBulletVersionThreeEnv(HopperMuJoCoEnv):
-    pass
-
-
-class Walker2dBulletVersionThreeEnv(Walker2DMuJoCoEnv):
-    pass
-
-
-pybullet_envs_version_three = {
-    locomotion_env_keys['swimmer_key']: SwimmerBulletVersionThreeEnv,
-    locomotion_env_keys['halfcheetah_key']: HalfCheetahBulletVersionThreeEnv,
-    locomotion_env_keys['ant_key']: AntBulletVersionThreeEnv,
-    locomotion_env_keys['walker_key']: Walker2dBulletVersionThreeEnv,
-    locomotion_env_keys['hopper_key']: HopperBulletVersionThreeEnv,
-}
-pybullet_envs_version_three_xml_change = {
-    locomotion_env_keys['halfcheetah_key']: halfcheetah_env_creator,
-}
 
 
 def get_current_position(self) -> np.ndarray:

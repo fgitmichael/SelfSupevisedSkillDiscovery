@@ -15,9 +15,9 @@ from latent_with_splitseqs.base.my_object_base import MyObjectBase
 
 from my_utils.dicts.get_config_item import get_config_item
 
-from latent_with_splitseqs.config.fun.envs.pybullet_envs import env_xml_file_paths
 from latent_with_splitseqs.config.fun.get_env import change_xml_key
 
+from my_utils.envs.robots_adjusted import env_xml_file_paths
 
 class DiagnosticsWriterBase(MyObjectBase, metaclass=abc.ABCMeta):
 

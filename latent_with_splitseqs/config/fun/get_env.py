@@ -12,12 +12,14 @@ from two_d_navigation_demo.env.navigation_env import TwoDimNavigationEnv
 
 from latent_with_splitseqs.config.fun.envs.locomotion_env_keys import locomotion_env_keys
 from latent_with_splitseqs.config.fun.envs.pybullet_envs import \
-    env_xml_file_paths, \
-    pybullet_envs_version_three, \
-    pybullet_envs_version_three_xml_change, \
     wrap_env_class
+from my_utils.envs.pybullet_envs import pybullet_envs_version_three
 from latent_with_splitseqs.config.fun.envs.action_repeat_wrapper \
     import wrap_env_action_repeat
+
+from my_utils.envs.robots_adjusted import env_xml_file_paths
+from my_utils.envs.pybullet_adjusted import env_creator_adjusted
+
 
 gym_envs_normal = dict(
     two_d_nav=TwoDimNavigationEnv,
@@ -83,9 +85,8 @@ def get_env(**env_kwargs) -> gym.Env:
                 else:
                     xml_path = env_xml_file_paths[gym_id]
 
-                env_class_in = pybullet_envs_version_three_xml_change[gym_id](
-                    os.path.abspath(xml_path)
-                )
+                xml_path = os.path.abspath(xml_path)
+                env_class_in = env_creator_adjusted(gym_id, xml_path)
 
             else:
                 env_class_in = pybullet_envs_version_three[gym_id]
