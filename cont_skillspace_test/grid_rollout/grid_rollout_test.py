@@ -72,7 +72,11 @@ class RolloutTesterPlot(object):
         plt.imshow(coverd_dists_mat)
         plt.colorbar(orientation='vertical')
 
-        rollout_fig_name = 'epoch_' + str(epoch) + '.pdf'
+        rollout_fig_name = "epoch_{}_numevalsteps_{}_numgridpoints_{}.pdf".format(
+            epoch,
+            self.test_rollouter.horizon_len,
+            num_points,
+        )
         plt.savefig(os.path.join(
             self.path_name_grid_rollouts,
             rollout_fig_name
