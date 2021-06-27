@@ -33,7 +33,6 @@ class HalfCheetahAdjusted(HalfCheetah):
             xml_file_path: str,
     ):
         super().__init__()
-        assert os.path.isfile(xml_file_path)
         MJCFBasedRobot.__init__(
             self,
             xml_file_path,

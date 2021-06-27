@@ -1,3 +1,4 @@
+import os
 from pybulletgym.envs.mujoco.envs.locomotion.walker_base_env \
     import WalkerBaseMuJoCoEnv
 
@@ -10,8 +11,12 @@ def env_creator_adjusted(
         gym_id,
         xml_file_path: str
 ):
+    assert os.path.isfile(xml_file_path)
+    assert os.path.isabs(xml_file_path)
+
     robot_class = robots_adjusted[gym_id]
     env_class = pybullet_envs_version_three[gym_id]
+
     robot = robot_class(
         xml_file_path=xml_file_path,
     )
