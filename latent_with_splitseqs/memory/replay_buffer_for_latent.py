@@ -48,7 +48,8 @@ class LatentReplayBuffer(SelfSupervisedEnvSequenceReplayBuffer):
     def get_diagnostics(self) -> dict:
         diagnostics_dict = super().get_diagnostics()
 
-        average_path_lens = np.mean(self._seqlen_saved_paths[:self._size])
+        num_transitions = np.sum(self._seqlen_saved_paths[:self._size])
+        average_path_lens = num_transitions/self._size
         median_path_lens = np.median(self._seqlen_saved_paths[:self._size])
         std_path_lens = np.std(self._seqlen_saved_paths[:self._size])
         min_path_len = np.min(self._seqlen_saved_paths[:self._size])
@@ -59,6 +60,9 @@ class LatentReplayBuffer(SelfSupervisedEnvSequenceReplayBuffer):
         diagnostics_dict['std_path_lens'] = std_path_lens
         diagnostics_dict['min_path_len'] = min_path_len
         diagnostics_dict['max_path_len'] = max_path_len
+        num_transitions_key = 'num_transitions'
+        assert num_transitions_key in diagnostics_dict.keys()
+        diagnostics_dict[num_transitions_key] = num_transitions
 
         return diagnostics_dict
 
