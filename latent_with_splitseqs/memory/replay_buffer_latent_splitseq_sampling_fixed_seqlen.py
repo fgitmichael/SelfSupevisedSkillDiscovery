@@ -9,7 +9,7 @@ def get_fixed_seqlen_latent_replay_buffer_class(
 ) -> Type[LatentReplayBuffer]:
 
     class LatentReplayBufferSplitSeqSamplingRandomSeqLen(
-        latent_replay_buffer_splitseq_cls):
+            latent_replay_buffer_splitseq_cls):
 
         def __init__(self,
                      *args,

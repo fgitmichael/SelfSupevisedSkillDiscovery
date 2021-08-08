@@ -67,6 +67,9 @@ class LatentReplayBuffer(SelfSupervisedEnvSequenceReplayBuffer):
         return diagnostics_dict
 
     def _add_sample_if(self, path_len) -> bool:
+        """
+        Note this method can be overriden by meta programming functions
+        """
         return not path_len < self._seq_len
 
     def add_sample(self,
@@ -75,7 +78,8 @@ class LatentReplayBuffer(SelfSupervisedEnvSequenceReplayBuffer):
         # Get path len
         seq_dim = 1
         assert len(path.obs.shape) == 2
-        path_lens = [el.shape[seq_dim] for el in path.values() if isinstance(el, np.ndarray)]
+        path_lens = [el.shape[seq_dim]
+                     for el in path.values() if isinstance(el, np.ndarray)]
         assert all([path_len == path_lens[0] for path_len in path_lens])
         path_len = path_lens[0]
 
