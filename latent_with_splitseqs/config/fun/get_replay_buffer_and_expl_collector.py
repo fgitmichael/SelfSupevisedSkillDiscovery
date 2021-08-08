@@ -3,10 +3,12 @@ from typing import Tuple
 from self_supervised.base.replay_buffer.replay_buffer_base import SequenceReplayBuffer
 
 from latent_with_splitseqs.memory.replay_buffer_for_latent import LatentReplayBuffer
+from latent_with_splitseqs.base.replay_buffer_latent_splitseq_sampling_base \
+    import LatentReplayBufferSplitSeqSamplingBase
 from latent_with_splitseqs.memory.replay_buffer_latent_splitseq_sampling_fixed_seqlen \
-    import LatentReplayBufferSplitSeqSamplingFixedSeqLen
+    import get_fixed_seqlen_latent_replay_buffer_class
 from latent_with_splitseqs.memory.replay_buffer_latent_splitseq_sampling_random_seqlen \
-    import LatentReplayBufferSplitSeqSamplingRandomSeqLen
+    import get_random_seqlen_latent_replay_buffer_class
 from latent_with_splitseqs.data_collector.seq_collector_over_horizon_splitseq_save \
     import SeqCollectorHorizonSplitSeqSaving
 from latent_with_splitseqs.data_collector.seq_collector_over_horizon_wholeseq_save \
@@ -62,9 +64,20 @@ def get_replay_buffer_and_expl_collector(
             skill_selector=skill_selector,
             terminal_handling=terminal_handling,
         )
-        replay_buffer = LatentReplayBufferSplitSeqSamplingFixedSeqLen(
+        #replay_buffer = LatentReplayBufferSplitSeqSamplingFixedSeqLen(
+        #    max_replay_buffer_size=config.replay_buffer_size,
+        #    seq_len=config.horizon_len, # Now whole horizon is saved
+        #    mode_dim=config.skill_dim,
+        #    env=expl_env,
+        #    sample_seqlen=config.seq_len,
+        #    min_sample_seqlen=min_sample_seqlen,
+        #)
+        replay_buffer_cls = get_fixed_seqlen_latent_replay_buffer_class(
+            LatentReplayBufferSplitSeqSamplingBase,
+        )
+        replay_buffer = replay_buffer_cls(
             max_replay_buffer_size=config.replay_buffer_size,
-            seq_len=config.horizon_len, # Now whole horizon is saved
+            seq_len=config.horizon_len,  # Now whole horizon is saved
             mode_dim=config.skill_dim,
             env=expl_env,
             sample_seqlen=config.seq_len,
@@ -79,7 +92,19 @@ def get_replay_buffer_and_expl_collector(
             skill_selector=skill_selector,
             terminal_handling=terminal_handling,
         )
-        replay_buffer = LatentReplayBufferSplitSeqSamplingRandomSeqLen(
+        #replay_buffer = LatentReplayBufferSplitSeqSamplingRandomSeqLen(
+        #    max_replay_buffer_size=config.replay_buffer_size,
+        #    seq_len=config.horizon_len,  # Now whole horizon is saved
+        #    mode_dim=config.skill_dim,
+        #    env=expl_env,
+        #    min_sample_seqlen=min_sample_seqlen,
+        #    min_sample_seq_len=config.min_sample_seq_len,
+        #    max_sample_seq_len=config.max_sample_seq_len,
+        #)
+        replay_buffer_cls = get_random_seqlen_latent_replay_buffer_class(
+            LatentReplayBufferSplitSeqSamplingBase,
+        )
+        replay_buffer = replay_buffer_cls(
             max_replay_buffer_size=config.replay_buffer_size,
             seq_len=config.horizon_len,  # Now whole horizon is saved
             mode_dim=config.skill_dim,
