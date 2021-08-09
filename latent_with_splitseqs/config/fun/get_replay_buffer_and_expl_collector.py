@@ -13,6 +13,9 @@ from latent_with_splitseqs.data_collector.seq_collector_over_horizon_splitseq_sa
     import SeqCollectorHorizonSplitSeqSaving
 from latent_with_splitseqs.data_collector.seq_collector_over_horizon_wholeseq_save \
     import SeqCollectorHorizonWholeSeqSaving
+from latent_with_splitseqs.base.\
+    replay_buffer_latent_splitseq_sampling_base_terminal_handling_memory_efficient \
+    import LatentReplayBufferSplitSeqSamplingBaseMemoryEfficient
 
 from diayn_seq_code_revised.base.data_collector_base import DataCollectorRevisedBase
 
@@ -33,6 +36,11 @@ def get_replay_buffer_and_expl_collector(
     terminal_handling = get_config_item(
         config=config,
         key='terminal_handling',
+        default=False,
+    )
+    terminal_handling_save_memory = get_config_item(
+        config=config,
+        key='terminal_handling_save_memory',
         default=False,
     )
     min_sample_seqlen = get_config_item(
@@ -72,8 +80,14 @@ def get_replay_buffer_and_expl_collector(
         #    sample_seqlen=config.seq_len,
         #    min_sample_seqlen=min_sample_seqlen,
         #)
+        if terminal_handling_save_memory:
+            base_replay_buffer_class = \
+                LatentReplayBufferSplitSeqSamplingBaseMemoryEfficient
+        else:
+            base_replay_buffer_class = LatentReplayBufferSplitSeqSamplingBase
+
         replay_buffer_cls = get_fixed_seqlen_latent_replay_buffer_class(
-            LatentReplayBufferSplitSeqSamplingBase,
+            base_replay_buffer_class,
         )
         replay_buffer = replay_buffer_cls(
             max_replay_buffer_size=config.replay_buffer_size,

@@ -22,9 +22,10 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
             env_info_sizes=env_info_sizes
         )
 
+        self._mode_dim = mode_dim
         self._mode_per_seqs = np.zeros(
             (self._max_replay_buffer_size,
-             mode_dim,
+             self._mode_dim,
              self._seq_len),
             dtype=np.float32
         )
