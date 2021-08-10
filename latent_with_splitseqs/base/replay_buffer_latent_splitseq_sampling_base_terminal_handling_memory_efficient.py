@@ -79,13 +79,10 @@ class LatentReplayBufferSplitSeqSamplingBaseMemoryEfficient(
             seq_dim = 1
             data_dim = 0
             horizon_len = self._obs_seqs[row].shape[seq_dim]
-            if col > horizon_len - seq_len:
+            if col > (horizon_len - seq_len):
                 # Add Padding
-                if col == seq_len:
-                    col -= 1
-                num_padding_els = col % seq_len
+                num_padding_els = col - (horizon_len - seq_len)
                 col = col % seq_len
-                assert num_padding_els > 0
 
                 zero_paddings_obs = np.zeros(
                     (self._obs_seqs[row].shape[data_dim], num_padding_els)
@@ -168,11 +165,9 @@ class LatentReplayBufferSplitSeqSamplingBaseMemoryEfficient(
             seq_dim = 1
             data_dim = 0
             horizon_len = self._obs_seqs[row].shape[seq_dim]
-            if col > horizon_len - seq_len:
+            if col > (horizon_len - seq_len):
                 # Add Padding
-                if col == seq_len:
-                    col -= 1
-                num_padding_els = col % seq_len
+                num_padding_els = col - (horizon_len - seq_len)
                 col = col % seq_len
 
                 zero_paddings_obs = np.zeros(
