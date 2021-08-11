@@ -20,8 +20,10 @@ class LatentReplayBufferSplitSeqSamplingBaseMemoryEfficient(
     def __init__(self,
                  *args,
                  min_sample_seqlen: int = 2,
+                 padding: bool = False,
                  **kwargs):
         super().__init__(*args, **kwargs)
+        self._padding = padding
         self._min_sample_seqlen = min_sample_seqlen
 
         self._mode_per_seqs = [None] * self._max_replay_buffer_size
@@ -79,7 +81,7 @@ class LatentReplayBufferSplitSeqSamplingBaseMemoryEfficient(
             seq_dim = 1
             data_dim = 0
             horizon_len = self._obs_seqs[row].shape[seq_dim]
-            if col > (horizon_len - seq_len):
+            if col > (horizon_len - seq_len) and self._padding:
                 # Add Padding
                 num_padding_els = col - (horizon_len - seq_len)
                 col = col % seq_len
@@ -128,6 +130,15 @@ class LatentReplayBufferSplitSeqSamplingBaseMemoryEfficient(
                     axis=seq_dim,
                 )[:, col:col + seq_len]
 
+            elif col > (horizon_len - seq_len) and not self._padding:
+                col = horizon_len - seq_len
+                obs[idx] = self._obs_seqs[row][:, col:col + seq_len]
+                next_obs[idx] = self._obs_next_seqs[row][:, col:col + seq_len]
+                actions[idx] = self._action_seqs[row][:, col:col + seq_len]
+                terminal[idx] = self._terminal_seqs[row][:, col:col + seq_len]
+                reward[idx] = self._rewards_seqs[row][:, col:col + seq_len]
+                mode[idx] = self._mode_per_seqs[row][:, col:col + seq_len]
+
             else:
                 obs[idx] = self._obs_seqs[row][:, col:col + seq_len]
                 next_obs[idx] = self._obs_next_seqs[row][:, col:col + seq_len]
@@ -165,7 +176,7 @@ class LatentReplayBufferSplitSeqSamplingBaseMemoryEfficient(
             seq_dim = 1
             data_dim = 0
             horizon_len = self._obs_seqs[row].shape[seq_dim]
-            if col > (horizon_len - seq_len):
+            if col > (horizon_len - seq_len) and self._padding:
                 # Add Padding
                 num_padding_els = col - (horizon_len - seq_len)
                 col = col % seq_len
@@ -185,6 +196,11 @@ class LatentReplayBufferSplitSeqSamplingBaseMemoryEfficient(
                     [paddings_mode, self._mode_per_seqs[row]],
                     axis=seq_dim,
                 )[:, col:col + seq_len]
+
+            elif col > (horizon_len - seq_len) and not self._padding:
+                col = horizon_len - seq_len
+                next_obs[idx] = self._obs_next_seqs[row][:, col:col + seq_len]
+                mode[idx] = self._mode_per_seqs[row][:, col:col + seq_len]
 
             else:
                 next_obs[idx] = self._obs_next_seqs[row][:, col:col + seq_len]
