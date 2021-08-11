@@ -26,6 +26,7 @@ class LatentReplayBufferSplitSeqSamplingBaseMemoryEfficient(
         self._padding = padding
         self._min_sample_seqlen = min_sample_seqlen
 
+    def _create_memory(self):
         self._mode_per_seqs = [None] * self._max_replay_buffer_size
         self._single_mode = np.empty((self._max_replay_buffer_size, self._mode_dim))
         self._obs_seqs = [None] * self._max_replay_buffer_size

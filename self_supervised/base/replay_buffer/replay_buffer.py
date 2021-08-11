@@ -30,6 +30,18 @@ class NormalSequenceReplayBuffer(SequenceReplayBufferSampleWithoutReplace, MyObj
 
         self._seq_len = seq_len
 
+        self._create_memory()
+
+        self._env_infos = {}
+        for key, size in env_info_sizes.items():
+            self._env_infos[key] = np.zeros(
+                (self._max_replay_buffer_size,
+                 size,
+                 self._seq_len)
+            )
+        self._env_info_keys = env_info_sizes.keys()
+
+    def _create_memory(self):
         self._obs_seqs = np.zeros(
             (self._max_replay_buffer_size,
              self._observation_dim,
@@ -57,18 +69,9 @@ class NormalSequenceReplayBuffer(SequenceReplayBufferSampleWithoutReplace, MyObj
         self._terminal_seqs = np.zeros(
             (self._max_replay_buffer_size,
              1,
-            self._seq_len),
+             self._seq_len),
             dtype=np.uint8
         )
-
-        self._env_infos = {}
-        for key, size in env_info_sizes.items():
-            self._env_infos[key] = np.zeros(
-                (self._max_replay_buffer_size,
-                 size,
-                 self._seq_len)
-            )
-        self._env_info_keys = env_info_sizes.keys()
 
     @property
     def _objs_to_save(self):
