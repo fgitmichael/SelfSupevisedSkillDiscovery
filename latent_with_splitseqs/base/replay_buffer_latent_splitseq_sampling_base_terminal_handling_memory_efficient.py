@@ -20,10 +20,8 @@ class LatentReplayBufferSplitSeqSamplingBaseMemoryEfficient(
     def __init__(self,
                  *args,
                  min_sample_seqlen: int = 2,
-                 padding: bool = False,
                  **kwargs):
         super().__init__(*args, **kwargs)
-        self._padding = padding
         self._min_sample_seqlen = min_sample_seqlen
         self._single_mode = np.empty((self._max_replay_buffer_size, self._mode_dim))
 

@@ -127,7 +127,7 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
 
         # Add Zero Paddings
         end_idx = cols > horizon_len - seq_len
-        if np.any(end_idx):
+        if np.any(end_idx) and self._padding:
             remainder = cols[end_idx] - (horizon_len - seq_len)
             num_padding_els = np.max(remainder)
             cols[end_idx] = remainder
@@ -151,6 +151,10 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
                 raise NotImplementedError
 
             padded_array_ = np.concatenate([padding_array_, array_bsd], axis=seq_dim)
+
+        elif np.any(end_idx) and not self._padding:
+            cols[end_idx] = horizon_len - seq_len
+            padded_array_ = array_bsd
 
         else:
             padded_array_ = array_bsd

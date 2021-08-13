@@ -12,10 +12,11 @@ class LatentReplayBuffer(SelfSupervisedEnvSequenceReplayBuffer):
     def __init__(
             self,
             *args,
+            padding: bool = False,
             **kwargs
     ):
         super().__init__(*args, **kwargs)
-
+        self._padding = padding
         self._seqlen_saved_paths = np.zeros((self._max_replay_buffer_size,), dtype=np.int)
 
     def add_paths(self, paths: List[td.TransitionModeMapping]):
