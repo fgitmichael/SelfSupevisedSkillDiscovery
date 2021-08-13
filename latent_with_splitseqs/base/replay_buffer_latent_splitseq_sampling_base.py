@@ -128,8 +128,9 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
         # Add Zero Paddings
         end_idx = cols > horizon_len - seq_len
         if np.any(end_idx):
-            num_padding_els = np.max(cols[end_idx] % seq_len)
-            cols[end_idx] = cols[end_idx] % seq_len
+            remainder = cols[end_idx] - (horizon_len - seq_len)
+            num_padding_els = np.max(remainder)
+            cols[end_idx] = remainder
             cols += num_padding_els
             cols[end_idx] -= num_padding_els
 
