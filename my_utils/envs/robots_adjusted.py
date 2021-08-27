@@ -15,13 +15,13 @@ env_xml_file_paths = {
         assets_base_path, 'half_cheetah_mujoco_version.xml'
     ),
     locomotion_env_keys['ant_key']: os.path.join(
-        assets_base_path, 'ant_mujoco_version.xmal'
+        assets_base_path, 'ant_mujoco_version.xml'
     ),
     locomotion_env_keys['walker_key']: os.path.join(
-        assets_base_path, 'walker_mujoco_version.xmal'
+        assets_base_path, 'walker_mujoco_version.xml'
     ),
     locomotion_env_keys['hopper_key']: os.path.join(
-        assets_base_path, 'hopper_mujoco_version.xmal'
+        assets_base_path, 'hopper_mujoco_version.xml'
     ),
 }
 
