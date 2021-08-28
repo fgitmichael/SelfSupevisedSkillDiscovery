@@ -1,10 +1,10 @@
 ---
 algorithm: "Continuous Skill Space"
-version: "latent split seq | rnn only"
+version: "latent split seq | rnn only | pybullet 1625352a4000cf861eb1fced1cb234af12e5f7d4 | code ---"
 layer_size: 256
-replay_buffer_size: 60000
+replay_buffer_size: 100000
 replay_seq_sampling: sampling
-terminal_handling: True
+padding: False
 random_hp_tuning: False
 
 # Environment
@@ -21,10 +21,10 @@ obs_dims_used_policy_all_except: [0, ]
 
 # Algorithm
 algorithm_kwargs:
-  num_epochs: 20000
+  num_epochs: 20000000
   num_eval_steps_per_epoch: 10
-  num_trains_per_train_loop: 288
-  num_expl_steps_per_train_loop: 288
+  num_trains_per_train_loop: 192
+  num_expl_steps_per_train_loop: 192
   min_num_steps_before_training: 200
   max_path_length: 1000
   train_sac_classifier_with_equal_data: False
@@ -44,17 +44,17 @@ trainer_kwargs:
   train_sac_in_feature_space: False
 
 # Sampling
-seq_len: 100
+seq_len: 150
 horizon_len: 900
 skill_dim: 2
 
 # Skill Prior
 skill_prior:
   type: uniform
-  grid_radius_factor: 0.7
+  grid_radius_factor: 1.3333
   uniform:
-    low: -1.0
-    high: 1.0
+    low: -2.0
+    high: 2.0
   gaussian:
     std: 1.
 
@@ -95,16 +95,16 @@ latent_single_layer_kwargs:
   None: null
 
 rnn_kwargs:
-  hidden_size_rnn: 5
+  hidden_size_rnn: 500
   bidirectional: False
 
 df_kwargs_rnn:
-  obs_dims_used: null
-  obs_dims_used_except: [0, ]
-  dropout: 0.1
+  obs_dims_used: [0, 1]
+  obs_dims_used_except: null
+  dropout: 0.3
   leaky_slope_classifier: 0.15
-  hidden_units_classifier: [256, 256]
-  std_classifier: 0.03
+  hidden_units_classifier: [64, 64]
+  std_classifier: 0.05
 
 df_kwargs_latent:
   None: null
