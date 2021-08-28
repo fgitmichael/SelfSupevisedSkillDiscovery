@@ -15,14 +15,14 @@ class SelfSupervisedEnvSequenceReplayBuffer(SequenceEnvReplayBuffer):
                  mode_dim: int,
                  env: Env,
                  env_info_sizes=None):
+        self._mode_dim = mode_dim
+
         super().__init__(
             max_replay_buffer_size=max_replay_buffer_size,
             seq_len=seq_len,
             env=env,
             env_info_sizes=env_info_sizes
         )
-
-        self._mode_dim = mode_dim
 
     def _create_memory(self):
         super()._create_memory()
