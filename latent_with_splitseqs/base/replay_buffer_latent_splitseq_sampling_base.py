@@ -153,7 +153,7 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
             padded_array_ = np.concatenate([padding_array_, array_bsd], axis=seq_dim)
 
         elif np.any(end_idx) and not self._padding:
-            cols[end_idx] = horizon_len - seq_len
+            cols[end_idx] = horizon_len[end_idx] - seq_len
             padded_array_ = array_bsd
 
         else:
