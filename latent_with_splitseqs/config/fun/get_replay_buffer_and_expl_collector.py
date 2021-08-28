@@ -80,6 +80,13 @@ def get_replay_buffer_and_expl_collector(
         #    sample_seqlen=config.seq_len,
         #    min_sample_seqlen=min_sample_seqlen,
         #)
+
+        padding = get_config_item(
+            config=config,
+            key='padding',
+            default=True,
+        )
+
         if terminal_handling_save_memory:
             base_replay_buffer_class = \
                 LatentReplayBufferSplitSeqSamplingBaseMemoryEfficient
@@ -96,6 +103,7 @@ def get_replay_buffer_and_expl_collector(
             env=expl_env,
             sample_seqlen=config.seq_len,
             min_sample_seqlen=min_sample_seqlen,
+            padding=padding,
         )
 
     elif variant == 'sampling_random_seq_len':
@@ -115,6 +123,13 @@ def get_replay_buffer_and_expl_collector(
         #    min_sample_seq_len=config.min_sample_seq_len,
         #    max_sample_seq_len=config.max_sample_seq_len,
         #)
+
+        padding = get_config_item(
+            config=config,
+            key='padding',
+            default=True,
+        )
+
         replay_buffer_cls = get_random_seqlen_latent_replay_buffer_class(
             LatentReplayBufferSplitSeqSamplingBase,
         )
@@ -126,6 +141,7 @@ def get_replay_buffer_and_expl_collector(
             min_sample_seqlen=min_sample_seqlen,
             min_sample_seq_len=config.min_sample_seq_len,
             max_sample_seq_len=config.max_sample_seq_len,
+            padding=padding,
         )
 
     else:
