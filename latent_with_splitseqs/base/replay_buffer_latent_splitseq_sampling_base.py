@@ -125,14 +125,10 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
         array_bsd = np.swapaxes(array_, axis1=data_dim, axis2=seq_dim)
         batch_dim, data_dim, seq_dim = 0, 2, 1
 
-        # Add Zero Paddings
+        # Add padding
         end_idx = cols > horizon_len - seq_len
         if np.any(end_idx) and self._padding:
-            remainder = cols[end_idx] - (horizon_len[end_idx] - seq_len)
             num_padding_els = seq_len
-            cols[end_idx] = remainder
-            cols += num_padding_els
-            cols[end_idx] -= num_padding_els
 
             if padding_type == 'zeros':
                 padding_array_ = np.zeros((
