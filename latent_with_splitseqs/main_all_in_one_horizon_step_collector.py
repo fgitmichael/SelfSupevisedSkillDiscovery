@@ -199,7 +199,7 @@ def create_experiment(config,
 
 if __name__ == "__main__":
     config, config_path_name = parse_args(
-        default="config/all_in_one_config/halfcheetah/"
+        default="config/all_in_one_config/hopper/"
                 "rnn_v2.yaml",
         return_config_path_name=True,
     )
