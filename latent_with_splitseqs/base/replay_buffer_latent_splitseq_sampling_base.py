@@ -149,7 +149,7 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
             padded_array_ = np.concatenate([padding_array_, array_bsd], axis=seq_dim)
 
         elif np.any(end_idx) and not self._padding:
-            cols[end_idx] = horizon_len[end_idx] - seq_len
+            cols[end_idx] = np.random.randint(self.horizon_len - seq_len, size=len(horizon_len[end_idx]))
             padded_array_ = array_bsd
 
         else:
@@ -167,7 +167,7 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
         # If no terminal handling occured, sample normal way
         if np.sum(self._seqlen_saved_paths[:self._size]) < self._size * self.horizon_len:
             seqlen_cumsum = np.cumsum(
-                self._seqlen_saved_paths[:self._size] - (self._min_sample_seqlen)
+                self._seqlen_saved_paths[:self._size] # padding is needed
             )
             num_possible_idx = seqlen_cumsum[-1]
             sample_idx = np.random.randint(num_possible_idx, size=batch_size)
@@ -182,9 +182,9 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
         else:
             rows = np.random.randint(0, self._size, size=batch_size)
             cols = np.random.randint(
-                0,
-                self.horizon_len - self._min_sample_seqlen,
-                size=batch_size
+                low=0,
+                high=self.horizon_len, # padding is needed
+                size=(batch_size,)
             )
 
         max_cols = self._seqlen_saved_paths[rows]
