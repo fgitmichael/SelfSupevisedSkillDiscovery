@@ -4,7 +4,7 @@ version: "latent split seq | rnn only | pybullet 1625352a4000cf861eb1fced1cb234a
 layer_size: 256
 replay_buffer_size: 100000
 replay_seq_sampling: sampling
-padding: False
+padding: True
 random_hp_tuning: False
 
 # Environment
