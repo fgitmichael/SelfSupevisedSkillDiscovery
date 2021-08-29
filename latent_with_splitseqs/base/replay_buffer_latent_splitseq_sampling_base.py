@@ -188,7 +188,7 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
             )
 
         max_cols = self._seqlen_saved_paths[rows]
-        assert np.all((cols + self._min_sample_seqlen) <= max_cols)
+        assert np.all(cols <= max_cols)
 
         return rows, cols
 
