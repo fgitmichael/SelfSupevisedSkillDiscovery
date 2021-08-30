@@ -87,7 +87,7 @@ def get_replay_buffer_and_expl_collector(
             default=True,
         )
 
-        if terminal_handling_save_memory:
+        if terminal_handling:
             base_replay_buffer_class = \
                 LatentReplayBufferSplitSeqSamplingBaseMemoryEfficient
         else:
