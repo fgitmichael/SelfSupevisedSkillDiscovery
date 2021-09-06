@@ -152,3 +152,9 @@ class LatentReplayBufferSplitSeqSamplingBase(LatentReplayBuffer,
         )
 
         return return_dict
+
+    def _add_sample_if(self, path_len) -> bool:
+        """
+        No terminal handling in this class
+        """
+        return True

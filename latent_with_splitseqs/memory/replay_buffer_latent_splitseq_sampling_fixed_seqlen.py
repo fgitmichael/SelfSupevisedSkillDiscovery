@@ -25,7 +25,4 @@ def get_fixed_seqlen_latent_replay_buffer_class(
         def _get_sample_seqlen(self) -> int:
             return self.sample_seqlen
 
-        def _add_sample_if(self, path_len) -> bool:
-            return not path_len < self.sample_seqlen
-
     return LatentReplayBufferSplitSeqSamplingRandomSeqLen
