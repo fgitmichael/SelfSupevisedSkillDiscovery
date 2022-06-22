@@ -78,7 +78,7 @@ nbformat==5.0.4
 networkx==2.4
 notebook==6.0.3
 nptyping==1.2.0
-numpy==1.16.6
+numpy==1.22.0
 oauthlib==3.1.0
 opencv-python==4.2.0.34
 opt-einsum==3.2.1
