@@ -1,5 +1,5 @@
 pillow
-numpy==1.16.6
+numpy==1.22.0
 torch~=1.4.0
 tensorboard
 gym~=0.17.1
